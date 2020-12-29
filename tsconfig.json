@@ -7,10 +7,7 @@
     "jsx": "react"
   },
   "include": [
-    "./frontend/**/*",
-    "./backend/**/*",
-    "./common/**/*",
-    "./scripts/**/*"
+    "./scrapers/**/*"
   ],
   "exclude": [
     "node_modules"

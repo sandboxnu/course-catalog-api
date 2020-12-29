@@ -4,7 +4,7 @@
  */
 
 import he from 'he';
-import Keys from '../../../../common/Keys';
+import Keys from '../../../Keys';
 import Request from '../../request';
 import PrereqParser from './prereqParser';
 import util from './util';

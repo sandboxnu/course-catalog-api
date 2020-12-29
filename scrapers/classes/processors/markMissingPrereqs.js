@@ -5,7 +5,7 @@
 
 import macros from '../../../macros';
 import BaseProcessor from './baseProcessor';
-import Keys from '../../../../common/Keys';
+import Keys from '../../../Keys';
 import simplifyRequirements from './simplifyPrereqs';
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.

@@ -36,6 +36,9 @@ module.exports = {
     'jsx-a11y/label-has-for': 0,
     'jsx-a11y/label-has-associated-control': 0,
 
+    // don't want to fix this right now
+    'no-multiple-empty-lines': 0,
+
     // This rule transforms things like this
     // {seatsRemaining} / {seatsCapacity}
     // into this

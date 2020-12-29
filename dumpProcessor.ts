@@ -9,7 +9,7 @@ import {
   ProfessorCreateInput, CourseCreateInput, SectionCreateInput,
 } from '@prisma/client';
 import prisma from './prisma';
-import Keys from '../common/Keys';
+import Keys from './Keys';
 import macros from './macros';
 import { populateES } from './scripts/populateES';
 

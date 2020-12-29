@@ -4,7 +4,7 @@
  */
 
 import macros from '../../../macros';
-import Keys from '../../../../common/Keys';
+import Keys from '../../../Keys';
 
 class BaseProcessor {
   groupSectionsByClass(sections) {

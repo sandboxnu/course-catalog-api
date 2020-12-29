@@ -4,7 +4,7 @@
  */
 
 import BaseProcessor from './baseProcessor';
-import Keys from '../../../../common/Keys';
+import Keys from '../../../Keys';
 import macros from '../../../macros';
 
 /**

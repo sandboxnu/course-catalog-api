@@ -7,7 +7,7 @@ import path from 'path';
 import fs from 'fs-extra';
 
 import macros from '../../macros';
-import Keys from '../../../common/Keys';
+import Keys from '../../Keys';
 
 // Creates the term dump of classes.
 

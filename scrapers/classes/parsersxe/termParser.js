@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 import pMap from 'p-map';
-import Keys from '../../../../common/Keys';
+import Keys from '../../../Keys';
 import macros from '../../../macros';
 import Request from '../../request';
 import ClassParser from './classParser';
