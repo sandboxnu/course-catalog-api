@@ -25,7 +25,7 @@
     "-testing-": "--------testing--------",
     "test": "./node_modules/jest-cli/bin/jest.js --testPathIgnorePatterns='(seq|reg).[jt]s'",
     "regtest": "jest --projects regtests",
-    "dbtest": "jest -i --projects backend/tests/",
+    "dbtest": "jest -i --projects tests/",
     "prodtest": "PROD=true jest reg.[jt]s",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
     "-building-": "--------building--------",
