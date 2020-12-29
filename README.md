@@ -11,3 +11,7 @@
 
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?
+2. What do we do about directory structure?
+3. How are we going to share types and modules?
+    - Create a Sandbox-sponsored NPM package
+4. What do about the `data/` directory (for majors)?

@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 import prisma from '../../prisma';
-import HydrateCourseSerializer from '../../database/serializers/hydrateCourseSerializer';
+import HydrateCourseSerializer from '../../serializers/hydrateCourseSerializer';
 
 const serializer = new HydrateCourseSerializer();
 

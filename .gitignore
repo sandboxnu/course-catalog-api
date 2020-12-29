@@ -1,0 +1,8 @@
+node_modules/
+cache
+dist
+public
+*.log
+.DS_Store
+data/*
+!data/major.json
