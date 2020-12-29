@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`cannot find major from non-present majorId 1`] = `
+Object {
+  "data": Object {
+    "major": null,
+  },
+  "errors": Array [
+    [GraphQLError: major not found!],
+  ],
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`cannot find majorOccurrence from non-present year 1`] = `
+Object {
+  "data": Object {
+    "major": Object {
+      "name": "Computer Science",
+      "occurrence": null,
+    },
+  },
+  "errors": Array [
+    [GraphQLError: occurrence not found!],
+  ],
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`gets latest occurrence 1`] = `
+Object {
+  "data": Object {
+    "major": Object {
+      "latestOccurrence": Object {
+        "catalogYear": 2018,
+        "requirements": Object {
+          "name": "Computer Science, BSCS",
+          "yearVersion": 2018,
+        },
+      },
+      "name": "Computer Science",
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`gets major from majorId 1`] = `
+Object {
+  "data": Object {
+    "major": Object {
+      "name": "Computer Science",
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
+exports[`gets specific occurrence 1`] = `
+Object {
+  "data": Object {
+    "major": Object {
+      "name": "Computer Science",
+      "occurrence": Object {
+        "catalogYear": 2017,
+        "plansOfStudy": Array [
+          Object {
+            "id": "0",
+            "years": Array [
+              1000,
+            ],
+          },
+        ],
+        "requirements": Object {
+          "name": "Computer Science, BSCS",
+          "yearVersion": 2017,
+        },
+      },
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;

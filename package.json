@@ -4,7 +4,7 @@
   "scripts": {
     "-development-": "--------development--------",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
-    "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts backend/server.ts",
+    "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.js",
     "scrape": "yarn babel-node-ts --max_old_space_size=12000 backend/scrapers/main.js",
     "resetIndex": "yarn babel-node-ts backend/script/resetIndex.js",
     "populateES": "yarn babel-node-ts backend/script/populateES.ts",

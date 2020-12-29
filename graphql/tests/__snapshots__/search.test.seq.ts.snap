@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`search resolver searches for blank in term gets results 1`] = `
+Object {
+  "data": Object {
+    "search": Object {
+      "nodes": Array [
+        Object {
+          "__typename": "ClassOccurrence",
+          "classAttributes": Array [],
+          "desc": "a class",
+          "lastUpdateTime": 20,
+          "name": "Fundamentals of Computer Science 1",
+          "optPrereqsFor": null,
+          "prereqsFor": null,
+          "sections": Array [
+            Object {
+              "crn": "1234",
+              "profs": Array [],
+            },
+          ],
+          "url": "url",
+        },
+      ],
+      "pageInfo": Object {
+        "hasNextPage": false,
+      },
+      "totalCount": 10,
+    },
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
