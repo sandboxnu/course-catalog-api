@@ -1,0 +1,55 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`addPreRequisiteFor tests should sort some optPrereqsFor 1`] = `
+Object {
+  "values": Array [
+    Object {
+      "classId": "5",
+      "subject": "CS",
+    },
+    Object {
+      "classId": "7",
+      "subject": "EECE",
+    },
+    Object {
+      "classId": "11",
+      "subject": "EECE",
+    },
+    Object {
+      "classId": "2",
+      "subject": "MATH",
+    },
+    Object {
+      "classId": "3",
+      "subject": "MATH",
+    },
+  ],
+}
+`;
+
+exports[`addPreRequisiteFor tests should sort some prereqsFor 1`] = `
+Object {
+  "values": Array [
+    Object {
+      "classId": "7",
+      "subject": "EECE",
+    },
+    Object {
+      "classId": "11",
+      "subject": "EECE",
+    },
+    Object {
+      "classId": "5",
+      "subject": "CS",
+    },
+    Object {
+      "classId": "2",
+      "subject": "MATH",
+    },
+    Object {
+      "classId": "3",
+      "subject": "MATH",
+    },
+  ],
+}
+`;
