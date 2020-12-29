@@ -2,7 +2,6 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import { Request } from 'express';
 import path from 'path';
 import fs from 'fs-extra';
 import Rollbar, { MaybeError } from 'rollbar';
@@ -129,32 +128,6 @@ class Macros extends commonMacros {
   // Gets the current time, just used for logging
   static getTime() {
     return moment().format('hh:mm:ss a');
-  }
-
-  // Prefer the headers if they are present so we get the real ip instead of localhost (nginx) or a cloudflare IP
-  static getIpPath(req: Request) {
-    const output = [];
-
-    const realIpHeader = req.headers['x-real-ip'];
-    if (realIpHeader) {
-      output.push('Real:');
-      output.push(realIpHeader);
-      output.push(' ');
-    }
-
-    const forwardedForHeader = req.headers['x-forwarded-for'];
-    if (forwardedForHeader) {
-      output.push('ForwardedFor:');
-      output.push(forwardedForHeader);
-      output.push(' ');
-    }
-
-    if (req.connection.remoteAddress !== '127.0.0.1') {
-      output.push('remoteIp: ');
-      output.push(req.connection.remoteAddress);
-    }
-
-    return output.join('');
   }
 
   static getEnvVariable(name: EnvKeys): string {
