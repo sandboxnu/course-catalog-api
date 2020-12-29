@@ -3,9 +3,10 @@
 ## TODO
 - [x] Copy over GraphQL API
 - [x] Copy over its dependency graph
-- [ ] Copy over Data Pipeline
-- [ ] Copy over its dependency graph
-- [ ] Clean up config & make sure things run locally
+- [x] Copy over Data Pipeline
+- [x] Copy over its dependency graph
+- [x] Make sure things run locally
+- [ ] Copy over tests (see if they run/pass)
 - [ ] Copy over infrastructure/deployment stuff
 - [ ] Associate the new repo with a new project in Terraform Cloud
 
@@ -16,7 +17,6 @@
 - [ ] Fix Rollbar, Amplitude, etc.
 - [ ] Re-organize repo
     - Gonna need to re-configure the `package.json` scripts and config files
-- 
 
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?
