@@ -19,6 +19,8 @@
 - [ ] Re-organize repo
     - Gonna need to re-configure the `package.json` scripts and config files
 
+- [ ] check if we should replace `findUnique` with `findFirst` anywhere (for Prisma)
+
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?
 2. What do we do about directory structure?
