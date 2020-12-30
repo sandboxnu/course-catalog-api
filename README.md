@@ -16,6 +16,7 @@
 - [ ] Add Prettier, ESlint, Husky
 - [x] Run codemod for prisma update
 - [ ] Fix Rollbar, Amplitude, etc.
+    - Need to create new project for these
 - [ ] Re-organize repo
     - Gonna need to re-configure the `package.json` scripts and config files
 
