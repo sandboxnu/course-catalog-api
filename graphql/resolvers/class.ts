@@ -22,7 +22,7 @@ const getAllClassOccurrences = async (subject, classId) => {
 }
 
 const getClassOccurrence = async (subject, classId, termId) => {
-  const res = await prisma.course.findOne({
+  const res = await prisma.course.findUnique({
     where: {
       uniqueCourseProps: { subject, classId, termId },
     },

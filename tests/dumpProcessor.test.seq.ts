@@ -274,7 +274,7 @@ describe('with updates', () => {
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
-    expect((await prisma.course.findOne({ where: { id: 'neu.edu/202030/CS/3500' } })).name).toEqual('Compilers');
+    expect((await prisma.course.findUnique({ where: { id: 'neu.edu/202030/CS/3500' } })).name).toEqual('Compilers');
   });
 
   it('updates subjects', async () => {
@@ -285,11 +285,11 @@ describe('with updates', () => {
         CS: 'Computer Sciences',
       },
     };
-    expect((await prisma.subject.findOne({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Science');
+    expect((await prisma.subject.findUnique({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Science');
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
-    expect((await prisma.subject.findOne({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Sciences');
+    expect((await prisma.subject.findUnique({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Sciences');
   })
 });

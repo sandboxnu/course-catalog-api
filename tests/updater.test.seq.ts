@@ -5,14 +5,13 @@ import _ from 'lodash';
 import { Course as CourseType, Section as SectionType, Requisite } from '../types';
 import prisma from '../prisma';
 import Updater, { Notification } from '../updater';
-import Keys from '../../common/Keys';
-import notifyer from '../notifyer';
+import Keys from '../Keys';
 import dumpProcessor from '../dumpProcessor';
 import termParser from '../scrapers/classes/parsersxe/termParser';
 
 beforeEach(async () => {
   jest.clearAllMocks();
-  jest.spyOn(notifyer, 'sendFBNotification').mockImplementation(() => {});
+  // jest.spyOn(notifyer, 'sendFBNotification').mockImplementation(() => {});
   jest.useFakeTimers();
 
   await prisma.followedSection.deleteMany({});

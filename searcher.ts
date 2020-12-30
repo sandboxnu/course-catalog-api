@@ -257,7 +257,7 @@ class Searcher {
 
   async getOneSearchResult(subject: string, classId: string, termId: string) : Promise<SingleSearchResult> {
     const start = Date.now();
-    const result = await prisma.course.findOne({ where: { uniqueCourseProps: { classId, subject, termId } }, include: { sections: true } });
+    const result = await prisma.course.findUnique({ where: { uniqueCourseProps: { classId, subject, termId } }, include: { sections: true } });
     const serializer = new HydrateCourseSerializer();
     const showCourse = result && result.sections && result.sections.length > 0;
     // don't show search result of course with no sections

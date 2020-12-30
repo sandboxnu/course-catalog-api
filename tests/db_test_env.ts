@@ -25,7 +25,7 @@ class PrismaTestEnvironment extends NodeEnvironment {
     process.env.DATABASE_URL = this.databaseUrl
     this.global.process.env.DATABASE_URL = this.databaseUrl
     // Run the migrations to ensure our schema has the required structure
-    await exec(`${prismaBinary} migrate up --create-db --experimental`)
+    await exec(`${prismaBinary} migrate dev --preview-feature`)
     await exec(`${prismaBinary} generate`);
     return super.setup()
   }

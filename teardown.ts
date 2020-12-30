@@ -1,3 +1,3 @@
-import prisma from '../backend/prisma';
+import prisma from './prisma';
 
 afterAll(async () => prisma.$disconnect());
