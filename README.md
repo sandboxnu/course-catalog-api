@@ -12,6 +12,7 @@
 - [ ] Create docs directory
 
 - [ ] Clear out unnecessary dependencies (unused packages and scripts)
+- [ ] Get rid of unnecessarily large packages
 - [ ] Configure CI/CD (GitHub Actions)
 - [ ] Add Prettier, ESlint, Husky
 - [x] Run codemod for prisma update
@@ -19,6 +20,9 @@
     - Need to create new project for these
 - [ ] Re-organize repo
     - Gonna need to re-configure the `package.json` scripts and config files
+
+- [ ] Move to `api.searchneu.com`?
+- [ ] divide dependencies into prod and dev dependencies
 
 - [ ] check if we should replace `findUnique` with `findFirst` anywhere (for Prisma)
 
