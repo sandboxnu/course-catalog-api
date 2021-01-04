@@ -24,7 +24,15 @@
 - [ ] Move to `api.searchneu.com`?
 - [ ] divide dependencies into prod and dev dependencies
 
-- [ ] check if we should replace `findUnique` with `findFirst` anywhere (for Prisma)
+- [ ] Clean up `jest` config
+
+## Pre-Flight Checklist
+- [ ] Tests pass
+    - [ ] Main tests
+    - [ ] GraphQL tests
+    - [ ] Any other sub-directory tests
+- [ ] API works
+- [ ] data pipeline works
 
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?

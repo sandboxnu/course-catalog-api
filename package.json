@@ -21,7 +21,7 @@
     "fix": "yarn -s fixjs;yarn -s fixstyle",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
-    "test": "./node_modules/jest-cli/bin/jest.js --testPathIgnorePatterns='(seq|reg).[jt]s'",
+    "test": "npx jest --testPathIgnorePatterns='(seq|reg).[jt]s'",
     "regtest": "jest --projects regtests",
     "dbtest": "jest -i --projects tests/",
     "prodtest": "PROD=true jest reg.[jt]s",
@@ -223,9 +223,6 @@
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/dist/"
-    ],
-    "setupFiles": [
-      "./common/jestSetupFile.js"
     ],
     "moduleFileExtensions": [
       "js",
