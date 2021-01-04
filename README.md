@@ -25,6 +25,9 @@
 - [ ] divide dependencies into prod and dev dependencies
 
 - [ ] Clean up `jest` config
+- [ ] Add config for unit tests
+- [ ] Rename `seq` to `db`
+- [ ] Move Major changes to new repo
 
 ## Pre-Flight Checklist
 - [ ] Tests pass
