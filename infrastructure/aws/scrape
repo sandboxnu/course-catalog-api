@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+if [[ ! " prod staging " =~ " $1 " ]]; then
+  echo "Please provide environment to use: prod or staging"
+  exit 1
+fi
+CLUSTER="$1-searchneu"
+SERVICE_WEB=$CLUSTER-webserver
+TASK=$CLUSTER-scrape
+
+# Disable aws from sending stdout to less
+export AWS_PAGER=""
+
+echo "Scraping on $CLUSTER cluster"
+
+# Get the network config from the web app service
+NETCONFIG=$(aws ecs describe-services --cluster $CLUSTER --services $SERVICE_WEB --output json | jq  '.services[0].networkConfiguration' | jq '.awsvpcConfiguration.assignPublicIp = "ENABLED"')
+
+aws ecs run-task --started-by "CLI scrape" --launch-type "FARGATE" --network-configuration "$NETCONFIG" --task-definition $TASK --cluster $CLUSTER --output json

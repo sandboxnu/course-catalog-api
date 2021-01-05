@@ -30,12 +30,12 @@
 - [ ] Move Major changes to new repo
 
 ## Pre-Flight Checklist
-- [ ] Tests pass
-    - [ ] Main tests
-    - [ ] GraphQL tests
-    - [ ] Any other sub-directory tests
-- [ ] API works
-- [ ] data pipeline works
+- [x] Tests pass
+    - [x] Main tests
+    - [x] GraphQL tests
+    - [x] Any other sub-directory tests
+- [x] API works
+- [x] data pipeline works
 
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?

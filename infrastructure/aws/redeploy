@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [[ ! " prod staging " =~ " $1 " ]]; then
+  echo "Please provide environment to use: prod or staging"
+  exit 1
+fi
+CLUSTER="$1-searchneu"
+SERVICES=( "$CLUSTER-webserver" "$CLUSTER-update" )
+
+# Disable aws from sending stdout to less
+export AWS_PAGER=""
+
+echo "Redeploying cluster $CLUSTER with last pushed image"
+
+if [[ "prod" = "$1" ]]; then
+  # If not, add prod tag to staging image
+  echo "Adding prod tag to staging image"
+  MANIFEST=$(aws ecr batch-get-image --repository-name searchneu --image-ids imageTag=staging --query 'images[].imageManifest' --output text)
+  aws ecr put-image --repository-name searchneu --image-tag prod --image-manifest "$MANIFEST"
+fi
+
+echo "Forcing new deployment"
+for s in "${SERVICES[@]}"
+do
+  aws ecs update-service --cluster $CLUSTER --service $s --force-new-deployment  > /dev/null
+done
+echo "Check AWS Console for logs"
