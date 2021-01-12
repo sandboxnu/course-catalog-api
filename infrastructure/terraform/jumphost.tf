@@ -18,7 +18,7 @@ resource "aws_key_pair" "default" {
   key_name = "deployer-key"
   public_key = var.ssh_public_key
   tags = {
-    Name = "Public key for searchneu jumphost (managed by terraform)"
+    Name = "Public key for API jumphost (managed by terraform)"
   }
 }
 
