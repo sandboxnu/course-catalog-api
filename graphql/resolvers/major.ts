@@ -8,7 +8,7 @@ const noResultsError = (recordType) => {
 const getLatestMajorOccurrence = async (majorId) => {
   const majors = await prisma.major.findMany({
     where: { majorId: majorId },
-    orderBy: { catalogYear: 'desc' },
+    orderBy: { yearVersion: 'desc' },
     take: 1,
   });
 
@@ -22,7 +22,7 @@ const resolvers = {
   Major: {
     occurrence: async (major, args) => {
       const majors = await prisma.major.findMany({
-        where: { majorId: major.majorId, catalogYear: `${args.year}` },
+        where: { majorId: major.majorId, yearVersion: `${args.year}` },
         take: 1,
       });
 

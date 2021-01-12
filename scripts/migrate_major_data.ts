@@ -1,40 +1,60 @@
+/*
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
+ */
 import fs from 'fs-extra';
 import path from 'path';
-import prisma from '../prisma';
+import pMap from 'p-map';
+import { Major, InputJsonObject } from '@prisma/client';
+import prisma from '../backend/prisma';
 
-interface Major {
-  name: string;
-  majorId: string;
-  major: string;
-  plans: string;
+// In order to execute this module, you need a directory `data`
+// that contains the file `majors.json`. The JSON object in
+// that file must conform to the `MajorJSON` interface.
+// This file will then insert all majors provided in the file
+// into the database.
+
+const FILE_NAME = 'majors.json';
+const CONCURRENCY_COUNT = 10;
+
+interface MajorInput {
+  id: string;
+  yearVersion: string;
+  major: InputJsonObject;
+  plansOfStudy: InputJsonObject;
 }
 
-type MajorJSON = Record<string, Major[]>
-
-// return the javascript object equivalent of a file in data/
-// NOTE Prisma doesn't export its JsonValue/Object type, so have to use this return
-function fetchData(filename: string): Record<any, any> {
-  return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', filename)));
+interface MajorJSON {
+  all_objects: MajorInput[];
 }
 
-// migrate all majors in the directory to the DB
-function migrateData(majorDirectory: MajorJSON): void {
-  Object.entries(majorDirectory).forEach(([termId, majors]) => {
-    majors.forEach((m: Major) => {
-      const majorObj = fetchData(m.major);
-      const planObj = fetchData(m.plans);
+function fetchData(): MajorJSON {
+  return JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'data', FILE_NAME)));
+}
 
-      prisma.major.create({
-        data: {
-          requirements: majorObj,
-          plansOfStudy: planObj,
-          catalogYear: termId,
-          name: m.name,
-          majorId: m.majorId,
-        },
-      }).then(() => console.log('major created\n'));
+function migrateData(majorDirectory: MajorInput[]): Promise<Major[]> {
+  return pMap(majorDirectory, (m: MajorInput) => {
+    const majorId = m.id;
+    const yearVersion = String(m.yearVersion);
+
+    const newMajor: Major = {
+      majorId,
+      yearVersion,
+      spec: m.major,
+      plansOfStudy: m.plansOfStudy,
+    };
+
+    return prisma.major.upsert({
+      where: { yearVersion_majorId: { majorId, yearVersion } },
+      create: newMajor,
+      update: newMajor,
     });
-  });
+  }, { concurrency: CONCURRENCY_COUNT });
 }
 
-migrateData(fetchData('major.json') as MajorJSON);
+(async () => {
+  const startTime = Date.now();
+  const ms = await migrateData(fetchData().all_objects);
+  const duration = (Date.now() - startTime) / 1000; // how long inserting took in seconds
+  console.log(`Success! ${ms.length} majors were inserted or updated in ${duration} seconds! You may exit.`);
+})();

@@ -29,15 +29,16 @@
 - [ ] Rename `seq` to `db`
 - [ ] Move Major changes to new repo
 
-## Pre-Flight Checklist
-- [x] Tests pass
-    - [x] Main tests
-    - [x] GraphQL tests
-    - [x] Any other sub-directory tests
-- [x] API works
-- [x] data pipeline works
-
 ## Questions
 1. Should we rename `class` to `course` in the GraphQL API?
 2. What do we do about directory structure?
 3. What do about the `data/` directory (for majors)?
+
+## Infrastructure TODOs
+- [ ] Create a new terraform project (and link it to the repo)
+- [ ] Attempt to launch it
+- [ ] Fix the AWS scripts
+- [ ] Fix the other scripts
+
+#### Questions to Answer
+

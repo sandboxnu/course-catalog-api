@@ -11,9 +11,8 @@ beforeAll(async () => {
   await prisma.major.create({
     data: {
       majorId: 'computer-information-science/computer-science/bscs',
-      catalogYear: '2018',
-      name: 'Computer Science',
-      requirements: { name: 'Computer Science, BSCS', yearVersion: 2018 },
+      yearVersion: '2018',
+      spec: { name: 'Computer Science, BSCS', yearVersion: 2018 },
       plansOfStudy: [{ years: [1000], id: '0' }],
     },
   });
@@ -21,9 +20,8 @@ beforeAll(async () => {
   await prisma.major.create({
     data: {
       majorId: 'computer-information-science/computer-science/bscs',
-      catalogYear: '2017',
-      name: 'Computer Science',
-      requirements: { name: 'Computer Science, BSCS', yearVersion: 2017 },
+      yearVersion: '2017',
+      spec: { name: 'Computer Science, BSCS', yearVersion: 2017 },
       plansOfStudy: [{ years: [1000], id: '0' }],
     },
   });
@@ -31,9 +29,8 @@ beforeAll(async () => {
   await prisma.major.create({
     data: {
       majorId: 'science/biochemistry/biochemistry-bs',
-      catalogYear: '2018',
-      name: 'Biochemistry',
-      requirements: { name: 'Biochemistry, BS', yearVersion: 2018 },
+      yearVersion: '2018',
+      spec: { name: 'Biochemistry, BS', yearVersion: 2018 },
       plansOfStudy: [{ years: [1000], id: '0' }],
     },
   });
@@ -44,7 +41,7 @@ it('gets major from majorId', async () => {
     query: gql`
       query major {
         major(majorId: "computer-information-science/computer-science/bscs") {
-          name
+          majorId
         }
       }
     `,
@@ -57,10 +54,10 @@ it('gets specific occurrence', async () => {
     query: gql`
       query major {
         major(majorId: "computer-information-science/computer-science/bscs") {
-          name
+          majorId
           occurrence(year: 2017) {
-            catalogYear
-            requirements
+            yearVersion
+            spec
             plansOfStudy
           }
         }
@@ -76,10 +73,10 @@ it('gets latest occurrence', async () => {
     query: gql`
       query major {
         major(majorId: "computer-information-science/computer-science/bscs") {
-          name
+          majorId
           latestOccurrence {
-            catalogYear
-            requirements
+            yearVersion
+            spec
           }
         }
       }
@@ -93,9 +90,9 @@ it('cannot find major from non-present majorId', async () => {
     query: gql`
       query major {
         major(majorId: "humanities/lovecraftian-studies/lovecraft-studies-ba") {
-          name
+          majorId
           latestOccurrence {
-            catalogYear
+            yearVersion
           }
         }
       }
@@ -109,9 +106,9 @@ it('cannot find majorOccurrence from non-present year', async () => {
     query: gql`
       query major {
         major(majorId: "computer-information-science/computer-science/bscs") {
-          name
+          majorId
           occurrence(year: 1984) {
-            requirements
+            spec
           }
         }
       }

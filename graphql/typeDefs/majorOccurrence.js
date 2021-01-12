@@ -2,12 +2,11 @@ import { gql } from 'apollo-server';
 
 const typeDef = gql`
   type MajorOccurrence {
-    name: String!
     majorId: String!
-    catalogYear: Int!
+    yearVersion: String!
 
-    requirements: JSON
-    plansOfStudy: JSON
+    spec: JSON!
+    plansOfStudy: JSON!
   }
 `;
 

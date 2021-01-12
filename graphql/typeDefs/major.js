@@ -6,8 +6,8 @@ const typeDef = gql`
   }
 
   type Major {
-    name: String!
     majorId: String!
+    yearVersion: String!
 
     occurrence(year: Int!): MajorOccurrence
     latestOccurrence: MajorOccurrence
