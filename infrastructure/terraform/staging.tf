@@ -1,5 +1,5 @@
 module "staging" {
-  source = "./modules/searchneu"
+  source = "./modules/course-catalog-api"
 
   stage              = "staging"
 

@@ -3,7 +3,7 @@ module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 5.0"
   
-  name = "course-catalog-api"
+  name = "course-catalog-api-alb"
 
   load_balancer_type = "application"
 
