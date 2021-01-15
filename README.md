@@ -40,5 +40,9 @@
 - [ ] Fix the AWS scripts
 - [ ] Fix the other scripts
 
+- [ ] If you need to create AWS_ACCESS_*, do that, and update it in GitHub (and terraform?)
+- [ ] grab the GITHUB_TOKEN and add it to terraform
+- [ ] rename, then un-rename name changes to generated parameters (DATABASE_URL & elasticURL)
+
 #### Questions to Answer
 
