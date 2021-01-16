@@ -6,3 +6,4 @@ public
 .DS_Store
 data/*
 !data/major.json
+*.terraform.lock.hcl

@@ -11,11 +11,11 @@ module "prod" {
   alb_sg_id            = aws_security_group.lb.id
   alb_dns_name         = module.alb.this_lb_dns_name
   domains              = ["api.searchneu.com"] 
-  cloudflare_zone_id = var.cloudflare_zone_id
+  cloudflare_zone_id   = var.cloudflare_zone_id
 
-  ecr_url = aws_ecr_repository.app.repository_url
+  ecr_url              = aws_ecr_repository.app.repository_url
 
-  secrets = var.prod_secrets
+  secrets              = var.prod_secrets
 
-  jumphost_sg_id     = aws_security_group.jumphost.id
+  jumphost_sg_id       = aws_security_group.jumphost.id
 }

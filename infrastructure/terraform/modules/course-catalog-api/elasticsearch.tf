@@ -1,6 +1,6 @@
 # ==================== Elasticsearch cluster ====================
 module "elasticsearch" {
-  source                  = "git::https://github.com/cloudposse/terraform-aws-elasticsearch.git?ref=0.26.0"
+  source                  = "git::https://github.com/cloudposse/terraform-aws-elasticsearch.git?ref=tags/0.26.0"
   name                    = module.label.name
   stage                   = module.label.stage
   security_groups         = [aws_security_group.ecs_tasks.id, var.jumphost_sg_id] # sg that can connect, not sg of ES itself!
