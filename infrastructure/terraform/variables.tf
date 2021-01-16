@@ -25,10 +25,6 @@ variable "staging_secrets" {
   description = "Secrets to put in SSM Parameter Store and add as environment variables to staging"
 }
 
-variable "dev_secrets" {
-  description = "Secrets to put in SSM Parameter Store and add as environment variables to dev environment"
-}
-
 # Jumphost
 variable "ssh_public_key" {
   description = "ssh public key to use to access the jumphost. To add more keys, ssh in and add to ~/.ssh/authorized file"
