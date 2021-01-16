@@ -6,6 +6,7 @@ provider "aws" {
 }
 
 provider "cloudflare" {
+  source = "cloudflare/cloudflare"
   version = "~> 2.0"
 }
 
