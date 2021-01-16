@@ -26,15 +26,3 @@ output "staging_rds_host" {
 output "staging_rds_pass" {
   value = module.staging.rds_ps
 }
-
-output "dev_es_host" {
-  value = module.dev.es_host
-}
-
-output "dev_rds_host" {
-  value = module.dev.rds_host
-}
-
-output "dev_rds_pass" {
-  value = module.dev.rds_ps
-}

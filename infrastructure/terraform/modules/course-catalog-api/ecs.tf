@@ -39,7 +39,7 @@ resource "aws_ecs_task_definition" "webserver" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.webapp_cpu
   memory                   = var.webapp_memory
-  container_definitions    = module.webserver-container.json
+  container_definitions    = module.webserver-container.json_map_encoded
 }
 
 resource "aws_ecs_service" "main" {
@@ -95,7 +95,7 @@ resource "aws_ecs_task_definition" "scrape" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.scrape_cpu
   memory                   = var.scrape_memory
-  container_definitions    = module.scrape-container.json
+  container_definitions    = module.scrape-container.json_map_encoded
 }
 
 module "scrape-scheduled-task" {
@@ -149,7 +149,7 @@ resource "aws_ecs_task_definition" "update" {
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.webapp_cpu
   memory                   = var.webapp_memory
-  container_definitions    = module.update-container.json
+  container_definitions    = module.update-container.json_map_encoded
 }
 
 resource "aws_ecs_service" "update" {
