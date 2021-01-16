@@ -5,7 +5,7 @@ resource "aws_ecs_cluster" "main" {
 
 # ========= Web server ============= 
 module "webserver-container" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.23.0"
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.46.0"
   container_name  = "${module.label.id}-webserver"
   container_image = "${var.ecr_url}:${module.label.stage}"
   container_cpu   = var.webapp_cpu
@@ -67,7 +67,7 @@ resource "aws_ecs_service" "main" {
 # ======== Scraper ===========
 
 module "scrape-container" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.23.0"
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.46.0"
   container_name  = "${module.label.id}-scrape"
   container_image = "${var.ecr_url}:${module.label.stage}"
   container_cpu   = var.scrape_cpu
@@ -121,7 +121,7 @@ module "scrape-scheduled-task" {
 # =============== Updater service ================
 
 module "update-container" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.23.0"
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=0.46.0"
   container_name  = "${module.label.id}-update"
   container_image = "${var.ecr_url}:${module.label.stage}"
   container_cpu   = var.webapp_cpu
