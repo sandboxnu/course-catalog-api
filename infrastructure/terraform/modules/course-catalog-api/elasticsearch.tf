@@ -20,6 +20,9 @@ module "elasticsearch" {
   create_iam_service_linked_role = "true"
   iam_role_arns           = ["*"] // open access is ok because we're in VPC + security group
   iam_actions             = ["es:*"]
+  kibana_subdomain_name = "kibana-es"
+
+
   advanced_options = {
     "rest.action.multi.allow_explicit_index" = "true"
   }
