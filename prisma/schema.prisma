@@ -28,7 +28,7 @@ model Course {
   subject         String?
   termId          String?          @map(name: "term_id")
   url             String?
-  followedCourses FollowedCourse[] // @map(name: "followed_courses") NOT SURE ABOUT THIS ONE
+  followedCourses FollowedCourse[]
   sections        Section[]
 
   @@map(name: "courses")
@@ -56,14 +56,13 @@ model FollowedSection {
 }
 
 model Major {
-  catalogYear  String? @map(name: "catalog_year")
-  id           Int     @default(autoincrement()) @id
-  majorId      String? @map(name: "major_id")
-  name         String?
-  plansOfStudy Json?   @map(name: "plans_of_study")
-  requirements Json?
+  yearVersion  String @map(name: "year_version")
+  majorId      String @map(name: "major_id")
+  plansOfStudy Json   @map(name: "plans_of_study")
+  spec         Json
 
   @@map(name: "majors")
+  @@id([yearVersion, majorId])
 }
 
 model Professor {

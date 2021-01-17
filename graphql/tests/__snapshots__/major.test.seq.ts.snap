@@ -21,7 +21,7 @@ exports[`cannot find majorOccurrence from non-present year 1`] = `
 Object {
   "data": Object {
     "major": Object {
-      "name": "Computer Science",
+      "majorId": "computer-information-science/computer-science/bscs",
       "occurrence": null,
     },
   },
@@ -42,13 +42,13 @@ Object {
   "data": Object {
     "major": Object {
       "latestOccurrence": Object {
-        "catalogYear": 2018,
-        "requirements": Object {
+        "spec": Object {
           "name": "Computer Science, BSCS",
           "yearVersion": 2018,
         },
+        "yearVersion": "2018",
       },
-      "name": "Computer Science",
+      "majorId": "computer-information-science/computer-science/bscs",
     },
   },
   "errors": undefined,
@@ -65,7 +65,7 @@ exports[`gets major from majorId 1`] = `
 Object {
   "data": Object {
     "major": Object {
-      "name": "Computer Science",
+      "majorId": "computer-information-science/computer-science/bscs",
     },
   },
   "errors": undefined,
@@ -82,9 +82,8 @@ exports[`gets specific occurrence 1`] = `
 Object {
   "data": Object {
     "major": Object {
-      "name": "Computer Science",
+      "majorId": "computer-information-science/computer-science/bscs",
       "occurrence": Object {
-        "catalogYear": 2017,
         "plansOfStudy": Array [
           Object {
             "id": "0",
@@ -93,10 +92,11 @@ Object {
             ],
           },
         ],
-        "requirements": Object {
+        "spec": Object {
           "name": "Computer Science, BSCS",
           "yearVersion": 2017,
         },
+        "yearVersion": "2017",
       },
     },
   },
