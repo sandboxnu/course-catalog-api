@@ -41,7 +41,7 @@ it('gets all occurrences', async () => {
   const res = await query({
     query: gql`
       query class {
-        class(subject: "CS", classId: 2500) {
+        class(subject: "CS", classId: "2500") {
           name
           allOccurrences {
             termId
@@ -57,7 +57,7 @@ it('gets latest occurrence', async () => {
   const res = await query({
     query: gql`
       query class {
-        class(subject: "CS", classId: 2500) {
+        class(subject: "CS", classId: "2500") {
           name
           latestOccurrence {
             termId
@@ -73,9 +73,9 @@ it('gets specific occurrence', async () => {
   const res = await query({
     query: gql`
       query class {
-        class(subject: "CS", classId: 2500) {
+        class(subject: "CS", classId: "2500") {
           name
-          occurrence(termId: 201930) {
+          occurrence(termId: "201930") {
             termId
           }
         }
@@ -89,7 +89,7 @@ it('gets the name of class from subject and classId', async () => {
   const res = await query({
     query: gql`
       query class {
-        class(subject: "CS", classId: 2500) {
+        class(subject: "CS", classId: "2500") {
           name
         }
       }

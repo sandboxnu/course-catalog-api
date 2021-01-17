@@ -33,12 +33,12 @@ const getClassOccurrence = async (subject, classId, termId) => {
 
 const resolvers = {
   Query: {
-    class: (parent, args) => { return getLatestClassOccurrence(args.subject, args.classId && args.classId.toString()); },
+    class: (parent, args) => { return getLatestClassOccurrence(args.subject, args.classId && args.classId); },
   },
   Class: {
     latestOccurrence: (clas) => { return getLatestClassOccurrence(clas.subject, clas.classId); },
     allOccurrences: (clas) => { return getAllClassOccurrences(clas.subject, clas.classId); },
-    occurrence: (clas, args) => { return getClassOccurrence(clas.subject, clas.classId, args.termId.toString()); },
+    occurrence: (clas, args) => { return getClassOccurrence(clas.subject, clas.classId, args.termId); },
   },
 };
 
