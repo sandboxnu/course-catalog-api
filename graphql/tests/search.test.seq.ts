@@ -55,7 +55,7 @@ describe('search resolver', () => {
     mocked(searcher).search.mockClear();
   });
 
-  it.only('searches for blank in term gets results', async () => {
+  it('searches for blank in term gets results', async () => {
     mocked(searcher).search.mockResolvedValue({
       aggregations: {
         nupath: [{ value: 'Writing Intensive', count: 10 }],

@@ -4,6 +4,22 @@ exports[`search resolver searches for blank in term gets results 1`] = `
 Object {
   "data": Object {
     "search": Object {
+      "filterOptions": Object {
+        "campus": null,
+        "classType": Array [
+          Object {
+            "count": 10,
+            "value": "Lecture",
+          },
+        ],
+        "nupath": Array [
+          Object {
+            "count": 10,
+            "value": "Writing Intensive",
+          },
+        ],
+        "subject": null,
+      },
       "nodes": Array [
         Object {
           "__typename": "ClassOccurrence",
