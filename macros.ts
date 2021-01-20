@@ -48,7 +48,7 @@ while (1) {
 }
 
 type EnvKeys =
-  | 'elasticURLv2'
+  | 'elasticURL'
   | 'dbName'
   | 'dbHost'
   // Secrets:

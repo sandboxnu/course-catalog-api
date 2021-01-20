@@ -207,7 +207,7 @@ export interface AggResults {
 }
 
 export type CourseSearchResult = { type: 'class'; class: Course; sections: Section[] };
-export type ProfessorSearchResult = { type: 'employee'; class: Course; sections: Section[] };
+export type ProfessorSearchResult = { type: 'employee'; employee: Employee };
 
 export type SearchResult = CourseSearchResult | ProfessorSearchResult;
 

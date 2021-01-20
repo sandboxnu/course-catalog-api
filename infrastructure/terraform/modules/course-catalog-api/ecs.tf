@@ -172,12 +172,12 @@ resource "aws_ecs_service" "update" {
 locals {
   all_secrets_unsorted = concat(var.secrets, [
     {
-      name        = "elasticURLv2"
+      name        = "elasticURL"
       value       = "https://${module.elasticsearch.domain_endpoint}"
       description = "Elasticsearch hostname"
     },
     {
-      name        = "DATABASE_URLv2"
+      name        = "DATABASE_URL"
       value       = "postgresql://${aws_db_instance.default.username}:${aws_db_instance.default.password}@${aws_db_instance.default.endpoint}/${module.label.name}"
       description = "Postgres database URL"
     }

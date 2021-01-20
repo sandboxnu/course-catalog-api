@@ -29,6 +29,6 @@ export async function populateES(): Promise<void> {
 }
 
 if (require.main === module) {
-  macros.log(`Populating ES at ${macros.getEnvVariable('elasticURLv2')} from Postgres at ${macros.getEnvVariable('dbHost')}`);
+  macros.log(`Populating ES at ${macros.getEnvVariable('elasticURL')} from Postgres at ${macros.getEnvVariable('dbHost')}`);
   (async () => populateES())().catch((e) => macros.error(e));
 }
