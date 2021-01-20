@@ -54,9 +54,13 @@ describe('search resolver', () => {
   beforeEach(() => {
     mocked(searcher).search.mockClear();
   });
-  it('searches for blank in term gets results', async () => {
+
+  it.only('searches for blank in term gets results', async () => {
     mocked(searcher).search.mockResolvedValue({
-      aggregations: {},
+      aggregations: {
+        nupath: [{ value: 'Writing Intensive', count: 10 }],
+        classType: [{ value: 'Lecture', count: 10 }],
+      },
       resultCount: 10,
       searchContent: [
         {
@@ -94,6 +98,24 @@ describe('search resolver', () => {
               }
             }
           }
+          filterOptions {
+            nupath {
+              value
+              count
+            }
+            subject {
+              value
+              count
+            }
+            classType {
+              value
+              count
+            }
+            campus {
+              value
+              count
+            }
+          }
         }
       }
     `,
@@ -110,7 +132,10 @@ describe('search resolver', () => {
 
   it('searches with filter works', async () => {
     mocked(searcher).search.mockResolvedValue({
-      aggregations: {},
+      aggregations: {
+        nupath: [{ value: 'Writing Intensive', count: 10 }],
+        classType: [{ value: 'Lecture', count: 10 }],
+      },
       resultCount: 0,
       searchContent: [],
       took: { total: 1, es: 1, hydrate: 0 },
@@ -175,6 +200,6 @@ describe('search resolver', () => {
       10,
       {},
     ]);
-    expect(res.data.search).toEqual({ totalCount: 1, pageInfo:{ hasNextPage: false } })
+    expect(res.data.search).toEqual({ totalCount: 1, pageInfo: { hasNextPage: false } })
   });
 })

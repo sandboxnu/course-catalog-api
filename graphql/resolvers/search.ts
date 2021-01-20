@@ -1,6 +1,7 @@
 import { identity, pickBy } from 'lodash';
 import searcher from '../../searcher';
 import { Course, Employee } from '../../types';
+import { AggResults } from '../../search_types';
 
 type SearchResultItem = Course | Employee;
 
@@ -10,6 +11,7 @@ interface SearchResultItemConnection {
     hasNextPage: boolean;
   };
   nodes: SearchResultItem[];
+  filterOptions: AggResults;
 }
 
 interface SearchArgs {
@@ -55,6 +57,7 @@ const resolvers = {
         pageInfo: {
           hasNextPage,
         },
+        filterOptions: results.aggregations,
       };
     },
   },

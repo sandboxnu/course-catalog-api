@@ -31,6 +31,20 @@ const typeDef = gql`
     totalCount: Int!
     pageInfo: PageInfo!
     nodes: [SearchResultItem]
+    filterOptions: FilterOptions!
+  }
+
+  type FilterOptions {
+    nupath:    [FilterAgg!]
+    subject:   [FilterAgg!]
+    classType: [FilterAgg!]
+    campus:    [FilterAgg!]
+  }
+
+  type FilterAgg {
+    value: String!
+    count: Int!
+    description: String
   }
 
   union SearchResultItem = ClassOccurrence | Employee
