@@ -111,6 +111,21 @@ class Keys {
 
     return hash;
   }
+
+  static parseSectionHash(hash) {
+    const hashSplit = hash.split('/');
+    if (!(hashSplit && hashSplit.length === 5)) {
+      macros.error('Invalid class hash', hash);
+      return null;
+    }
+    return {
+      host: hashSplit[0],
+      termId: hashSplit[1],
+      subject: hashSplit[2],
+      classId: hashSplit[3],
+      crn: hashSplit[4],
+    }
+  }
 }
 
 
