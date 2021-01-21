@@ -35,65 +35,122 @@ beforeAll(async () => {
       lastUpdateTime: new Date(),
     },
   });
-});
 
-it('gets all occurrences', async () => {
-  const res = await query({
-    query: gql`
-      query class {
-        class(subject: "CS", classId: "2500") {
-          name
-          allOccurrences {
-            termId
+  await prisma.section.create({
+    data: {
+      id: 'neu.edu/201830/CS/2500/12345',
+      seatsCapacity: 5,
+      seatsRemaining: 2,
+      campus : 'Boston',
+      honors: false,
+      crn: '12345',
+      meetings: {},
+      classType: 'Lecture',
+    },
+  });
+});
+describe('class query', () => {
+  it('gets all occurrences', async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2500") {
+            name
+            allOccurrences {
+              termId
+            }
           }
         }
-      }
-    `,
+      `,
+    });
+    expect(res).toMatchSnapshot();
   });
-  expect(res).toMatchSnapshot();
-});
-
-it('gets latest occurrence', async () => {
-  const res = await query({
-    query: gql`
-      query class {
-        class(subject: "CS", classId: "2500") {
-          name
-          latestOccurrence {
-            termId
+  
+  it('gets latest occurrence', async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2500") {
+            name
+            latestOccurrence {
+              termId
+            }
           }
         }
-      }
-    `,
+      `,
+    });
+    expect(res).toMatchSnapshot();
   });
-  expect(res).toMatchSnapshot();
-});
-
-it('gets specific occurrence', async () => {
-  const res = await query({
-    query: gql`
-      query class {
-        class(subject: "CS", classId: "2500") {
-          name
-          occurrence(termId: "201930") {
-            termId
+  
+  it('gets specific occurrence', async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2500") {
+            name
+            occurrence(termId: "201930") {
+              termId
+            }
           }
         }
-      }
-    `,
+      `,
+    });
+    expect(res).toMatchSnapshot();
   });
-  expect(res).toMatchSnapshot();
+  
+  it('gets the name of class from subject and classId', async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2500") {
+            name
+          }
+        }
+      `,
+    });
+    expect(res).toMatchSnapshot();
+  });
 });
 
-it('gets the name of class from subject and classId', async () => {
-  const res = await query({
-    query: gql`
-      query class {
-        class(subject: "CS", classId: "2500") {
+describe('classByHash query', () => {
+  it('gets class from class hash', async () => {
+    const res = await query({
+      query: gql`
+      query classByHash {
+        classByHash(hash: "neu.edu/201830/CS/2500") {
           name
+          subject
+          classId
+          termId
         }
       }
-    `,
+      `,
+    });
+    expect(res).toMatchSnapshot();
   });
-  expect(res).toMatchSnapshot();
 });
+
+describe('sectionByHash query', () => {
+  it('gets section from section id', async () => {
+    const res = await query({
+      query: gql`
+      query sectionByHash {
+        sectionByHash(hash: "neu.edu/201830/CS/2500/12345") {
+          termId
+          subject
+          classId
+          classType
+          crn
+          seatsCapacity
+          seatsRemaining
+          campus
+          honors
+          meetings
+        }
+      }
+      `,
+    });
+    expect(res).toMatchSnapshot();
+  });
+});
+
