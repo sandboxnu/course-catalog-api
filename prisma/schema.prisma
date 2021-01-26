@@ -28,31 +28,10 @@ model Course {
   subject         String?
   termId          String?          @map(name: "term_id")
   url             String?
-  followedCourses FollowedCourse[]
   sections        Section[]
 
   @@map(name: "courses")
   @@unique([classId, termId, subject], name: "uniqueCourseProps")
-}
-
-model FollowedCourse {
-  courseId  String  @map(name: "course_id")
-  userId    String  @map(name: "user_id")
-  course    Course  @relation(fields: [courseId], references: [id])
-  user      User    @relation(fields: [userId], references: [id])
-
-  @@map(name: "followed_courses")
-  @@id([userId, courseId])
-}
-
-model FollowedSection {
-  sectionId String   @map(name: "section_id")
-  userId    String   @map(name: "user_id")
-  section   Section  @relation(fields: [sectionId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@map(name: "followed_sections")
-  @@id([userId, sectionId])
 }
 
 model Major {
@@ -103,21 +82,8 @@ model Section {
   waitCapacity     Int?              @map(name: "wait_capacity")
   waitRemaining    Int?              @map(name: "wait_remaining")
   course           Course?           @relation(fields: [classHash], references: [id])
-  followedSections FollowedSection[]
 
   @@map(name: "sections")
-}
-
-model User {
-  facebookPageId   String?           @map(name: "facebook_page_id")
-  firstName        String?           @map(name: "first_name")
-  id               String            @id
-  lastName         String?           @map(name: "last_name")
-  loginKeys        String[]          @map(name: "login_keys")
-  followedCourses  FollowedCourse[]
-  followedSections FollowedSection[]
-
-  @@map(name: "users")
 }
 
 model Subject {

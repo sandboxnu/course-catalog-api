@@ -5,7 +5,7 @@ resource "aws_db_instance" "default" {
   engine                 = "postgres"
   engine_version         = "11.8"
   instance_class         = "db.t3.micro"
-  name                   = module.label.name
+  name                   = replace(module.label.name, module.label.delimiter, "")
   username               = "postgres"
   password               = random_password.db_pass.result
   parameter_group_name   = "default.postgres11"
