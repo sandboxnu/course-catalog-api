@@ -5,11 +5,13 @@
 
 import _ from 'lodash';
 import { Course, Section } from '@prisma/client';
+import * as fs from 'fs';
+import * as https from 'https';
+import * as httpSignature from 'http-signature';
 
 import macros from './macros';
 import prisma from './prisma';
 import Keys from './Keys';
-// import notifyer from './notifyer';
 import dumpProcessor from './dumpProcessor';
 import termParser from './scrapers/classes/parsersxe/termParser';
 import { Section as ScrapedSection } from './types';
@@ -105,6 +107,7 @@ class Updater {
     const sections: ScrapedSection[] = await termParser.parseSections(this.SEM_TO_UPDATE);
     const newSectionsByClass: Record<string, string[]> = {};
 
+    // map of courseHash to newly scraped sections
     for (const s of sections) {
       const hash: string = Keys.getClassHash(s);
       if (!newSectionsByClass[hash]) newSectionsByClass[hash] = [];
@@ -113,6 +116,7 @@ class Updater {
 
     const notificationInfo: NotificationInfo = { updatedCourses: [], updatedSections: [] };
 
+    // find courses with added sections and add to notificationInfo
     Object.entries(newSectionsByClass).forEach(([classHash, sectionHashes]) => {
       if (!oldSectionsByClass[classHash]) return;
 
@@ -131,6 +135,7 @@ class Updater {
       }
     });
 
+    // find sections with more seats or waitlist spots and add to notificationInfo
     sections.forEach((s: ScrapedSection) => {
       const sectionId = Keys.getSectionHash(s);
       const oldSection = oldSectionLookup[sectionId];
@@ -158,6 +163,8 @@ class Updater {
     const totalTime = Date.now() - startTime;
 
     macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
+
+    await this.sendUpdates(notificationInfo);
 
     // macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections and sent ${notifications.length} messages.`);
 
@@ -196,6 +203,32 @@ class Updater {
     } else if (campusIdentifier === '4' || campusIdentifier === '5') {
       return 'CPS';
     }
+  }
+
+  async sendUpdates(notificationInfo: NotificationInfo) : Promise<void> {
+    const DEST_URL = '';
+    const key = fs.readFileSync('./key.pem', 'ascii'); // TODO: idk what this is just copied it from the example
+    const options = {
+      method: 'POST',
+      // TODO: fill in headers? not sure if we need a 'Date' header and/or 'Authorization' header
+      headers: {},
+    };
+    
+    const req = https.request(DEST_URL, options, res => {
+      // TODO: do we care about the response?
+    });
+
+    req.on('error', (e) => {
+      macros.error(`problem with updater request: ${e.message}`);
+    });
+    
+    httpSignature.sign(req, {
+      key: key,
+      keyId: './cert.pem', // TODO: idk what this is just copied it from the example
+    });
+    
+    req.write(notificationInfo);
+    req.end();
   }
 }
 
