@@ -6,9 +6,12 @@ import path from 'path';
 import fs from 'fs-extra';
 import Rollbar, { MaybeError } from 'rollbar';
 import Amplitude from 'amplitude';
+import dotenv from 'dotenv';
 
 import moment from 'moment';
 import commonMacros from './abstractMacros';
+
+dotenv.config();
 
 const amplitude = new Amplitude(commonMacros.amplitudeToken);
 

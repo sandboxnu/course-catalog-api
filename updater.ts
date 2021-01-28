@@ -17,7 +17,6 @@ import termParser from './scrapers/classes/parsersxe/termParser';
 import { Section as ScrapedSection } from './types';
 
 // 1. updates for CPS & Law (including quarterly and semesterly versions)
-// 2. compile data to the right output format
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -157,7 +156,6 @@ class Updater {
       }
     });
 
-//     await this.sendMessages(notifications, classHashToUsers, sectionHashToUsers);
     await dumpProcessor.main({ termDump: { sections, classes: {}, subjects: {} } });
 
     const totalTime = Date.now() - startTime;
@@ -165,13 +163,6 @@ class Updater {
     macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
 
     await this.sendUpdates(notificationInfo);
-
-    // macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections and sent ${notifications.length} messages.`);
-
-//     macros.logAmplitudeEvent('Updater', {
-//       totalTime: totalTime,
-//       sent: notifications.length,
-//     });
   }
 
   // return a collection of data structures used for simplified querying of data
@@ -206,17 +197,14 @@ class Updater {
   }
 
   async sendUpdates(notificationInfo: NotificationInfo) : Promise<void> {
-    const DEST_URL = '';
-    const key = fs.readFileSync('./key.pem', 'ascii'); // TODO: idk what this is just copied it from the example
+    const DEST_URL = macros.PROD ? process.env.UPDATER_URL : 'localhost:5000';
+    const key = process.env.WEBHOOK_PRIVATE_KEY;
     const options = {
       method: 'POST',
-      // TODO: fill in headers? not sure if we need a 'Date' header and/or 'Authorization' header
       headers: {},
     };
     
-    const req = https.request(DEST_URL, options, res => {
-      // TODO: do we care about the response?
-    });
+    const req = https.request(DEST_URL, options);
 
     req.on('error', (e) => {
       macros.error(`problem with updater request: ${e.message}`);
@@ -224,10 +212,10 @@ class Updater {
     
     httpSignature.sign(req, {
       key: key,
-      keyId: './cert.pem', // TODO: idk what this is just copied it from the example
+      keyId: 'hello',
     });
     
-    req.write(notificationInfo);
+    req.write(JSON.stringify(notificationInfo));
     req.end();
   }
 }
