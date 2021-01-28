@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 0.14.0"
+  required_version = "0.13.6"
   required_providers {
     random = ">= 2.2.0"
     cloudflare = {
