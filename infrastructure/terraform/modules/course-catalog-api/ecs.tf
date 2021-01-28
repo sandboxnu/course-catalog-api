@@ -5,7 +5,7 @@ resource "aws_ecs_cluster" "main" {
 
 # ========= Web server ============= 
 module "webserver-container" {
-  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.46.0"
+  source          = "git::https://github.com/cloudposse/terraform-aws-ecs-container-definition.git?ref=tags/0.47.0"
   container_name  = "${module.label.id}-webserver"
   container_image = "${var.ecr_url}:${module.label.stage}"
   container_cpu   = var.webapp_cpu
