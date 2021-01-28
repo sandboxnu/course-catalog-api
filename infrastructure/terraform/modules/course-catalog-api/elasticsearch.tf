@@ -17,10 +17,7 @@ module "elasticsearch" {
   ebs_volume_size         = 20
   encrypt_at_rest_enabled = "false"
 
-  // The service-linked role can only be created once,
-  // so after failing trying to create staging, it must be turned off
-  // TODO is there a reasonable fix?
-  create_iam_service_linked_role = "false"
+  create_iam_service_linked_role = "true"
   iam_role_arns           = ["*"] // open access is ok because we're in VPC + security group
   iam_actions             = ["es:*"]
   kibana_subdomain_name = "kibana-es"
