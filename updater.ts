@@ -197,7 +197,7 @@ class Updater {
   }
 
   async sendUpdates(notificationInfo: NotificationInfo) : Promise<void> {
-    const DEST_URL = macros.PROD ? process.env.UPDATER_URL : 'localhost:5000';
+    const DEST_URL = macros.PROD ? process.env.UPDATER_URL : 'https://localhost:5000';
     const key = process.env.WEBHOOK_PRIVATE_KEY;
     const options = {
       method: 'POST',
@@ -209,14 +209,13 @@ class Updater {
     req.on('error', (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
-    
     httpSignature.sign(req, {
       key: key,
       keyId: 'hello',
     });
-    
     req.write(JSON.stringify(notificationInfo));
     req.end();
+    macros.log('Request made from updater!');
   }
 }
 
