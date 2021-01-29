@@ -18,6 +18,7 @@ resource "aws_db_instance" "default" {
 
 resource "random_password" "db_pass" {
   length = 16
+  override_special = "/@ "
 }
 
 resource "aws_db_subnet_group" "default" {
