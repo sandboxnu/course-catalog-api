@@ -1,6 +1,6 @@
 # The Course Catalog API
 
-## INSTALLATION
+## Installation
 1. If you don't have these on your machine, install:
 - git
 - node
