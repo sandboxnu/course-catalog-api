@@ -17,7 +17,8 @@ module "elasticsearch" {
   ebs_volume_size         = 20
   encrypt_at_rest_enabled = "false"
 
-  create_iam_service_linked_role = "true"
+  // needs to be `false` after generating the role the first time--i.e. after you create staging ES you need to turn this off for prod ES
+  create_iam_service_linked_role = "false"
   iam_role_arns           = ["*"] // open access is ok because we're in VPC + security group
   iam_actions             = ["es:*"]
   kibana_subdomain_name = "kibana-es"
