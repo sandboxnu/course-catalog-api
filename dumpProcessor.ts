@@ -12,6 +12,7 @@ import prisma from './prisma';
 import Keys from './Keys';
 import macros from './macros';
 import { populateES } from './scripts/populateES';
+import pMap from 'p-map'
 
 type Maybe<T> = T | null | undefined;
 
@@ -130,12 +131,12 @@ class DumpProcessor {
       return { ...acc, [section.classHash]: new Date() };
     }, {});
 
-    await Promise.all(Object.entries(courseUpdateTimes).map(async ([id, updateTime]) => {
-      return prisma.course.update({
+    await pMap(Object.entries(courseUpdateTimes), async ([id, updateTime])=> {
+      await prisma.course.update({
         where: { id },
         data: { lastUpdateTime: updateTime },
       });
-    }));
+    }, {concurrency: 10})
 
     macros.log('finished updating times');
 
