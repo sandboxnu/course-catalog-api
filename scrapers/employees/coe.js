@@ -25,7 +25,6 @@ class COE {
     const people = $('.grid--4 > div > div').get().map((person) => {
       $ = cheerio.load(person);
       const obj = {};
-
       const name = $('h2 > a').get(0).children[0].data;
       if (name) {
         obj.name = name;
@@ -47,9 +46,10 @@ class COE {
         obj.link = link;
       }
 
-      let title = $('div.caption').get(0).children[0].data.trim();
-      title = title.replace(/,$/i, '');
+      let title = $('div.caption').get(0) && $('div.caption').get(0).children[0].data.trim();
+      
       if (title) {
+        title = title.replace(/,$/i, '');
         obj.title = title;
       }
 
@@ -68,7 +68,7 @@ class COE {
         obj.phone = standardizePhone(phone.data);
       }
 
-      const pic = $('img').get(0).attribs;
+      let pic = $('img').get(0) && $('img').get(0).attribs;
       if (pic) {
         obj.pic = pic;
       }
