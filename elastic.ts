@@ -4,15 +4,20 @@
  * See the license file in the root folder for details.
  */
 
-import { Client } from '@elastic/elasticsearch';
-import _ from 'lodash';
-import pMap from 'p-map';
-import macros from './macros';
+import { Client } from "@elastic/elasticsearch";
+import _ from "lodash";
+import pMap from "p-map";
+import macros from "./macros";
 import {
-  EsBulkData, EsQuery, EsMapping, EsMultiResult, EsResult,
-} from './search_types';
+  EsBulkData,
+  EsQuery,
+  EsMapping,
+  EsMultiResult,
+  EsResult,
+} from "./search_types";
 
-const URL: string = macros.getEnvVariable('elasticURL') || 'http://localhost:9200';
+const URL: string =
+  macros.getEnvVariable("elasticURL") || "http://localhost:9200";
 const client = new Client({ node: URL });
 
 const BULKSIZE = 5000;
@@ -24,8 +29,8 @@ export class Elastic {
 
   constructor() {
     // Because we export an instance of this class, put the constants on the instance.
-    this.CLASS_INDEX = 'classes';
-    this.EMPLOYEE_INDEX = 'employees';
+    this.CLASS_INDEX = "classes";
+    this.EMPLOYEE_INDEX = "employees";
   }
 
   async isConnected(): Promise<boolean> {
@@ -39,14 +44,15 @@ export class Elastic {
 
   // replace an index with a fresh one with a specified mapping
   async resetIndex(indexName: string, mapping: EsMapping): Promise<any> {
-    const exists = (await client.indices.exists({ index: indexName })).statusCode === 200;
+    const exists =
+      (await client.indices.exists({ index: indexName })).statusCode === 200;
     if (exists) {
       // Clear out the index.
-      macros.log('deleting index', indexName);
+      macros.log("deleting index", indexName);
       await client.indices.delete({ index: indexName });
     }
     // Put in the new classes mapping (elasticsearch doesn't let you change mapping of existing index)
-    macros.log('inserting mapping for index', indexName);
+    macros.log("inserting mapping for index", indexName);
     await client.indices.create({
       index: indexName,
       body: mapping,
@@ -56,23 +62,36 @@ export class Elastic {
   // Bulk index a collection of documents using ids from hashmap
   async bulkIndexFromMap(indexName: string, map: EsBulkData): Promise<any> {
     const chunks = _.chunk(Object.keys(map), BULKSIZE);
-    return pMap(chunks, async (chunk, chunkNum) => {
-      const bulk = [];
-      for (const id of chunk) {
-        bulk.push({ index: { _id: id } });
-        bulk.push(map[id]);
-      }
-      const res = await client.bulk({ index: indexName, body: bulk });
-      macros.log(`indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`);
-      return res;
-    },
-    { concurrency: 1 });
+    return pMap(
+      chunks,
+      async (chunk, chunkNum) => {
+        const bulk = [];
+        for (const id of chunk) {
+          bulk.push({ index: { _id: id } });
+          bulk.push(map[id]);
+        }
+        const res = await client.bulk({ index: indexName, body: bulk });
+        macros.log(
+          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
+        );
+        return res;
+      },
+      { concurrency: 1 }
+    );
   }
 
   // Send a query to elasticsearch
-  async query(index: string, from: number, size: number, body: EsQuery): Promise<EsResult> {
+  async query(
+    index: string,
+    from: number,
+    size: number,
+    body: EsQuery
+  ): Promise<EsResult> {
     return client.search({
-      index: index, from: from, size: size, body: body,
+      index: index,
+      from: from,
+      size: size,
+      body: body,
     });
   }
 

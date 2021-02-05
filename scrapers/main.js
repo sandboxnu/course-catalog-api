@@ -3,19 +3,18 @@
  * See the license file in the root folder for details.
  */
 
-import matchEmployees from './employees/matchEmployees';
-import macros from '../macros';
-import classes from './classes/main';
-import dumpProcessor from '../dumpProcessor';
-import prisma from '../prisma';
-
+import matchEmployees from "./employees/matchEmployees";
+import macros from "../macros";
+import classes from "./classes/main";
+import dumpProcessor from "../dumpProcessor";
+import prisma from "../prisma";
 
 // Main file for scraping
 // Run this to run all the scrapers
 
 class Main {
   async main() {
-    const classesPromise = classes.main(['neu']);
+    const classesPromise = classes.main(["neu"]);
 
     const promises = [classesPromise, matchEmployees.main()];
 
@@ -23,7 +22,7 @@ class Main {
 
     await dumpProcessor.main({ termDump: termDump, profDump: mergedEmployees });
 
-    macros.log('done scrapers/main.js');
+    macros.log("done scrapers/main.js");
   }
 }
 

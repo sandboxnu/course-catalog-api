@@ -1,3 +1,3 @@
-import prisma from './prisma';
+import prisma from "./prisma";
 
 afterAll(async () => prisma.$disconnect());

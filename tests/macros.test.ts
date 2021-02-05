@@ -3,28 +3,28 @@
  * See the license file in the root folder for details.
  */
 
-import macros from '../macros';
+import macros from "../macros";
 
-it('alphabet is 26', () => {
+it("alphabet is 26", () => {
   expect(macros.ALPHABET.length).toBe(26);
 });
 
-it('logging things work', () => {
+it("logging things work", () => {
   macros.warn();
   macros.verbose();
-  macros.error('fjdaj');
+  macros.error("fjdaj");
 });
 
-it('can get env vars', () => {
+it("can get env vars", () => {
   expect(!!macros.getAllEnvVariables()).toBe(true);
 });
 
-it('some other stuff doesnt crash', () => {
-  macros.logAmplitudeEvent('test event', { hi: 4 });
+it("some other stuff doesnt crash", () => {
+  macros.logAmplitudeEvent("test event", { hi: 4 });
 });
 
-it('logAmplitudeEvent should not crash', () => {
-  macros.logAmplitudeEvent('event_from_testing', {
+it("logAmplitudeEvent should not crash", () => {
+  macros.logAmplitudeEvent("event_from_testing", {
     a: 3,
   });
 });

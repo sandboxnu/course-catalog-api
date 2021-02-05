@@ -3,22 +3,22 @@
  * See the license file in the root folder for details.
  */
 
-import he from 'he';
-import Keys from '../../../Keys';
-import Request from '../../request';
-import PrereqParser from './prereqParser';
-import util from './util';
-import { getSubjectAbbreviations } from './subjectAbbreviationParser';
+import he from "he";
+import Keys from "../../../Keys";
+import Request from "../../request";
+import PrereqParser from "./prereqParser";
+import util from "./util";
+import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
 
-const request = new Request('classParser');
+const request = new Request("classParser");
 
 const collegeNames = {
-  0: 'NEU',
-  2: 'LAW',
-  8: 'LAW',
-  4: 'CPS',
-  5: 'CPS',
-}
+  0: "NEU",
+  2: "LAW",
+  8: "LAW",
+  4: "CPS",
+  5: "CPS",
+};
 
 class ClassParser {
   /**
@@ -30,17 +30,18 @@ class ClassParser {
   async parseClass(termId, subject, courseNumber) {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
-      url: 'https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults',
+      url:
+        "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       qs: {
         txt_term: termId,
         txt_subject: subject,
         txt_courseNumber: courseNumber,
-        startDatepicker: '',
-        endDatepicker: '',
+        startDatepicker: "",
+        endDatepicker: "",
         pageOffset: 0,
         pageMaxSize: 1,
-        sortColumn: 'subjectDescription',
-        sortDirection: 'asc',
+        sortColumn: "subjectDescription",
+        sortDirection: "asc",
       },
       jar: cookiejar,
       json: true,
@@ -59,23 +60,43 @@ class ClassParser {
   async parseClassFromSearchResult(SR, termId) {
     const subjectAbbreviations = await getSubjectAbbreviations(termId);
     const { subjectCode, courseNumber } = SR;
-    const description = await this.getDescription(termId, subjectCode, courseNumber);
-    const prereqs = await this.getPrereqs(termId, subjectCode, courseNumber, subjectAbbreviations);
-    const coreqs = await this.getCoreqs(termId, subjectCode, courseNumber, subjectAbbreviations);
-    const attributes = await this.getAttributes(termId, subjectCode, courseNumber);
+    const description = await this.getDescription(
+      termId,
+      subjectCode,
+      courseNumber
+    );
+    const prereqs = await this.getPrereqs(
+      termId,
+      subjectCode,
+      courseNumber,
+      subjectAbbreviations
+    );
+    const coreqs = await this.getCoreqs(
+      termId,
+      subjectCode,
+      courseNumber,
+      subjectAbbreviations
+    );
+    const attributes = await this.getAttributes(
+      termId,
+      subjectCode,
+      courseNumber
+    );
     const classDetails = {
-      host: 'neu.edu',
+      host: "neu.edu",
       termId: termId,
       subject: subjectCode,
       classId: courseNumber,
       classAttributes: attributes,
       nupath: this.nupath(attributes),
       desc: he.decode(description),
-      prettyUrl: 'https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?'
-        + `cat_term_in=${termId}&subj_code_in=${subjectCode}&crse_numb_in=${courseNumber}`,
+      prettyUrl:
+        "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?" +
+        `cat_term_in=${termId}&subj_code_in=${subjectCode}&crse_numb_in=${courseNumber}`,
       name: he.decode(SR.courseTitle),
-      url: 'https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?'
-        + `term_in=${termId}&subj_in=${subjectCode}&crse_in=${courseNumber}&schd_in=%`,
+      url:
+        "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?" +
+        `term_in=${termId}&subj_in=${subjectCode}&crse_in=${courseNumber}&schd_in=%`,
       lastUpdateTime: Date.now(),
       maxCredits: SR.creditHourLow,
       minCredits: SR.creditHourHigh || SR.creditHourLow,
@@ -91,35 +112,58 @@ class ClassParser {
   }
 
   async getDescription(termId, subject, courseNumber) {
-    const req = await this.courseSearchResultsPostRequest('getCourseDescription', termId, subject, courseNumber);
+    const req = await this.courseSearchResultsPostRequest(
+      "getCourseDescription",
+      termId,
+      subject,
+      courseNumber
+    );
     // Double decode the description, because banner double encodes the description :(
     return he.decode(he.decode(req.body.trim()));
   }
 
   async getPrereqs(termId, subject, courseNumber, subjectAbbreviationTable) {
-    const req = await this.courseSearchResultsPostRequest('getPrerequisites', termId, subject, courseNumber);
+    const req = await this.courseSearchResultsPostRequest(
+      "getPrerequisites",
+      termId,
+      subject,
+      courseNumber
+    );
     return PrereqParser.serializePrereqs(req.body, subjectAbbreviationTable);
   }
 
   async getCoreqs(termId, subject, courseNumber, subjectAbbreviationTable) {
-    const req = await this.courseSearchResultsPostRequest('getCorequisites', termId, subject, courseNumber);
+    const req = await this.courseSearchResultsPostRequest(
+      "getCorequisites",
+      termId,
+      subject,
+      courseNumber
+    );
     return PrereqParser.serializeCoreqs(req.body, subjectAbbreviationTable);
   }
 
   async getAttributes(termId, subject, courseNumber) {
-    const req = await this.courseSearchResultsPostRequest('getCourseAttributes', termId, subject, courseNumber);
+    const req = await this.courseSearchResultsPostRequest(
+      "getCourseAttributes",
+      termId,
+      subject,
+      courseNumber
+    );
     return this.serializeAttributes(req.body);
   }
 
   serializeAttributes(str) {
-    return he.decode(str).split('<br/>').map((a) => { return a.trim(); });
+    return he
+      .decode(str)
+      .split("<br/>")
+      .map((a) => {
+        return a.trim();
+      });
   }
 
   nupath(attributes) {
-    const regex = new RegExp('NUpath (.*?) *NC.{2}');
-    return attributes
-      .filter((a) => regex.test(a))
-      .map((a) => regex.exec(a)[1]);
+    const regex = new RegExp("NUpath (.*?) *NC.{2}");
+    return attributes.filter((a) => regex.test(a)).map((a) => regex.exec(a)[1]);
   }
 
   /**
@@ -133,7 +177,12 @@ class ClassParser {
    * @param subject
    * @param courseNumber
    */
-  async courseSearchResultsPostRequest(endpoint, termId, subject, courseNumber) {
+  async courseSearchResultsPostRequest(
+    endpoint,
+    termId,
+    subject,
+    courseNumber
+  ) {
     /*
      * if the request fails because termId and/or crn are invalid,
      * request will retry 35 attempts before crashing.
@@ -179,7 +228,10 @@ class ClassParser {
       return {
         ...acc,
         [Keys.getClassHash({
-          subject, classId, termId, host: 'neu.edu',
+          subject,
+          classId,
+          termId,
+          host: "neu.edu",
         })]: { subject, classId, termId },
       };
     }, {});
