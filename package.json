@@ -209,9 +209,11 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^1.7.0",
+    "husky": "^4.3.8",
     "ignore-styles": "^5.0.1",
     "node-sass": "^4.9.2",
     "prettier": "^2.2.1",
+    "pretty-quick": "^3.1.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "stylelint": "^10.0.1",
@@ -251,5 +253,10 @@
       "node_modules/*"
     ],
     "ext": "js,jsx,ts,tsx"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
   }
 }
