@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { Employee, Course, Section } from './types';
+import { Employee, Course, Section } from "./types";
 
 /****************** UTILS ******************/
 type OneOrMany<T> = T | T[];
@@ -28,12 +28,13 @@ export interface Range {
 export type QueryNode = LeafQuery | BoolQuery;
 
 // ====== Leaf Queries =======
-export type LeafQuery = TermQuery
-| TermsQuery
-| ExistsQuery
-| MultiMatchQuery
-| RangeQuery
-| MatchAllQuery;
+export type LeafQuery =
+  | TermQuery
+  | TermsQuery
+  | ExistsQuery
+  | MultiMatchQuery
+  | RangeQuery
+  | MatchAllQuery;
 
 export interface TermQuery {
   term: FieldQuery;
@@ -206,8 +207,12 @@ export interface AggResults {
   [filterName: string]: AggCount[];
 }
 
-export type CourseSearchResult = { type: 'class'; class: Course; sections: Section[] };
-export type ProfessorSearchResult = { type: 'employee'; employee: Employee };
+export type CourseSearchResult = {
+  type: "class";
+  class: Course;
+  sections: Section[];
+};
+export type ProfessorSearchResult = { type: "employee"; employee: Employee };
 
 export type SearchResult = CourseSearchResult | ProfessorSearchResult;
 

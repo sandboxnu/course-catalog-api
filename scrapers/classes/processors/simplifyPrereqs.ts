@@ -4,14 +4,17 @@
  */
 
 import {
-  Requisite, isCourseReq, BooleanReq, isBooleanReq,
-} from '../../../types';
+  Requisite,
+  isCourseReq,
+  BooleanReq,
+  isBooleanReq,
+} from "../../../types";
 
 //this is given the output of formatRequirements, where data.type and data.values exist
 // if there is an or embedded in another or, merge them (and and's too)
 //and if there is a subvalue of only 1 len, merge that too
 function simplifyRequirementsBase(data: Requisite): Requisite {
-  if (typeof data === 'string') {
+  if (typeof data === "string") {
     return data;
   }
 
@@ -56,12 +59,11 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
   return retVal;
 }
 
-
 export default function simplifyRequirements(data: Requisite): BooleanReq {
   data = simplifyRequirementsBase(data);
   if (!isBooleanReq(data)) {
     return {
-      type: 'and',
+      type: "and",
       values: [data],
     };
   }
