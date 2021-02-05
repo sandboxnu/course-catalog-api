@@ -1,8 +1,6 @@
 
 import _ from 'lodash';
 import { InputJsonValue } from '@prisma/client';
-import * as https from 'https';
-import * as httpSignature from 'http-signature';
 
 import Updater from '../updater';
 import { Course as CourseType, Section as SectionType, Requisite } from '../types';
@@ -399,53 +397,4 @@ describe('Updater', () => {
       expect(fundies2Section3Updated.waitRemaining).toBe(FUNDIES_TWO_S3.waitRemaining);
     });
   });
-
-
-  // describe('sendUpdates()', () => {
-  //   it('makes a request with the supplied notification info', async () => {
-  //     const reqWrite = jest.fn().mockReturnValue(false);
-  //     const reqEnd = jest.fn();
-
-  //     // mocked(https.request).mockReturnValue({
-  //     //   write: reqWrite,
-  //     //   end: reqEnd,
-  //     // });
-
-  //     const myReq = https.request('https://www.sandboxnu.com/', {
-  //       method: 'POST',
-  //       headers: {},
-  //     });
-
-  //     myReq.write = reqWrite;
-  //     myReq.end = reqEnd;
-
-  //     jest.spyOn(https, 'request').mockReturnValue(myReq);
-
-  //     // jest.spyOn(https, 'request').mockImplementation((url, options) => {
-  //     //   const req = https.request(url, options);
-  //     //   req.write = reqWrite;
-  //     //   req.end = reqEnd;
-  //     //   return req;
-  //     // });
-
-  //     const notificationInfo = { updatedCourses: [{
-  //       termId: FUNDIES_ONE.termId,
-  //       subject: FUNDIES_ONE.subject,
-  //       courseId: FUNDIES_ONE.classId,
-  //       courseHash: Keys.getClassHash(FUNDIES_ONE),
-  //       campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
-  //       numberOfSectionsAdded: 1,
-  //     }], updatedSections: [],};
-
-  //     await UPDATER.sendUpdates(notificationInfo);
-  //     expect(reqWrite.mock.calls.length).toBe(1);
-  //     expect(reqWrite.mock.calls[0][0]).toEqual(JSON.stringify(notificationInfo));
-  //     expect(reqEnd.mock.calls.length).toBe(1);
-  //     expect(reqEnd.mock.calls[0].lecture).toBe(1);
-  //     // mocked(https.request).mockReturnValue({
-  //     //   write: reqWrite;
-  //     // });
-  //   });
-
-  // });
 });
