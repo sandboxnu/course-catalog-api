@@ -103,9 +103,9 @@ class Updater {
     const sections: ScrapedSection[] = await termParser.parseSections(this.SEM_TO_UPDATE);
 
     const notificationInfo = await this.getNotificationInfo(sections);
-    console.log('before dump processor');
+
     await dumpProcessor.main({ termDump: { sections, classes: {}, subjects: {} } });
-    console.log('after dump processor');
+
     const totalTime = Date.now() - startTime;
 
     macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
@@ -212,7 +212,6 @@ class Updater {
     };
     
     const req = https.request(DEST_URL, options);
-    console.log(req)
     req.on('error', (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
@@ -220,7 +219,6 @@ class Updater {
       key: key,
       keyId: 'hello',
     });
-    console.log(req.write('hi'))
     req.write(JSON.stringify(notificationInfo));
     req.end();
     macros.log('Request made from updater!');

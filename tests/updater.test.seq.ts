@@ -1,11 +1,10 @@
 
-import { mocked } from 'ts-jest/utils';
 import _ from 'lodash';
 import { InputJsonValue } from '@prisma/client';
 import * as https from 'https';
 import * as httpSignature from 'http-signature';
 
-import Updater, { NotificationInfo } from '../updater';
+import Updater from '../updater';
 import { Course as CourseType, Section as SectionType, Requisite } from '../types';
 import prisma from '../prisma';
 import Keys from '../Keys';
@@ -158,12 +157,10 @@ const PL_S1: SectionType = {
   ...defaultSectionProps,
 };
 
-const NEW_SECTIONS: SectionType[] = [FUNDIES_ONE_S1, FUNDIES_ONE_S2, FUNDIES_TWO_S1, FUNDIES_TWO_S2, FUNDIES_TWO_S3, PL_S1];
-
 beforeEach(async () => {
   jest.clearAllMocks();
+  jest.restoreAllMocks();
   jest.useFakeTimers();
-
   await prisma.section.deleteMany({});
   await prisma.course.deleteMany({});
 });
@@ -180,6 +177,7 @@ function createSection(sec: SectionType, seatsRemaining: number, waitRemaining: 
       crn: sec.crn,
       seatsRemaining,
       waitRemaining,
+      info: '',
       meetings: sec.meetings as unknown as InputJsonValue, // FIXME sus
       profs: { set: sec.profs },
       course: { connect: { id: Keys.getClassHash(sec) } },
@@ -187,10 +185,19 @@ function createSection(sec: SectionType, seatsRemaining: number, waitRemaining: 
   });
 }
 
-// Test sendUpdates()
-
 describe('Updater', () => {
   const UPDATER: Updater = new Updater();
+
+  it('scrapes the right terms to update', async () => {
+    const mockTermParser = jest.fn(async () => { return []; });
+    jest.spyOn(termParser, 'parseSections').mockImplementation(mockTermParser);
+    jest.spyOn(UPDATER, 'getNotificationInfo').mockImplementation(async () => { return null; });
+    jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
+    jest.spyOn(UPDATER, 'sendUpdates').mockImplementation(async () => {});
+    await UPDATER.update();
+    expect(mockTermParser.mock.calls.length).toBe(1);
+    expect(mockTermParser.mock.calls[0]).toEqual([SEM_TO_UPDATE]);
+  })
 
   describe('getNotificationInfo', () => {
     beforeEach(async () => {
@@ -200,7 +207,6 @@ describe('Updater', () => {
       await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
       await createSection(FUNDIES_TWO_S1, 0, 0);
       await createSection(FUNDIES_TWO_S2, 0, 0);
-      // await createSection(PL_S1, PL_S1.seatsRemaining, PL_S1.waitRemaining);
     });
 
     it('does not care about new section for class that does not exist', async () => {
@@ -372,21 +378,20 @@ describe('Updater', () => {
       expect(fundies2Section2.waitRemaining).toBe(0);
       expect(fundies2Section3.seatsRemaining).toBe(FUNDIES_TWO_S3.seatsRemaining);
       expect(fundies2Section3.waitRemaining).toBe(FUNDIES_TWO_S3.waitRemaining);
-
       await UPDATER.update();
 
       // updates in database
       const fundies1SectionsUpdated = await prisma.section.findMany({ where: { classHash: Keys.getClassHash(FUNDIES_ONE)}});
       expect(fundies1SectionsUpdated.length).toBe(2); // new fundies 1 section
-      const fundies1Section1 = fundies1SectionsUpdated.find(section => section.crn = FUNDIES_ONE_S1.crn);
+      const fundies1Section1 = fundies1SectionsUpdated.find(section => section.crn === FUNDIES_ONE_S1.crn);
       expect(fundies1Section1.seatsRemaining).toBe(FUNDIES_ONE_S1.seatsRemaining);
       expect(fundies1Section1.waitRemaining).toBe(FUNDIES_ONE_S1.waitRemaining);
 
       const fundies2SectionsUpdated = await prisma.section.findMany({ where: { classHash: Keys.getClassHash(FUNDIES_TWO)}});
       expect(fundies2SectionsUpdated.length).toBe(3);
-      const fundies2Section1Updated = fundies2SectionsUpdated.find(section => section.crn = FUNDIES_TWO_S1.crn);
-      const fundies2Section2Updated = fundies2SectionsUpdated.find(section => section.crn = FUNDIES_TWO_S2.crn);
-      const fundies2Section3Updated = fundies2SectionsUpdated.find(section => section.crn = FUNDIES_TWO_S3.crn);
+      const fundies2Section1Updated = fundies2SectionsUpdated.find(section => section.crn === FUNDIES_TWO_S1.crn);
+      const fundies2Section2Updated = fundies2SectionsUpdated.find(section => section.crn === FUNDIES_TWO_S2.crn);
+      const fundies2Section3Updated = fundies2SectionsUpdated.find(section => section.crn === FUNDIES_TWO_S3.crn);
       expect(fundies2Section1Updated).toEqual(fundies2Section1); // no change
       expect(fundies2Section2Updated.seatsRemaining).toBe(0);
       expect(fundies2Section2Updated.waitRemaining).toBe(2);
