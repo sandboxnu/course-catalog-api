@@ -1,5 +1,36 @@
 # The Course Catalog API
 
+## Installation
+1. If you don't have these on your machine, install:
+- git
+- node
+- yarn
+- Docker Desktop
+2. Launch Docker Desktop by clicking on the app
+3. Clone the repo by running `git clone https://github.com/sandboxnu/course-catalog-api.git` in your terminal
+4. In your terminal, navigate to this project and run the following commands:
+- `yarn install`
+- `yarn dev:docker`
+- `yarn db:migrate`
+- `yarn db:refresh`
+- Optional step: if you have a cache zip/folder, unzip it, make sure it's named `cache` and place it in the root level of the project so your project directory looks something like this:
+```
+PROJECT
+  |
+  -- package.json
+  -- ...
+  -- cache
+      |
+      -- dev_data
+          |
+          -- v2
+      -- requests
+```
+This step allows you to quickly insert the course catalog data into your database by using a cache with all the information instead of having to run the full scrapers.
+- `yarn scrape`
+- `yarn start`
+5. At this point, you should be able to use the GraphQL API by visiting `localhost:4000`
+
 ## TODO
 - [x] Copy over GraphQL API
 - [x] Copy over its dependency graph
