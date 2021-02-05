@@ -213,6 +213,7 @@ class DumpProcessor {
       {}
     );
 
+<<<<<<< HEAD
     await pMap(
       Object.entries(courseUpdateTimes),
       async ([id, updateTime]) => {
@@ -222,6 +223,15 @@ class DumpProcessor {
         });
       },
       { concurrency: 10 }
+=======
+    await Promise.all(
+      Object.entries(courseUpdateTimes).map(async ([id, updateTime]) => {
+        return prisma.course.update({
+          where: { id },
+          data: { lastUpdateTime: updateTime },
+        });
+      })
+>>>>>>> Husky test run
     );
 
     macros.log("finished updating times");
