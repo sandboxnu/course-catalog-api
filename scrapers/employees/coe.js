@@ -63,7 +63,7 @@ class COE {
         obj.email = email;
       }
 
-      const phone = $('ul.caption > li').get(1).children[0];
+      const phone = $('ul.caption > li').get(1) && $('ul.caption > li').get(1).children[0];
       if (phone) {
         obj.phone = standardizePhone(phone.data);
       }
