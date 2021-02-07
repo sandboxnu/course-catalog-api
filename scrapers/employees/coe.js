@@ -46,7 +46,7 @@ class COE {
         obj.link = link;
       }
 
-      let title = $('div.caption').get(0) && $('div.caption').get(0).children[0].data.trim();
+      let title = $('div.caption').get(0)?.children[0].data.trim();
       
       if (title) {
         title = title.replace(/,$/i, '');
@@ -63,12 +63,12 @@ class COE {
         obj.email = email;
       }
 
-      const phone = $('ul.caption > li').get(1) && $('ul.caption > li').get(1).children[0];
+      const phone = $('ul.caption > li').get(1)?.children[0];
       if (phone) {
         obj.phone = standardizePhone(phone.data);
       }
 
-      let pic = $('img').get(0) && $('img').get(0).attribs;
+      let pic = $('img').get(0)?.attribs;
       if (pic) {
         obj.pic = pic;
       }
