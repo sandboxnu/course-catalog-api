@@ -8,12 +8,12 @@ class TermListParser {
     return termsFromBanner.map((term) => {
       let text = term.description;
       let subCollege = this.determineSubCollegeName(text);
-      if (subCollege === 'undergraduate') {
-        text = text.replace(/ (Semester|Quarter)/, '');
+      if (subCollege === "undergraduate") {
+        text = text.replace(/ (Semester|Quarter)/, "");
         subCollege = undefined; // Don't include subcollege if undergrad
       }
       return {
-        host: 'neu.edu',
+        host: "neu.edu",
         termId: term.code,
         text: text,
         subCollegeName: subCollege,
@@ -30,13 +30,13 @@ class TermListParser {
    * @returns {string}
    */
   determineSubCollegeName(termDesc) {
-    if (termDesc.includes('CPS')) {
-      return 'CPS';
+    if (termDesc.includes("CPS")) {
+      return "CPS";
     }
-    if (termDesc.includes('Law')) {
-      return 'LAW';
+    if (termDesc.includes("Law")) {
+      return "LAW";
     }
-    return 'undergraduate';
+    return "undergraduate";
   }
 }
 

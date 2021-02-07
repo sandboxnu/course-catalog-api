@@ -1,4 +1,4 @@
-import { gql } from 'apollo-server';
+import { gql } from "apollo-server";
 
 const typeDef = gql`
   extend type Query {
@@ -11,7 +11,8 @@ const typeDef = gql`
       classType: [String!]
       classIdRange: IntRange
 
-      """"
+      """
+      "
       Get elements after the given offset
       """
       offset: Int
@@ -35,10 +36,10 @@ const typeDef = gql`
   }
 
   type FilterOptions {
-    nupath:    [FilterAgg!]
-    subject:   [FilterAgg!]
+    nupath: [FilterAgg!]
+    subject: [FilterAgg!]
     classType: [FilterAgg!]
-    campus:    [FilterAgg!]
+    campus: [FilterAgg!]
   }
 
   type FilterAgg {

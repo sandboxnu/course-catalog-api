@@ -3,91 +3,99 @@
  * See the license file in the root folder for details.
  */
 
-import addPreRequisiteFor from '../addPreRequisiteFor';
+import addPreRequisiteFor from "../addPreRequisiteFor";
 
-describe('addPreRequisiteFor tests', () => {
+describe("addPreRequisiteFor tests", () => {
   const cs2500 = {
-    classId: '2500',
-    termId: '201829',
-    host: 'neu.edu',
+    classId: "2500",
+    termId: "201829",
+    host: "neu.edu",
   };
 
   const cs2510 = {
     prereqs: {
-      type: 'or',
-      values: [{
-        subject: 'CS',
-        classId: '2500',
-      }],
+      type: "or",
+      values: [
+        {
+          subject: "CS",
+          classId: "2500",
+        },
+      ],
     },
     coreqs: {
-      type: 'or',
-      values: [{
-        subject: 'CS',
-        classId: '2511',
-      }],
+      type: "or",
+      values: [
+        {
+          subject: "CS",
+          classId: "2511",
+        },
+      ],
     },
-    classId: '2510',
-    termId: '201830',
-    subject: 'CS',
+    classId: "2510",
+    termId: "201830",
+    subject: "CS",
   };
 
   const fakeClass1 = {
-    optPrereqsFor:
-      {
-        values: [
-          {
-            subject: 'CS',
-            classId: '5',
-          }, {
-            subject: 'MATH',
-            classId: '2',
-          }, {
-            subject: 'EECE',
-            classId: '11',
-          }, {
-            subject: 'EECE',
-            classId: '7',
-          },
-          {
-            subject: 'MATH',
-            classId: '3',
-          },
-        ],
-      },
-    classId: '2510',
-    termId: '201830',
-    subject: 'CS',
-    host: 'neu.edu',
+    optPrereqsFor: {
+      values: [
+        {
+          subject: "CS",
+          classId: "5",
+        },
+        {
+          subject: "MATH",
+          classId: "2",
+        },
+        {
+          subject: "EECE",
+          classId: "11",
+        },
+        {
+          subject: "EECE",
+          classId: "7",
+        },
+        {
+          subject: "MATH",
+          classId: "3",
+        },
+      ],
+    },
+    classId: "2510",
+    termId: "201830",
+    subject: "CS",
+    host: "neu.edu",
   };
 
   const fakeClass2 = {
-    prereqsFor:
-      {
-        values: [
-          {
-            subject: 'CS',
-            classId: '5',
-          }, {
-            subject: 'MATH',
-            classId: '2',
-          }, {
-            subject: 'EECE',
-            classId: '11',
-          }, {
-            subject: 'EECE',
-            classId: '7',
-          },
-          {
-            subject: 'MATH',
-            classId: '3',
-          },
-        ],
-      },
-    classId: '2510',
-    termId: '201830',
-    subject: 'EECE',
-    host: 'neu.edu',
+    prereqsFor: {
+      values: [
+        {
+          subject: "CS",
+          classId: "5",
+        },
+        {
+          subject: "MATH",
+          classId: "2",
+        },
+        {
+          subject: "EECE",
+          classId: "11",
+        },
+        {
+          subject: "EECE",
+          classId: "7",
+        },
+        {
+          subject: "MATH",
+          classId: "3",
+        },
+      ],
+    },
+    classId: "2510",
+    termId: "201830",
+    subject: "EECE",
+    host: "neu.edu",
   };
 
   const termDump = {
@@ -95,19 +103,18 @@ describe('addPreRequisiteFor tests', () => {
     sections: [],
   };
 
-  it('should load in termDump', () => {
+  it("should load in termDump", () => {
     addPreRequisiteFor.termDump = termDump;
     expect(addPreRequisiteFor.termDump).toBe(termDump);
   });
 
-  describe('parseClass tests', () => {
+  describe("parseClass tests", () => {
     const outputPreReqClass = cs2500;
     outputPreReqClass.prereqsFor = [];
     outputPreReqClass.prereqsFor.push(cs2510);
   });
 
-
-  it('should sort some optPrereqsFor', () => {
+  it("should sort some optPrereqsFor", () => {
     addPreRequisiteFor.termDump = termDump;
 
     addPreRequisiteFor.sortPreReqs(fakeClass1);
@@ -115,8 +122,7 @@ describe('addPreRequisiteFor tests', () => {
     expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
   });
 
-
-  it('should sort some prereqsFor', () => {
+  it("should sort some prereqsFor", () => {
     addPreRequisiteFor.termDump = termDump;
 
     addPreRequisiteFor.sortPreReqs(fakeClass2);

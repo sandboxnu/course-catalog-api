@@ -3,17 +3,18 @@
  * See the license file in the root folder for details.
  */
 
-import Request from '../../request';
-import util from './util';
-import MeetingParser from './meetingParser';
+import Request from "../../request";
+import util from "./util";
+import MeetingParser from "./meetingParser";
 
-const request = new Request('sectionParser');
+const request = new Request("sectionParser");
 
 class SectionParser {
   async parseSectionsOfClass(termId, subject, courseNumber) {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
-      url: 'https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults',
+      url:
+        "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
       qs: {
         txt_term: termId,
         txt_subject: subject,
@@ -25,7 +26,9 @@ class SectionParser {
       json: true,
     });
     if (req.body.success) {
-      return req.body.data.map((sr) => { return this.parseSectionFromSearchResult(sr); });
+      return req.body.data.map((sr) => {
+        return this.parseSectionFromSearchResult(sr);
+      });
     }
     return false;
   }
@@ -36,7 +39,7 @@ class SectionParser {
    */
   parseSectionFromSearchResult(SR) {
     return {
-      host: 'neu.edu',
+      host: "neu.edu",
       termId: SR.term,
       subject: SR.subject,
       classId: SR.courseNumber,
@@ -47,9 +50,12 @@ class SectionParser {
       waitRemaining: SR.waitAvailable,
       classType: SR.scheduleTypeDescription,
       campus: SR.campusDescription,
-      honors: SR.sectionAttributes.some((a) => { return a.description === 'Honors'; }),
-      url: 'https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched'
-      + `?term_in=${SR.term}&crn_in=${SR.courseReferenceNumber}`,
+      honors: SR.sectionAttributes.some((a) => {
+        return a.description === "Honors";
+      }),
+      url:
+        "https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched" +
+        `?term_in=${SR.term}&crn_in=${SR.courseReferenceNumber}`,
       profs: SR.faculty.map(MeetingParser.profName),
       meetings: MeetingParser.parseMeetings(SR.meetingsFaculty),
     };
