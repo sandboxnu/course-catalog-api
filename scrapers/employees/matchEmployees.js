@@ -15,7 +15,6 @@ import csshFaculty from './cssh';
 import camdFaculty from './camd';
 import coeFaculty from './coe';
 
-
 // This file combines the data from the ccis website and the NEU Employees site
 // If there is a match, the data from the ccis site has priority over the data from the employee site.
 // Matching is first done by email (which is scraped from both sites) and then by name
@@ -29,7 +28,6 @@ import coeFaculty from './coe';
 
 // Possible checks:
 // How often people have conflicting data field when merging (eg different phone numbers)
-
 
 // name
 
@@ -67,7 +65,6 @@ class CombineCCISandEmployees {
     this.analytics[eventName]++;
   }
 
-
   okToMatch(matchObj, person, peopleListIndex) {
     if (person.emails) {
       const emailDomainMap = {};
@@ -101,14 +98,12 @@ class CombineCCISandEmployees {
     return true;
   }
 
-
   async main(peopleLists) {
     peopleLists = await Promise.all([neuEmployees.main(), ccisFaculty.main(), csshFaculty.main(), camdFaculty.main(), coeFaculty.main()]);
 
     const mergedPeopleList = [];
 
     let peopleListIndex = 0;
-
 
     // First, match people from the different data sources. The merging happens after the matching
     for (const peopleList of peopleLists) {
@@ -135,7 +130,6 @@ class CombineCCISandEmployees {
               continue;
             }
 
-
             // Found a match.
             matchedPerson.matches.push(person);
 
@@ -161,7 +155,6 @@ class CombineCCISandEmployees {
           macros.log("Don't have person first name or last name and did not match with email.", person);
           continue;
         }
-
 
         // Try to match by perfect name matches. If this fails then fallback to ghetto name matches.
         if (matchesFound === 0 && peopleListIndex > 0) {
@@ -213,8 +206,10 @@ class CombineCCISandEmployees {
             const matchedPersonFirstNameLower = matchedPerson.firstName.toLowerCase();
             const matchedPersonLastNameLower = matchedPerson.lastName.toLowerCase();
 
-            const firstMatch = personFirstNameLower.includes(matchedPersonFirstNameLower) || matchedPersonFirstNameLower.includes(personFirstNameLower);
-            const lastMatch = personLastNameLower.includes(matchedPersonLastNameLower) || matchedPersonLastNameLower.includes(personLastNameLower);
+            const firstMatch =
+              personFirstNameLower.includes(matchedPersonFirstNameLower) || matchedPersonFirstNameLower.includes(personFirstNameLower);
+            const lastMatch =
+              personLastNameLower.includes(matchedPersonLastNameLower) || matchedPersonLastNameLower.includes(personLastNameLower);
 
             // If both the first names and last names did not match, go to next person
             if (!firstMatch || !lastMatch) {
@@ -290,13 +285,11 @@ class CombineCCISandEmployees {
 
     let mergedEmployees = [];
 
-
     mergedPeopleList.forEach((person) => {
       if (person.matches.length === 1) {
         mergedEmployees.push(person.matches[0]);
         return;
       }
-
 
       const output = {};
       for (const profile of person.matches) {
@@ -315,7 +308,6 @@ class CombineCCISandEmployees {
             macros.log('Overriding ', output[attrName], '\twith', profile[attrName]);
           }
 
-
           output[attrName] = profile[attrName];
         }
       }
@@ -330,7 +322,6 @@ class CombineCCISandEmployees {
       }
     }
 
-
     // Add IDs to people that don't have them (IDs are only scraped from employee directory)
     const startTime = Date.now();
     mergedEmployees.forEach((person, index) => {
@@ -342,7 +333,6 @@ class CombineCCISandEmployees {
     });
 
     macros.log('Spent', Date.now() - startTime, 'ms generating object hashes for employees without IDs.');
-
 
     // Remove people who have request their information be removed from the DB.
     // Ask Ryan about this for more details.
