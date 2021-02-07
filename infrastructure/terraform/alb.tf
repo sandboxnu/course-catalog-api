@@ -29,7 +29,7 @@ module "alb" {
     {
       port            = 443
       protocol        = "HTTPS"
-      certificate_arn = var.aws_certificate_arn
+      certificate_arn = aws_acm_certificate.cert.arn
       action_type     = "fixed-response"
       fixed_response = {
         content_type = "text/html"
