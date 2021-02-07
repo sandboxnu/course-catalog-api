@@ -113,7 +113,7 @@ class COE {
     const resp = await request.get(
       "https://coe.northeastern.edu/faculty-staff-directory/?display=all"
     );
-    //console.log(JSON.stringify(resp));
+
     const peopleObjects = this.parsePeopleList(resp);
 
     if (macros.DEV) {
