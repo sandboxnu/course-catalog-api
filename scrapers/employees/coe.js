@@ -68,7 +68,7 @@ class COE {
         obj.phone = standardizePhone(phone.data);
       }
 
-      let pic = $('img').get(0)?.attribs;
+      const pic = $('img').get(0)?.attribs;
       if (pic) {
         obj.pic = pic;
       }
