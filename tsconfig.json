@@ -6,10 +6,6 @@
     "resolveJsonModule": true,
     "jsx": "react"
   },
-  "include": [
-    "./scrapers/**/*"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["./scrapers/**/*"],
+  "exclude": ["node_modules"]
 }

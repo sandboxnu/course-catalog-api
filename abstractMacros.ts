@@ -18,21 +18,21 @@ class Macros {
   static PROD: boolean;
 
   // XXX: This is stuff that is hardcoded for now, need to change when expanding to other schools.
-  static collegeName: string = "Northeastern University";
+  static collegeName = "Northeastern University";
 
-  static collegeHost: string = "neu.edu";
+  static collegeHost = "neu.edu";
 
   // This is the same token in the frontend and the backend, and does not need to be kept private.
-  static amplitudeToken: string = "e0801e33a10c3b66a3c1ac8ebff53359";
+  static amplitudeToken = "e0801e33a10c3b66a3c1ac8ebff53359";
 
   // Also decided to keep all the other tracker Id's here because the amplitude one needs to be here and might as well keep them all in the same place.
-  static fullStoryToken: string = "4ZDGH";
+  static fullStoryToken = "4ZDGH";
 
   // Rollbar token
-  static rollbarToken: string = "3a76015293344e6f9c47e35c9ce4c84c";
+  static rollbarToken = "3a76015293344e6f9c47e35c9ce4c84c";
 
   // Google analytics token
-  static googleAnalyticsToken: string = "UA-85376897-3";
+  static googleAnalyticsToken = "UA-85376897-3";
 
   // Use this for normal logging
   // Will log as normal, but stays silent during testing

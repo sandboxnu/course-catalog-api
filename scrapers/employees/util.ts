@@ -17,7 +17,7 @@ export function occurrences(
   let pos = 0;
   const step = allowOverlapping ? 1 : subString.length;
 
-  while (true) {
+  while (pos >= 0) {
     pos = string.indexOf(subString, pos);
     if (pos >= 0) {
       ++n;

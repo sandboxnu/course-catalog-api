@@ -29,7 +29,8 @@ class Main {
 const instance = new Main();
 
 if (require.main === module) {
-  instance.main().then(() => prisma.$disconnect());
+  instance
+    .main()
+    .then(() => prisma.$disconnect())
+    .catch((err) => macros.error(JSON.stringify(err)));
 }
-
-export default instance;

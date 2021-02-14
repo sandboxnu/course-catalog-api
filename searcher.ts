@@ -219,7 +219,7 @@ class Searcher {
     userFilters: FilterInput,
     min: number,
     max: number,
-    aggregation: string = ""
+    aggregation = ""
   ): EsQuery {
     const fields: string[] = this.getFields();
     // text query from the main search box
@@ -367,10 +367,10 @@ class Searcher {
     const serializer = new HydrateCourseSerializer();
     const showCourse = result && result.sections && result.sections.length > 0;
     // don't show search result of course with no sections
-    let resultOutput: SSRSerializerOutput = (showCourse
+    const resultOutput: SSRSerializerOutput = (showCourse
       ? await serializer.bulkSerialize([result])
       : {}) as SSRSerializerOutput;
-    let results: SearchResult[] = Object.values(resultOutput);
+    const results: SearchResult[] = Object.values(resultOutput);
     return {
       results,
       resultCount: showCourse ? 1 : 0,

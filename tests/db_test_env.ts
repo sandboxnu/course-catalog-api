@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 // tests/nexus-test-environment.js
 const { Client } = require("pg");
 const NodeEnvironment = require("jest-environment-node");

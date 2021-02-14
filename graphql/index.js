@@ -50,9 +50,15 @@ const server = new ApolloServer({
 });
 
 if (require.main === module) {
-  server.listen().then(({ url }) => {
-    macros.log(`ready at ${url}`);
-  });
+  server
+    .listen()
+    .then(({ url }) => {
+      macros.log(`ready at ${url}`);
+      return;
+    })
+    .catch((err) => {
+      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
+    });
 }
 
 export default server;

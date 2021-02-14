@@ -5,7 +5,6 @@
 
 import _ from "lodash";
 import { Course, Section } from "@prisma/client";
-import * as fs from "fs";
 import * as https from "https";
 import * as httpSignature from "http-signature";
 
