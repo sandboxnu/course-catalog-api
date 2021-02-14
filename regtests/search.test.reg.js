@@ -1,7 +1,7 @@
 import _ from "lodash";
 import axios from "axios";
 import URI from "urijs";
-import Keys from "../common/Keys";
+import Keys from "../Keys";
 
 function elemContainsSubstrs(array, strs) {
   return strs.some((str) => array.some((elem) => elem.indexOf(str) > -1));
