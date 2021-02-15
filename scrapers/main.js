@@ -4,10 +4,10 @@
  */
 
 import matchEmployees from './employees/matchEmployees';
-import macros from '../macros';
+import macros from '../utils/macros';
 import classes from './classes/main';
-import dumpProcessor from '../dumpProcessor';
-import prisma from '../prisma';
+import dumpProcessor from '../services/dumpProcessor';
+import prisma from '../services/prisma';
 
 
 // Main file for scraping

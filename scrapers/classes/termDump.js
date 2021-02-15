@@ -6,8 +6,8 @@
 import path from 'path';
 import fs from 'fs-extra';
 
-import macros from '../../macros';
-import Keys from '../../Keys';
+import macros from '../../utils/macros';
+import keys from '../../utils/keys';
 
 // Creates the term dump of classes.
 
@@ -19,9 +19,9 @@ class TermDump {
 
 
     for (const aClass of termDump.classes) {
-      const hash = Keys.getClassHash(aClass);
+      const hash = keys.getClassHash(aClass);
 
-      const termHash = Keys.getTermHash({
+      const termHash = keys.getTermHash({
         host: aClass.host,
         termId: aClass.termId,
       });
@@ -40,9 +40,9 @@ class TermDump {
     }
 
     for (const section of termDump.sections) {
-      const hash = Keys.getSectionHash(section);
+      const hash = keys.getSectionHash(section);
 
-      const termHash = Keys.getTermHash({
+      const termHash = keys.getTermHash({
         host: section.host,
         termId: section.termId,
       });

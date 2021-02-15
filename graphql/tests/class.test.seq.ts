@@ -4,7 +4,7 @@
  */
 import { createTestClient } from 'apollo-server-testing';
 import { gql } from 'apollo-server';
-import prisma from '../../prisma';
+import prisma from '../../services/prisma';
 import server from '../index';
 
 const { query } = createTestClient(server);

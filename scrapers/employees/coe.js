@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 import Request from '../request';
 import cache from '../cache';
-import macros from '../../macros';
+import macros from '../../utils/macros';
 import { standardizeEmail, standardizePhone, parseNameWithSpaces } from './util';
 
 const request = new Request('COE');

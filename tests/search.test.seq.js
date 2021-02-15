@@ -1,5 +1,5 @@
-import searcher from '../searcher';
-import prisma from '../prisma';
+import searcher from '../services/searcher';
+import prisma from '../services/prisma';
 
 beforeAll(async () => {
   searcher.subjects = [];

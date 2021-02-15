@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 import cheerio from 'cheerio';
-import macros from '../../../macros';
+import macros from '../../../utils/macros';
 import util from './util';
 
 class PrereqParser {

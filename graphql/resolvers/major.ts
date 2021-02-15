@@ -1,5 +1,5 @@
 import { UserInputError } from 'apollo-server';
-import prisma from '../../prisma';
+import prisma from '../../services/prisma';
 
 const noResultsError = (recordType) => {
   throw new UserInputError(`${recordType} not found!`);

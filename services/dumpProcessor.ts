@@ -9,9 +9,9 @@ import {
   ProfessorCreateInput, CourseCreateInput, SectionCreateInput,
 } from '@prisma/client';
 import prisma from './prisma';
-import Keys from './Keys';
-import macros from './macros';
-import { populateES } from './scripts/populateES';
+import keys from '../utils/keys';
+import macros from '../utils/macros';
+import { populateES } from '../scripts/populateES';
 import pMap from 'p-map'
 
 type Maybe<T> = T | null | undefined;
@@ -219,7 +219,7 @@ class DumpProcessor {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
-      id: `${Keys.getClassHash(classInfo)}`,
+      id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
       maxCredits: Math.floor(classInfo.maxCredits),
@@ -242,7 +242,7 @@ class DumpProcessor {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
-      id: `${Keys.getClassHash(classInfo)}`,
+      id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
       maxCredits: Math.floor(classInfo.maxCredits),
@@ -261,12 +261,12 @@ class DumpProcessor {
   }
 
   processSection(secInfo: any): SectionCreateInput {
-    const additionalProps = { id: `${Keys.getSectionHash(secInfo)}`, classHash: Keys.getClassHash(secInfo), profs: { set: secInfo.profs || [] } };
+    const additionalProps = { id: `${keys.getSectionHash(secInfo)}`, classHash: keys.getClassHash(secInfo), profs: { set: secInfo.profs || [] } };
     return _.omit({ ...secInfo, ...additionalProps }, ['classId', 'termId', 'subject', 'host']) as SectionCreateInput;
   }
 
   constituteSection(secInfo: any): SectionCreateInput {
-    const additionalProps = { id: `${Keys.getSectionHash(secInfo)}`, classHash: Keys.getClassHash(secInfo) };
+    const additionalProps = { id: `${keys.getSectionHash(secInfo)}`, classHash: keys.getClassHash(secInfo) };
     return _.omit({ ...secInfo, ...additionalProps }, ['classId', 'termId', 'subject', 'host']) as SectionCreateInput;
   }
 

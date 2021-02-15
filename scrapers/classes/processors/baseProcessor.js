@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import macros from '../../../macros';
-import Keys from '../../../Keys';
+import macros from '../../../utils/macros';
+import keys from '../../../utils/keys';
 
 class BaseProcessor {
   groupSectionsByClass(sections) {
@@ -18,7 +18,7 @@ class BaseProcessor {
         classId: section.classId,
       };
 
-      const hash = Keys.getClassHash(obj);
+      const hash = keys.getClassHash(obj);
 
       if (!classHash[hash]) {
         classHash[hash] = [];
@@ -41,7 +41,7 @@ class BaseProcessor {
       }
 
       // multiple classes could have same key
-      const hash = Keys.getClassHash(aClass);
+      const hash = keys.getClassHash(aClass);
 
       // only need to keep subject and classId
       keyToRows[hash] = aClass;

@@ -1,6 +1,6 @@
 import { ApolloServer, gql } from 'apollo-server';
 import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
-import macros from '../macros';
+import macros from '../utils/macros';
 
 import employeeTypeDef from './typeDefs/employee';
 

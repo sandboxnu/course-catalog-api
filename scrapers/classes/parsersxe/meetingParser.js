@@ -9,7 +9,7 @@
 
 
 import moment from 'moment';
-import macros from '../../../macros';
+import macros from '../../../utils/macros';
 
 /**
  * "LastName, FirstName" --> "FirstName LastName"

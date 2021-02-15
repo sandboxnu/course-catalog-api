@@ -2,9 +2,9 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import prisma from '../../prisma';
+import prisma from '../../services/prisma';
 import HydrateCourseSerializer from '../../serializers/hydrateCourseSerializer';
-import Keys from '../../Keys';
+import keys from '../../utils/keys';
 
 const serializer = new HydrateCourseSerializer();
 
@@ -44,7 +44,7 @@ const getSectionById = async (id) => {
   const res = await prisma.section.findUnique({
     where: { id },
   });
-  const { termId, subject, classId } = Keys.parseSectionHash(id);
+  const { termId, subject, classId } = keys.parseSectionHash(id);
   return { termId, subject, classId, ...res };
 }
 

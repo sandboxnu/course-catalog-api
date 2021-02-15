@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import macros from '../macros';
+import macros from '../utils/macros';
 
 it('alphabet is 26', () => {
   expect(macros.ALPHABET.length).toBe(26);
