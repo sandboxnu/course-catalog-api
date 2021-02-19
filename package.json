@@ -17,7 +17,7 @@
     "db:refresh": "npx prisma generate",
     "-linting-": "--------linting--------",
     "lint": "yarn eslint --ignore-path .gitignore --ext .js,.ts .",
-    "style": "yarn prettier --write . --ignore-path .gitignore",
+    "style": "yarn prettier --write .",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
     "test": "npx jest --testPathIgnorePatterns='(seq|reg).[jt]s'",
