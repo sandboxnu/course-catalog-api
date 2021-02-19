@@ -1,0 +1,14 @@
+# Same as .gitignore
+node_modules/
+cache
+dist
+public
+*.log
+.DS_Store
+data/*
+!data/major.json
+*.terraform.lock.hcl
+.env
+
+# Extras
+*.html
