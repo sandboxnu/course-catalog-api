@@ -9,7 +9,6 @@ module.exports = {
     "<rootDir>/node_modules",
     "<rootDir>/dist/",
   ],
-  setupFiles: ["<rootDir>/regtests/jestSetupFile.js"],
-  setupFilesAfterEnv: ["<rootDir>/teardown.ts"],
+  setupFilesAfterEnv: ["<rootDir>/services/teardown.ts"],
   testEnvironment: "<rootDir>/tests/db_test_env.ts",
 };

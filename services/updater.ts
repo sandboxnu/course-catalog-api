@@ -5,15 +5,16 @@
 
 import _ from "lodash";
 import { Course, Section } from "@prisma/client";
+import * as fs from "fs";
 import * as https from "https";
 import * as httpSignature from "http-signature";
 
-import macros from "./macros";
+import macros from "../utils/macros";
 import prisma from "./prisma";
-import Keys from "./Keys";
+import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
-import termParser from "./scrapers/classes/parsersxe/termParser";
-import { Section as ScrapedSection } from "./types";
+import termParser from "../scrapers/classes/parsersxe/termParser";
+import { Section as ScrapedSection } from "../types/types";
 
 // 1. updates for CPS & Law (including quarterly and semesterly versions)
 
@@ -113,9 +114,9 @@ class Updater {
 
     // map of courseHash to newly scraped sections
     for (const s of sections) {
-      const hash: string = Keys.getClassHash(s);
+      const hash: string = keys.getClassHash(s);
       if (!newSectionsByClass[hash]) newSectionsByClass[hash] = [];
-      newSectionsByClass[hash].push(Keys.getSectionHash(s));
+      newSectionsByClass[hash].push(keys.getSectionHash(s));
     }
 
     const notificationInfo: NotificationInfo = {
@@ -146,7 +147,7 @@ class Updater {
 
     // find sections with more seats or waitlist spots and add to notificationInfo
     sections.forEach((s: ScrapedSection) => {
-      const sectionId = Keys.getSectionHash(s);
+      const sectionId = keys.getSectionHash(s);
       const oldSection = oldSectionLookup[sectionId];
       if (!oldSection) return;
 
@@ -154,7 +155,7 @@ class Updater {
         (s.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) ||
         (s.waitRemaining > 0 && oldSection.waitRemaining <= 0)
       ) {
-        const { termId, subject, classId } = Keys.parseSectionHash(sectionId);
+        const { termId, subject, classId } = keys.parseSectionHash(sectionId);
 
         notificationInfo.updatedSections.push({
           termId,

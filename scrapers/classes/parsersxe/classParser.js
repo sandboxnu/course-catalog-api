@@ -4,7 +4,7 @@
  */
 
 import he from "he";
-import Keys from "../../../Keys";
+import keys from "../../../utils/keys";
 import Request from "../../request";
 import PrereqParser from "./prereqParser";
 import util from "./util";
@@ -227,7 +227,7 @@ class ClassParser {
       }
       return {
         ...acc,
-        [Keys.getClassHash({
+        [keys.getClassHash({
           subject,
           classId,
           termId,

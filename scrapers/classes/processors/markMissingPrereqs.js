@@ -3,9 +3,9 @@
  * See the license file in the root folder for details.
  */
 
-import macros from "../../../macros";
+import macros from "../../../utils/macros";
 import BaseProcessor from "./baseProcessor";
-import Keys from "../../../Keys";
+import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
@@ -20,7 +20,7 @@ class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
       if (typeof prereqEntry === "string") {
         continue;
       } else if (prereqEntry.classId && prereqEntry.subject) {
-        const hash = Keys.getClassHash({
+        const hash = keys.getClassHash({
           host: host,
           termId: termId,
           subject: prereqEntry.subject,

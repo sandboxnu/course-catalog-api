@@ -8,7 +8,7 @@ import fs from "fs-extra";
 import msgpackImport from "msgpack5";
 import _ from "lodash";
 
-import macros from "../macros";
+import macros from "../utils/macros";
 
 const msgpack = msgpackImport();
 

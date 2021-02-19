@@ -6,7 +6,7 @@ import _ from "lodash";
 import URI from "urijs";
 
 import cache from "../cache";
-import macros from "../../macros";
+import macros from "../../utils/macros";
 import differentCollegeUrls from "./differentCollegeUrls";
 import bannerv9CollegeUrls from "./bannerv9CollegeUrls";
 

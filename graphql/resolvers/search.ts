@@ -1,7 +1,7 @@
 import { identity, pickBy } from "lodash";
-import searcher from "../../searcher";
-import { Course, Employee } from "../../types";
-import { AggResults } from "../../search_types";
+import searcher from "../../services/searcher";
+import { Course, Employee } from "../../types/types";
+import { AggResults } from "../../types/search_types";
 
 type SearchResultItem = Course | Employee;
 

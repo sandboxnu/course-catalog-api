@@ -4,7 +4,7 @@
  */
 
 import BaseProcessor from "./baseProcessor";
-import macros from "../../../macros";
+import macros from "../../../utils/macros";
 
 // THIS DOES NOT WORK YET
 // This find classes that are called "lab for " and "recitation for " and "Interactive Learning Seminar for PHYS 1155"

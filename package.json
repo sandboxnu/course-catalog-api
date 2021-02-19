@@ -32,7 +32,7 @@
     "-deployment-": "--------deployment--------",
     "prod:scrape": "node dist/backend/scrapers/main.js",
     "prod": "node dist/backend/server.js",
-    "prod:updater": "node dist/backend/updater.js",
+    "prod:updater": "node dist/services/updater.js",
     "prod:db:migrate": "npx prisma migrate deploy --preview-feature"
   },
   "repository": {

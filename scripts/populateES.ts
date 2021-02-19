@@ -6,11 +6,11 @@
  */
 import { Course, Professor } from "@prisma/client";
 
-import elastic from "../elastic";
-import prisma from "../prisma";
+import elastic from "../utils/elastic";
+import prisma from "../services/prisma";
 import ElasticCourseSerializer from "../serializers/elasticCourseSerializer";
 import ElasticProfSerializer from "../serializers/elasticProfSerializer";
-import macros from "../macros";
+import macros from "../utils/macros";
 
 export async function bulkUpsertCourses(courses: Course[]): Promise<void> {
   // FIXME this pattern is bad

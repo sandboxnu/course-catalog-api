@@ -6,7 +6,7 @@
 
 import _ from "lodash";
 import he from "he";
-import macros from "../../../macros";
+import macros from "../../../utils/macros";
 import Request from "../../request";
 
 const request = new Request("subjectAbberviationParser");

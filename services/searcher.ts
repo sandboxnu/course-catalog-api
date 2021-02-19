@@ -4,11 +4,11 @@
  */
 import _ from "lodash";
 import { Course, Section } from "@prisma/client";
-import prisma from "./prisma";
-import elastic, { Elastic } from "./elastic";
-import HydrateSerializer from "./serializers/hydrateSerializer";
-import HydrateCourseSerializer from "./serializers/hydrateCourseSerializer";
-import macros from "./macros";
+import prisma from "../services/prisma";
+import elastic, { Elastic } from "../utils/elastic";
+import HydrateSerializer from "../serializers/hydrateSerializer";
+import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
+import macros from "../utils/macros";
 import {
   EsQuery,
   QueryNode,
@@ -34,7 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
-} from "./search_types";
+} from "../types/search_types";
 
 type CourseWithSections = Course & { sections: Section[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };

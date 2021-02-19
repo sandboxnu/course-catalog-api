@@ -6,11 +6,11 @@ import {
   Course as CourseType,
   Section as SectionType,
   Requisite,
-} from "../types";
-import prisma from "../prisma";
-import Updater, { Notification } from "../updater";
-import Keys from "../Keys";
-import dumpProcessor from "../dumpProcessor";
+} from "../types/types";
+import prisma from "../services/prisma";
+import Updater, { Notification } from "../services/updater";
+import keys from "../utils/keys";
+import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 
 beforeEach(async () => {
@@ -48,13 +48,13 @@ function createEmptySection(sec: SectionType) {
         "prereqsFor",
         "optPrereqsFor",
       ]), // FIXME very sus
-      id: Keys.getSectionHash(sec),
+      id: keys.getSectionHash(sec),
       crn: sec.crn,
       seatsRemaining: 0,
       waitRemaining: 0,
       meetings: (sec.meetings as unknown) as InputJsonValue, // FIXME sus
       profs: { set: sec.profs },
-      course: { connect: { id: Keys.getClassHash(sec) } },
+      course: { connect: { id: keys.getClassHash(sec) } },
     },
   });
 }

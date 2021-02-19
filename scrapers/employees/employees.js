@@ -11,7 +11,7 @@ import he from "he";
 
 import Request from "../request";
 import cache from "../cache";
-import macros from "../../macros";
+import macros from "../../utils/macros";
 import { standardizeEmail, occurrences } from "./util";
 
 const request = new Request("Employees");

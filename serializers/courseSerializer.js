@@ -4,7 +4,7 @@
  */
 
 import _ from "lodash";
-import prisma from "../prisma";
+import prisma from "../services/prisma";
 
 class CourseSerializer {
   // FIXME this pattern is bad

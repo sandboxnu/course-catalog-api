@@ -1,11 +1,11 @@
 import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 import { mocked } from "ts-jest/utils";
-import searcher from "../../searcher";
+import searcher from "../../services/searcher";
 import server from "../index";
-import { Course, Requisite, Section } from "../../types";
+import { Course, Requisite, Section } from "../../types/types";
 
-jest.mock("../../searcher");
+jest.mock("../../services/searcher");
 
 const { query } = createTestClient(server);
 

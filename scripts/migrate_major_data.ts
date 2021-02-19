@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 import pMap from "p-map";
 import { Major, InputJsonObject } from "@prisma/client";
-import prisma from "../backend/prisma";
+import prisma from "../services/prisma";
 
 // In order to execute this module, you need a directory `data`
 // that contains the file `majors.json`. The JSON object in

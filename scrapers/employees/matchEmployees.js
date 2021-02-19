@@ -8,7 +8,7 @@ import objectHash from "object-hash";
 import fs from "fs-extra";
 import path from "path";
 
-import macros from "../../macros";
+import macros from "../../utils/macros";
 import neuEmployees from "./employees";
 import ccisFaculty from "./ccis";
 import csshFaculty from "./cssh";
