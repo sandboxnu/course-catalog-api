@@ -38,6 +38,7 @@ const typeDef = gql`
     profs: [String!]!
     meetings: JSON
     host: String!
+    lastUpdateTime: Float
   }
 `;
 
