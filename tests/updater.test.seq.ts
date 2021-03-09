@@ -1,7 +1,5 @@
-
 import _ from 'lodash';
 import { InputJsonValue } from '@prisma/client';
-
 import Updater from '../updater';
 import { Course as CourseType, Section as SectionType, Requisite } from '../types';
 import prisma from '../prisma';
@@ -155,10 +153,15 @@ const PL_S1: SectionType = {
   ...defaultSectionProps,
 };
 
+const UPDATER: Updater = new Updater();
+const mockSendUpdate = jest.fn();
+
 beforeEach(async () => {
   jest.clearAllMocks();
   jest.restoreAllMocks();
   jest.useFakeTimers();
+  jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
+  jest.spyOn(UPDATER, 'sendUpdates').mockImplementation(mockSendUpdate);
   await prisma.section.deleteMany({});
   await prisma.course.deleteMany({});
 });
@@ -184,14 +187,12 @@ function createSection(sec: SectionType, seatsRemaining: number, waitRemaining: 
 }
 
 describe('Updater', () => {
-  const UPDATER: Updater = new Updater();
 
   it('scrapes the right terms to update', async () => {
     const mockTermParser = jest.fn(async () => { return []; });
     jest.spyOn(termParser, 'parseSections').mockImplementation(mockTermParser);
     jest.spyOn(UPDATER, 'getNotificationInfo').mockImplementation(async () => { return null; });
-    jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
-    jest.spyOn(UPDATER, 'sendUpdates').mockImplementation(async () => {});
+
     await UPDATER.update();
     expect(mockTermParser.mock.calls.length).toBe(1);
     expect(mockTermParser.mock.calls[0]).toEqual([SEM_TO_UPDATE]);
@@ -208,13 +209,11 @@ describe('Updater', () => {
     });
 
     it('does not care about new section for class that does not exist', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       const notificationInfo = await UPDATER.getNotificationInfo([PL_S1]);
       expect(notificationInfo).toEqual({ updatedCourses: [], updatedSections: [], });
     });
 
     it('does not include courses with no new sections to notifications', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       const notificationInfo = await UPDATER.getNotificationInfo([
         {...FUNDIES_ONE_S1, seatsRemaining: 0 }, 
         {...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0, }, 
@@ -224,7 +223,6 @@ describe('Updater', () => {
     });
 
     it('does include courses with new sections to notifications', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       const notificationInfo = await UPDATER.getNotificationInfo([FUNDIES_ONE_NEW_SECTION]);
       expect(notificationInfo).toEqual({ updatedCourses: [{
         termId: FUNDIES_ONE.termId,
@@ -237,7 +235,6 @@ describe('Updater', () => {
     });
 
     it('does include sections with seat increase or waitlist increase', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       const seatIncrease = {...FUNDIES_ONE_S1, seatsRemaining: 2, };
       const waitlistIncrease = {...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 1, };
       const seatWaitlistIncrease = {...FUNDIES_TWO_S2, seatsRemaining: 1, waitRemaining: 2}
@@ -275,7 +272,6 @@ describe('Updater', () => {
     });
 
     it('does not include sections that previously had seats', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       // insert 'old' sections into database
       await createSection(FUNDIES_ONE_S2, 5, 5,);
       await createSection(FUNDIES_ONE_NEW_SECTION, 5, 5,);
@@ -287,7 +283,6 @@ describe('Updater', () => {
     });
 
     it('does not include sections with no change', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       const notificationInfo = await UPDATER.getNotificationInfo([{...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0,}]);
       expect(notificationInfo).toEqual({ updatedCourses: [], updatedSections: [],});
     })
@@ -305,7 +300,6 @@ describe('Updater', () => {
     });
 
     it('calls sendUpdates() with the right notification info', async () => {
-      jest.spyOn(dumpProcessor, 'main').mockImplementation(async () => {});
       jest.spyOn(termParser, 'parseSections').mockImplementation(async (termId) => {
         return [
           FUNDIES_ONE_S1, // more seats
@@ -315,8 +309,7 @@ describe('Updater', () => {
           {...FUNDIES_TWO_S3, seatsRemaining: FUNDIES_TWO_S3.seatsRemaining - 2 } // seat decrease
         ];
       });
-      const mockSendUpdate = jest.fn();
-      jest.spyOn(UPDATER, 'sendUpdates').mockImplementation(mockSendUpdate);
+
       const expectedNotification = { updatedCourses: [
         {
           termId: FUNDIES_ONE.termId,
@@ -350,7 +343,7 @@ describe('Updater', () => {
     });
 
     it('updates the database', async () => {
-      jest.spyOn(UPDATER, 'sendUpdates').mockImplementation(async () => {});
+      jest.spyOn(dumpProcessor, 'main').mockRestore();
       jest.spyOn(termParser, 'parseSections').mockImplementation(async (termId) => {
         return [
           FUNDIES_ONE_S1, // more seats
