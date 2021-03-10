@@ -1,14 +1,14 @@
 import _ from "lodash";
 import { InputJsonValue } from "@prisma/client";
-import Updater from "../updater";
+import Updater from "../services/updater";
 import {
   Course as CourseType,
   Section as SectionType,
   Requisite,
 } from "../types";
-import prisma from "../prisma";
-import Keys from "../Keys";
-import dumpProcessor from "../dumpProcessor";
+import prisma from "../services/prisma";
+import Keys from "../utils/keys";
+import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 
 const SEM_TO_UPDATE = "202130";
