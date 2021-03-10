@@ -6,7 +6,7 @@
 import cheerio from 'cheerio';
 
 import Request from '../request';
-import macros from '../../macros';
+import macros from '../../utils/macros';
 import cache from '../cache';
 import {
   standardizeEmail, standardizePhone, parseGoogleScolarLink, parseNameWithSpaces,

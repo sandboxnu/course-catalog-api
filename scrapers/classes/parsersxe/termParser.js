@@ -5,8 +5,8 @@
 
 import _ from 'lodash';
 import pMap from 'p-map';
-import Keys from '../../../Keys';
-import macros from '../../../macros';
+import keys from '../../../utils/keys';
+import macros from '../../../utils/macros';
 import Request from '../../request';
 import ClassParser from './classParser';
 import SectionParser from './sectionParser';
@@ -28,7 +28,7 @@ class TermParser {
     sections.forEach((section) => {
       const subject = section.subject;
       const classId = section.classId;
-      courseIdentifiers[Keys.getClassHash({
+      courseIdentifiers[keys.getClassHash({
         host: 'neu.edu', termId, subject, classId,
       })] = { termId, subject, classId };
     });

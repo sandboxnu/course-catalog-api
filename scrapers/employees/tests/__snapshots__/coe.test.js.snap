@@ -152,6 +152,13 @@ Array [
     "title": "Postdoctoral Research Associate",
   },
   Object {
+    "email": "jimjohnson@mstoner.com",
+    "firstName": "Jim",
+    "lastName": "Johnson",
+    "link": "https://coe.northeastern.edu/people/jim-johnson/",
+    "name": "Jim Johnson",
+  },
+  Object {
     "email": "m.allshouse@northeastern.edu",
     "firstName": "Michael",
     "interests": "Nonlinear dynamics, geophysical fluid dynamics, computational fluid mechanics, disaster response, experimental fluids",

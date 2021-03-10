@@ -5,7 +5,7 @@
 
 import cheerio from 'cheerio';
 
-import macros from '../../macros';
+import macros from '../../utils/macros';
 import linkSpider from '../linkSpider';
 import cache from '../cache';
 import Request from '../request';

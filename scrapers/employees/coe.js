@@ -8,7 +8,7 @@ import _ from 'lodash';
 
 import Request from '../request';
 import cache from '../cache';
-import macros from '../../macros';
+import macros from '../../utils/macros';
 import { standardizeEmail, standardizePhone, parseNameWithSpaces } from './util';
 
 const request = new Request('COE');
@@ -25,7 +25,6 @@ class COE {
     const people = $('.grid--4 > div > div').get().map((person) => {
       $ = cheerio.load(person);
       const obj = {};
-
       const name = $('h2 > a').get(0).children[0].data;
       if (name) {
         obj.name = name;
@@ -47,9 +46,10 @@ class COE {
         obj.link = link;
       }
 
-      let title = $('div.caption').get(0).children[0].data.trim();
-      title = title.replace(/,$/i, '');
+      let title = $('div.caption').get(0)?.children[0].data.trim();
+      
       if (title) {
+        title = title.replace(/,$/i, '');
         obj.title = title;
       }
 
@@ -63,12 +63,12 @@ class COE {
         obj.email = email;
       }
 
-      const phone = $('ul.caption > li').get(1).children[0];
+      const phone = $('ul.caption > li').get(1)?.children[0];
       if (phone) {
         obj.phone = standardizePhone(phone.data);
       }
 
-      const pic = $('img').get(0).attribs;
+      const pic = $('img').get(0)?.attribs;
       if (pic) {
         obj.pic = pic;
       }

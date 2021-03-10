@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import axios from 'axios';
 import URI from 'urijs';
-import Keys from '../common/Keys';
+import keys from '../utils/keys';
 
 function elemContainsSubstrs(array, strs) {
   return strs.some((str) => array.some((elem) => elem.indexOf(str) > -1));
@@ -29,12 +29,12 @@ describe('search', () => {
     const results = await prodSearch('cs2500', '202110', 0, 10);
     expect(results.data.results.length).toBe(1);
     const firstResult = getFirstClassResult(results);
-    expect(Keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
+    expect(keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
   });
 
   it('returns specified class with name query', async () => {
     const firstResult = getFirstClassResult(await prodSearch('fundamentals of computer science 2', '202110', 0, 1));
-    expect(Keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2510');
+    expect(keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2510');
   });
 
   it('returns a professor if name requested', async () => {
@@ -62,7 +62,7 @@ describe('search', () => {
 
   it('aliases class names', async () => {
     const firstResult = getFirstClassResult(await prodSearch('fundies', '202110', 0, 1));
-    expect(Keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
+    expect(keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
   });
 
   [['cs', '2500'], ['cs', '2501'], ['thtr', '1000']].forEach((item) => {
@@ -74,17 +74,17 @@ describe('search', () => {
       const firstResults = await prodSearch(item.join(''), '202110', 0, 10);
       expect(firstResults.data.results.length).toBe(1);
       const firstResult = getFirstClassResult(firstResults);
-      expect(Keys.getClassHash(firstResult)).toBe(Keys.getClassHash(canonicalResult));
+      expect(keys.getClassHash(firstResult)).toBe(keys.getClassHash(canonicalResult));
 
       const secondResults = await prodSearch(item.join(' ').toUpperCase(), '202110', 0, 10);
       expect(secondResults.data.results.length).toBe(1);
       const secondResult = getFirstClassResult(secondResults);
-      expect(Keys.getClassHash(secondResult)).toBe(Keys.getClassHash(canonicalResult));
+      expect(keys.getClassHash(secondResult)).toBe(keys.getClassHash(canonicalResult));
 
       const thirdResults = await prodSearch(item.join('').toUpperCase(), '202110', 0, 10);
       expect(thirdResults.data.results.length).toBe(1);
       const thirdResult = getFirstClassResult(thirdResults);
-      expect(Keys.getClassHash(thirdResult)).toBe(Keys.getClassHash(canonicalResult));
+      expect(keys.getClassHash(thirdResult)).toBe(keys.getClassHash(canonicalResult));
     });
   });
 
@@ -100,7 +100,7 @@ describe('search', () => {
 
   it('autocorrects typos', async () => {
     const firstResult = getFirstClassResult(await prodSearch('fundimentals of compiter science', '202110', 0, 1));
-    expect(Keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
+    expect(keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
   });
 
   it('does return default results', async () => {
@@ -110,7 +110,7 @@ describe('search', () => {
 
   it('fetches correct result if query is a crn', async () => {
     const firstResult = getFirstClassResult(await prodSearch('10415', '202030', 0, 1));
-    expect(Keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
+    expect(keys.getClassHash(firstResult)).toBe('neu.edu/202110/CS/2500');
   });
 
   describe('filter queries', () => {

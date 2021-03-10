@@ -17,8 +17,9 @@ const typeDef = gql`
     classAttributes: [String!]!
     url: String!
     lastUpdateTime: Float
-
+    nupath: [String!]!
     sections: [Section!]!
+    host: String!
   }
 
   type Section {
@@ -36,6 +37,8 @@ const typeDef = gql`
     url: String!
     profs: [String!]!
     meetings: JSON
+    host: String!
+    lastUpdateTime: Float
   }
 `;
 

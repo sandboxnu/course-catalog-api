@@ -2,14 +2,14 @@
 module "alb" {
   source  = "terraform-aws-modules/alb/aws"
   version = "~> 5.0"
-  
+
   name = "course-catalog-api-alb"
 
   load_balancer_type = "application"
 
-  vpc_id             = aws_vpc.main.id
-  subnets            = aws_subnet.public.*.id
-  security_groups    = [aws_security_group.lb.id]
+  vpc_id          = aws_vpc.main.id
+  subnets         = aws_subnet.public.*.id
+  security_groups = [aws_security_group.lb.id]
 
   http_tcp_listeners = [
     {
@@ -27,10 +27,10 @@ module "alb" {
   # Set default action to 404
   https_listeners = [
     {
-      port               = 443
-      protocol           = "HTTPS"
-      certificate_arn    = aws_acm_certificate.cert.arn
-      action_type        = "fixed-response"
+      port            = 443
+      protocol        = "HTTPS"
+      certificate_arn = aws_acm_certificate.cert.arn
+      action_type     = "fixed-response"
       fixed_response = {
         content_type = "text/html"
         status_code  = "404"

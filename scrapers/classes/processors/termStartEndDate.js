@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 
-import macros from '../../../macros';
+import macros from '../../../utils/macros';
 import BaseProcessor from './baseProcessor';
 
 // This file adds startDate and endDate to each term based on the start and end dates in sections in that term

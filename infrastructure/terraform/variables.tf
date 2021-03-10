@@ -4,11 +4,15 @@ variable "aws_region" {
   default     = "us-east-1"
 }
 
+variable "aws_certificate_arn" {
+  description = "The ARN of the certificate in AWS"
+}
+
 # Cloudflare
 
 variable "cloudflare_zone_id" {
   description = "cloudflare zone id"
-} 
+}
 
 # Application Settings
 

@@ -1,6 +1,6 @@
 
 import URI from 'urijs';
-import macros from '../../macros';
+import macros from '../../utils/macros';
 
 // http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
 export function occurrences(string: string, subString: string, allowOverlapping: boolean) {

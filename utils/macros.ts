@@ -2,14 +2,14 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import path from 'path';
-import fs from 'fs-extra';
-import Rollbar, { MaybeError } from 'rollbar';
-import Amplitude from 'amplitude';
-import dotenv from 'dotenv';
+import path from "path";
+import fs from "fs-extra";
+import Rollbar, { MaybeError } from "rollbar";
+import Amplitude from "amplitude";
+import dotenv from "dotenv";
 
-import moment from 'moment';
-import commonMacros from './abstractMacros';
+import moment from "moment";
+import commonMacros from "./abstractMacros";
 
 dotenv.config();
 
@@ -28,18 +28,18 @@ const originalCwd: string = process.cwd();
 let oldcwd: string;
 while (1) {
   try {
-    fs.statSync('package.json');
+    fs.statSync("package.json");
   } catch (e) {
     oldcwd = process.cwd();
     //cd .. until in the same dir as package.json, the root of the project
-    process.chdir('..');
+    process.chdir("..");
 
     // Prevent an infinate loop: If we keep cd'ing upward and we hit the root dir and still haven't found
     // a package.json, just return to the original directory and break out of this loop.
     if (oldcwd === process.cwd()) {
       commonMacros.warn(
         "Can't find directory with package.json, returning to",
-        originalCwd,
+        originalCwd
       );
       process.chdir(originalCwd);
       break;
@@ -51,18 +51,18 @@ while (1) {
 }
 
 type EnvKeys =
-  | 'elasticURL'
-  | 'dbName'
-  | 'dbHost'
+  | "elasticURL"
+  | "dbName"
+  | "dbHost"
   // Secrets:
-  | 'dbUsername'
-  | 'dbPassword'
-  | 'rollbarPostServerItemToken'
-  | 'fbToken'
-  | 'fbVerifyToken'
-  | 'fbAppSecret'
+  | "dbUsername"
+  | "dbPassword"
+  | "rollbarPostServerItemToken"
+  | "fbToken"
+  | "fbVerifyToken"
+  | "fbAppSecret"
   // Only for dev:
-  | 'fbMessengerId';
+  | "fbMessengerId";
 
 type EnvVars = Partial<Record<EnvKeys, string>>;
 
@@ -80,20 +80,20 @@ class Macros extends commonMacros {
   // The first schema change is here: https://github.com/ryanhugh/searchneu/pull/48
   static schemaVersion = 2;
 
-  static PUBLIC_DIR = path.join('public', 'data', `v${Macros.schemaVersion}`);
+  static PUBLIC_DIR = path.join("public", "data", `v${Macros.schemaVersion}`);
 
-  static DEV_DATA_DIR = path.join('dev_data', `v${Macros.schemaVersion}`);
+  static DEV_DATA_DIR = path.join("dev_data", `v${Macros.schemaVersion}`);
 
   // Folder of the raw html cache for the requests.
-  static REQUESTS_CACHE_DIR = 'requests';
+  static REQUESTS_CACHE_DIR = "requests";
 
   // For iterating over every letter in a couple different places in the code.
-  static ALPHABET = 'maqwertyuiopsdfghjklzxcvbn';
+  static ALPHABET = "maqwertyuiopsdfghjklzxcvbn";
 
   private static rollbar: Rollbar =
-  Macros.PROD
-    && new Rollbar({
-      accessToken: Macros.getEnvVariable('rollbarPostServerItemToken'),
+    Macros.PROD &&
+    new Rollbar({
+      accessToken: Macros.getEnvVariable("rollbarPostServerItemToken"),
       captureUncaught: true,
       captureUnhandledRejections: true,
     });
@@ -103,7 +103,7 @@ class Macros extends commonMacros {
       return envVariables;
     }
 
-    let configFileName = '/etc/searchneu/config.json';
+    let configFileName = "/etc/searchneu/config.json";
 
     // Yes, this is syncronous instead of the normal Node.js async style
     // But keeping it sync helps simplify other parts of the code
@@ -113,7 +113,7 @@ class Macros extends commonMacros {
 
     // Also check /mnt/c/etc... in case we are running inside WSL.
     if (!exists) {
-      configFileName = '/mnt/c/etc/searchneu/config.json';
+      configFileName = "/mnt/c/etc/searchneu/config.json";
       exists = fs.existsSync(configFileName);
     }
 
@@ -130,7 +130,7 @@ class Macros extends commonMacros {
 
   // Gets the current time, just used for logging
   static getTime() {
-    return moment().format('hh:mm:ss a');
+    return moment().format("hh:mm:ss a");
   }
 
   static getEnvVariable(name: EnvKeys): string {
@@ -151,7 +151,7 @@ class Macros extends commonMacros {
     };
 
     return amplitude.track(data).catch((error) => {
-      Macros.warn('error Logging amplitude event failed:', error);
+      Macros.warn("error Logging amplitude event failed:", error);
     });
   }
 
@@ -187,7 +187,7 @@ class Macros extends commonMacros {
       }
     }
     // eslint-disable-next-line no-console
-    console.log('sending to rollbar', possibleError, args);
+    console.log("sending to rollbar", possibleError, args);
 
     if (possibleError) {
       // The arguments can come in any order. Any errors should be logged separately.
@@ -212,7 +212,7 @@ class Macros extends commonMacros {
   // This *should* never be called.
   static critical(...args: any) {
     if (Macros.TEST) {
-      console.error('macros.critical called'); // eslint-disable-line no-console
+      console.error("macros.critical called"); // eslint-disable-line no-console
       console.error(...args); // eslint-disable-line no-console
     } else {
       Macros.error(...args);
@@ -260,6 +260,6 @@ class Macros extends commonMacros {
   }
 }
 
-Macros.verbose('Starting in verbose mode.');
+Macros.verbose("Starting in verbose mode.");
 
 export default Macros;

@@ -16,7 +16,7 @@ import _ from 'lodash';
 import dnsCache from 'dnscache';
 
 import cache from './cache';
-import macros from '../macros';
+import macros from '../utils/macros';
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
