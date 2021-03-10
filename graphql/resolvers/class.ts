@@ -15,6 +15,7 @@ const serializeValues = (results) => {
 const getLatestClassOccurrence = async (subject, classId) => {
   const results = await prisma.course.findMany({
     where: { subject, classId },
+    include: { sections: true },
     orderBy: { termId: "desc" },
   });
   return serializeValues(results)[0];
@@ -23,6 +24,7 @@ const getLatestClassOccurrence = async (subject, classId) => {
 const getAllClassOccurrences = async (subject, classId) => {
   const results = await prisma.course.findMany({
     where: { subject, classId },
+    include: { sections: true },
     orderBy: { termId: "desc" },
   });
   return serializeValues(results);
@@ -33,6 +35,7 @@ const getClassOccurrence = async (termId, subject, classId) => {
     where: {
       uniqueCourseProps: { subject, classId, termId },
     },
+    include: { sections: true },
   });
 
   return serializeValues([res])[0];
