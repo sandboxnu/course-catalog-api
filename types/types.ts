@@ -60,6 +60,8 @@ export interface Course {
   minCredits: number,
   coreqs: Requisite,
   prereqs: Requisite,
+  feeAmount: number,
+  feeDescription: string,
 }
 
 // A co or pre requisite object.
