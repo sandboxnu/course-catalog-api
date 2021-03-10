@@ -83,10 +83,9 @@ class COE {
           (attrName) => {
             if (!obj[attrName]) {
               macros.log(
-                "Could not parse",
-                attrName,
-                "for",
-                obj.name ? obj.name : "someone with no name"
+                `Could not parse ${attrName} for ${
+                  obj.name || "someone with no name"
+                }`
               );
             }
           }

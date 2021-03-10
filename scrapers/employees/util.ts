@@ -48,8 +48,7 @@ export function parseNameWithSpaces(
 
   if (spaceCount > 2) {
     macros.log(
-      name,
-      "has more than 1 space in their name. Using first and last word."
+      `${name} has more than 1 space in their name. Using first and last word.`
     );
   }
 

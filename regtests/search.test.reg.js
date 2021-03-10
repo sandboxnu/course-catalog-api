@@ -1,4 +1,3 @@
-import _ from "lodash";
 import axios from "axios";
 import URI from "urijs";
 import keys from "../utils/keys";

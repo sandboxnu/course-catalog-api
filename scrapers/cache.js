@@ -104,12 +104,9 @@ class Cache {
       const midTime = Date.now();
       const retVal = msgpack.decode(buffer);
       macros.log(
-        "It took ",
-        Date.now() - midTime,
-        "ms to parse and ",
-        midTime - startTime,
-        " to load ",
-        msgPackFileExtension
+        `It took ${Date.now() - midTime} ms to parse and ${
+          midTime - startTime
+        } to load ${msgPackFileExtension}`
       );
       return retVal;
     }
@@ -123,12 +120,9 @@ class Cache {
       const midTime = Date.now();
       const retVal = JSON.parse(buffer);
       macros.log(
-        "It took ",
-        Date.now() - midTime,
-        "ms to parse and ",
-        midTime - startTime,
-        " to load ",
-        jsonFileExtension
+        `It took ${Date.now() - midTime} ms to parse and ${
+          midTime - startTime
+        } to load ${jsonFileExtension}`
       );
       return retVal;
     }
@@ -183,11 +177,7 @@ class Cache {
     const timeSpendEncoding = Date.now() - startTime;
     this.totalTimeSpendEncoding += timeSpendEncoding;
     macros.log(
-      "Saving file",
-      destinationFile,
-      "encoding took",
-      timeSpendEncoding,
-      this.totalTimeSpendEncoding
+      `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`
     );
     await fs.writeFile(`${destinationFile}.new`, buffer);
 
@@ -197,11 +187,9 @@ class Cache {
     // If the file does not exist, ignore the error
     await fs.rename(`${destinationFile}.new`, destinationFile);
     macros.log(
-      "It took ",
-      Date.now() - startTime,
-      "ms to save",
-      destinationFile,
-      `(${this.totalTimeSpendCloning}ms spent cloning so far).`
+      `It took ${Date.now() - startTime} ms to save ${destinationFile} (${
+        this.totalTimeSpendCloning
+      } ms spent cloning so far).`
     );
   }
 

@@ -467,18 +467,13 @@ class Request {
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
             macros.log(
-              "Try#:",
-              tryCount,
-              "Code:",
-              err.statusCode ||
+              `Try#: ${tryCount} Code: ${
+                err.statusCode ||
                 err.RequestError ||
                 err.Error ||
                 err.message ||
-                err,
-              " Open request count: ",
-              this.openRequests,
-              "Url:",
-              config.url
+                err
+              } Open request count: ${this.openRequests} Url: ${config.url}`
             );
           }
 
@@ -497,23 +492,14 @@ class Request {
           !this.doAnyStringsInArray(config.requiredInBody, response.body)
         ) {
           macros.log(
-            "Try#:",
-            tryCount,
-            "Warning, body did not contain specified text",
-            response.body.length,
-            response.statusCode,
-            this.openRequests,
-            config.url
+            `Try#: ${tryCount} Warning, body did not contain specified text ${response.body.length} ${response.statusCode} ${this.openRequests} ${config.url}`
           );
           throw new Error("Body missing required text.");
         }
 
         if (response.body.length < 4000 && !config.shortBodyWarning === false) {
           macros.log(
-            "Warning, short body",
-            config.url,
-            response.body,
-            this.openRequests
+            `Warning, short body ${config.url} ${response.body} ${this.openRequests}`
           );
         }
 
@@ -532,12 +518,7 @@ class Request {
         this.analytics[hostname].totalBytesDownloaded += response.body.length;
         if (!macros.PROD) {
           macros.log(
-            "Parsed",
-            response.body.length,
-            "in",
-            requestDuration,
-            "ms from ",
-            config.url
+            `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
           );
         }
 
