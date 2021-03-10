@@ -5,7 +5,6 @@
 
 import _ from 'lodash';
 import { Course, Section } from '@prisma/client';
-import * as fs from 'fs';
 import * as https from 'https';
 import * as httpSignature from 'http-signature';
 
@@ -94,16 +93,28 @@ class Updater {
     this.update();
   }
 
-  // Update classes and sections users are watching and notify them if seats have opened up
+  // Update classes and sections users and notify users if seats have opened up
   async update() {
     macros.log('updating');
 
     const startTime = Date.now();
 
-    const { oldClassLookup, oldSectionLookup, oldSectionsByClass } = await this.getOldData();
-
     // scrape everything
     const sections: ScrapedSection[] = await termParser.parseSections(this.SEM_TO_UPDATE);
+
+    const notificationInfo = await this.getNotificationInfo(sections);
+
+    await dumpProcessor.main({ termDump: { sections, classes: {}, subjects: {} } });
+
+    const totalTime = Date.now() - startTime;
+
+    macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
+
+    await this.sendUpdates(notificationInfo);
+  }
+
+  async getNotificationInfo(sections: ScrapedSection[]) : Promise<NotificationInfo> {
+    const { oldClassLookup, oldSectionLookup, oldSectionsByClass } = await this.getOldData();
     const newSectionsByClass: Record<string, string[]> = {};
 
     // map of courseHash to newly scraped sections
@@ -155,14 +166,7 @@ class Updater {
         });
       }
     });
-
-    await dumpProcessor.main({ termDump: { sections, classes: {}, subjects: {} } });
-
-    const totalTime = Date.now() - startTime;
-
-    macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
-
-    await this.sendUpdates(notificationInfo);
+    return notificationInfo;
   }
 
   // return a collection of data structures used for simplified querying of data
@@ -197,6 +201,9 @@ class Updater {
   }
 
   async sendUpdates(notificationInfo: NotificationInfo) : Promise<void> {
+    if (notificationInfo.updatedCourses.length === 0 && notificationInfo.updatedSections.length === 0) {
+      return;
+    }
     const DEST_URL = macros.PROD ? process.env.UPDATER_URL : 'https://localhost:5000';
     const key = process.env.WEBHOOK_PRIVATE_KEY;
     const options = {
@@ -205,7 +212,6 @@ class Updater {
     };
     
     const req = https.request(DEST_URL, options);
-
     req.on('error', (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
