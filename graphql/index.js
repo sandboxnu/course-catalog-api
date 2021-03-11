@@ -1,19 +1,19 @@
-import { ApolloServer, gql } from 'apollo-server';
-import GraphQLJSON, { GraphQLJSONObject } from 'graphql-type-json';
-import macros from '../utils/macros';
+import { ApolloServer, gql } from "apollo-server";
+import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
+import macros from "../utils/macros";
 
-import employeeTypeDef from './typeDefs/employee';
+import employeeTypeDef from "./typeDefs/employee";
 
-import searchResolvers from './resolvers/search';
-import searchTypeDef from './typeDefs/search';
+import searchResolvers from "./resolvers/search";
+import searchTypeDef from "./typeDefs/search";
 
-import classResolvers from './resolvers/class';
-import classTypeDef from './typeDefs/class';
-import classOccurrenceTypeDef from './typeDefs/classOccurrence';
+import classResolvers from "./resolvers/class";
+import classTypeDef from "./typeDefs/class";
+import classOccurrenceTypeDef from "./typeDefs/classOccurrence";
 
-import majorResolvers from './resolvers/major';
-import majorTypeDef from './typeDefs/major';
-import majorOccurrenceTypeDef from './typeDefs/majorOccurrence';
+import majorResolvers from "./resolvers/major";
+import majorTypeDef from "./typeDefs/major";
+import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
 
 // Enable JSON custom type
 const JSONResolvers = {
@@ -50,9 +50,15 @@ const server = new ApolloServer({
 });
 
 if (require.main === module) {
-  server.listen().then(({ url }) => {
-    macros.log(`ready at ${url}`);
-  });
+  server
+    .listen()
+    .then(({ url }) => {
+      macros.log(`ready at ${url}`);
+      return;
+    })
+    .catch((err) => {
+      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
+    });
 }
 
 export default server;

@@ -7,9 +7,8 @@
  * its input should be JSON stuff retrieved from NUBanner.
  */
 
-
-import moment from 'moment';
-import macros from '../../../utils/macros';
+import moment from "moment";
+import macros from "../../../utils/macros";
 
 /**
  * "LastName, FirstName" --> "FirstName LastName"
@@ -22,12 +21,17 @@ function profName(xeData) {
   if (xeData.displayName) {
     xeData = xeData.displayName;
   }
-  if (typeof xeData !== 'string') {
-    macros.error('parameter should be a string');
+  if (typeof xeData !== "string") {
+    macros.error("parameter should be a string");
   }
-  return xeData.split(',').map((s) => { return s.trim(); }).reverse().join(' ');
+  return xeData
+    .split(",")
+    .map((s) => {
+      return s.trim();
+    })
+    .reverse()
+    .join(" ");
 }
-
 
 /**
  * example "0915" -> 9 * 3600 + 15 * 60 = 33300
@@ -36,7 +40,7 @@ function profName(xeData) {
  */
 function hhmmToSeconds(hhmm) {
   if (!hhmm) {
-    return 'TBD';
+    return "TBD";
   }
   if (hhmm.length !== 4) {
     macros.error(`Length of hhmm time string "${hhmm}" is not 4`);
@@ -56,11 +60,18 @@ function mmddyyyyToDaysSinceEpoch(mmddyyyy) {
    * moment is in GMT, epoch is in UTC, apparently those are the same.
    * 864,000 seconds per day
    */
-  return parseInt(moment(mmddyyyy, 'MM/DD/YYYY').unix() / 86400, 10);
+  return parseInt(moment(mmddyyyy, "MM/DD/YYYY").unix() / 86400, 10);
 }
 
-
-const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const DAYS = [
+  "sunday",
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+];
 
 /**
  * example result:
@@ -78,10 +89,12 @@ const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 
  */
 function days(meetingTime) {
   const times = {};
-  const info = [{
-    start: hhmmToSeconds(meetingTime.beginTime),
-    end: hhmmToSeconds(meetingTime.endTime),
-  }];
+  const info = [
+    {
+      start: hhmmToSeconds(meetingTime.beginTime),
+      end: hhmmToSeconds(meetingTime.endTime),
+    },
+  ];
 
   for (let i = 0; i < DAYS.length; i++) {
     if (meetingTime[DAYS[i]]) {
@@ -100,7 +113,9 @@ function parseMeetings(facultyMeetingTimes) {
     return {
       startDate: mmddyyyyToDaysSinceEpoch(meetingTime.startDate),
       endDate: mmddyyyyToDaysSinceEpoch(meetingTime.endDate),
-      where: meetingTime.buildingDescription ? `${meetingTime.buildingDescription} ${meetingTime.room}` : 'TBA',
+      where: meetingTime.buildingDescription
+        ? `${meetingTime.buildingDescription} ${meetingTime.room}`
+        : "TBA",
       type: meetingTime.meetingTypeDescription,
       times: days(meetingTime),
     };

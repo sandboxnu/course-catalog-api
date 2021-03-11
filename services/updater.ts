@@ -3,26 +3,26 @@
  * See the license file in the root folder for details.
  */
 
-import _ from 'lodash';
-import { Course, Section } from '@prisma/client';
-import * as https from 'https';
-import * as httpSignature from 'http-signature';
+import _ from "lodash";
+import { Course, Section } from "@prisma/client";
+import * as https from "https";
+import * as httpSignature from "http-signature";
 
-import macros from '../utils/macros';
-import prisma from './prisma';
-import keys from '../utils/keys';
-import dumpProcessor from './dumpProcessor';
-import termParser from '../scrapers/classes/parsersxe/termParser';
-import { Section as ScrapedSection } from '../types/types';
+import macros from "../utils/macros";
+import prisma from "./prisma";
+import keys from "../utils/keys";
+import dumpProcessor from "./dumpProcessor";
+import termParser from "../scrapers/classes/parsersxe/termParser";
+import { Section as ScrapedSection } from "../types/types";
 
 // 1. updates for CPS & Law (including quarterly and semesterly versions)
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
 interface OldData {
-  oldClassLookup: Record<string, Course>,
-  oldSectionLookup: Record<string, Section>,
-  oldSectionsByClass: Record<string, string[]>
+  oldClassLookup: Record<string, Course>;
+  oldSectionLookup: Record<string, Section>;
+  oldSectionsByClass: Record<string, string[]>;
 }
 
 // Stores information for all changes to a course or section
@@ -53,7 +53,7 @@ interface SectionNotificationInfo {
 }
 
 // the types of models/records that a user can follow
-type ModelName = 'course' | 'section';
+type ModelName = "course" | "section";
 
 class Updater {
   // produce a new Updater instance
@@ -71,9 +71,9 @@ class Updater {
 
   // DO NOT call the constructor, instead use .create
   constructor() {
-    this.COURSE_MODEL = 'course';
-    this.SECTION_MODEL = 'section';
-    this.SEM_TO_UPDATE = '202130';
+    this.COURSE_MODEL = "course";
+    this.SECTION_MODEL = "section";
+    this.SEM_TO_UPDATE = "202130";
     this.CAMPUS = Updater.getCampusFromTerm(this.SEM_TO_UPDATE);
   }
 
@@ -87,7 +87,7 @@ class Updater {
       try {
         this.update();
       } catch (e) {
-        macros.warn('Updater failed with: ', e);
+        macros.warn("Updater failed with: ", e);
       }
     }, intervalTime);
     this.update();
@@ -95,26 +95,38 @@ class Updater {
 
   // Update classes and sections users and notify users if seats have opened up
   async update() {
-    macros.log('updating');
+    macros.log("updating");
 
     const startTime = Date.now();
 
     // scrape everything
-    const sections: ScrapedSection[] = await termParser.parseSections(this.SEM_TO_UPDATE);
+    const sections: ScrapedSection[] = await termParser.parseSections(
+      this.SEM_TO_UPDATE
+    );
 
     const notificationInfo = await this.getNotificationInfo(sections);
 
-    await dumpProcessor.main({ termDump: { sections, classes: {}, subjects: {} } });
+    await dumpProcessor.main({
+      termDump: { sections, classes: {}, subjects: {} },
+    });
 
     const totalTime = Date.now() - startTime;
 
-    macros.log(`Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`);
+    macros.log(
+      `Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`
+    );
 
     await this.sendUpdates(notificationInfo);
   }
 
-  async getNotificationInfo(sections: ScrapedSection[]) : Promise<NotificationInfo> {
-    const { oldClassLookup, oldSectionLookup, oldSectionsByClass } = await this.getOldData();
+  async getNotificationInfo(
+    sections: ScrapedSection[]
+  ): Promise<NotificationInfo> {
+    const {
+      oldClassLookup,
+      oldSectionLookup,
+      oldSectionsByClass,
+    } = await this.getOldData();
     const newSectionsByClass: Record<string, string[]> = {};
 
     // map of courseHash to newly scraped sections
@@ -124,13 +136,18 @@ class Updater {
       newSectionsByClass[hash].push(keys.getSectionHash(s));
     }
 
-    const notificationInfo: NotificationInfo = { updatedCourses: [], updatedSections: [] };
+    const notificationInfo: NotificationInfo = {
+      updatedCourses: [],
+      updatedSections: [],
+    };
 
     // find courses with added sections and add to notificationInfo
     Object.entries(newSectionsByClass).forEach(([classHash, sectionHashes]) => {
       if (!oldSectionsByClass[classHash]) return;
 
-      const newSectionCount = sectionHashes.filter((hash: string) => !oldSectionsByClass[classHash].includes(hash)).length;
+      const newSectionCount = sectionHashes.filter(
+        (hash: string) => !oldSectionsByClass[classHash].includes(hash)
+      ).length;
       if (newSectionCount > 0) {
         const { id, subject, classId, termId } = oldClassLookup[classHash];
 
@@ -151,8 +168,10 @@ class Updater {
       const oldSection = oldSectionLookup[sectionId];
       if (!oldSection) return;
 
-      if ((s.seatsRemaining > 0 && oldSection.seatsRemaining <= 0)
-          || (s.waitRemaining > 0 && oldSection.waitRemaining <= 0)) {
+      if (
+        (s.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) ||
+        (s.waitRemaining > 0 && oldSection.waitRemaining <= 0)
+      ) {
         const { termId, subject, classId } = keys.parseSectionHash(sectionId);
 
         notificationInfo.updatedSections.push({
@@ -171,11 +190,21 @@ class Updater {
 
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
-    const oldClasses: Course[] = await prisma.course.findMany({ where: { termId: this.SEM_TO_UPDATE }});
-    const oldSections: Section[] = await prisma.section.findMany({ where: { course: { termId: this.SEM_TO_UPDATE }}});
+    const oldClasses: Course[] = await prisma.course.findMany({
+      where: { termId: this.SEM_TO_UPDATE },
+    });
+    const oldSections: Section[] = await prisma.section.findMany({
+      where: { course: { termId: this.SEM_TO_UPDATE } },
+    });
 
-    const oldClassLookup: Record<string, Course> = _.keyBy(oldClasses, (c) => c.id);
-    const oldSectionLookup: Record<string, Section> = _.keyBy(oldSections, (s) => s.id);
+    const oldClassLookup: Record<string, Course> = _.keyBy(
+      oldClasses,
+      (c) => c.id
+    );
+    const oldSectionLookup: Record<string, Section> = _.keyBy(
+      oldSections,
+      (s) => s.id
+    );
 
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {
@@ -191,37 +220,42 @@ class Updater {
 
   static getCampusFromTerm(term: string): string {
     const campusIdentifier = term[5];
-    if (campusIdentifier === '0') {
-      return 'NEU';
-    } else if (campusIdentifier === '2' || campusIdentifier === '8') {
-      return 'LAW';
-    } else if (campusIdentifier === '4' || campusIdentifier === '5') {
-      return 'CPS';
+    if (campusIdentifier === "0") {
+      return "NEU";
+    } else if (campusIdentifier === "2" || campusIdentifier === "8") {
+      return "LAW";
+    } else if (campusIdentifier === "4" || campusIdentifier === "5") {
+      return "CPS";
     }
   }
 
-  async sendUpdates(notificationInfo: NotificationInfo) : Promise<void> {
-    if (notificationInfo.updatedCourses.length === 0 && notificationInfo.updatedSections.length === 0) {
+  async sendUpdates(notificationInfo: NotificationInfo): Promise<void> {
+    if (
+      notificationInfo.updatedCourses.length === 0 &&
+      notificationInfo.updatedSections.length === 0
+    ) {
       return;
     }
-    const DEST_URL = macros.PROD ? process.env.UPDATER_URL : 'https://localhost:5000';
+    const DEST_URL = macros.PROD
+      ? process.env.UPDATER_URL
+      : "https://localhost:5000";
     const key = process.env.WEBHOOK_PRIVATE_KEY;
     const options = {
-      method: 'POST',
+      method: "POST",
       headers: {},
     };
-    
+
     const req = https.request(DEST_URL, options);
-    req.on('error', (e) => {
+    req.on("error", (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
     httpSignature.sign(req, {
       key: key,
-      keyId: 'hello',
+      keyId: "hello",
     });
     req.write(JSON.stringify(notificationInfo));
     req.end();
-    macros.log('Request made from updater!');
+    macros.log("Request made from updater!");
   }
 }
 

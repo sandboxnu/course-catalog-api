@@ -1,9 +1,9 @@
-import { gql } from 'apollo-server';
+import { gql } from "apollo-server";
 
 const typeDef = gql`
   extend type Query {
-    class(subject: String!, classId: String!): Class,
-    classByHash(hash: String!): ClassOccurrence,
+    class(subject: String!, classId: String!): Class
+    classByHash(hash: String!): ClassOccurrence
     sectionByHash(hash: String!): Section
   }
 

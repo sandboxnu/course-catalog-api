@@ -3,11 +3,11 @@
  * See the license file in the root folder for details.
  */
 
-import prisma from '../services/prisma';
-import dumpProcessor from '../services/dumpProcessor';
-import elastic from '../utils/elastic';
+import prisma from "../services/prisma";
+import dumpProcessor from "../services/dumpProcessor";
+import elastic from "../utils/elastic";
 
-jest.spyOn(elastic, 'bulkIndexFromMap').mockResolvedValue(true);
+jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(true);
 
 beforeAll(() => {
   dumpProcessor.CHUNK_SIZE = 2;
@@ -24,104 +24,123 @@ afterAll(async () => {
   jest.restoreAllMocks();
 });
 
-it('does not create records if dump is empty', async () => {
-  const prevCounts = Promise.all([prisma.professor.count(), prisma.course.count(), prisma.section.count(), prisma.subject.count()]);
-  await dumpProcessor.main({ termDump: { classes: [], sections: [], subjects: [] } });
-  expect(Promise.all([prisma.professor.count(), prisma.course.count(), prisma.section.count(), prisma.subject.count()])).toEqual(prevCounts);
+it("does not create records if dump is empty", async () => {
+  const prevCounts = Promise.all([
+    prisma.professor.count(),
+    prisma.course.count(),
+    prisma.section.count(),
+    prisma.subject.count(),
+  ]);
+  await dumpProcessor.main({
+    termDump: { classes: [], sections: [], subjects: [] },
+  });
+  expect(
+    Promise.all([
+      prisma.professor.count(),
+      prisma.course.count(),
+      prisma.section.count(),
+      prisma.subject.count(),
+    ])
+  ).toEqual(prevCounts);
 });
 
-describe('with professors', () => {
-  it('creates professors', async () => {
+describe("with professors", () => {
+  it("creates professors", async () => {
     const profDump = {
       firstProf: {
-        id: 'abcdefg',
-        name: 'Benjamin Lerner',
-        firstName: 'Benjamin',
-        lastName: 'Lerner',
-        phone: '6173732462',
-        emails: ['be.lerner@northeastern.edu', 'blerner@ccs.neu.edu'],
-        primaryRole: 'Assistant Teaching Professor',
-        primaryDepartment: 'Khoury',
-        url: 'https://www.khoury.northeastern.edu/people/benjamin-lerner/',
-        personalSite: 'http://www.ccs.neu.edu/home/blerner/',
-        bigPictureUrl: 'https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Benjamin-Lerner-hero-image.jpg',
+        id: "abcdefg",
+        name: "Benjamin Lerner",
+        firstName: "Benjamin",
+        lastName: "Lerner",
+        phone: "6173732462",
+        emails: ["be.lerner@northeastern.edu", "blerner@ccs.neu.edu"],
+        primaryRole: "Assistant Teaching Professor",
+        primaryDepartment: "Khoury",
+        url: "https://www.khoury.northeastern.edu/people/benjamin-lerner/",
+        personalSite: "http://www.ccs.neu.edu/home/blerner/",
+        bigPictureUrl:
+          "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Benjamin-Lerner-hero-image.jpg",
       },
       secondProf: {
-        id: 'hijklmnop',
-        name: 'Neal Lerner',
-        firstName: 'Neal',
-        lastName: 'Lerner',
-        phone: '6173732451',
-        emails: ['n.lerner@northeastern.edu'],
-        primaryRole: 'Professor & Chair',
-        primaryDepartment: 'English',
+        id: "hijklmnop",
+        name: "Neal Lerner",
+        firstName: "Neal",
+        lastName: "Lerner",
+        phone: "6173732451",
+        emails: ["n.lerner@northeastern.edu"],
+        primaryRole: "Professor & Chair",
+        primaryDepartment: "English",
       },
       thirdProf: {
-        id: 'qrstuv',
-        name: 'Alan Mislove',
-        firstName: 'Alan',
-        lastName: 'Mislove',
-        phone: '6173737069',
-        emails: ['a.mislove@northeastern.edu', 'amislove@ccs.neu.edu'],
-        primaryRole: 'Professor',
-        primaryDepartment: 'Khoury',
-        url: 'https://www.khoury.northeastern.edu/people/alan-mislove/',
-        personalSite: 'https://mislove.org',
-        googleScholarId: 'oAqKi9MAAAAJ',
-        bigPictureUrl: 'https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Alan-Mislove_cropped-hero-image.jpg',
+        id: "qrstuv",
+        name: "Alan Mislove",
+        firstName: "Alan",
+        lastName: "Mislove",
+        phone: "6173737069",
+        emails: ["a.mislove@northeastern.edu", "amislove@ccs.neu.edu"],
+        primaryRole: "Professor",
+        primaryDepartment: "Khoury",
+        url: "https://www.khoury.northeastern.edu/people/alan-mislove/",
+        personalSite: "https://mislove.org",
+        googleScholarId: "oAqKi9MAAAAJ",
+        bigPictureUrl:
+          "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Alan-Mislove_cropped-hero-image.jpg",
       },
     };
 
-    await dumpProcessor.main({ termDump: { classes: [], sections: [], subjects: [] }, profDump: profDump });
+    await dumpProcessor.main({
+      termDump: { classes: [], sections: [], subjects: [] },
+      profDump: profDump,
+    });
     expect(await prisma.professor.count()).toEqual(3);
   });
 });
 
-describe('with classes', () => {
-  it('creates classes', async () => {
+describe("with classes", () => {
+  it("creates classes", async () => {
     const termDump = {
       sections: [],
       classes: [
         {
-          id: 'neu.edu/202030/CS/2500',
+          id: "neu.edu/202030/CS/2500",
           maxCredits: 4,
           minCredits: 4,
-          host: 'neu.edu',
-          classId: '2500',
-          name: 'Fundamentals Of Computer Science 1',
-          termId: '202030',
-          subject: 'CS',
-          prereqs: { type: 'and', values: [] },
-          coreqs: { type: 'and', values: [{ subject: 'CS', classId: '2501' }] },
-          prereqsFor: { type: 'and', values: [] },
-          optPrereqsFor: { type: 'and', values: [] },
-          classAttributes: ['fun intro'],
+          host: "neu.edu",
+          classId: "2500",
+          name: "Fundamentals Of Computer Science 1",
+          termId: "202030",
+          subject: "CS",
+          prereqs: { type: "and", values: [] },
+          coreqs: { type: "and", values: [{ subject: "CS", classId: "2501" }] },
+          prereqsFor: { type: "and", values: [] },
+          optPrereqsFor: { type: "and", values: [] },
+          classAttributes: ["fun intro"],
           lastUpdateTime: 123456789,
         },
         {
-          id: 'neu.edu/202030/CS/2510',
+          id: "neu.edu/202030/CS/2510",
           maxCredits: 4,
           minCredits: 4,
-          host: 'neu.edu',
-          classId: '2510',
-          name: 'Fundamentals Of Computer Science 2',
-          termId: '202030',
-          subject: 'CS',
-          prereqs: { type: 'and', values: [] },
-          coreqs: { type: 'and', values: [] },
-          prereqsFor: { type: 'and', values: [] },
-          optPrereqsFor: { type: 'and', values: [] },
+          host: "neu.edu",
+          classId: "2510",
+          name: "Fundamentals Of Computer Science 2",
+          termId: "202030",
+          subject: "CS",
+          prereqs: { type: "and", values: [] },
+          coreqs: { type: "and", values: [] },
+          prereqsFor: { type: "and", values: [] },
+          optPrereqsFor: { type: "and", values: [] },
           lastUpdateTime: 123456789,
         },
         {
-          id: 'neu.edu/202030/CS/3500',
+          id: "neu.edu/202030/CS/3500",
           maxCredits: 4,
           minCredits: 4,
-          host: 'neu.edu',
-          classId: '3500',
-          name: 'Object-Oriented Design',
-          termId: '202030',
-          subject: 'CS',
+          host: "neu.edu",
+          classId: "3500",
+          name: "Object-Oriented Design",
+          termId: "202030",
+          subject: "CS",
           lastUpdateTime: 123456789,
         },
       ],
@@ -133,62 +152,62 @@ describe('with classes', () => {
   });
 });
 
-describe('with sections', () => {
+describe("with sections", () => {
   beforeEach(async () => {
     await prisma.course.create({
       data: {
-        id: 'neu.edu/202030/CS/3500',
+        id: "neu.edu/202030/CS/3500",
         maxCredits: 4,
         minCredits: 4,
-        classId: '3500',
-        name: 'Object-Oriented Design',
-        termId: '202030',
-        subject: 'CS',
+        classId: "3500",
+        name: "Object-Oriented Design",
+        termId: "202030",
+        subject: "CS",
         lastUpdateTime: new Date(123456789),
       },
     });
   });
 
-  it('creates sections', async () => {
+  it("creates sections", async () => {
     const termDump = {
       classes: [],
       sections: [
         {
-          host: 'neu.edu',
-          termId: '202030',
-          subject: 'CS',
-          classId: '3500',
+          host: "neu.edu",
+          termId: "202030",
+          subject: "CS",
+          classId: "3500",
           seatsCapacity: 50,
           seatsRemaining: 0,
           waitCapacity: 0,
           waitRemaining: 0,
-          campus: 'Boston',
+          campus: "Boston",
           honors: false,
-          crn: '12345',
+          crn: "12345",
           meetings: {},
         },
         {
-          host: 'neu.edu',
-          termId: '202030',
-          subject: 'CS',
-          classId: '3500',
+          host: "neu.edu",
+          termId: "202030",
+          subject: "CS",
+          classId: "3500",
           seatsCapacity: 40,
           seatsRemaining: 10,
-          campus: 'Online',
+          campus: "Online",
           honors: false,
-          crn: '23456',
+          crn: "23456",
           meetings: {},
         },
         {
-          host: 'neu.edu',
-          termId: '202030',
-          subject: 'CS',
-          classId: '3500',
+          host: "neu.edu",
+          termId: "202030",
+          subject: "CS",
+          classId: "3500",
           seatsCapacity: 2,
           seatsRemaining: 2,
-          campus: 'Seattle, WA',
+          campus: "Seattle, WA",
           honors: false,
-          crn: '34567',
+          crn: "34567",
           meetings: {},
         },
       ],
@@ -200,70 +219,70 @@ describe('with sections', () => {
   });
 });
 
-describe('with subjects', () => {
-  it('creates subjects', async () => {
+describe("with subjects", () => {
+  it("creates subjects", async () => {
     const termDump = {
       classes: [],
       sections: [],
       subjects: {
-        CS: 'Computer Science',
-        CHEM: 'Chemistry',
-        PHYS: 'Physics',
+        CS: "Computer Science",
+        CHEM: "Chemistry",
+        PHYS: "Physics",
       },
     };
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.subject.count()).toEqual(3);
-  })
-})
+  });
+});
 
-describe('with updates', () => {
+describe("with updates", () => {
   beforeEach(async () => {
     await prisma.course.create({
       data: {
-        id: 'neu.edu/202030/CS/3500',
+        id: "neu.edu/202030/CS/3500",
         maxCredits: 4,
         minCredits: 4,
-        classId: '3500',
-        name: 'Object-Oriented Design',
-        termId: '202030',
-        subject: 'CS',
+        classId: "3500",
+        name: "Object-Oriented Design",
+        termId: "202030",
+        subject: "CS",
         lastUpdateTime: new Date(123456789),
       },
     });
 
     await prisma.section.create({
       data: {
-        id: 'neu.edu/202030/CS/3500/34567',
+        id: "neu.edu/202030/CS/3500/34567",
         seatsCapacity: 2,
         seatsRemaining: 2,
-        campus : 'Boston',
+        campus: "Boston",
         honors: false,
-        crn: '34567',
+        crn: "34567",
         meetings: {},
       },
     });
 
     await prisma.subject.create({
       data: {
-        abbreviation: 'CS',
-        description: 'Computer Science',
+        abbreviation: "CS",
+        description: "Computer Science",
       },
-    })
+    });
   });
 
-  it('updates fields for courses', async () => {
+  it("updates fields for courses", async () => {
     const termDump = {
       sections: [],
       classes: [
         {
-          id: 'neu.edu/202030/CS/3500',
+          id: "neu.edu/202030/CS/3500",
           maxCredits: 4,
           minCredits: 4,
-          host: 'neu.edu',
-          classId: '3500',
-          name: 'Compilers',
-          termId: '202030',
-          subject: 'CS',
+          host: "neu.edu",
+          classId: "3500",
+          name: "Compilers",
+          termId: "202030",
+          subject: "CS",
           lastUpdateTime: 123456789,
         },
       ],
@@ -274,22 +293,34 @@ describe('with updates', () => {
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
-    expect((await prisma.course.findUnique({ where: { id: 'neu.edu/202030/CS/3500' } })).name).toEqual('Compilers');
+    expect(
+      (
+        await prisma.course.findUnique({
+          where: { id: "neu.edu/202030/CS/3500" },
+        })
+      ).name
+    ).toEqual("Compilers");
   });
 
-  it('updates subjects', async () => {
+  it("updates subjects", async () => {
     const termDump = {
       sections: [],
       classes: [],
       subjects: {
-        CS: 'Computer Sciences',
+        CS: "Computer Sciences",
       },
     };
-    expect((await prisma.subject.findUnique({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Science');
+    expect(
+      (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
+        .description
+    ).toEqual("Computer Science");
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
-    expect((await prisma.subject.findUnique({ where: { abbreviation: 'CS' } })).description).toEqual('Computer Sciences');
-  })
+    expect(
+      (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
+        .description
+    ).toEqual("Computer Sciences");
+  });
 });

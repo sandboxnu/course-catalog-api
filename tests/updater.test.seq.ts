@@ -5,7 +5,7 @@ import {
   Course as CourseType,
   Section as SectionType,
   Requisite,
-} from "../types";
+} from "../types/types";
 import prisma from "../services/prisma";
 import Keys from "../utils/keys";
 import dumpProcessor from "../services/dumpProcessor";
@@ -168,7 +168,9 @@ beforeEach(async () => {
   jest.clearAllMocks();
   jest.restoreAllMocks();
   jest.useFakeTimers();
-  jest.spyOn(dumpProcessor, "main").mockImplementation(async () => {});
+  jest.spyOn(dumpProcessor, "main").mockImplementation(() => {
+    return Promise.resolve();
+  });
   jest.spyOn(UPDATER, "sendUpdates").mockImplementation(mockSendUpdate);
   await prisma.section.deleteMany({});
   await prisma.course.deleteMany({});

@@ -1,7 +1,7 @@
-import { createTestClient } from 'apollo-server-testing';
-import { gql } from 'apollo-server';
-import prisma from '../../services/prisma';
-import server from '../index';
+import { createTestClient } from "apollo-server-testing";
+import { gql } from "apollo-server";
+import prisma from "../../services/prisma";
+import server from "../index";
 
 const { query } = createTestClient(server);
 
@@ -10,33 +10,33 @@ beforeAll(async () => {
 
   await prisma.major.create({
     data: {
-      majorId: 'computer-information-science/computer-science/bscs',
-      yearVersion: '2018',
-      spec: { name: 'Computer Science, BSCS', yearVersion: 2018 },
-      plansOfStudy: [{ years: [1000], id: '0' }],
+      majorId: "computer-information-science/computer-science/bscs",
+      yearVersion: "2018",
+      spec: { name: "Computer Science, BSCS", yearVersion: 2018 },
+      plansOfStudy: [{ years: [1000], id: "0" }],
     },
   });
 
   await prisma.major.create({
     data: {
-      majorId: 'computer-information-science/computer-science/bscs',
-      yearVersion: '2017',
-      spec: { name: 'Computer Science, BSCS', yearVersion: 2017 },
-      plansOfStudy: [{ years: [1000], id: '0' }],
+      majorId: "computer-information-science/computer-science/bscs",
+      yearVersion: "2017",
+      spec: { name: "Computer Science, BSCS", yearVersion: 2017 },
+      plansOfStudy: [{ years: [1000], id: "0" }],
     },
   });
 
   await prisma.major.create({
     data: {
-      majorId: 'science/biochemistry/biochemistry-bs',
-      yearVersion: '2018',
-      spec: { name: 'Biochemistry, BS', yearVersion: 2018 },
-      plansOfStudy: [{ years: [1000], id: '0' }],
+      majorId: "science/biochemistry/biochemistry-bs",
+      yearVersion: "2018",
+      spec: { name: "Biochemistry, BS", yearVersion: 2018 },
+      plansOfStudy: [{ years: [1000], id: "0" }],
     },
   });
 });
 
-it('gets major from majorId', async () => {
+it("gets major from majorId", async () => {
   const res = await query({
     query: gql`
       query major {
@@ -49,7 +49,7 @@ it('gets major from majorId', async () => {
   expect(res).toMatchSnapshot();
 });
 
-it('gets specific occurrence', async () => {
+it("gets specific occurrence", async () => {
   const res = await query({
     query: gql`
       query major {
@@ -68,7 +68,7 @@ it('gets specific occurrence', async () => {
   expect(res).toMatchSnapshot();
 });
 
-it('gets latest occurrence', async () => {
+it("gets latest occurrence", async () => {
   const res = await query({
     query: gql`
       query major {
@@ -85,7 +85,7 @@ it('gets latest occurrence', async () => {
   expect(res).toMatchSnapshot();
 });
 
-it('cannot find major from non-present majorId', async () => {
+it("cannot find major from non-present majorId", async () => {
   const res = await query({
     query: gql`
       query major {
@@ -101,7 +101,7 @@ it('cannot find major from non-present majorId', async () => {
   expect(res).toMatchSnapshot();
 });
 
-it('cannot find majorOccurrence from non-present year', async () => {
+it("cannot find majorOccurrence from non-present year", async () => {
   const res = await query({
     query: gql`
       query major {

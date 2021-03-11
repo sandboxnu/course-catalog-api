@@ -3,10 +3,10 @@
  * See the license file in the root folder for details.
  */
 
-import _ from 'lodash';
-import cheerio from 'cheerio';
-import macros from '../../../utils/macros';
-import util from './util';
+import _ from "lodash";
+import cheerio from "cheerio";
+import macros from "../../../utils/macros";
+import util from "./util";
 
 class PrereqParser {
   /**
@@ -16,7 +16,7 @@ class PrereqParser {
    */
   serializeCoreqs(html, subjectAbbreviationTable) {
     const $ = cheerio.load(html);
-    const table = $('table');
+    const table = $("table");
     const rows = util.parseTable(table);
     /*
      * some classes have 5 columns instead of 3.
@@ -32,7 +32,11 @@ class PrereqParser {
     const coreqs = [];
     rows.forEach((row) => {
       const { subject, coursenumber } = row;
-      const subjectAbbreviation = _.get(subjectAbbreviationTable, subject, false);
+      const subjectAbbreviation = _.get(
+        subjectAbbreviationTable,
+        subject,
+        false
+      );
       if (subjectAbbreviation) {
         coreqs.push({
           subject: subjectAbbreviation,
@@ -44,7 +48,7 @@ class PrereqParser {
     });
 
     return {
-      type: 'and',
+      type: "and",
       values: coreqs,
     };
   }
@@ -56,22 +60,28 @@ class PrereqParser {
    */
   serializePrereqs(html, subjectAbbreviationTable) {
     const $ = cheerio.load(html);
-    const allRows = util.parseTable($('table'));
+    const allRows = util.parseTable($("table"));
 
     let rowIndex = 0;
     function parsePrereqs() {
       const parsed = [];
-      let boolean = 'and';
+      let boolean = "and";
       while (rowIndex < allRows.length) {
         const row = allRows[rowIndex];
         const { subject, coursenumber } = row;
-        const leftParen = row[''];
-        const rightParen = row['1'];
-        const subjectAbbreviation = _.get(subjectAbbreviationTable, subject, false);
-        const isContentPresent = (row.subject && row.coursenumber && subjectAbbreviation) || (row.test && row.score);
+        const leftParen = row[""];
+        const rightParen = row["1"];
+        const subjectAbbreviation = _.get(
+          subjectAbbreviationTable,
+          subject,
+          false
+        );
+        const isContentPresent =
+          (row.subject && row.coursenumber && subjectAbbreviation) ||
+          (row.test && row.score);
 
-        if (row['and/or']) {
-          boolean = row['and/or'].toLowerCase();
+        if (row["and/or"]) {
+          boolean = row["and/or"].toLowerCase();
         }
 
         if (row.subject && !subjectAbbreviation) {
@@ -80,7 +90,7 @@ class PrereqParser {
         }
         const curr = row.test
           ? row.test
-          : ({ classId: coursenumber, subject: subjectAbbreviation });
+          : { classId: coursenumber, subject: subjectAbbreviation };
 
         rowIndex++;
         if (leftParen) {

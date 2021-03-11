@@ -27,7 +27,6 @@ const getAllClassOccurrences = async (subject, classId) => {
     include: { sections: true },
     orderBy: { termId: "desc" },
   });
-  console.log(results.map(result => result.sections));
   return serializeValues(results);
 };
 

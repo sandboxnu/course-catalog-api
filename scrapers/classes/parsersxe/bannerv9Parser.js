@@ -3,16 +3,16 @@
  * See the license file in the root folder for details.
  */
 
-import _ from 'lodash';
-import pMap from 'p-map';
-import Request from '../../request';
-import macros from '../../../utils/macros';
-import TermListParser from './termListParser';
-import TermParser from './termParser';
-import ClassParser from './classParser';
-import SectionParser from './sectionParser';
+import _ from "lodash";
+import pMap from "p-map";
+import Request from "../../request";
+import macros from "../../../utils/macros";
+import TermListParser from "./termListParser";
+import TermParser from "./termParser";
+import ClassParser from "./classParser";
+import SectionParser from "./sectionParser";
 
-const request = new Request('bannerv9Parser');
+const request = new Request("bannerv9Parser");
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -24,7 +24,7 @@ class Bannerv9Parser {
     // const undergradIds = termIds.filter((t) => { return suffixes.includes(t.slice(-2)); }).slice(0, suffixes.length);
     // macros.log(`scraping terms: ${undergradIds}`);
     macros.log(termsUrl);
-    return this.scrapeTerms(['202130']);
+    return this.scrapeTerms(["202130"]);
   }
 
   /**
@@ -43,7 +43,9 @@ class Bannerv9Parser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async scrapeTerms(termIds) {
-    const termData = await pMap(termIds, (p) => { return TermParser.parseTerm(p); });
+    const termData = await pMap(termIds, (p) => {
+      return TermParser.parseTerm(p);
+    });
     return _.mergeWith(...termData, (a, b) => {
       if (Array.isArray(a)) {
         return a.concat(b);
@@ -63,7 +65,11 @@ class Bannerv9Parser {
   async scrapeClass(termId, subject, courseNumber) {
     return {
       classes: [await ClassParser.parseClass(termId, subject, courseNumber)],
-      sections: await SectionParser.parseSectionsOfClass(termId, subject, courseNumber),
+      sections: await SectionParser.parseSectionsOfClass(
+        termId,
+        subject,
+        courseNumber
+      ),
     };
   }
 
@@ -73,13 +79,15 @@ class Bannerv9Parser {
     const url = `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${numTerms}&searchTerm=`;
     const output = await this.main(url);
     // eslint-disable-next-line global-require
-    require('fs').writeFileSync('parsersxe.json', JSON.stringify(output, null, 4));
+    require("fs").writeFileSync(
+      "parsersxe.json",
+      JSON.stringify(output, null, 4)
+    );
   }
 }
 
 Bannerv9Parser.prototype.Bannerv9Parser = Bannerv9Parser;
 const instance = new Bannerv9Parser();
-
 
 if (require.main === module) {
   instance.test();
