@@ -1,21 +1,21 @@
 /* eslint-disable no-underscore-dangle */
-import { _createDescriptionTable } from '../subjectAbbreviationParser';
+import { _createDescriptionTable } from "../subjectAbbreviationParser";
 
-describe('subjectAbbreviationParser', () => {
-  it('_createDescriptionTable builds mapping', () => {
+describe("subjectAbbreviationParser", () => {
+  it("_createDescriptionTable builds mapping", () => {
     const banner = [
       {
-        code: 'ACCT',
-        description: 'Accounting',
+        code: "ACCT",
+        description: "Accounting",
       },
       {
-        code: 'AVM',
-        description: 'Adv Manufacturing System - CPS',
+        code: "AVM",
+        description: "Adv Manufacturing System - CPS",
       },
     ];
     const map = {
-      Accounting: 'ACCT',
-      'Adv Manufacturing System - CPS': 'AVM',
+      Accounting: "ACCT",
+      "Adv Manufacturing System - CPS": "AVM",
     };
     expect(_createDescriptionTable(banner)).toEqual(map);
   });

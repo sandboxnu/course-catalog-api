@@ -2,17 +2,19 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.  */
 
-import fs from 'fs-extra';
-import _ from 'lodash';
-import path from 'path';
+import fs from "fs-extra";
+import _ from "lodash";
+import path from "path";
 import {
-  ProfessorCreateInput, CourseCreateInput, SectionCreateInput,
-} from '@prisma/client';
-import prisma from './prisma';
-import keys from '../utils/keys';
-import macros from '../utils/macros';
-import { populateES } from '../scripts/populateES';
-import pMap from 'p-map'
+  ProfessorCreateInput,
+  CourseCreateInput,
+  SectionCreateInput,
+} from "@prisma/client";
+import prisma from "./prisma";
+import keys from "../utils/keys";
+import macros from "../utils/macros";
+import { populateES } from "../scripts/populateES";
+import pMap from "p-map";
 
 type Maybe<T> = T | null | undefined;
 
@@ -54,7 +56,25 @@ class DumpProcessor {
       url: this.strTransform,
     };
 
-    const profCols = ['big_picture_url', 'email', 'emails', 'first_name', 'google_scholar_id', 'id', 'last_name', 'link', 'name', 'office_room', 'personal_site', 'phone', 'pic', 'primary_department', 'primary_role', 'street_address', 'url'];
+    const profCols = [
+      "big_picture_url",
+      "email",
+      "emails",
+      "first_name",
+      "google_scholar_id",
+      "id",
+      "last_name",
+      "link",
+      "name",
+      "office_room",
+      "personal_site",
+      "phone",
+      "pic",
+      "primary_department",
+      "primary_role",
+      "street_address",
+      "url",
+    ];
 
     const courseTransforms = {
       class_attributes: this.arrayTransform,
@@ -81,7 +101,28 @@ class DumpProcessor {
       url: this.strTransform,
     };
 
-    const courseCols = ['class_attributes', 'class_id', 'coreqs', 'description', 'fee_amount', 'fee_description', 'host', 'id', 'last_update_time', 'max_credits', 'min_credits', 'name', 'nupath', 'opt_prereqs_for', 'prereqs', 'prereqs_for', 'pretty_url', 'subject', 'term_id', 'url'];
+    const courseCols = [
+      "class_attributes",
+      "class_id",
+      "coreqs",
+      "description",
+      "fee_amount",
+      "fee_description",
+      "host",
+      "id",
+      "last_update_time",
+      "max_credits",
+      "min_credits",
+      "name",
+      "nupath",
+      "opt_prereqs_for",
+      "prereqs",
+      "prereqs_for",
+      "pretty_url",
+      "subject",
+      "term_id",
+      "url",
+    ];
 
     const sectionTransforms = {
       class_hash: this.strTransform,
@@ -101,121 +142,200 @@ class DumpProcessor {
       wait_remaining: this.intTransform,
     };
 
-    const sectionCols = ['class_hash', 'class_type', 'crn', 'honors', 'id', 'info', 'meetings', 'campus', 'profs', 'seats_capacity', 'seats_remaining', 'url', 'wait_capacity', 'wait_remaining'];
+    const sectionCols = [
+      "class_hash",
+      "class_type",
+      "crn",
+      "honors",
+      "id",
+      "info",
+      "meetings",
+      "campus",
+      "profs",
+      "seats_capacity",
+      "seats_remaining",
+      "url",
+      "wait_capacity",
+      "wait_remaining",
+    ];
 
     const coveredTerms: Set<string> = new Set();
 
-    await Promise.all(_.chunk(Object.values(profDump), 2000).map(async (profs) => {
-      await prisma.$executeRaw(this.bulkUpsert('professors', profCols, profTransforms, profs));
-    }));
+    await Promise.all(
+      _.chunk(Object.values(profDump), 2000).map(async (profs) => {
+        await prisma.$executeRaw(
+          this.bulkUpsert("professors", profCols, profTransforms, profs)
+        );
+      })
+    );
 
-    macros.log('finished with profs');
+    macros.log("finished with profs");
 
-    await Promise.all(_.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
-      await prisma.$executeRaw(this.bulkUpsert('courses', courseCols, courseTransforms, courses.map((c) => this.constituteCourse(c, coveredTerms))));
-    }));
+    await Promise.all(
+      _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
+        await prisma.$executeRaw(
+          this.bulkUpsert(
+            "courses",
+            courseCols,
+            courseTransforms,
+            courses.map((c) => this.constituteCourse(c, coveredTerms))
+          )
+        );
+      })
+    );
 
-    macros.log('finished with courses');
+    macros.log("finished with courses");
 
     // FIXME this is a bad hack that will work
-    const courseIds = new Set((await prisma.course.findMany({ select: { id: true } })).map((elem) => elem.id));
-    const processedSections = Object.values(termDump.sections).map((section) => this.constituteSection(section)).filter((s) => courseIds.has(s.classHash));
+    const courseIds = new Set(
+      (await prisma.course.findMany({ select: { id: true } })).map(
+        (elem) => elem.id
+      )
+    );
+    const processedSections = Object.values(termDump.sections)
+      .map((section) => this.constituteSection(section))
+      .filter((s) => courseIds.has(s.classHash));
 
-    await Promise.all(_.chunk(processedSections, 2000).map(async (sections) => {
-      await prisma.$executeRaw(this.bulkUpsert('sections', sectionCols, sectionTransforms, sections));
-    }));
+    await Promise.all(
+      _.chunk(processedSections, 2000).map(async (sections) => {
+        await prisma.$executeRaw(
+          this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
+        );
+      })
+    );
 
-    macros.log('finished with sections');
+    macros.log("finished with sections");
 
-    const courseUpdateTimes: Record<string, Date> = processedSections.reduce((acc: Record<string, Date>, section) => {
-      return { ...acc, [section.classHash]: new Date() };
-    }, {});
+    const courseUpdateTimes: Record<string, Date> = processedSections.reduce(
+      (acc: Record<string, Date>, section) => {
+        return { ...acc, [section.classHash]: new Date() };
+      },
+      {}
+    );
 
-    await pMap(Object.entries(courseUpdateTimes), async ([id, updateTime])=> {
-      await prisma.course.update({
-        where: { id },
-        data: { lastUpdateTime: updateTime },
-      });
-    }, {concurrency: 10})
+    await pMap(
+      Object.entries(courseUpdateTimes),
+      async ([id, updateTime]) => {
+        await prisma.course.update({
+          where: { id },
+          data: { lastUpdateTime: updateTime },
+        });
+      },
+      { concurrency: 10 }
+    );
 
-    macros.log('finished updating times');
+    macros.log("finished updating times");
 
-    await Promise.all(Object.entries(termDump.subjects).map(([key, value]) => {
-      return prisma.subject.upsert({
-        where: {
-          abbreviation: key,
-        },
-        create: {
-          abbreviation: key,
-          description: value as string,
-        },
-        update: {
-          description: value,
-        },
-      });
-    }));
+    await Promise.all(
+      Object.entries(termDump.subjects).map(([key, value]) => {
+        return prisma.subject.upsert({
+          where: {
+            abbreviation: key,
+          },
+          create: {
+            abbreviation: key,
+            description: value as string,
+          },
+          update: {
+            description: value,
+          },
+        });
+      })
+    );
 
-    macros.log('finished with subjects');
+    macros.log("finished with subjects");
 
     if (destroy) {
       await prisma.course.deleteMany({
         where: {
           termId: { in: Array.from(coveredTerms) },
           // delete all courses that haven't been updated in the past 2 days (in milliseconds)
-          lastUpdateTime: { lt: new Date(new Date().getTime() - 48 * 60 * 60 * 1000) },
+          lastUpdateTime: {
+            lt: new Date(new Date().getTime() - 48 * 60 * 60 * 1000),
+          },
         },
       });
     }
 
-    macros.log('finished cleaning up');
+    macros.log("finished cleaning up");
 
     await populateES();
   }
 
-  bulkUpsert(tableName: string, columnNames: string[], valTransforms: Record<string, Function>, vals: any[]): any {
-    let query = `INSERT INTO ${tableName} (${columnNames.join(',')}) VALUES `;
-    query += vals.map((val) => {
-      return `(${columnNames.map((c) => valTransforms[c](val[this.toCamelCase(c)], c, valTransforms)).join(',')})`;
-    }).join(',');
+  bulkUpsert(
+    tableName: string,
+    columnNames: string[],
+    valTransforms: Record<string, Function>,
+    vals: any[]
+  ): any {
+    let query = `INSERT INTO ${tableName} (${columnNames.join(",")}) VALUES `;
+    query += vals
+      .map((val) => {
+        return `(${columnNames
+          .map((c) =>
+            valTransforms[c](val[this.toCamelCase(c)], c, valTransforms)
+          )
+          .join(",")})`;
+      })
+      .join(",");
 
-    query += ` ON CONFLICT (id) DO UPDATE SET ${columnNames.map((c) => `${c} = excluded.${c}`).join(',')} WHERE ${tableName}.id = excluded.id;`;
+    query += ` ON CONFLICT (id) DO UPDATE SET ${columnNames
+      .map((c) => `${c} = excluded.${c}`)
+      .join(",")} WHERE ${tableName}.id = excluded.id;`;
     return query;
   }
 
   strTransform(val: Maybe<string>): string {
-    return val ? `'${val.replace(/'/g, "''")}'` : '\'\'';
+    return val ? `'${val.replace(/'/g, "''")}'` : "''";
   }
 
   arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${val}"` : '\'\'';
+    return val ? `"${val}"` : "''";
   }
 
   intTransform(val: Maybe<number>): string {
-    return val || val === 0 ? `${val}` : 'NULL';
+    return val || val === 0 ? `${val}` : "NULL";
   }
 
-  arrayTransform(val: Maybe<any[]>, kind: string, transforms: Record<string, Function>): string {
-    return val && val.length !== 0 ? `'{${val.map((v) => transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)).join(',')}}'` : 'array[]::text[]';
+  arrayTransform(
+    val: Maybe<any[]>,
+    kind: string,
+    transforms: Record<string, Function>
+  ): string {
+    return val && val.length !== 0
+      ? `'{${val
+          .map((v) =>
+            transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
+          )
+          .join(",")}}'`
+      : "array[]::text[]";
   }
 
   jsonTransform(val: Maybe<any>): string {
-    return val ? `'${JSON.stringify(val)}'` : '\'{}\'';
+    return val ? `'${JSON.stringify(val)}'` : "'{}'";
   }
 
   dateTransform(val: Maybe<any>): string {
-    return val ? `to_timestamp(${val / 1000})` : 'now()';
+    return val ? `to_timestamp(${val / 1000})` : "now()";
   }
 
   boolTransform(val: Maybe<any>): string {
-    return val ? 'TRUE' : 'FALSE';
+    return val ? "TRUE" : "FALSE";
   }
 
   processProf(profInfo: any): ProfessorCreateInput {
     const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
-    return _.omit(correctedQuery, ['title', 'interests', 'officeStreetAddress']) as ProfessorCreateInput;
+    return _.omit(correctedQuery, [
+      "title",
+      "interests",
+      "officeStreetAddress",
+    ]) as ProfessorCreateInput;
   }
 
-  processCourse(classInfo: any, coveredTerms: Set<string> = new Set()): CourseCreateInput {
+  processCourse(
+    classInfo: any,
+    coveredTerms: Set<string> = new Set()
+  ): CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
@@ -238,7 +358,10 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  constituteCourse(classInfo: any, coveredTerms: Set<string> = new Set()): CourseCreateInput {
+  constituteCourse(
+    classInfo: any,
+    coveredTerms: Set<string> = new Set()
+  ): CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
@@ -261,17 +384,36 @@ class DumpProcessor {
   }
 
   processSection(secInfo: any): SectionCreateInput {
-    const additionalProps = { id: `${keys.getSectionHash(secInfo)}`, classHash: keys.getClassHash(secInfo), profs: { set: secInfo.profs || [] } };
-    return _.omit({ ...secInfo, ...additionalProps }, ['classId', 'termId', 'subject', 'host']) as SectionCreateInput;
+    const additionalProps = {
+      id: `${keys.getSectionHash(secInfo)}`,
+      classHash: keys.getClassHash(secInfo),
+      profs: { set: secInfo.profs || [] },
+    };
+    return _.omit({ ...secInfo, ...additionalProps }, [
+      "classId",
+      "termId",
+      "subject",
+      "host",
+    ]) as SectionCreateInput;
   }
 
   constituteSection(secInfo: any): SectionCreateInput {
-    const additionalProps = { id: `${keys.getSectionHash(secInfo)}`, classHash: keys.getClassHash(secInfo) };
-    return _.omit({ ...secInfo, ...additionalProps }, ['classId', 'termId', 'subject', 'host']) as SectionCreateInput;
+    const additionalProps = {
+      id: `${keys.getSectionHash(secInfo)}`,
+      classHash: keys.getClassHash(secInfo),
+    };
+    return _.omit({ ...secInfo, ...additionalProps }, [
+      "classId",
+      "termId",
+      "subject",
+      "host",
+    ]) as SectionCreateInput;
   }
 
   toCamelCase(str: string): string {
-    return str.replace(/(_[a-z])/g, (group) => group.toUpperCase().replace('_', ''));
+    return str.replace(/(_[a-z])/g, (group) =>
+      group.toUpperCase().replace("_", "")
+    );
   }
 }
 
@@ -282,7 +424,7 @@ async function fromFile(termFilePath, empFilePath) {
   const empExists = await fs.pathExists(empFilePath);
 
   if (!termExists || !empExists) {
-    macros.error('need to run scrape before indexing');
+    macros.error("need to run scrape before indexing");
     return;
   }
 
@@ -293,8 +435,12 @@ async function fromFile(termFilePath, empFilePath) {
 
 if (require.main === module) {
   // If called directly, attempt to index the dump in public dir
-  const termFilePath = path.join(macros.PUBLIC_DIR, 'getTermDump', 'allTerms.json');
-  const empFilePath = path.join(macros.PUBLIC_DIR, 'employeeDump.json');
+  const termFilePath = path.join(
+    macros.PUBLIC_DIR,
+    "getTermDump",
+    "allTerms.json"
+  );
+  const empFilePath = path.join(macros.PUBLIC_DIR, "employeeDump.json");
   fromFile(termFilePath, empFilePath).catch(macros.error);
 }
 

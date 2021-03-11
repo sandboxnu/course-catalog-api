@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import macros from '../../../utils/macros';
-import keys from '../../../utils/keys';
+import macros from "../../../utils/macros";
+import keys from "../../../utils/keys";
 
 class BaseProcessor {
   groupSectionsByClass(sections) {
@@ -35,8 +35,13 @@ class BaseProcessor {
     const keyToRows = {};
 
     termDump.classes.forEach((aClass) => {
-      if (!aClass.host || !aClass.termId || !aClass.subject || !aClass.classId) {
-        macros.error('ERROR class doesn\'t have required fields??', aClass);
+      if (
+        !aClass.host ||
+        !aClass.termId ||
+        !aClass.subject ||
+        !aClass.classId
+      ) {
+        macros.error("ERROR class doesn't have required fields??", aClass);
         return;
       }
 
@@ -50,7 +55,6 @@ class BaseProcessor {
     return keyToRows;
   }
 }
-
 
 BaseProcessor.prototype.BaseProcessor = BaseProcessor;
 export default new BaseProcessor();

@@ -3,13 +3,15 @@
  * See the license file in the root folder for details.
  */
 
-import _ from 'lodash';
-import prisma from '../services/prisma';
+import _ from "lodash";
+import prisma from "../services/prisma";
 
 class CourseSerializer {
   // FIXME this pattern is bad
   async bulkSerialize(instances, all = false) {
-    const courses = instances.map((course) => { return this.serializeCourse(course); });
+    const courses = instances.map((course) => {
+      return this.serializeCourse(course);
+    });
 
     let sections;
 
@@ -18,16 +20,24 @@ class CourseSerializer {
     } else {
       sections = await prisma.section.findMany({
         where: {
-          classHash: { in: instances.slice(0, 100).map((instance) => instance.id) },
+          classHash: {
+            in: instances.slice(0, 100).map((instance) => instance.id),
+          },
         },
       });
     }
 
-    const classToSections = _.groupBy(sections, 'classHash');
+    const classToSections = _.groupBy(sections, "classHash");
 
-    return _(courses).keyBy(this.getClassHash).mapValues((course) => {
-      return this.bulkSerializeCourse(course, classToSections[this.getClassHash(course)] || []);
-    }).value();
+    return _(courses)
+      .keyBy(this.getClassHash)
+      .mapValues((course) => {
+        return this.bulkSerializeCourse(
+          course,
+          classToSections[this.getClassHash(course)] || []
+        );
+      })
+      .value();
   }
 
   bulkSerializeCourse(course, sections) {
@@ -36,15 +46,19 @@ class CourseSerializer {
     return {
       class: course,
       sections: serializedSections,
-      type: 'class',
+      type: "class",
     };
   }
 
   serializeSections(sections, parentCourse) {
     if (sections.length === 0) return sections;
-    return sections.map((section) => { return this.serializeSection(section); }).map((section) => {
-      return { ...section, ..._.pick(parentCourse, this.courseProps()) };
-    });
+    return sections
+      .map((section) => {
+        return this.serializeSection(section);
+      })
+      .map((section) => {
+        return { ...section, ..._.pick(parentCourse, this.courseProps()) };
+      });
   }
 
   serializeCourse(course) {
@@ -60,19 +74,19 @@ class CourseSerializer {
 
   // TODO this should definitely be eliminated
   getClassHash(course) {
-    return ['neu.edu', course.termId, course.subject, course.classId].join('/');
+    return ["neu.edu", course.termId, course.subject, course.classId].join("/");
   }
 
   courseProps() {
-    throw new Error('not implemented');
+    throw new Error("not implemented");
   }
 
   finishCourseObj() {
-    throw new Error('not implemented');
+    throw new Error("not implemented");
   }
 
   finishSectionObj() {
-    throw new Error('not implemented');
+    throw new Error("not implemented");
   }
 }
 

@@ -26,7 +26,7 @@ const amplitude = new Amplitude(commonMacros.amplitudeToken);
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
 let oldcwd: string;
-while (1) {
+while (oldcwd !== process.cwd()) {
   try {
     fs.statSync("package.json");
   } catch (e) {
@@ -34,7 +34,7 @@ while (1) {
     //cd .. until in the same dir as package.json, the root of the project
     process.chdir("..");
 
-    // Prevent an infinate loop: If we keep cd'ing upward and we hit the root dir and still haven't found
+    // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
     // a package.json, just return to the original directory and break out of this loop.
     if (oldcwd === process.cwd()) {
       commonMacros.warn(

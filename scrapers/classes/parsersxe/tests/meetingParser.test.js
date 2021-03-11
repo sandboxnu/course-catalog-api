@@ -1,11 +1,13 @@
-import MeetingParser from '../meetingParser';
+import MeetingParser from "../meetingParser";
 
-import data from './data/meetingParser.data';
+import data from "./data/meetingParser.data";
 
-it('meetingParser.js', () => {
+it("meetingParser.js", () => {
   expect(MeetingParser.parseMeetings(data.htlh2200)).toMatchSnapshot();
 });
 
-it('profname', () => {
-  expect(MeetingParser.profName({ displayName: 'Chu, Daj' })).toEqual('Daj Chu');
+it("profname", () => {
+  expect(MeetingParser.profName({ displayName: "Chu, Daj" })).toEqual(
+    "Daj Chu"
+  );
 });

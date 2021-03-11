@@ -3,9 +3,9 @@
  * See the license file in the root folder for details.
  */
 
-import BaseProcessor from './baseProcessor';
-import keys from '../../../utils/keys';
-import macros from '../../../utils/macros';
+import BaseProcessor from "./baseProcessor";
+import keys from "../../../utils/keys";
+import macros from "../../../utils/macros";
 
 /**
  * Adds the prerequsite-for field for classes that are a predecessor for
@@ -74,7 +74,7 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
       const nodeRef = this.classMap[find];
 
       if (!nodeRef) {
-        macros.error('Unable to find ref for', find, node, mainClass);
+        macros.error("Unable to find ref for", find, node, mainClass);
         return;
       }
 
@@ -95,7 +95,7 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
         node.values.map((course) => {
           // A required course becomes effectively optional when we encounter
           // an 'or' in our tree.
-          const reqType = (classType === 'and') ? isRequired : false;
+          const reqType = classType === "and" ? isRequired : false;
           return this.parsePreReqs(mainClass, course, reqType);
         });
       }
@@ -160,18 +160,24 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
    */
   sortPreReqs(aClass) {
     if (aClass.optPrereqsFor && aClass.optPrereqsFor.values) {
-      aClass.optPrereqsFor.values = this.sortPrereqsValues(aClass.subject, aClass.optPrereqsFor.values);
+      aClass.optPrereqsFor.values = this.sortPrereqsValues(
+        aClass.subject,
+        aClass.optPrereqsFor.values
+      );
     }
 
     if (aClass.prereqsFor && aClass.prereqsFor.values) {
-      aClass.prereqsFor.values = this.sortPrereqsValues(aClass.subject, aClass.prereqsFor.values);
+      aClass.prereqsFor.values = this.sortPrereqsValues(
+        aClass.subject,
+        aClass.prereqsFor.values
+      );
     }
   }
 
   // Prerequisite -> Boolean
   // Checks if a prerequisite is a class or not
   isClass(prereq) {
-    return Object.prototype.hasOwnProperty.call(prereq, 'subject');
+    return Object.prototype.hasOwnProperty.call(prereq, "subject");
   }
 }
 

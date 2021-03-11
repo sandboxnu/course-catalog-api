@@ -3,17 +3,17 @@
  * See the license file in the root folder for details.
  */
 
-import _ from 'lodash';
-import objectHash from 'object-hash';
-import fs from 'fs-extra';
-import path from 'path';
+import _ from "lodash";
+import objectHash from "object-hash";
+import fs from "fs-extra";
+import path from "path";
 
-import macros from '../../utils/macros';
-import neuEmployees from './employees';
-import ccisFaculty from './ccis';
-import csshFaculty from './cssh';
-import camdFaculty from './camd';
-import coeFaculty from './coe';
+import macros from "../../utils/macros";
+import neuEmployees from "./employees";
+import ccisFaculty from "./ccis";
+import csshFaculty from "./cssh";
+import camdFaculty from "./camd";
+import coeFaculty from "./coe";
 
 // This file combines the data from the ccis website and the NEU Employees site
 // If there is a match, the data from the ccis site has priority over the data from the employee site.
@@ -71,27 +71,37 @@ class CombineCCISandEmployees {
 
       matchObj.emails.forEach((email) => {
         if (!email) {
-          macros.warn('Invalid email, not adding to emailDomainMap?', email, matchObj, person, peopleListIndex);
+          macros.warn(
+            "Invalid email, not adding to emailDomainMap?",
+            email,
+            matchObj,
+            person,
+            peopleListIndex
+          );
           return;
         }
-        const domain = email.split('@')[1];
+        const domain = email.split("@")[1];
         emailDomainMap[domain] = email;
       });
 
       for (const email of person.emails) {
-        const domain = email.split('@')[1];
+        const domain = email.split("@")[1];
         if (emailDomainMap[domain] && emailDomainMap[domain] !== email) {
-          this.logAnalyticsEvent('emailDomainMismatch');
+          this.logAnalyticsEvent("emailDomainMismatch");
 
-          macros.log('Not matching people because they had different emails on the same domain.', emailDomainMap[domain], email);
+          macros.log(
+            `Not matching people because they had different emails on the same domain. ${emailDomainMap[domain]} ${email}`
+          );
           return false;
         }
       }
     }
 
     if (matchObj.peopleListIndexMatches[peopleListIndex]) {
-      this.logAnalyticsEvent('sameListNotMatching');
-      macros.log('Not matching ', matchObj.firstName, matchObj.lastName, 'and ', person.name, 'because they came from the same list.');
+      this.logAnalyticsEvent("sameListNotMatching");
+      macros.log(
+        `Not matching ${matchObj.firstName} ${matchObj.lastName} and ${person.name} because they came from the same list.`
+      );
       return false;
     }
 
@@ -99,7 +109,13 @@ class CombineCCISandEmployees {
   }
 
   async main(peopleLists) {
-    peopleLists = await Promise.all([neuEmployees.main(), ccisFaculty.main(), csshFaculty.main(), camdFaculty.main(), coeFaculty.main()]);
+    peopleLists = await Promise.all([
+      neuEmployees.main(),
+      ccisFaculty.main(),
+      csshFaculty.main(),
+      camdFaculty.main(),
+      coeFaculty.main(),
+    ]);
 
     const mergedPeopleList = [];
 
@@ -107,26 +123,30 @@ class CombineCCISandEmployees {
 
     // First, match people from the different data sources. The merging happens after the matching
     for (const peopleList of peopleLists) {
-      macros.log('At people list index', peopleListIndex);
+      macros.log(`At people list index  ${peopleListIndex}`);
 
       this.resetAnalytics();
 
       for (const person of peopleList) {
         let matchesFound = 0;
-        this.logAnalyticsEvent('people');
+        this.logAnalyticsEvent("people");
 
         // Skip to the adding for everyone in the first data set
         // Attempt to match by email
         if (person.emails && peopleListIndex > 0) {
           for (const matchedPerson of mergedPeopleList) {
             // Emails did not overlap at all. Go to next person.
-            if (_.intersection(matchedPerson.emails, person.emails).length === 0) {
+            if (
+              _.intersection(matchedPerson.emails, person.emails).length === 0
+            ) {
               continue;
             }
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log('Not ok to match 1.', matchedPerson.firstName, matchedPerson.lastName, person.name);
+              macros.log(
+                `Not ok to match 1. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
+              );
               continue;
             }
 
@@ -142,25 +162,33 @@ class CombineCCISandEmployees {
 
             // There should only be one match per person. Log a warning if there are more.
             matchesFound++;
-            this.logAnalyticsEvent('matchedByEmail');
+            this.logAnalyticsEvent("matchedByEmail");
             if (matchesFound > 1) {
-              macros.log('Warning 1: ', matchesFound, 'matches found', matchedPerson, person);
+              macros.log(
+                `Warning 1: ${matchesFound} matches found ${matchedPerson} ${person}`
+              );
             }
           }
         }
 
         // The rest of this code requires both a first name and a last name
         if (!person.firstName || !person.lastName) {
-          this.logAnalyticsEvent('missingNameUnmatchedEmail');
-          macros.log("Don't have person first name or last name and did not match with email.", person);
+          this.logAnalyticsEvent("missingNameUnmatchedEmail");
+          macros.log(
+            `Don't have person first name or last name and did not match with email. ${person}`
+          );
           continue;
         }
 
         // Try to match by perfect name matches. If this fails then fallback to ghetto name matches.
         if (matchesFound === 0 && peopleListIndex > 0) {
           for (const matchedPerson of mergedPeopleList) {
-            const firstMatch = person.firstName.toLowerCase() === matchedPerson.firstName.toLowerCase();
-            const lastMatch = person.lastName.toLowerCase() === matchedPerson.lastName.toLowerCase();
+            const firstMatch =
+              person.firstName.toLowerCase() ===
+              matchedPerson.firstName.toLowerCase();
+            const lastMatch =
+              person.lastName.toLowerCase() ===
+              matchedPerson.lastName.toLowerCase();
 
             // If both the first names and last names did not match, go to next person
             if (!firstMatch || !lastMatch) {
@@ -169,7 +197,9 @@ class CombineCCISandEmployees {
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log('Not ok to perfect name match.', matchedPerson.firstName, matchedPerson.lastName, person.name);
+              macros.log(
+                `Not ok to perfect name match. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
+              );
               continue;
             }
 
@@ -183,13 +213,17 @@ class CombineCCISandEmployees {
             matchedPerson.emails = _.uniq(matchedPerson.emails);
             matchedPerson.peopleListIndexMatches[peopleListIndex] = true;
 
-            macros.log('Matching:', person.firstName, person.lastName, ':', matchedPerson.firstName, matchedPerson.lastName);
+            macros.log(
+              `Matching: ${person.firstName} ${person.lastName} : ${matchedPerson.firstName} ${matchedPerson.lastName}`
+            );
 
             // There should only be one match per person. Log a warning if there are more.
-            this.logAnalyticsEvent('matchedByPerfectName');
+            this.logAnalyticsEvent("matchedByPerfectName");
             matchesFound++;
             if (matchesFound > 1) {
-              macros.log('Warning 4: ', matchesFound, 'matches found', matchedPerson, person);
+              macros.log(
+                `Warning 4: ${matchesFound} matches found ${matchedPerson} ${person}`
+              );
             }
           }
         }
@@ -207,9 +241,11 @@ class CombineCCISandEmployees {
             const matchedPersonLastNameLower = matchedPerson.lastName.toLowerCase();
 
             const firstMatch =
-              personFirstNameLower.includes(matchedPersonFirstNameLower) || matchedPersonFirstNameLower.includes(personFirstNameLower);
+              personFirstNameLower.includes(matchedPersonFirstNameLower) ||
+              matchedPersonFirstNameLower.includes(personFirstNameLower);
             const lastMatch =
-              personLastNameLower.includes(matchedPersonLastNameLower) || matchedPersonLastNameLower.includes(personLastNameLower);
+              personLastNameLower.includes(matchedPersonLastNameLower) ||
+              matchedPersonLastNameLower.includes(personLastNameLower);
 
             // If both the first names and last names did not match, go to next person
             if (!firstMatch || !lastMatch) {
@@ -218,7 +254,9 @@ class CombineCCISandEmployees {
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log('Not ok to match 2.', matchedPerson.firstName, matchedPerson.lastName, person.name);
+              macros.log(
+                `Not ok to match 2. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
+              );
               continue;
             }
 
@@ -232,13 +270,17 @@ class CombineCCISandEmployees {
             matchedPerson.emails = _.uniq(matchedPerson.emails);
             matchedPerson.peopleListIndexMatches[peopleListIndex] = true;
 
-            macros.log('Matching:', person.firstName, person.lastName, ':', matchedPerson.firstName, matchedPerson.lastName);
+            macros.log(
+              `Matching: ${person.firstName} ${person.lastName} : ${matchedPerson.firstName} ${matchedPerson.lastName}`
+            );
 
             // There should only be one match per person. Log a warning if there are more.
-            this.logAnalyticsEvent('matchedByName');
+            this.logAnalyticsEvent("matchedByName");
             matchesFound++;
             if (matchesFound > 1) {
-              macros.log('Warning 2: ', matchesFound, 'matches found', matchedPerson, person);
+              macros.log(
+                `Warning 2: ${matchesFound} matches found ${matchedPerson} ${person}`
+              );
             }
           }
         }
@@ -261,22 +303,27 @@ class CombineCCISandEmployees {
           }
 
           if (peopleListIndex > 1) {
-            macros.log('Adding', person.firstName, person.lastName);
+            macros.log(`Adding ${person.firstName} ${person.lastName}`);
           }
-          if (person.primaryRole === 'PhD Student') {
-            this.logAnalyticsEvent('unmatched PhD Student');
+          if (person.primaryRole === "PhD Student") {
+            this.logAnalyticsEvent("unmatched PhD Student");
           }
 
           mergedPeopleList.push(newMatchPerson);
         } else if (matchesFound > 1) {
-          macros.warn(matchesFound, 'matches found for ', person.name, '!!!!');
+          macros.warn(`${matchesFound} matches found for ${person.name} !!!!`);
         }
       }
 
       // Do some final calculations on the analytics and then log them
-      if (this.analytics.matchedByEmail !== undefined && this.analytics.matchedByName !== undefined) {
-        this.analytics.matched = this.analytics.matchedByEmail + this.analytics.matchedByName;
-        this.analytics.unmatched = this.analytics.people - this.analytics.matched;
+      if (
+        this.analytics.matchedByEmail !== undefined &&
+        this.analytics.matchedByName !== undefined
+      ) {
+        this.analytics.matched =
+          this.analytics.matchedByEmail + this.analytics.matchedByName;
+        this.analytics.unmatched =
+          this.analytics.people - this.analytics.matched;
       }
 
       macros.log(JSON.stringify(this.analytics, null, 4));
@@ -295,7 +342,7 @@ class CombineCCISandEmployees {
       for (const profile of person.matches) {
         for (const attrName of Object.keys(profile)) {
           // Merge emails
-          if (attrName === 'emails') {
+          if (attrName === "emails") {
             if (output.emails) {
               output.emails = _.uniq(output.emails.concat(profile.emails));
             } else {
@@ -305,7 +352,9 @@ class CombineCCISandEmployees {
           }
 
           if (output[attrName] && output[attrName] !== profile[attrName]) {
-            macros.log('Overriding ', output[attrName], '\twith', profile[attrName]);
+            macros.log(
+              `Overriding ${output[attrName]} \twith ${profile[attrName]}`
+            );
           }
 
           output[attrName] = profile[attrName];
@@ -332,14 +381,24 @@ class CombineCCISandEmployees {
       mergedEmployees[index].id = objectHash(person);
     });
 
-    macros.log('Spent', Date.now() - startTime, 'ms generating object hashes for employees without IDs.');
+    macros.log(
+      `Spent ${
+        Date.now() - startTime
+      } ms generating object hashes for employees without IDs.`
+    );
 
     // Remove people who have request their information be removed from the DB.
     // Ask Ryan about this for more details.
-    const hiddenProfs = ['i.escobedo@northeastern.edu', 'p.kothamali@northeastern.edu'];
+    const hiddenProfs = [
+      "i.escobedo@northeastern.edu",
+      "p.kothamali@northeastern.edu",
+    ];
     const beforeModifyCount = mergedEmployees.length;
     mergedEmployees = mergedEmployees.filter((person) => {
-      if (person.emails && _.intersection(person.emails, hiddenProfs).length > 0) {
+      if (
+        person.emails &&
+        _.intersection(person.emails, hiddenProfs).length > 0
+      ) {
         return false;
       }
 
@@ -349,21 +408,31 @@ class CombineCCISandEmployees {
     // Remove data from individual entries
     for (let i = 0; i < mergedEmployees.length; i++) {
       // This is also a specific exception, ask Ryan about it.
-      if (mergedEmployees[i].emails.includes('s.gary@northeastern.edu')) {
+      if (mergedEmployees[i].emails.includes("s.gary@northeastern.edu")) {
         mergedEmployees[i].phone = undefined;
       }
     }
 
-    macros.log(`Changed/Removed ${beforeModifyCount - mergedEmployees.length} person(s) from the employee list.`);
+    macros.log(
+      `Changed/Removed ${
+        beforeModifyCount - mergedEmployees.length
+      } person(s) from the employee list.`
+    );
 
     // Save the array to disk for the employees API.
     await fs.ensureDir(macros.PUBLIC_DIR);
-    await fs.writeFile(path.join(macros.PUBLIC_DIR, 'employees.json'), JSON.stringify(mergedEmployees, null, 4));
+    await fs.writeFile(
+      path.join(macros.PUBLIC_DIR, "employees.json"),
+      JSON.stringify(mergedEmployees, null, 4)
+    );
 
     // Turn it into a hashmap instead of a list for the dump
-    const employeeDump = _.keyBy(mergedEmployees, 'id');
+    const employeeDump = _.keyBy(mergedEmployees, "id");
 
-    await fs.writeFile(path.join(macros.PUBLIC_DIR, 'employeeDump.json'), JSON.stringify(employeeDump));
+    await fs.writeFile(
+      path.join(macros.PUBLIC_DIR, "employeeDump.json"),
+      JSON.stringify(employeeDump)
+    );
 
     return mergedEmployees;
   }

@@ -3,15 +3,14 @@
  * See the license file in the root folder for details.
  */
 
-import path from 'path';
-import fs from 'fs-extra';
-import msgpackImport from 'msgpack5';
-import _ from 'lodash';
+import path from "path";
+import fs from "fs-extra";
+import msgpackImport from "msgpack5";
+import _ from "lodash";
 
-import macros from '../utils/macros';
+import macros from "../utils/macros";
 
 const msgpack = msgpackImport();
-
 
 // This file is responsible for caching things during development mode
 // It doesn't run at all in production or testing
@@ -29,7 +28,6 @@ const msgpack = msgpackImport();
 
 // If we want to ever make this better in the future, we could add a feature to append to an existing json/msgpack buffer
 // instead of decoding and re-encoding the entire buffer over again every time we save.
-
 
 // Quick history of caching the http requests:
 // The first attempt used a separate file for each request
@@ -76,14 +74,17 @@ class Cache {
   }
 
   getFilePath(folderName, className) {
-    return `${path.join('cache', folderName, className)}.cache`;
+    return `${path.join("cache", folderName, className)}.cache`;
   }
 
   // Ensures that the folder name is one of the two currently used folder names
   // More can be added later, just change this method to allow them
   verifyFolderName(name) {
     if (name !== macros.DEV_DATA_DIR && name !== macros.REQUESTS_CACHE_DIR) {
-      macros.critical('Folder name must be macros.DEV_DATA_DIR (for parsers cache) or macros.REQUESTS_CACHE_DIR (for request cache). Given:', name);
+      macros.critical(
+        "Folder name must be macros.DEV_DATA_DIR (for parsers cache) or macros.REQUESTS_CACHE_DIR (for request cache). Given:",
+        name
+      );
     }
   }
 
@@ -102,7 +103,11 @@ class Cache {
       const buffer = await fs.readFile(msgPackFileExtension);
       const midTime = Date.now();
       const retVal = msgpack.decode(buffer);
-      macros.log('It took ', Date.now() - midTime, 'ms to parse and ', midTime - startTime, ' to load ', msgPackFileExtension);
+      macros.log(
+        `It took ${Date.now() - midTime} ms to parse and ${
+          midTime - startTime
+        } to load ${msgPackFileExtension}`
+      );
       return retVal;
     }
 
@@ -114,13 +119,16 @@ class Cache {
       const buffer = await fs.readFile(jsonFileExtension);
       const midTime = Date.now();
       const retVal = JSON.parse(buffer);
-      macros.log('It took ', Date.now() - midTime, 'ms to parse and ', midTime - startTime, ' to load ', jsonFileExtension);
+      macros.log(
+        `It took ${Date.now() - midTime} ms to parse and ${
+          midTime - startTime
+        } to load ${jsonFileExtension}`
+      );
       return retVal;
     }
 
     return {};
   }
-
 
   async ensureLoaded(filePath) {
     if (this.dataPromiseMap[filePath]) {
@@ -132,12 +140,11 @@ class Cache {
     return promise;
   }
 
-
   // Path, in both set and get, is an array of strings. These strings can be anything and can be the same for separate requests, but just need to be the same for identical requests.
   // Kindof like hash codes in java for the equals method.
   async get(folderName, className, key) {
     if (!macros.DEV) {
-      macros.error('Called cache.js get but not in DEV mode?');
+      macros.error("Called cache.js get but not in DEV mode?");
     }
 
     this.verifyFolderName(folderName);
@@ -160,16 +167,18 @@ class Cache {
 
     if (optimizeForSpeed) {
       buffer = msgpack.encode(dataMap);
-      destinationFile += '.msgpack';
+      destinationFile += ".msgpack";
     } else {
       // Prettify the JSON when stringifying
       buffer = JSON.stringify(dataMap, null, 4);
-      destinationFile += '.json';
+      destinationFile += ".json";
     }
 
     const timeSpendEncoding = Date.now() - startTime;
     this.totalTimeSpendEncoding += timeSpendEncoding;
-    macros.log('Saving file', destinationFile, 'encoding took', timeSpendEncoding, this.totalTimeSpendEncoding);
+    macros.log(
+      `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`
+    );
     await fs.writeFile(`${destinationFile}.new`, buffer);
 
     // Write to a file with a different name, and then rename the new one. Renaming a file to a filename that already exists
@@ -177,9 +186,12 @@ class Cache {
     // This prevents the cache file from getting into an invalid state if the process is killed while the program is saving.
     // If the file does not exist, ignore the error
     await fs.rename(`${destinationFile}.new`, destinationFile);
-    macros.log('It took ', Date.now() - startTime, 'ms to save', destinationFile, `(${this.totalTimeSpendCloning}ms spent cloning so far).`);
+    macros.log(
+      `It took ${Date.now() - startTime} ms to save ${destinationFile} (${
+        this.totalTimeSpendCloning
+      } ms spent cloning so far).`
+    );
   }
-
 
   // Returns a promsie when it is done.
   // The optimize for speed option:
@@ -189,7 +201,7 @@ class Cache {
   //      This is much faster than JSON, but is binary (not openable by editors easily).
   async set(folderName, className, key, value, optimizeForSpeed = false) {
     if (!macros.DEV) {
-      macros.error('Called cache.js set but not in DEV mode?');
+      macros.error("Called cache.js set but not in DEV mode?");
     }
 
     this.verifyFolderName(folderName);
@@ -197,7 +209,6 @@ class Cache {
     const filePath = this.getFilePath(folderName, className);
 
     this.ensureLoaded(filePath);
-
 
     const dataMap = await this.dataPromiseMap[filePath];
 
@@ -225,6 +236,5 @@ class Cache {
     }
   }
 }
-
 
 export default new Cache();

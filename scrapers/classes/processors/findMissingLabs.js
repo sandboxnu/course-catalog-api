@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import BaseProcessor from './baseProcessor';
-import macros from '../../../utils/macros';
+import BaseProcessor from "./baseProcessor";
+import macros from "../../../utils/macros";
 
 // THIS DOES NOT WORK YET
 // This find classes that are called "lab for " and "recitation for " and "Interactive Learning Seminar for PHYS 1155"
@@ -12,7 +12,6 @@ import macros from '../../../utils/macros';
 // as of july 2016 there are abou 52 classes in each term in neu that this finds, and 0 at swarthmore
 //
 // ALSO: make sure to remove any classes added to coreqs from prereqs. ENVR 1201 (lab for 1200) has 1200 as a prereq
-
 
 class FindMissingLabs extends BaseProcessor.BaseProcessor {
   go(query, callback) {
@@ -22,7 +21,9 @@ class FindMissingLabs extends BaseProcessor.BaseProcessor {
 
         const name = aClass.name;
 
-        const match = name.match(/\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g);
+        const match = name.match(
+          /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g
+        );
         if (match) {
           let coreqsArray = [];
           if (aClass.coreqs) {
@@ -43,7 +44,7 @@ class FindMissingLabs extends BaseProcessor.BaseProcessor {
 const instance = new FindMissingLabs();
 
 if (require.main === module) {
-  instance.go({ host:'neu.edu', termId:'201630' });
+  instance.go({ host: "neu.edu", termId: "201630" });
 }
 
 export default instance;
