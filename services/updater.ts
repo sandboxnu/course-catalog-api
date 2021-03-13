@@ -62,8 +62,6 @@ class Updater {
 
   SEMS_TO_UPDATE: string[];
 
-  // CAMPUS: string;
-
   static create() {
     return new this();
   }
@@ -73,7 +71,6 @@ class Updater {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
     this.SEMS_TO_UPDATE = ["202160", "202154", "202150", "202140"];
-    // this.CAMPUS = Updater.getCampusFromTerm(this.SEM_TO_UPDATE);
   }
 
   // TODO must call this in server
