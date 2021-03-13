@@ -4,6 +4,7 @@
  */
 
 import _ from "lodash";
+import pMap from "p-map";
 import { Course, Section } from "@prisma/client";
 import * as https from "https";
 import * as httpSignature from "http-signature";
@@ -14,8 +15,6 @@ import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import { Section as ScrapedSection } from "../types/types";
-
-// 1. updates for CPS & Law (including quarterly and semesterly versions)
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -61,9 +60,9 @@ class Updater {
 
   SECTION_MODEL: ModelName;
 
-  SEM_TO_UPDATE: string;
+  SEMS_TO_UPDATE: string[];
 
-  CAMPUS: string;
+  // CAMPUS: string;
 
   static create() {
     return new this();
@@ -73,8 +72,17 @@ class Updater {
   constructor() {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEM_TO_UPDATE = "202130";
-    this.CAMPUS = Updater.getCampusFromTerm(this.SEM_TO_UPDATE);
+    this.SEMS_TO_UPDATE = [
+      "202160",
+      "202154",
+      "202150",
+      "202140",
+      "202138",
+      "202135",
+      "202134",
+      "202132",
+    ];
+    // this.CAMPUS = Updater.getCampusFromTerm(this.SEM_TO_UPDATE);
   }
 
   // TODO must call this in server
@@ -100,9 +108,11 @@ class Updater {
     const startTime = Date.now();
 
     // scrape everything
-    const sections: ScrapedSection[] = await termParser.parseSections(
-      this.SEM_TO_UPDATE
-    );
+    const sections: ScrapedSection[] = (
+      await pMap(this.SEMS_TO_UPDATE, (termId) => {
+        return termParser.parseSections(termId);
+      })
+    ).flat();
 
     const notificationInfo = await this.getNotificationInfo(sections);
 
@@ -156,7 +166,7 @@ class Updater {
           subject,
           courseId: classId,
           courseHash: id,
-          campus: this.CAMPUS,
+          campus: Updater.getCampusFromTerm(termId),
           numberOfSectionsAdded: newSectionCount,
         });
       }
@@ -180,7 +190,7 @@ class Updater {
           courseId: classId,
           crn: s.crn,
           sectionHash: sectionId,
-          campus: this.CAMPUS,
+          campus: Updater.getCampusFromTerm(termId),
           seatsRemaining: s.seatsRemaining,
         });
       }
@@ -190,12 +200,21 @@ class Updater {
 
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
-    const oldClasses: Course[] = await prisma.course.findMany({
-      where: { termId: this.SEM_TO_UPDATE },
-    });
-    const oldSections: Section[] = await prisma.section.findMany({
-      where: { course: { termId: this.SEM_TO_UPDATE } },
-    });
+    const oldClasses: Course[] = (
+      await pMap(this.SEMS_TO_UPDATE, (termId) => {
+        return prisma.course.findMany({
+          where: { termId },
+        });
+      })
+    ).flat();
+
+    const oldSections: Section[] = (
+      await pMap(this.SEMS_TO_UPDATE, (termId) => {
+        return prisma.section.findMany({
+          where: { course: { termId } },
+        });
+      })
+    ).flat();
 
     const oldClassLookup: Record<string, Course> = _.keyBy(
       oldClasses,
@@ -230,6 +249,8 @@ class Updater {
   }
 
   async sendUpdates(notificationInfo: NotificationInfo): Promise<void> {
+    console.log(notificationInfo);
+    return;
     if (
       notificationInfo.updatedCourses.length === 0 &&
       notificationInfo.updatedSections.length === 0

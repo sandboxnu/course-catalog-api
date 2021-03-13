@@ -6,7 +6,7 @@
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
     "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.js",
     "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.js",
-    "updater": "yarn babel-node-ts updater.ts",
+    "updater": "yarn babel-node-ts services/updater.ts",
     "resetIndex": "yarn babel-node-ts backend/script/resetIndex.js",
     "populateES": "yarn babel-node-ts backend/script/populateES.ts",
     "script": "cd $INIT_CWD; babel-node --extensions \".js,.jsx,.ts,.tsx\" --root-mode upward --ignore \".this_does_not_exit\"",
