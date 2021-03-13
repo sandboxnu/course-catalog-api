@@ -72,16 +72,7 @@ class Updater {
   constructor() {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = [
-      "202160",
-      "202154",
-      "202150",
-      "202140",
-      "202138",
-      "202135",
-      "202134",
-      "202132",
-    ];
+    this.SEMS_TO_UPDATE = ["202160", "202154", "202150", "202140"];
     // this.CAMPUS = Updater.getCampusFromTerm(this.SEM_TO_UPDATE);
   }
 
@@ -249,8 +240,6 @@ class Updater {
   }
 
   async sendUpdates(notificationInfo: NotificationInfo): Promise<void> {
-    console.log(notificationInfo);
-    return;
     if (
       notificationInfo.updatedCourses.length === 0 &&
       notificationInfo.updatedSections.length === 0
