@@ -1,5 +1,4 @@
 # Get HTTPS cert
-# TODO currently unneeded because our cert is for *.searchneu.com
 resource "aws_acm_certificate" "cert" {
   domain_name               = "api.searchneu.com"
   subject_alternative_names = ["*.api.searchneu.com"]

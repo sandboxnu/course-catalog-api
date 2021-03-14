@@ -4,7 +4,7 @@ if [[ ! " prod staging " =~ " $1 " ]]; then
   echo "Please provide environment to use: prod or staging"
   exit 1
 fi
-CLUSTER="$1-searchneu"
+CLUSTER="$1-course-catalog-api"
 SERVICES=( "$CLUSTER-webserver" "$CLUSTER-update" )
 
 # Disable aws from sending stdout to less
@@ -15,8 +15,8 @@ echo "Redeploying cluster $CLUSTER with last pushed image"
 if [[ "prod" = "$1" ]]; then
   # If not, add prod tag to staging image
   echo "Adding prod tag to staging image"
-  MANIFEST=$(aws ecr batch-get-image --repository-name searchneu --image-ids imageTag=staging --query 'images[].imageManifest' --output text)
-  aws ecr put-image --repository-name searchneu --image-tag prod --image-manifest "$MANIFEST"
+  MANIFEST=$(aws ecr batch-get-image --repository-name course-catalog-api --image-ids imageTag=staging --query 'images[].imageManifest' --output text)
+  aws ecr put-image --repository-name course-catalog-api --image-tag prod --image-manifest "$MANIFEST"
 fi
 
 echo "Forcing new deployment"

@@ -5,7 +5,7 @@ if [[ ! " prod staging " =~ " $1 " ]]; then
   echo "Please provide environment to use: prod or staging"
   exit 1
 fi
-CLUSTER="$1-searchneu"
+CLUSTER="$1-course-catalog-api"
 SERVICE_WEB=$CLUSTER-webserver
 TASK=$CLUSTER-scrape
 
