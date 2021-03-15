@@ -11,7 +11,7 @@ import Keys from "../utils/keys";
 import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 
-const SEM_TO_UPDATE = "202130";
+const SEMS_TO_UPDATE = ["202160", "202154", "202150", "202140"];
 
 const EMPTY_REQ: Requisite = {
   type: "or",
@@ -42,7 +42,7 @@ const defaultSectionProps = {
 const FUNDIES_ONE: CourseType = {
   classId: "2500",
   name: "Fundamentals of Computer Science 1",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   ...defaultClassProps,
 };
@@ -50,7 +50,7 @@ const FUNDIES_ONE: CourseType = {
 const FUNDIES_TWO: CourseType = {
   classId: "2510",
   name: "Fundamentals of Computer Science 2",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   ...defaultClassProps,
 };
@@ -58,7 +58,7 @@ const FUNDIES_TWO: CourseType = {
 const PL: CourseType = {
   classId: "4400",
   name: "Principles of Programming Languages",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   ...defaultClassProps,
 };
@@ -67,7 +67,7 @@ const FUNDIES_ONE_S1: SectionType = {
   crn: "1234",
   classId: "2500",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 1,
   seatsRemaining: 1,
@@ -81,7 +81,7 @@ const FUNDIES_ONE_S2: SectionType = {
   crn: "5678",
   classId: "2500",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 100,
   seatsRemaining: 5,
@@ -95,7 +95,7 @@ const FUNDIES_ONE_NEW_SECTION: SectionType = {
   crn: "2468",
   classId: "2500",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 100,
   seatsRemaining: 5,
@@ -109,7 +109,7 @@ const FUNDIES_TWO_S1: SectionType = {
   crn: "0248",
   classId: "2510",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 200,
   seatsRemaining: 0,
@@ -123,7 +123,7 @@ const FUNDIES_TWO_S2: SectionType = {
   crn: "1357",
   classId: "2510",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 150,
   seatsRemaining: 1,
@@ -137,7 +137,7 @@ const FUNDIES_TWO_S3: SectionType = {
   crn: "9753",
   classId: "2510",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 150,
   seatsRemaining: 10,
@@ -151,7 +151,7 @@ const PL_S1: SectionType = {
   crn: "0987",
   classId: "4400",
   classType: "lecture",
-  termId: SEM_TO_UPDATE,
+  termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   seatsCapacity: 80,
   seatsRemaining: 25,
@@ -226,8 +226,10 @@ describe("Updater", () => {
     });
 
     await UPDATER.update();
-    expect(mockTermParser.mock.calls.length).toBe(1);
-    expect(mockTermParser.mock.calls[0]).toEqual([SEM_TO_UPDATE]);
+    expect(mockTermParser.mock.calls.length).toBe(SEMS_TO_UPDATE.length);
+    expect(mockTermParser.mock.calls).toEqual(
+      SEMS_TO_UPDATE.map((termId) => [termId])
+    );
   });
 
   describe("getNotificationInfo", () => {
@@ -382,7 +384,7 @@ describe("Updater", () => {
       jest
         .spyOn(termParser, "parseSections")
         .mockImplementation(async (termId) => {
-          return [
+          const sections = [
             FUNDIES_ONE_S1, // more seats
             FUNDIES_ONE_NEW_SECTION, // new fundies 1 section
             { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 }, // no change
@@ -392,6 +394,7 @@ describe("Updater", () => {
               seatsRemaining: FUNDIES_TWO_S3.seatsRemaining - 2,
             }, // seat decrease
           ];
+          return sections.filter((section) => section.termId === termId);
         });
 
       const expectedNotification = {
@@ -436,7 +439,7 @@ describe("Updater", () => {
       jest
         .spyOn(termParser, "parseSections")
         .mockImplementation(async (termId) => {
-          return [
+          const sections = [
             FUNDIES_ONE_S1, // more seats
             FUNDIES_ONE_NEW_SECTION, // new fundies 1 section
             { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 }, // no change
@@ -446,6 +449,7 @@ describe("Updater", () => {
               seatsRemaining: FUNDIES_TWO_S3.seatsRemaining - 2,
             }, // seat decrease
           ];
+          return sections.filter((section) => section.termId === termId);
         });
       // before updating and running the dump processor
       const fundies1Sections = await prisma.section.findMany({
