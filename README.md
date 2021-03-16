@@ -54,7 +54,7 @@ This step allows you to quickly insert the course catalog data into your databas
 - [ ] Clear out unnecessary dependencies (unused packages and scripts)
 - [ ] Get rid of unnecessarily large packages
 - [ ] Configure CI/CD (GitHub Actions)
-- [ ] Add Prettier, ESlint, Husky
+- [x] Add Prettier, ESlint, Husky
 - [x] Run codemod for prisma update
 - [ ] Fix Rollbar, Amplitude, etc.
   - Need to create new project for these

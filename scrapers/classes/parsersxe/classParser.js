@@ -4,11 +4,13 @@
  */
 
 import he from "he";
+import cheerio from "cheerio";
 import keys from "../../../utils/keys";
 import Request from "../../request";
 import PrereqParser from "./prereqParser";
 import util from "./util";
 import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
+import macros from "../../../utils/macros";
 
 const request = new Request("classParser");
 
@@ -82,6 +84,10 @@ class ClassParser {
       subjectCode,
       courseNumber
     );
+    const {
+      amount: feeAmount,
+      description: feeDescription,
+    } = await this.getFees(termId, subjectCode, courseNumber);
     const classDetails = {
       host: "neu.edu",
       termId: termId,
@@ -101,6 +107,8 @@ class ClassParser {
       maxCredits: SR.creditHourLow,
       minCredits: SR.creditHourHigh || SR.creditHourLow,
       college: collegeNames[termId.charAt(termId.length - 1)],
+      feeAmount,
+      feeDescription,
     };
     if (prereqs) {
       classDetails.prereqs = prereqs;
@@ -159,6 +167,41 @@ class ClassParser {
       .map((a) => {
         return a.trim();
       });
+  }
+
+  async getFees(termId, subject, courseNumber) {
+    const req = await this.courseSearchResultsPostRequest(
+      "getFees",
+      termId,
+      subject,
+      courseNumber
+    );
+    return this.parseFees(req.body);
+  }
+
+  parseFees(html) {
+    const trimmed = html.trim();
+    if (trimmed === "No fee information available.") {
+      return { amount: null, description: "" };
+    }
+
+    const $ = cheerio.load(html);
+    const table = $("table");
+    const rows = util.parseTable(table);
+
+    if (rows.length !== 1) {
+      // We expect courses to have no fees or one fee
+      macros.warn("UNEXPECTED COURSE FEE VALUE");
+      return { amount: null, description: "" };
+    }
+
+    let amount = rows[0].amount;
+    const description = rows[0].description;
+    // Chop the "$" off the front and the ".00" off the end, remove ","s
+    amount = amount.substring(1);
+    amount = amount.substring(0, amount.indexOf("."));
+    amount = amount.replace(",", "");
+    return { amount: parseInt(amount, 10), description };
   }
 
   nupath(attributes) {
