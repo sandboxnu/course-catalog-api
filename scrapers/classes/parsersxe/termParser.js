@@ -12,6 +12,7 @@ import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import util from "./util";
 import { getSubjectDescriptions } from "./subjectAbbreviationParser";
+import filters from "../../filters";
 
 const request = new Request("termParser");
 
@@ -23,8 +24,19 @@ class TermParser {
    */
   async parseTerm(termId) {
     const subjectTable = await getSubjectDescriptions(termId);
-    const sections = await this.parseSections(termId);
+    // const sections = await this.parseSections(termId);
+    let sections = await this.parseSections(termId);
     const courseIdentifiers = {};
+
+    if (process.env.CUSTOM_SCRAPE) {
+      // If we are doing a custom scrape, filter sections before scraping for course details
+      sections = sections.filter(
+        (s) =>
+          filters.subject(s.subject) &&
+          filters.courseNumber(parseInt(s.classId))
+      );
+    }
+
     sections.forEach((section) => {
       const subject = section.subject;
       const classId = section.classId;
@@ -45,6 +57,7 @@ class TermParser {
       },
       { concurrency: 500 }
     );
+    // Check if we should include course refs or not
     const refsPerCourse = classes.map((c) => ClassParser.getAllCourseRefs(c));
     const courseRefs = Object.assign({}, ...refsPerCourse);
     await pMap(
@@ -68,6 +81,11 @@ class TermParser {
     macros.log(
       `scraped ${classes.length} classes and ${sections.length} sections`
     );
+
+    const dillonSubjects = new Set(classes.map((c) => c.subject));
+    console.log("=== DILLON SUBJECTS ===");
+    console.log(JSON.stringify(Array.from(dillonSubjects.values())));
+
     return { classes, sections, subjects: subjectTable };
   }
 
