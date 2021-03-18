@@ -21,6 +21,8 @@ const typeDef = gql`
     nupath: [String!]!
     sections: [Section!]!
     host: String!
+    feeAmount: Int
+    feeDescription: String
   }
 
   type Section {
