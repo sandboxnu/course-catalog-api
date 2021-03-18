@@ -11,9 +11,9 @@ const filters = {
 };
 ```
 
-The custom scrape will only scrape courses that fulfill **all** filters, so the above can be read as: "Scrape all courses from all campuses that have subject "CS" or "MATH" AND have a course number 2000 or higher."
+The custom scrape will only scrape courses that fulfill **all** filters, so the above can be read as: "Scrape all courses from all campuses that have subject "CS" or "MATH" AND have a course number 3000 or higher."
 
-The custom scrape will _not_ overwrite the cache, and as a result it will also never read from the cache.
+The custom scrape will _not_ overwrite the cache, and therefore it will also never read from the cache.
 
 ### Flags
 
