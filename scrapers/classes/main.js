@@ -115,7 +115,8 @@ class Main {
 
     const dump = this.runProcessors(bannerv9ParserOutput);
 
-    if (macros.DEV) {
+    // We don't overwrite cache on custom scrape - cache should always represent a full scrape
+    if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       await cache.set(macros.DEV_DATA_DIR, "classes", cacheKey, dump);
       macros.log("classes file saved for", collegeAbbrs, "!");
     }

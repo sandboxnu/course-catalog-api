@@ -1,8 +1,8 @@
 const filters = {
-  subject: (subject) => ["EEMB"].includes(subject),
-  courseNumber: (courseNumber) => courseNumber >= 3000,
+  campus: (campus) => true,
+  subject: (subject) => ["CS"].includes(subject),
+  courseNumber: (courseNumber) => courseNumber >= 2500,
   truncate: true,
-  includeCourseRefs: true,
 };
 
 export default filters;

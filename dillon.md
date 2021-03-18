@@ -4,26 +4,33 @@ Scraping course data for multiple terms can take quite a bit of time. Caching sc
 
 ```js
 const filters = {
+  campus: (campus) => true,
   subject: (subject) => ["CS", "MATH"].includes(subject),
   courseNumber: (courseNumber) => courseNumber >= 3000,
   truncate: true,
-  includeCourseRefs: true,
 };
 ```
 
-The custom scrape will only scrape courses that fulfill **all** filters, so the above can be read as: "Scrape all courses that have subject "CS" or "MATH" AND have a course number 2000 or higher."
+The custom scrape will only scrape courses that fulfill **all** filters, so the above can be read as: "Scrape all courses from all campuses that have subject "CS" or "MATH" AND have a course number 2000 or higher."
+
+The custom scrape will _not_ overwrite the cache, and as a result it will also never read from the cache.
 
 ### Flags
 
 - `truncate`
   - If `truncate` is set to true, then the `courses` and `sections` tables in your local database will be cleared before they are re-populated with the scraped data.
-- `includeCourseRefs`
-  - If `includeCourseRefs` is set to true, then the scrape will also include all courses that refer to courses that fultill the filters (e.g. prereqs, coreqs, and courses which the filtered course is a prereq for).
 
-The custom scrape will overwrite the cache, same as a regular scrape.
+### Related Courses
+
+There are a number of course-to-course relations that we store - coreqs of a course, prereqs of a course, courses that the given course is a prereq of, and courses that the given course is an optional prereq of. It's important to note how the custom scrape will behave in these cases, for example if `Course A` is a prereq of `Course B`, and the filters include `Course B` but _not_ `Course A`.
+
+Assuming the filters include `B` but _not_ `A`:
+
+- If `B` has `A` as a `prereq` or `coreq`, then in your local database `B` will know that `A` exists as a `prereq` or `coreq`, but `A` will not have been scraped so `A` will be marked as `missing` in the `prereq` or `coreq` field.
+- If `A` has `B` as a `prereq` or `optionalPrereq`, then `B` will not know anything about `A`, meaning `B`'s `prereqs_for` or `opt_prereqs_for` fields will _not_ include `A`.
+
+In summary, if you're looking at any course-to-course info while using a custom scrape then pay extra attention to what exactly you scraped. When in doubt, do a full scrape.
 
 The command to run the custom scrape is:
 
 `yarn scrape:custom`
-
-TODO: Figure out which other attributes could be filtered on

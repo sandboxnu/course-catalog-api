@@ -8,17 +8,12 @@ import macros from "../utils/macros";
 import classes from "./classes/main";
 import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
-import filters from "./filters.js";
 
 // Main file for scraping
 // Run this to run all the scrapers
 
 class Main {
   async main() {
-    if (process.env.CUSTOM_SCRAPE) {
-      console.log("=== DILLON FILTERS ===");
-      console.log(JSON.stringify(filters));
-    }
     const classesPromise = classes.main(["neu"]);
 
     const promises = [classesPromise, matchEmployees.main()];
