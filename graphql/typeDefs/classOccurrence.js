@@ -16,6 +16,7 @@ const typeDef = gql`
     minCredits: Int
     classAttributes: [String!]!
     url: String!
+    prettyUrl: String
     lastUpdateTime: Float
     nupath: [String!]!
     sections: [Section!]!
