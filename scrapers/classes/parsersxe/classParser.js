@@ -104,8 +104,8 @@ class ClassParser {
         "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?" +
         `term_in=${termId}&subj_in=${subjectCode}&crse_in=${courseNumber}&schd_in=%`,
       lastUpdateTime: Date.now(),
-      maxCredits: SR.creditHourLow,
-      minCredits: SR.creditHourHigh || SR.creditHourLow,
+      maxCredits: SR.creditHourHigh || SR.creditHourLow,
+      minCredits: SR.creditHourLow,
       college: collegeNames[termId.charAt(termId.length - 1)],
       feeAmount,
       feeDescription,
