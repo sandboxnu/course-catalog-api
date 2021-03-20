@@ -49,7 +49,7 @@ const server = new ApolloServer({
   resolvers: [JSONResolvers, classResolvers, majorResolvers, searchResolvers],
 });
 
-if (require.main === module) {
+if (macros.PROD || require.main === module) {
   server
     .listen()
     .then(({ url }) => {
