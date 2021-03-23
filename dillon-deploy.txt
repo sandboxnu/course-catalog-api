@@ -1,0 +1,83 @@
+Choose vpc + subnets that match Terraform plan
+Can now choose API load balancer
+
+docker build .
+docker images
+docker tag <aws_URI>:staging
+aws ecr get-login-password
+docker login -u AWS -p <password> <aws_account_id>.dkr.ecr.<region>.amazonaws.com
+got a permissions error trying to push new docker image
+
+================================
+Running both images locally:
+================================
+Terminology: https://phoenixnap.com/kb/docker-image-vs-container
+
+// Choose a name for your course-catalog-api container.
+// Referred to as [CCA_NAME]
+
+// Remove the container if it already exists
+docker container rm [CCA_NAME]
+
+// Use a temp file to store some lengthy terminal outputs and prettify them.
+// Referred to as [TEMP_FILE]
+
+// Creates network "dev_default", volume "dev_pg", containers "dev_postresql_1" 
+// and "dev_es_1"
+yarn dev:docker
+
+// Shows network IDs, use dev_default's as [NETWORK_ID]
+docker network ls
+
+// Shows container IDs, use dev_postgresql_1's as [POSTGRES_ID], use dev_es_1's 
+// as [ELASTICSEARCH_ID]
+docker container ls
+
+// Shows all container config info, go to 
+// NetworkSettings > Networks > dev_default > IPAddress, use that value as 
+// [POSTGRES_IP_ADDRESS]
+docker inspect [POSTGRES_ID] > [TEMP_FILE] 
+
+// Alternative to previous command, outputs just the IPAddress
+docker inspect --format='{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' [POSTGRES_ID] 
+
+// Use IPAddress as [ELASTICSEARCH_IP_ADDRESS]
+docker inspect [ELASTICSEARCH_ID] > [TEMP_FILE]
+
+
+
+// Runs the course-catalog-api container
+docker run --name [CCA_NAME] --net [NETWORK_ID] 
+
+[CCA_NAME] = webserver
+[TEMP_FILE] = dillon.json
+[NETWORK_ID] = 2b983160bc9a
+[POSTGRES_ID] = 36c06f5c7b58
+[ELASTICSEARCH_ID] = 819cbc2f8230
+[POSTGRES_IP_ADDRESS] = 172.24.0.3
+[ELASTICSEARCH_IP_ADDRESS] = 172.24.0.2
+
+
+docker container ls
+docker inspect <postgres_CONTAINER_image_id> ;; to get postgres IP for webserver
+
+docker network ls
+
+postgres network ID: d4438bb13261
+postgres image ID: 5f1485c70c9a
+webserver (created) image ID: 3f88b442f2a1
+postgres container IP: 172.20.0.3/16
+docker run --name webserver --link <postgres_ID> --net <network_ID> <webserver_ID>
+
+docker run --name webserver --link <postgres_ID> --net <network_ID> --expose 4000 -p 4000:4000 <webserver_ID>
+;; not actually sure if --link is needed ^
+
+docker container rm webserver
+docker image ls
+docker image rm <old_image_id>
+
+docker build .
+docker image ls
+docker tag <new_image_id> 716481916503.dkr.ecr.us-east-1.amazonaws.com/course-catalog-api:staging
+
+docker run --name webserver --link <postgres_ID> --net <network_ID> <webserver_ID>
