@@ -70,3 +70,9 @@ resource "aws_security_group" "lb" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_lb_target_group" "health_check" {
+  health_check = true
+  path         = "/.well-known/apollo/server-health"
+  matcher      = "200"
+}
