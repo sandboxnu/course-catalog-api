@@ -8,7 +8,7 @@ import keys from "../../../utils/keys";
 import macros from "../../../utils/macros";
 
 /**
- * Adds the prerequsite-for field for classes that are a predecessor for
+ * Adds the prerequisite-for field for classes that are a predecessor for
  * other classes.
  */
 class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
@@ -44,25 +44,31 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
   /* A Prerequisite is one of:
    * - String
    * - Class
-   * - [Prerequsite]
+   * - [Prerequisite]
    */
 
   /**
-   * Recursively traverse the prerequsite structure.
+   * Recursively traverse the prerequisite structure.
    *
    * @param {Class Object} mainClass - the class that we're checking the
    * prereqs for. If it has a prereq, we add this class to the prereq's
    * optPrereqFor field.
-   * @param {Prerequisite} node - a prerequsite class of mainClass. This is
+   * @param {Prerequisite} node - a prerequisite class of mainClass. This is
    * the field where we add the mainClass information to.
    * @param {Boolean} isRequired - whether or not the prerequisite is required.
+   * @example
+   * parsePreReqs({... "subject":"CS","classId":"3500" ...},
+   *              {"type":"or","values":[{"classId":"2510","subject":"CS"},
+   *                                     {"classId":"1500","subject":"CS","missing":true},
+   *                                     {"classId":"2560","subject":"EECE"}],
+   *              true})
    */
   parsePreReqs(mainClass, node, isRequired) {
     if (node && node.missing) {
       return;
     }
 
-    // Get the the class we wish to refere to
+    // Get the the class we wish to refer to
     if (this.isClass(node)) {
       const find = keys.getClassHash({
         host: mainClass.host,
@@ -154,7 +160,7 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
   }
 
   /**
-   * Recursively traverse the prerequsite structure.
+   * Recursively traverse the prerequisite structure.
    *
    * @param {Class} aClass - a class to sort the optPrereqsFor and prereqsFor of.
    */

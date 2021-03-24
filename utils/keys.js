@@ -35,7 +35,7 @@ class Keys {
     const output = [];
 
     for (const key of keys) {
-      // Make sure it has ever key it should.
+      // Make sure it has every key it should.
       if (!obj[key]) {
         return null;
       }

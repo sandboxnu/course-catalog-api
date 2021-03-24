@@ -12,6 +12,7 @@ import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import util from "./util";
 import { getSubjectDescriptions } from "./subjectAbbreviationParser";
+import filters from "../../filters";
 
 const request = new Request("termParser");
 
@@ -23,8 +24,19 @@ class TermParser {
    */
   async parseTerm(termId) {
     const subjectTable = await getSubjectDescriptions(termId);
-    const sections = await this.parseSections(termId);
+    let sections = await this.parseSections(termId);
     const courseIdentifiers = {};
+
+    if (process.env.CUSTOM_SCRAPE) {
+      // If we are doing a custom scrape, filter sections before scraping the course details
+      sections = sections.filter(
+        (s) =>
+          filters.campus(s.campus) &&
+          filters.subject(s.subject) &&
+          filters.courseNumber(parseInt(s.classId))
+      );
+    }
+
     sections.forEach((section) => {
       const subject = section.subject;
       const classId = section.classId;
@@ -38,13 +50,34 @@ class TermParser {
       ] = { termId, subject, classId };
     });
 
-    const classes = await pMap(
+    let classes = await pMap(
       Object.values(courseIdentifiers),
       ({ subject, classId }) => {
         return ClassParser.parseClass(termId, subject, classId);
       },
       { concurrency: 500 }
     );
+
+    // Custom scrapes should not scrape coreqs/prereqs/etc.
+    if (!process.env.CUSTOM_SCRAPE) {
+      classes = await this.addCourseRefs(classes, courseIdentifiers, termId);
+    }
+
+    macros.log(
+      `scraped ${classes.length} classes and ${sections.length} sections`
+    );
+
+    return { classes, sections, subjects: subjectTable };
+  }
+
+  /**
+   * Appends coreqs/prereqs/etc to the array of classes
+   * @param {*} classes the array of classes we have scraped so far
+   * @param {*} courseIdentifiers map of classHash to { termId, subject, classId }
+   * @param {*} termId the termId we are scraping
+   * @returns the input classes array, mutated to include coreqs/prereqs/etc
+   */
+  async addCourseRefs(classes, courseIdentifiers, termId) {
     const refsPerCourse = classes.map((c) => ClassParser.getAllCourseRefs(c));
     const courseRefs = Object.assign({}, ...refsPerCourse);
     await pMap(
@@ -65,10 +98,7 @@ class TermParser {
       { concurrency: 500 }
     );
 
-    macros.log(
-      `scraped ${classes.length} classes and ${sections.length} sections`
-    );
-    return { classes, sections, subjects: subjectTable };
+    return classes;
   }
 
   async parseSections(termId) {
