@@ -12,6 +12,7 @@ got a permissions error trying to push new docker image
 Running both images locally:
 ================================================================================
 Some Terminology: https://phoenixnap.com/kb/docker-image-vs-container
+Container Networking: https://docs.docker.com/config/containers/container-networking/
 
 // Choose a name for your course-catalog-api container
 // Referred to as [CCA_NAME]
@@ -55,10 +56,12 @@ docker image ls
 // Remove any docker image you no longer need
 docker image rm IMAGE_ID
 
-// Create a container to run the course-catalog-api
-docker create --name [CCA_NAME] --net [NETWORK_ID] [CCA_IMAGE_ID]
+// Create a container to run the course-catalog-api. The CCA runs at port 4000,
+// so we map port 4000 on the Docker container to port 4000 on our machine
+docker create --name [CCA_NAME] --net [NETWORK_ID] -p 4000:4000 [CCA_IMAGE_ID]
 
-// Run the course-catalog-api container
+// Run the course-catalog-api container. If you go to localhost:4000 you should
+// see the graphql dashboard
 docker start [CCA_NAME]
 
 // Print the container logs to the terminal, -f to "follow" new logs
@@ -67,6 +70,7 @@ docker logs [CCA_NAME] -f
 // Stop the container
 docker stop [CCA_NAME]
 
+// Examples of what your variables might look like
 [CCA_NAME] = webserver
 [TEMP_FILE] = dillon.json
 [NETWORK_ID] = 2b983160bc9a
@@ -74,20 +78,6 @@ docker stop [CCA_NAME]
 [ELASTICSEARCH_ID] = 819cbc2f8230
 [POSTGRES_IP_ADDRESS] = 172.24.0.3
 [ELASTICSEARCH_IP_ADDRESS] = 172.24.0.2
-[CCA_IMAGE_ID] = 1bbbce9d4e49
-
+[CCA_IMAGE_ID] = c465588991b7
 
 ================================================================================
-docker run --name webserver --link <postgres_ID> --net <network_ID> <webserver_ID>
-
-docker run --name webserver --link <postgres_ID> --net <network_ID> --expose 4000 -p 4000:4000 <webserver_ID>
-;; not actually sure if --link is needed ^
-
-docker container rm webserver
-docker image ls
-docker image rm <old_image_id>
-
-docker build .
-docker image ls
-
-docker run --name webserver --link <postgres_ID> --net <network_ID> <webserver_ID>

@@ -13,22 +13,20 @@ COPY serializers /app/serializers
 COPY services /app/services
 COPY types /app/types
 COPY utils /app/utils
+COPY infrastructure/prod /app
 
 RUN yarn build
+# "COPY prisma" doesn't copy prisma/.env file
+COPY prisma/.env dist/prisma/.env
+RUN rm -rf node_modules
 
-# FROM node:12.16-alpine
-# WORKDIR /root
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
 && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
 ENV dbCertPath /app/rds-ca-2019-root.pem
-# COPY --from=build /app/package.json /app/yarn.lock ./
-# COPY --from=build /app/dist ./dist
-# COPY --from=build /app/public ./public
-ENV NODE_ENV=prod
-# RUN yarn install --production
 
-COPY infrastructure/prod /app
+ENV NODE_ENV=prod
+
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 4000

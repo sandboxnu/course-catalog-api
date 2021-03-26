@@ -1,6 +1,7 @@
 {
   "name": "course-catalog-api",
   "version": "1.0.9",
+  "license": "AGPL-3.0",
   "scripts": {
     "-development-": "--------development--------",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
