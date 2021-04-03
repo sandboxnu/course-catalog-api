@@ -7,6 +7,7 @@ import _ from "lodash";
 import pMap from "p-map";
 import { Course, Section } from "@prisma/client";
 import * as https from "https";
+import * as http from "http";
 import * as httpSignature from "http-signature";
 
 import macros from "../utils/macros";
@@ -243,16 +244,23 @@ class Updater {
     ) {
       return;
     }
+    const body = JSON.stringify(notificationInfo);
     const DEST_URL = macros.PROD
       ? process.env.UPDATER_URL
-      : "https://localhost:5000";
+      : "http://localhost:5000/api/notify_users";
     const key = process.env.WEBHOOK_PRIVATE_KEY;
     const options = {
       method: "POST",
-      headers: {},
+      headers: {
+        "Content-Type": "application/json",
+        "Content-Length": Buffer.byteLength(body),
+      },
     };
 
-    const req = https.request(DEST_URL, options);
+    const req = macros.PROD
+      ? https.request(DEST_URL, options)
+      : http.request(DEST_URL, options);
+
     req.on("error", (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
@@ -260,8 +268,8 @@ class Updater {
       key: key,
       keyId: "hello",
     });
-    req.write(JSON.stringify(notificationInfo));
-    req.end();
+
+    req.end(body);
     macros.log("Request made from updater!");
   }
 }
