@@ -264,6 +264,11 @@ class Updater {
     req.on("error", (e) => {
       macros.error(`problem with updater request: ${e.message}`);
     });
+    req.on("response", (res) => {
+      if (res.statusCode !== 200) {
+        macros.error(res.statusCode, res.statusMessage);
+      }
+    });
     httpSignature.sign(req, {
       key: key,
       keyId: "hello",
