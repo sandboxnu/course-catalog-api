@@ -11,6 +11,10 @@ import TermListParser from "./termListParser";
 import TermParser from "./termParser";
 import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
+import filters from "../../filters";
+import prisma from "../../../services/prisma";
+import elastic from "../../../utils/elastic";
+import classMap from "../classMapping.json";
 
 const request = new Request("bannerv9Parser");
 
@@ -24,6 +28,16 @@ class Bannerv9Parser {
     // const undergradIds = termIds.filter((t) => { return suffixes.includes(t.slice(-2)); }).slice(0, suffixes.length);
     // macros.log(`scraping terms: ${undergradIds}`);
     macros.log(termsUrl);
+
+    // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
+    if (process.env.CUSTOM_SCRAPE && filters.truncate) {
+      macros.log("Truncating courses and sections tables");
+      const clearCourses = prisma.course.deleteMany({});
+      const clearSections = prisma.section.deleteMany({});
+      await prisma.$transaction([clearCourses, clearSections]);
+      macros.log("Truncating elasticsearch classes index");
+      await elastic.resetIndex(elastic.CLASS_INDEX, classMap);
+    }
     return this.scrapeTerms(["202130"]);
   }
 

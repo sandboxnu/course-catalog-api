@@ -50,36 +50,36 @@ variable "ecr_url" {
 
 variable "secrets" {
   description = "secrets to pass as env variables"
-  default = []
+  default     = []
 }
 
 # Fargate
 variable "app_port" {
   description = "port the webapp runs on"
-  default = 5000
+  default     = 4000
 }
 
 variable "app_count" {
   description = "number of app instances to run"
-  default = 1
+  default     = 1
 }
 
 variable "webapp_cpu" {
   description = "cpu the webapp should get"
-  default = 512
+  default     = 512
 }
 
 variable "webapp_memory" {
   description = "memory the webapp should get"
-  default = 1024
+  default     = 1024
 }
 
 variable "scrape_cpu" {
   description = "cpu the scrapers should get"
-  default = 1024
+  default     = 1024
 }
 
 variable "scrape_memory" {
   description = "memory the scrapers should get"
-  default = 3072
+  default     = 3072
 }

@@ -12,3 +12,5 @@ data/*
 
 # Extras
 *.html
+# For elasticsearch query files used by VSCode extension
+*.es
