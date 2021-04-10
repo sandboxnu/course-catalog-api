@@ -11,7 +11,7 @@ import Keys from "../utils/keys";
 import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 
-const SEMS_TO_UPDATE = ["202160", "202154", "202150", "202140"];
+const SEMS_TO_UPDATE = ["202210", "202160", "202154", "202150", "202140"];
 
 const EMPTY_REQ: Requisite = {
   type: "or",
