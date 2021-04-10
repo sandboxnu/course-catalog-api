@@ -16,8 +16,6 @@ COPY utils /app/utils
 COPY infrastructure/prod /app
 
 RUN yarn build
-# "COPY prisma" doesn't copy prisma/.env file
-COPY prisma/.env dist/prisma/.env
 RUN rm -rf node_modules
 
 # Get RDS Certificate
