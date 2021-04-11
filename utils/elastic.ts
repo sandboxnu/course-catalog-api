@@ -104,6 +104,10 @@ export class Elastic {
     }
     return client.msearch({ body: multiQuery });
   }
+
+  closeClient() {
+    client.close();
+  }
 }
 
 const instance = new Elastic();

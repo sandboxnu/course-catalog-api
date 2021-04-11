@@ -42,5 +42,10 @@ if (require.main === module) {
       "elasticURL"
     )} from Postgres at ${macros.getEnvVariable("dbHost")}`
   );
-  (async () => populateES())().catch((e) => macros.error(e));
+  (async () => {
+    await populateES();
+    macros.log("Success! Closing elastic client and exiting.");
+    elastic.closeClient();
+    process.exit();
+  })().catch((e) => macros.error(e));
 }
