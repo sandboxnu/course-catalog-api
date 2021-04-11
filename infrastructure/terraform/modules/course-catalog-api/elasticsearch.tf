@@ -12,9 +12,9 @@ module "elasticsearch" {
   availability_zone_count = 1
 
   elasticsearch_version   = "7.1"
-  instance_type           = "t2.small.elasticsearch"
+  instance_type           = var.stage == "staging" ? "t2.micro.elasticsearch" : "t2.small.elasticsearch"
   instance_count          = 1
-  ebs_volume_size         = 20
+  ebs_volume_size         = 10
   encrypt_at_rest_enabled = "false"
 
   // needs to be `false` after generating the role the first time--i.e. after you create staging ES you need to turn this off for prod ES
