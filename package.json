@@ -33,7 +33,7 @@
     "-deployment-": "--------deployment--------",
     "prod:scrape": "node dist/scrapers/main.js",
     "prod": "node dist/graphql/index.js",
-    "prod:updater": "yarn build; node dist/services/updater.js",
+    "prod:updater": "node dist/services/updater.js",
     "prod:db:migrate": "npx prisma migrate deploy --preview-feature"
   },
   "repository": {
