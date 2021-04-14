@@ -71,7 +71,7 @@ class Updater {
   constructor() {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = ["202160", "202154", "202150", "202140"];
+    this.SEMS_TO_UPDATE = ["202210", "202160", "202154", "202150", "202140"];
   }
 
   // TODO must call this in server
