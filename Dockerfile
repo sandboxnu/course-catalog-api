@@ -9,6 +9,7 @@ RUN yarn install --frozen-lockfile
 COPY graphql /app/graphql
 COPY prisma /app/prisma
 COPY scrapers /app/scrapers
+COPY scripts /app/scripts
 COPY serializers /app/serializers
 COPY services /app/services
 COPY types /app/types
