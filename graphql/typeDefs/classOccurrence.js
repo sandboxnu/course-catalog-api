@@ -4,7 +4,7 @@ const typeDef = gql`
   type ClassOccurrence {
     name: String!
     subject: String!
-    classId: Int!
+    classId: String!
     termId: Int!
 
     desc: String!
