@@ -8,5 +8,8 @@ if (require.main === module) {
   (async () => {
     await elastic.resetIndex("classes", classMap);
     await elastic.resetIndex("employees", employeeMap);
+    macros.log("Success! Closing elastic client and exiting.");
+    elastic.closeClient();
+    process.exit();
   })().catch((e) => macros.error(e));
 }

@@ -114,7 +114,10 @@ class Searcher {
     const getRangeFilter = (selectedRange: Range): RangeQuery => {
       return {
         range: {
-          "class.classId": { gte: selectedRange.min, lte: selectedRange.max },
+          "class.classId.numeric": {
+            gte: selectedRange.min,
+            lte: selectedRange.max,
+          },
         },
       };
     };
