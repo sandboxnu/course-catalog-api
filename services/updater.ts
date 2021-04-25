@@ -246,14 +246,11 @@ class Updater {
       return;
     }
 
-    macros.log(`UPDATER_URL: ${process.env.UPDATER_URL}`);
     const body = JSON.stringify(notificationInfo);
     const DEST_URL = macros.PROD
       ? process.env.UPDATER_URL
       : "http://localhost:5000/api/notify_users";
-    macros.log(`DEST_URL: ${DEST_URL}`);
     const key = process.env.WEBHOOK_PRIVATE_KEY;
-    macros.log(`KEY: ${process.env.WEBHOOK_PRIVATE_KEY}`);
     const options = {
       method: "POST",
       headers: {
@@ -261,8 +258,6 @@ class Updater {
         "Content-Length": Buffer.byteLength(body),
       },
     };
-
-    macros.log(`macros.PROD: ${macros.PROD}`);
 
     const req = macros.PROD
       ? https.request(DEST_URL, options)
