@@ -32,8 +32,7 @@ class ClassParser {
   async parseClass(termId, subject, courseNumber) {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
-      url:
-        "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
+      url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       qs: {
         txt_term: termId,
         txt_subject: subject,
@@ -84,10 +83,8 @@ class ClassParser {
       subjectCode,
       courseNumber
     );
-    const {
-      amount: feeAmount,
-      description: feeDescription,
-    } = await this.getFees(termId, subjectCode, courseNumber);
+    const { amount: feeAmount, description: feeDescription } =
+      await this.getFees(termId, subjectCode, courseNumber);
     const classDetails = {
       host: "neu.edu",
       termId: termId,

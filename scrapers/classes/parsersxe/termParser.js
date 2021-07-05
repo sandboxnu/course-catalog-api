@@ -119,8 +119,7 @@ class TermParser {
     try {
       return this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
-          url:
-            "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
+          url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
           qs: {
             txt_term: termCode,
             pageOffset: offset,
@@ -151,8 +150,7 @@ class TermParser {
     try {
       return this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
-          url:
-            "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
+          url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
           qs: {
             txt_term: termCode,
             pageOffset: offset,
