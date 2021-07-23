@@ -73,3 +73,4 @@ Follow these steps for AWS Activate (per project):
    - `CLOUDFLARE_EMAIL` is the email of someone with access to CloudFlare
    - `CLOUDFLARE_API_KEY` can be accessed by logging into CloudFlare using the email provided for `CLOUDFLARE_EMAIL`, go to `My Profile` > `API Tokens` > view the `Global API Key`
 3. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
+4. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
