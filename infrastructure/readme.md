@@ -29,6 +29,47 @@ Follow these steps for AWS Activate (per project):
 ##### Getting the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
 1. Create a new IAM role, assign it to the user group with the necessary read/write access and give it `Programmatic Access`.
-2. Click on this role and click `Create access key`. Download the generated file and save it somwhere.
-3. Replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values with the new ones in both GitHub and Terraform.
+2. Click on this role and click `Create access key`. Download the generated file and save it somewhere.
+3. Replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values with the new ones in GitHub.
    - Once we get the GitHub actions set up, Github will need the two keys to push new Docker images to AWS ECR and tell staging to point to it.
+
+#### CloudFlare
+
+1. Go to CloudFlare -> DNS and delete the records for `api` and the corresponding record for staging CCA. These will get recreated with new content once you run Terraform again.
+
+#### Setting up the new Terraform workspace
+
+**GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
+
+1. Create a new Terraform workspace.
+   - Type: Version control workflow
+   - Version control provider: GitHub
+   - Set the Terraform Working Directory to `infrastructure/terraform/`
+   - Set the Terraform version to the version specified in `providers.tf`
+   - For the Version Control settings, set Automatic Run Triggering to `Always trigger runs`. Turn on the Automatic speculative plans toggle to on
+2. Set up the Terraform variables
+   Terraform Variables
+   - Generate a new SSH key for `ssh_public_key`: this is used to SSH into the jumphost
+   - `prod_secrets` contains _most_ of the prod secrets in the AWS Parameter Store in HCL (HashiCorp Configuration Language) which looks something like:
+     ```
+     [
+        {
+            name = "secret1"
+            value = "blah"
+            description = "My secret 1"
+        },
+        {
+            name = "secret2"
+            value = "blahblahblah"
+            description = "My secret 2"
+        },
+     ]
+     ```
+     - The prod secrets in the AWS Parameter Store that should NOT go in Terraform variables are the ones that have a corresponding value for staging.
+     - In `ecs.tf`, you'll see some of the logic for generating secrets
+       Environment Variables
+   - `GITHUB_TOKEN` is a GitHub personal access token you have to generate. [Instructions here](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+   - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are the same values as in GitHub
+   - `CLOUDFLARE_EMAIL` is the email of someone with access to CloudFlare
+   - `CLOUDFLARE_API_KEY` can be accessed by logging into CloudFlare using the email provided for `CLOUDFLARE_EMAIL`, go to `My Profile` > `API Tokens` > view the `Global API Key`
+3. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
