@@ -13,8 +13,7 @@ class SectionParser {
   async parseSectionsOfClass(termId, subject, courseNumber) {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
-      url:
-        "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
+      url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
       qs: {
         txt_term: termId,
         txt_subject: subject,

@@ -121,11 +121,8 @@ class Updater {
   async getNotificationInfo(
     sections: ScrapedSection[]
   ): Promise<NotificationInfo> {
-    const {
-      oldClassLookup,
-      oldSectionLookup,
-      oldSectionsByClass,
-    } = await this.getOldData();
+    const { oldClassLookup, oldSectionLookup, oldSectionsByClass } =
+      await this.getOldData();
     const newSectionsByClass: Record<string, string[]> = {};
 
     // map of courseHash to newly scraped sections

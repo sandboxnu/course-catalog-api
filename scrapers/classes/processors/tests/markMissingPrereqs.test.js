@@ -105,8 +105,7 @@ it("can swap coreqs", async (done) => {
         prettyUrl:
           "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_course_detail?cat_term_in=201602&subj_code_in=EDUC&crse_numb_in=017",
         name: "Curriculum & Methods Seminar",
-        url:
-          "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_listcrse?schd_in=%25&term_in=201602&subj_in=EDUC&crse_in=017",
+        url: "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_listcrse?schd_in=%25&term_in=201602&subj_in=EDUC&crse_in=017",
         coreqs: {
           type: "and",
           values: [
@@ -130,8 +129,7 @@ it("can swap coreqs", async (done) => {
         prettyUrl:
           "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_course_detail?cat_term_in=201602&subj_code_in=EDUC&crse_numb_in=016",
         name: "Practice Teaching",
-        url:
-          "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_listcrse?schd_in=%25&term_in=201602&subj_in=EDUC&crse_in=016",
+        url: "https://myswat.swarthmore.edu/pls/bwckctlg.p_disp_listcrse?schd_in=%25&term_in=201602&subj_in=EDUC&crse_in=016",
         coreqs: {
           type: "and",
           values: [
