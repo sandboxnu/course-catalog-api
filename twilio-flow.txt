@@ -1,0 +1,42 @@
+=== General Flow ===
+In the search results, next to each section there's a "Sign Up for SMS Notifications" button
+Clicking button opens popup with an input "Enter your phone number"
+  - Maybe some disclaimer saying we'll only text you about class openings and won't share your phone #, etc
+  - Also validate invalid phone #s, e.g. if you enter "123" it says "123" is not a valid phone #, gives an example of a valid phone #
+    - Do we need to prevent "off limits" #s? e.g. what if someone enters 911
+  - Popup is closeable at any time
+Type in phone #, click "Save Phone #"
+Popup changes, says "We sent a verification message to [ur #], please verify your phone # by replying with "VERIFY" within the next 10 minutes (verification message will have same instructions)
+  - Button on popup to re-send verification (might have to prevent spam, debounce to 30 seconds)
+After user replies "VERIFY", popup goes away, save phone # to session cookie (use socket.io)
+Where the "Sign Up for SMS Notifications" buttons used to be there is now a toggle next to each section
+Clicking on toggle signs phone # up for SMS notifs
+
+=== Misc ===
+User can text "STATUS" (maybe come up with better name?) to see a list of all sections/courses they are currently signed up for
+  - Might have to split across multiple messages if they sign up for a lot
+User can text "STOP ALL" to completely remove themselves from all notifs
+"HELP" to see list of commands
+If session cookie exists then top right of page header has a "Current Phone #: 123-456-7890" text, with a button "Change Phone #" -> clicking deletes session cookie, opens the popup
+
+=== Verification Logic (socket.io) ===
+User hits "Save Phone #" button
+Frontend creates socket connection to backend
+Frontend sends Phone # thru socket
+Backend stores map of Phone # to socket, rejects if entry already exists for this phone # (this would mean 2 diff users are trying to verify the same phone # at same time)
+Backend sends twilio message to phone # asking to reply "VERIFY"
+Backend twilio endpoint receives "VERIFY" text from user, gets socket from map
+Backend sends cookie thru socket to frontend, closes socket
+Frontend socket listens for cookie, upon receiving cookie frontend stores in session, closes popup
+
+=== Database ===
+
+=== Questions for Us/Khoury OH ===
+Add database table + service logic to CCA or new backend repo?
+Lump in with CCA:
+Pro: Simpler notifyer, no need for network request with ALL updated courses
+Pro: Can re-use existing infrastructure
+Con: Lumping in SearchNEU-specific-logic with CCA
+
+General flow
+Twilio-specific intrastructure?
