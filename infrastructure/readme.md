@@ -72,6 +72,11 @@ Follow these steps for AWS Activate (per project):
    - `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are the same values as in GitHub
    - `CLOUDFLARE_EMAIL` is the email of someone with access to CloudFlare
    - `CLOUDFLARE_API_KEY` can be accessed by logging into CloudFlare using the email provided for `CLOUDFLARE_EMAIL`, go to `My Profile` > `API Tokens` > view the `Global API Key`
-3. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
-4. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
-5. On your machine, open a terminal and run `aws configure` to update your AWS CLI credentials. You'll get prompted for your access key ID and secret access key; fill them in with the appropriate values. Then you'll need to run the `push-image` and `redeploy` script in `./infrastructure/aws` to push new Docker images to the AWS ECR.
+
+#### Creating the New Infrastructure
+
+1. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
+2. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
+3. On your machine, open a terminal and run `aws configure` to update your AWS CLI credentials. You'll get prompted for your access key ID and secret access key; fill them in with the appropriate values. Then you'll need to run the `push-image` and `redeploy` script in `./infrastructure/aws` to push new Docker images to the AWS ECR.
+4. If the scrapers are broken, follow the instructions in `documentation/production_scrape.md` to import a scrape into prod.
+5. Migrate major data into the production database so Graduate doesn't break. Ask someone on the Graduate team for an up-to-date `majors.json` file, put that inside the `./data` directory, and run the `migrate_major_data` script inside `./scripts` by running `DATABASE_URL=<PROD DATABASE URL> yarn babel-node-ts scripts/migrate_major_data.ts`.
