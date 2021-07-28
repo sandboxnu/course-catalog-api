@@ -92,3 +92,20 @@ model Subject {
 
   @@map(name: "subjects")
 }
+
+model FollowedSection {
+  sectionHash String @map(name: "section_hash")
+  userId      Int    @map(name: "user_id")
+  user        User   @relation(fields: [userId], references: [id])
+
+  @@id([userId, sectionHash])
+  @@map(name: "followed_sections")
+}
+
+model User {
+  id               Int               @id @default(autoincrement())
+  phoneNumber      String
+  followedSections FollowedSection[]
+
+  @@map(name: "users")
+}
