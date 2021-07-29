@@ -16,6 +16,7 @@
 - `DATABASE_URL=<PROD DATABASE URL> elasticURL=<PROD ELASTICSEARCH URL> yarn scrape` to run a production scrape (you have to be in the `course-catalog-api` project inside the Jumphost)
   - Remember you can get the URL values from AWS Systems Manager -> Parameter Store
 - `psql <DATABASE URL>` to connect to the staging or prod database and view/update data
+- `DATABASE_URL=<DATABASE URL> yarn babel-node-ts scripts/migrate_major_data.ts` to migrate majors data into the staging or prod database for Graduate
 
 ### Not Inside The Jumphost (but related to the Jumphost)
 
