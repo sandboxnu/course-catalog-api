@@ -78,28 +78,15 @@ The command to run the custom scrape is:
 
 ## TODO
 
-- [x] Copy over GraphQL API
-- [x] Copy over its dependency graph
-- [x] Copy over Data Pipeline
-- [x] Copy over its dependency graph
-- [x] Make sure things run locally
-- [x] Copy over tests (see if they run/pass)
-- [ ] Copy over infrastructure/deployment stuff
-- [ ] Associate the new repo with a new project in Terraform Cloud
-- [ ] Create docs directory
-
 - [ ] Clear out unnecessary dependencies (unused packages and scripts)
 - [ ] Get rid of unnecessarily large packages
 - [ ] Configure CI/CD (GitHub Actions)
 - [x] Add Prettier, ESlint, Husky
 - [x] Run codemod for prisma update
 - [ ] Fix Rollbar, Amplitude, etc.
+
   - Need to create new project for these
-- [ ] Re-organize repo
 
-  - Gonna need to re-configure the `package.json` scripts and config files
-
-- [ ] Move to `api.searchneu.com`?
 - [ ] divide dependencies into prod and dev dependencies
 
 - [ ] Clean up `jest` config
@@ -115,13 +102,5 @@ The command to run the custom scrape is:
 
 ## Infrastructure TODOs
 
-- [ ] Create a new terraform project (and link it to the repo)
-- [ ] Attempt to launch it
 - [ ] Fix the AWS scripts
 - [ ] Fix the other scripts
-
-- [ ] If you need to create AWS*ACCESS*\*, do that, and update it in GitHub (and terraform?)
-- [ ] grab the GITHUB_TOKEN and add it to terraform
-- [ ] rename, then un-rename name changes to generated parameters (DATABASE_URL & elasticURL)
-
-#### Questions to Answer

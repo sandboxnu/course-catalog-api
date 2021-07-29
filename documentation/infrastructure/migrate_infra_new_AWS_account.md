@@ -1,10 +1,8 @@
-# All About Infrastructure
-
-### Migrating Infrastructure To New AWS Account
+# Migrating Infrastructure To New AWS Account
 
 Until we have a better system, the SearchNEU team will have to periodically migrate the infrastructure to a new AWS account when the old one runs out of AWS credits. Here are the things you'll need to do:
 
-##### Create a new AWS and apply for AWS credits
+### Create a new AWS account and apply for AWS credits
 
 1. Create a new AWS account using someone's northeastern email.
 
@@ -17,7 +15,7 @@ Follow these steps for AWS Activate (per project):
 5.  Email aws@sandboxnu.com with an email including the project name and some basic details. This is an unofficial step but will let Sandbox know that we can "OK" the credit package.
 6.  The Sandbox exec director has to approve the request for AWS credits so if it's been a few days, just message them to get it approved! You can check whether or not you received the credits by going to Billing > Credits.
 
-##### Some other admin setup steps that aren't required but probably good to do
+### Some other admin setup steps that aren't required but probably good to do
 
 - Go to Billing Preferences and check `Receive Billing Alerts` and `Receive Free Tier Usage Alerts` cuz you probably want those alerts
 - Create a billing alarm (set thresholds you're comfortable with) so you can get notified if you're getting charged more than you expect
@@ -26,18 +24,14 @@ Follow these steps for AWS Activate (per project):
 - Follow this AWS tutorial to create policies for billing full access and billing view access - you'll probably want to give your administrator IAM user (aka yourself) billing full access. That way you won't really have to log in as a root user in the future. https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_billing.html
 - Create new user groups and users and assign the users to user groups as needed for other SearchNEU members. Most of them probably only need read/write access to a few services. If anyone's curious about billing, you can also give them billing view access.
 
-##### Getting the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+### Getting the `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
 1. Create a new IAM role, assign it to the user group with the necessary read/write access and give it `Programmatic Access`.
 2. Click on this role and click `Create access key`. Download the generated file and save it somewhere.
 3. Replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` values with the new ones in GitHub.
    - Once we get the GitHub actions set up, Github will need the two keys to push new Docker images to AWS ECR and tell staging to point to it.
 
-#### CloudFlare
-
-1. Go to CloudFlare -> DNS and delete the records for `api` and the corresponding record for staging CCA. These will get recreated with new content once you run Terraform again.
-
-#### Setting up the new Terraform workspace
+## Setting up the new Terraform workspace
 
 **GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
 
@@ -73,10 +67,17 @@ Follow these steps for AWS Activate (per project):
    - `CLOUDFLARE_EMAIL` is the email of someone with access to CloudFlare
    - `CLOUDFLARE_API_KEY` can be accessed by logging into CloudFlare using the email provided for `CLOUDFLARE_EMAIL`, go to `My Profile` > `API Tokens` > view the `Global API Key`
 
-#### Creating the New Infrastructure
+## CloudFlare
+
+1. Go to CloudFlare -> DNS and delete the records for `api` and the corresponding record for staging CCA. These will get recreated with new content once you run Terraform again.
+
+## Creating the New Infrastructure
 
 1. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
 2. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
 3. On your machine, open a terminal and run `aws configure` to update your AWS CLI credentials. You'll get prompted for your access key ID and secret access key; fill them in with the appropriate values. Then you'll need to run the `push-image` and `redeploy` script in `./infrastructure/aws` to push new Docker images to the AWS ECR.
 4. If the scrapers are broken, follow the instructions in `documentation/production_scrape.md` to import a scrape into prod.
-5. Migrate major data into the production database so Graduate doesn't break. Ask someone on the Graduate team for an up-to-date `majors.json` file, put that inside the `./data` directory, and run the `migrate_major_data` script inside `./scripts` by running `DATABASE_URL=<PROD DATABASE URL> yarn babel-node-ts scripts/migrate_major_data.ts`.
+
+## Make Sure Graduate Isn't Broken
+
+1. Migrate major data into the production database so Graduate doesn't break. Ask someone on the Graduate team for an up-to-date `majors.json` file, put that inside the `./data` directory, and run the `migrate_major_data` script inside `./scripts` by running `DATABASE_URL=<PROD DATABASE URL> yarn babel-node-ts scripts/migrate_major_data.ts`.
