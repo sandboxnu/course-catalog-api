@@ -40,3 +40,14 @@ Con: Lumping in SearchNEU-specific-logic with CCA
 
 General flow
 Twilio-specific intrastructure?
+
+=== Misc TODOs ===
+Remove all 'showNotificationSwitches' since we're gonna always show them the signup button
+Remove all unused code (e.g. custom hooks) (check git deletions/commented out code)
+Add docs for configuring incoming SMS webhook (https://www.twilio.com/docs/sms/tutorials/how-to-receive-and-reply-node-js)
+  - ngrok (https://ngrok.com/download), mv ngrok /usr/local/bin, ngrok http 8080, put ngrok-generated-URL in Twilio config
+
+=== Deployment TODOs ===
+Get Twilio paid account
+  - configure SMS listener to forward to search URL
+  - Configure Twilio environment variables

@@ -15,6 +15,8 @@ import majorResolvers from "./resolvers/major";
 import majorTypeDef from "./typeDefs/major";
 import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
 
+require("../twilio/server");
+
 // Enable JSON custom type
 const JSONResolvers = {
   JSON: GraphQLJSON,
