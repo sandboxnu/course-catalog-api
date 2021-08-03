@@ -29,17 +29,6 @@ Backend twilio endpoint receives "VERIFY" text from user, gets socket from map
 Backend sends cookie thru socket to frontend, closes socket
 Frontend socket listens for cookie, upon receiving cookie frontend stores in session, closes popup
 
-=== Database ===
-
-=== Questions for Us/Khoury OH ===
-Add database table + service logic to CCA or new backend repo?
-Lump in with CCA:
-Pro: Simpler notifyer, no need for network request with ALL updated courses
-Pro: Can re-use existing infrastructure
-Con: Lumping in SearchNEU-specific-logic with CCA
-
-General flow
-Twilio-specific intrastructure?
 
 === Misc TODOs ===
 Remove all 'showNotificationSwitches' since we're gonna always show them the signup button
