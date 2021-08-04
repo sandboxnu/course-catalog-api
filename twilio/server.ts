@@ -1,17 +1,15 @@
 import express from "express";
 import { createServer } from "http";
-import { Server, Socket } from "socket.io";
-import { sendVerificationText, handleUserReply } from "./notifs";
+import {
+  sendVerificationCode,
+  checkVerificationCode,
+  handleUserReply,
+} from "./notifs";
 
 const app = express();
 const port = 8080;
 app.use(express.urlencoded({ extended: false }));
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
 
 server.listen(port, () => {
   console.log("Running twilio notification server on port %s", port);
@@ -19,27 +17,43 @@ server.listen(port, () => {
 
 app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
-const phoneNumberToSocket = new Map<string, Socket>();
+app.post("/twilio/sms", (req, res) => handleUserReply(req, res));
 
-app.post("/twilio/sms", (req, res) =>
-  handleUserReply(req, res, phoneNumberToSocket)
-);
+app.post("/sms/signup", (req, res) => {
+  // twilio needs the phone number in E.164 format see https://www.twilio.com/docs/verify/api/verification
+  const phoneNumber = req.body.phoneNumber;
+  if (!phoneNumber) {
+    res.status(400).send("Missing phone number.");
+  }
+  sendVerificationCode(phoneNumber)
+    .then((response) => {
+      res.status(response.statusCode).send(response.message);
+    })
+    .catch((e) =>
+      res.status(500).send("Error trying to send verification code")
+    );
+});
 
-io.on("connect", (socket) => {
-  console.log("New client connected");
+app.post("/sms/verify", (req, res) => {
+  const phoneNumber = req.body.phoneNumber;
+  const verificationCode = req.body.verificationCode;
+  if (!phoneNumber || !verificationCode) {
+    return res.status(400).send("Missing phone number or verification code.");
+  }
 
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-    for (const p of phoneNumberToSocket.keys()) {
-      if (phoneNumberToSocket.get(p).id === socket.id) {
-        phoneNumberToSocket.delete(p);
-        console.log(`Disconnected ${p}`);
+  checkVerificationCode(phoneNumber, verificationCode)
+    .then((response) => {
+      if (typeof response !== "boolean") {
+        res.status(response.statusCode).send(response.message);
+      } else if (response) {
+        console.log("successfully verified!");
+        res.status(200);
+      } else {
+        console.log("try again");
+        res
+          .status(200)
+          .send("Please try again or request a new verification code.");
       }
-    }
-  });
-
-  socket.on("phone", (phoneNumber) => {
-    phoneNumberToSocket.set(phoneNumber, socket);
-    sendVerificationText(phoneNumber);
-  });
+    })
+    .catch((e) => res.status(500).send("Error trying to verify code"));
 });
