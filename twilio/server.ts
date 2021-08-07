@@ -8,7 +8,7 @@ import {
 
 const app = express();
 const port = 8080;
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 const server = createServer(app);
 
 server.listen(port, () => {
@@ -47,7 +47,7 @@ app.post("/sms/verify", (req, res) => {
         res.status(response.statusCode).send(response.message);
       } else if (response) {
         console.log("successfully verified!");
-        res.status(200);
+        res.status(200).send();
       } else {
         console.log("try again");
         res

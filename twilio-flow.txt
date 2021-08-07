@@ -41,3 +41,10 @@ Add "STATUS" case
 Get Twilio paid account
   - configure SMS listener to forward to search URL
   - Configure Twilio environment variables
+    - Backend:
+        TWILIO_ACCOUNT_SID
+        TWILIO_AUTH_TOKEN
+        TWILIO_PHONE_NUMBER
+        TWILIO_VERIFY_SERVICE_ID
+    - Frontend:
+        ???

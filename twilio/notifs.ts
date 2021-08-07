@@ -118,7 +118,9 @@ export function handleUserReply(
 
   switch (message) {
     case REPLIES.STOP_ALL:
-      twimlResponse.message("cya");
+      twimlResponse.message(
+        "You have been removed from all SearchNEU notifications."
+      );
       break;
     default:
       twimlResponse.message("SearchNEU Bot failed to understand your message");
