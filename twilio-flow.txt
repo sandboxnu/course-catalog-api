@@ -46,5 +46,6 @@ Get Twilio paid account
         TWILIO_AUTH_TOKEN
         TWILIO_PHONE_NUMBER
         TWILIO_VERIFY_SERVICE_ID
+        CLIENT_ORIGIN
     - Frontend:
         ???

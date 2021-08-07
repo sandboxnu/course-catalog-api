@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { createServer } from "http";
 import {
   sendVerificationCode,
@@ -6,7 +7,12 @@ import {
   handleUserReply,
 } from "./notifs";
 
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN,
+};
+
 const app = express();
+app.use(cors(corsOptions));
 const port = 8080;
 app.use(express.json());
 const server = createServer(app);
