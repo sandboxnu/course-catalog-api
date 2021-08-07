@@ -53,12 +53,13 @@ app.post("/sms/verify", (req, res) => {
         res.status(response.statusCode).send(response.message);
       } else if (response) {
         console.log("successfully verified!");
-        res.status(200).send();
+        res.status(200).send({ success: true });
       } else {
         console.log("try again");
-        res
-          .status(200)
-          .send("Please try again or request a new verification code.");
+        res.status(200).send({
+          success: false,
+          message: "Please try again or request a new verification code.",
+        });
       }
     })
     .catch((e) => res.status(500).send("Error trying to verify code"));

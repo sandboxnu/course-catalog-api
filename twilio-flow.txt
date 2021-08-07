@@ -30,6 +30,7 @@ Backend sends cookie thru socket to frontend, closes socket
 Frontend socket listens for cookie, upon receiving cookie frontend stores in session, closes popup
 
 === Misc TODOs ===
+Extract twilio endpoint into frontend environment variable
 Remove all 'showNotificationSwitches' since we're gonna always show them the signup button
 Remove all unused code (e.g. custom hooks) (check git deletions/commented out code)
 Add docs for configuring incoming SMS webhook (https://www.twilio.com/docs/sms/tutorials/how-to-receive-and-reply-node-js)
