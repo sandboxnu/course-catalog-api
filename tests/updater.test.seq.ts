@@ -163,8 +163,8 @@ const PL_S1: SectionType = {
   ...defaultSectionProps,
 };
 
-const USER_ONE = { id: 1, phoneNumber: "+16084213086" };
-const USER_TWO = { id: 2, phoneNumber: "+16087126846" };
+const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
+const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
 
 const UPDATER: Updater = new Updater();
 const mockSendNotification = jest.fn(() => {
