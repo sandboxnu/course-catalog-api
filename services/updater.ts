@@ -13,7 +13,7 @@ import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import { Section as ScrapedSection } from "../types/types";
-import { sendNotifications } from "./notifyer";
+import notifyer from "./notifyer";
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -115,7 +115,7 @@ class Updater {
 
     const totalTime = Date.now() - startTime;
 
-    await sendNotifications(
+    await notifyer.sendNotifications(
       notificationInfo,
       courseHashToUsers,
       sectionHashToUsers
