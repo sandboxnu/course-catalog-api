@@ -1,47 +1,123 @@
 import twilio from "twilio";
 import express from "express";
-import { Socket } from "socket.io";
 const MessagingResponse = twilio.twiml.MessagingResponse;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
-
-const MESSAGES = {
-  VERIFY:
-    "Thanks for signing up for SearchNEU notifications! Please reply VERIFY within 5 minutes to verify your phone number.",
-};
+const serviceId = process.env.TWILIO_VERIFY_SERVICE_ID;
 
 const REPLIES = {
-  VERIFY: "VERIFY",
   STOP_ALL: "STOP ALL",
 };
+
+const TWILIO_ERROR = {
+  SMS_NOT_FOR_LANDLINE: 60205,
+  INVALID_PHONE_NUMBER: 60200,
+  MAX_CHECK_ATTEMPTS_REACHED: 60202,
+  MAX_SEND_ATTEMPTS_REACHED: 60203,
+  RESOURCE_NOT_FOUND: 20404,
+};
+
+const TWILIO_VERIF_CHECK_APPROVED = "approved";
 
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID,
   process.env.TWILIO_AUTH_TOKEN
 );
 
-export function sendVerificationText(recipientNumber: string): void {
-  twilioClient.messages
-    .create({
-      body: MESSAGES.VERIFY,
-      from: twilioNumber,
-      to: recipientNumber,
-    })
-    .then(() => {
-      console.log(`Sent verification text to ${recipientNumber}`);
-      return;
+export interface TwilioResponse {
+  statusCode: number;
+  message: string;
+}
+
+export function sendVerificationCode(
+  recipientNumber: string
+): Promise<TwilioResponse> {
+  return twilioClient.verify
+    .services(serviceId)
+    .verifications.create({ to: recipientNumber, channel: "sms" })
+    .then((verification) => {
+      return { statusCode: 200, message: "Verification code sent!" };
     })
     .catch((err) => {
-      console.log(
-        `Error trying to send verification text to ${recipientNumber}`
-      );
-      console.log(err);
+      switch (err.code) {
+        case TWILIO_ERROR.SMS_NOT_FOR_LANDLINE:
+          return {
+            statusCode: 400,
+            message: "SMS is not supported by landline phone number",
+          };
+        case TWILIO_ERROR.INVALID_PHONE_NUMBER:
+          return {
+            statusCode: 400,
+            message:
+              "Invalid phone number. Please make sure the phone number follows the E.164 format.",
+          };
+        case TWILIO_ERROR.MAX_SEND_ATTEMPTS_REACHED:
+          return {
+            statusCode: 400,
+            message:
+              "You've attempted to send the verification code too many times. Either verify your code or wait 10 minutes for the verification code to expire.",
+          };
+        default:
+          console.error(
+            `Error trying to send verification code to ${recipientNumber}`,
+            err
+          );
+          throw err;
+      }
+    });
+}
+
+export function checkVerificationCode(
+  recipientNumber: string,
+  code: string
+): Promise<TwilioResponse> {
+  return twilioClient.verify
+    .services(serviceId)
+    .verificationChecks.create({ to: recipientNumber, code: code })
+    .then((verification_check) => {
+      if (verification_check.status === TWILIO_VERIF_CHECK_APPROVED) {
+        return { statusCode: 200, message: "Successfully verified!" };
+      } else {
+        return {
+          statusCode: 400,
+          message: "Please try again or request a new verification code.",
+        };
+      }
+    })
+    .catch((err) => {
+      switch (err.code) {
+        case TWILIO_ERROR.MAX_CHECK_ATTEMPTS_REACHED:
+          return {
+            statusCode: 400,
+            message:
+              "You've attempted to check the verification code too many times. Either wait 10 minutes for the current verification to expire or request a new verification code.",
+          };
+        case TWILIO_ERROR.RESOURCE_NOT_FOUND:
+          console.warn(
+            `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`
+          );
+          return {
+            statusCode: 400,
+            message: "Please try again or request a new verification code.",
+          };
+        case TWILIO_ERROR.INVALID_PHONE_NUMBER:
+          return {
+            statusCode: 400,
+            message:
+              "Invalid phone number. Please make sure the phone number follows the E.164 format.",
+          };
+        default:
+          console.error(
+            `Error trying to validate verification code from ${recipientNumber}`,
+            err
+          );
+          throw err;
+      }
     });
 }
 
 export function handleUserReply(
   req: express.Request,
-  res: express.Response,
-  phoneNumberToSocket: Map<string, Socket>
+  res: express.Response
 ): void {
   const message = req.body.Body;
   const senderNumber = req.body.From;
@@ -51,15 +127,10 @@ export function handleUserReply(
   const twimlResponse = new MessagingResponse();
 
   switch (message) {
-    case REPLIES.VERIFY:
-      if (phoneNumberToSocket.has(senderNumber.substring(2))) {
-        twimlResponse.message("Found phone number in map");
-      } else {
-        twimlResponse.message("Couldn't find phone number in map");
-      }
-      break;
     case REPLIES.STOP_ALL:
-      twimlResponse.message("cya");
+      twimlResponse.message(
+        "You have been removed from all SearchNEU notifications."
+      );
       break;
     default:
       twimlResponse.message("SearchNEU Bot failed to understand your message");
