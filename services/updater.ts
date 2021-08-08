@@ -5,10 +5,7 @@
 
 import _ from "lodash";
 import pMap from "p-map";
-import { Course, Section } from "@prisma/client";
-import * as https from "https";
-import * as http from "http";
-import * as httpSignature from "http-signature";
+import { Course, Section, User } from "@prisma/client";
 
 import macros from "../utils/macros";
 import prisma from "./prisma";
@@ -16,12 +13,13 @@ import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import { Section as ScrapedSection } from "../types/types";
+import { sendNotifications } from "./notifyer";
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
 interface OldData {
-  oldClassLookup: Record<string, Course>;
-  oldSectionLookup: Record<string, Section>;
+  watchedSectionLookup: Record<string, Section>;
+  watchedCourseLookup: Record<string, Course>;
   oldSectionsByClass: Record<string, string[]>;
 }
 
@@ -32,7 +30,7 @@ export interface NotificationInfo {
 }
 
 // marks new sections being added to a Course
-interface CourseNotificationInfo {
+export interface CourseNotificationInfo {
   subject: string;
   courseId: string;
   termId: string;
@@ -42,7 +40,7 @@ interface CourseNotificationInfo {
 }
 
 // marks seats becoming available in a section
-interface SectionNotificationInfo {
+export interface SectionNotificationInfo {
   subject: string;
   courseId: string;
   sectionHash: string;
@@ -104,6 +102,12 @@ class Updater {
     ).flat();
 
     const notificationInfo = await this.getNotificationInfo(sections);
+    const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
+      this.COURSE_MODEL
+    );
+    const sectionHashToUsers: Record<string, User[]> = await this.modelToUser(
+      this.SECTION_MODEL
+    );
 
     await dumpProcessor.main({
       termDump: { sections, classes: {}, subjects: {} },
@@ -111,18 +115,23 @@ class Updater {
 
     const totalTime = Date.now() - startTime;
 
+    await sendNotifications(
+      notificationInfo,
+      courseHashToUsers,
+      sectionHashToUsers
+    );
+
     macros.log(
       `Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`
     );
-
-    await this.sendUpdates(notificationInfo);
   }
 
   async getNotificationInfo(
     sections: ScrapedSection[]
   ): Promise<NotificationInfo> {
-    const { oldClassLookup, oldSectionLookup, oldSectionsByClass } =
+    const { watchedCourseLookup, watchedSectionLookup, oldSectionsByClass } =
       await this.getOldData();
+
     const newSectionsByClass: Record<string, string[]> = {};
 
     // map of courseHash to newly scraped sections
@@ -137,15 +146,16 @@ class Updater {
       updatedSections: [],
     };
 
-    // find courses with added sections and add to notificationInfo
+    // find watched courses with added sections and add to notificationInfo
     Object.entries(newSectionsByClass).forEach(([classHash, sectionHashes]) => {
-      if (!oldSectionsByClass[classHash]) return;
-
+      if (!oldSectionsByClass[classHash] || !watchedCourseLookup[classHash]) {
+        return;
+      }
       const newSectionCount = sectionHashes.filter(
         (hash: string) => !oldSectionsByClass[classHash].includes(hash)
       ).length;
       if (newSectionCount > 0) {
-        const { id, subject, classId, termId } = oldClassLookup[classHash];
+        const { id, subject, classId, termId } = watchedCourseLookup[classHash];
 
         notificationInfo.updatedCourses.push({
           termId,
@@ -158,10 +168,10 @@ class Updater {
       }
     });
 
-    // find sections with more seats or waitlist spots and add to notificationInfo
+    // find watched sections with more seats or waitlist spots and add to notificationInfo
     sections.forEach((s: ScrapedSection) => {
       const sectionId = keys.getSectionHash(s);
-      const oldSection = oldSectionLookup[sectionId];
+      const oldSection = watchedSectionLookup[sectionId];
       if (!oldSection) return;
 
       if (
@@ -186,13 +196,33 @@ class Updater {
 
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
-    const oldClasses: Course[] = (
+    const watchedCourses = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.course.findMany({
-          where: { termId },
+        return prisma.followedCourse.findMany({
+          include: { course: true },
+          where: { course: { termId } },
         });
       })
     ).flat();
+
+    const watchedCourseLookup: Record<string, Course> = {};
+    for (const s of watchedCourses) {
+      watchedCourseLookup[s.courseHash] = s.course;
+    }
+
+    const watchedSections = (
+      await pMap(this.SEMS_TO_UPDATE, (termId) => {
+        return prisma.followedSection.findMany({
+          include: { section: { include: { course: true } } },
+          where: { section: { course: { termId } } },
+        });
+      })
+    ).flat();
+
+    const watchedSectionLookup: Record<string, Section> = {};
+    for (const s of watchedSections) {
+      watchedSectionLookup[s.sectionHash] = s.section;
+    }
 
     const oldSections: Section[] = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
@@ -202,25 +232,19 @@ class Updater {
       })
     ).flat();
 
-    const oldClassLookup: Record<string, Course> = _.keyBy(
-      oldClasses,
-      (c) => c.id
-    );
-    const oldSectionLookup: Record<string, Section> = _.keyBy(
-      oldSections,
-      (s) => s.id
-    );
-
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {
       if (!(s.classHash in oldSectionsByClass)) {
         oldSectionsByClass[s.classHash] = [];
       }
-
       oldSectionsByClass[s.classHash].push(s.id);
     }
 
-    return { oldClassLookup, oldSectionLookup, oldSectionsByClass };
+    return {
+      watchedCourseLookup,
+      watchedSectionLookup,
+      oldSectionsByClass,
+    };
   }
 
   static getCampusFromTerm(term: string): string {
@@ -234,47 +258,18 @@ class Updater {
     }
   }
 
-  async sendUpdates(notificationInfo: NotificationInfo): Promise<void> {
-    if (
-      notificationInfo.updatedCourses.length === 0 &&
-      notificationInfo.updatedSections.length === 0
-    ) {
-      macros.log("no updates to send!");
-      return;
-    }
+  // Return an Object of the list of users associated with what class or section they are following
+  async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
+    const columnName = `${modelName}_hash`;
+    const pluralName = `${modelName}s`;
+    const dbResults = await prisma.$queryRaw(
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
+    );
 
-    const body = JSON.stringify(notificationInfo);
-    const DEST_URL = macros.PROD
-      ? process.env.UPDATER_URL
-      : "http://localhost:5000/api/notify_users";
-    const key = process.env.WEBHOOK_PRIVATE_KEY;
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(body),
-      },
-    };
-
-    const req = macros.PROD
-      ? https.request(DEST_URL, options)
-      : http.request(DEST_URL, options);
-
-    req.on("error", (e) => {
-      macros.error(`problem with updater request: ${e.message}`);
-    });
-    req.on("response", (res) => {
-      if (res.statusCode !== 200) {
-        macros.error(res.statusCode, res.statusMessage);
-      }
-    });
-    httpSignature.sign(req, {
-      key: key,
-      keyId: "hello",
-    });
-
-    req.end(body);
-    macros.log("Request made from updater!");
+    return Object.assign(
+      {},
+      ...dbResults.map((res) => ({ [res[columnName]]: res.json_agg }))
+    );
   }
 }
 
