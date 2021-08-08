@@ -1,5 +1,6 @@
 import twilio from "twilio";
 import express from "express";
+import macros from "../utils/macros";
 const MessagingResponse = twilio.twiml.MessagingResponse;
 const twilioNumber = process.env.TWILIO_PHONE_NUMBER;
 const serviceId = process.env.TWILIO_VERIFY_SERVICE_ID;
@@ -26,6 +27,24 @@ const twilioClient = twilio(
 export interface TwilioResponse {
   statusCode: number;
   message: string;
+}
+
+export function sendNotificationText(
+  recipientNumber: string,
+  message: string
+): Promise<void> {
+  return twilioClient.messages
+    .create({ body: message, from: twilioNumber, to: recipientNumber })
+    .then(() => {
+      macros.log(`Sent notification text to ${recipientNumber}`);
+      return;
+    })
+    .catch((err) => {
+      macros.error(
+        `Error trying to send notification text to ${recipientNumber}`,
+        err
+      );
+    });
 }
 
 export function sendVerificationCode(

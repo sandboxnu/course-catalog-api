@@ -32,6 +32,7 @@ model Course {
 
   @@unique([classId, termId, subject], name: "uniqueCourseProps")
   @@map(name: "courses")
+  FollowedCourse FollowedCourse[]
 }
 
 model Major {
@@ -83,6 +84,7 @@ model Section {
   waitRemaining  Int?     @map(name: "wait_remaining")
   course         Course?  @relation(fields: [classHash], references: [id])
 
+  FollowedSection FollowedSection[]
   @@map(name: "sections")
 }
 
@@ -93,10 +95,21 @@ model Subject {
   @@map(name: "subjects")
 }
 
+model FollowedCourse {
+  courseHash String @map(name: "course_hash")
+  course     Course @relation(fields: [courseHash], references: [id])
+  userId     Int    @map(name: "user_id")
+  user       User   @relation(fields: [userId], references: [id])
+
+  @@id([userId, courseHash])
+  @@map(name: "followed_courses")
+}
+
 model FollowedSection {
-  sectionHash String @map(name: "section_hash")
-  userId      Int    @map(name: "user_id")
-  user        User   @relation(fields: [userId], references: [id])
+  sectionHash String  @map(name: "section_hash")
+  section     Section @relation(fields: [sectionHash], references: [id])
+  userId      Int     @map(name: "user_id")
+  user        User    @relation(fields: [userId], references: [id])
 
   @@id([userId, sectionHash])
   @@map(name: "followed_sections")
@@ -104,8 +117,9 @@ model FollowedSection {
 
 model User {
   id               Int               @id @default(autoincrement())
-  phoneNumber      String
+  phoneNumber      String            @map(name: "phone_number")
   followedSections FollowedSection[]
 
   @@map(name: "users")
+  FollowedCourse FollowedCourse[]
 }
