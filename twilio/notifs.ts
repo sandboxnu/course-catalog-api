@@ -69,12 +69,19 @@ export function sendVerificationCode(
 export function checkVerificationCode(
   recipientNumber: string,
   code: string
-): Promise<boolean | TwilioResponse> {
+): Promise<TwilioResponse> {
   return twilioClient.verify
     .services(serviceId)
     .verificationChecks.create({ to: recipientNumber, code: code })
     .then((verification_check) => {
-      return verification_check.status === TWILIO_VERIF_CHECK_APPROVED;
+      if (verification_check.status === TWILIO_VERIF_CHECK_APPROVED) {
+        return { statusCode: 200, message: "Successfully verified!" };
+      } else {
+        return {
+          statusCode: 400,
+          message: "Please try again or request a new verification code.",
+        };
+      }
     })
     .catch((err) => {
       switch (err.code) {
@@ -88,7 +95,10 @@ export function checkVerificationCode(
           console.warn(
             `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`
           );
-          return false;
+          return {
+            statusCode: 400,
+            message: "Please try again or request a new verification code.",
+          };
         case TWILIO_ERROR.INVALID_PHONE_NUMBER:
           return {
             statusCode: 400,

@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { createServer } from "http";
+import jwt from "jsonwebtoken";
 import {
   sendVerificationCode,
   checkVerificationCode,
@@ -49,17 +50,13 @@ app.post("/sms/verify", (req, res) => {
 
   checkVerificationCode(phoneNumber, verificationCode)
     .then((response) => {
-      if (typeof response !== "boolean") {
-        res.status(response.statusCode).send(response.message);
-      } else if (response) {
-        console.log("successfully verified!");
-        res.status(200).send({ success: true });
+      if (response.statusCode === 200) {
+        const token = jwt.sign({ phoneNumber }, process.env.JWT_SECRET);
+        res
+          .status(response.statusCode)
+          .send({ message: response.message, token });
       } else {
-        console.log("try again");
-        res.status(200).send({
-          success: false,
-          message: "Please try again or request a new verification code.",
-        });
+        res.status(response.statusCode).send(response.message);
       }
     })
     .catch((e) => res.status(500).send("Error trying to verify code"));

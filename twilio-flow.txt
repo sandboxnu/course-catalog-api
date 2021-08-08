@@ -6,9 +6,9 @@ Clicking button opens popup with an input "Enter your phone number"
     - Do we need to prevent "off limits" #s? e.g. what if someone enters 911
   - Popup is closeable at any time
 Type in phone #, click "Save Phone #"
-Popup changes, says "We sent a verification message to [ur #], please verify your phone # by replying with "VERIFY" within the next 10 minutes (verification message will have same instructions)
+Popup changes, says "We sent a verification code to [ur #]
   - Button on popup to re-send verification (might have to prevent spam, debounce to 30 seconds)
-After user replies "VERIFY", popup goes away, save phone # to session cookie (use socket.io)
+User enters code, send post to backend with phone # + code, if correct then backend responds with signed JWT containing phone #
 Where the "Sign Up for SMS Notifications" buttons used to be there is now a toggle next to each section
 Clicking on toggle signs phone # up for SMS notifs
 
@@ -19,20 +19,11 @@ User can text "STOP ALL" to completely remove themselves from all notifs
 "HELP" to see list of commands
 If session cookie exists then top right of page header has a "Current Phone #: 123-456-7890" text, with a button "Change Phone #" -> clicking deletes session cookie, opens the popup
 
-=== Verification Logic (socket.io) ===
-User hits "Save Phone #" button
-Frontend creates socket connection to backend
-Frontend sends Phone # thru socket
-Backend stores map of Phone # to socket, overwrites if phone # already exists
-Backend sends twilio message to phone # asking to reply "VERIFY"
-Backend twilio endpoint receives "VERIFY" text from user, gets socket from map
-Backend sends cookie thru socket to frontend, closes socket
-Frontend socket listens for cookie, upon receiving cookie frontend stores in session, closes popup
-
 === Misc TODOs ===
 Extract twilio endpoint into frontend environment variable
 Remove all 'showNotificationSwitches' since we're gonna always show them the signup button
 Remove all unused code (e.g. custom hooks) (check git deletions/commented out code)
+Remove all prior 'jwt' code, no longer used (in frontend)
 Add docs for configuring incoming SMS webhook (https://www.twilio.com/docs/sms/tutorials/how-to-receive-and-reply-node-js)
   - ngrok (https://ngrok.com/download), mv ngrok /usr/local/bin, ngrok http 8080, put ngrok-generated-URL in Twilio config
 Add better default message (e.g. explain possible commands)
@@ -48,5 +39,6 @@ Get Twilio paid account
         TWILIO_PHONE_NUMBER
         TWILIO_VERIFY_SERVICE_ID
         CLIENT_ORIGIN
+        JWT_SECRET
     - Frontend:
         ???
