@@ -1,11 +1,17 @@
 import twilio, { Twilio } from "twilio";
 import express from "express";
 import macros from "../utils/macros";
+import prisma from "../services/prisma";
 const MessagingResponse = twilio.twiml.MessagingResponse;
 
 export interface TwilioResponse {
   statusCode: number;
   message: string;
+}
+
+export interface UserSubscriptions {
+  courseIds: string[];
+  sectionIds: string[];
 }
 
 class TwilioNotifyer {
@@ -159,6 +165,21 @@ class TwilioNotifyer {
         );
     }
     res.send(twimlResponse.toString());
+  }
+
+  async getUserSubscriptions(phoneNumber: string): Promise<UserSubscriptions> {
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    const followedSections = await prisma.followedSection.findMany({
+      where: { userId },
+    });
+    const followedCourses = await prisma.followedCourse.findMany({
+      where: { userId },
+    });
+
+    return {
+      sectionIds: followedSections.map((s) => s.sectionHash),
+      courseIds: followedCourses.map((c) => c.courseHash),
+    };
   }
 }
 

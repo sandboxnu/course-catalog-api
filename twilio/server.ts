@@ -59,3 +59,18 @@ app.post("/sms/verify", (req, res) => {
     })
     .catch((e) => res.status(500).send("Error trying to verify code"));
 });
+
+app.get("/user/:jwt", (req, res) => {
+  const token = req.params.jwt;
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const phoneNumber = decodedToken.phoneNumber;
+    twilioNotifyer
+      .getUserSubscriptions(phoneNumber)
+      .then((userSubscriptions) => {
+        res.status(200).send(userSubscriptions);
+      });
+  } catch (error) {
+    res.status(401).send();
+  }
+});
