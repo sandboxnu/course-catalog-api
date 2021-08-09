@@ -2,11 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
-import {
-  sendVerificationCode,
-  checkVerificationCode,
-  handleUserReply,
-} from "./notifs";
+import twilioNotifyer from "./notifs";
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,
@@ -24,7 +20,7 @@ server.listen(port, () => {
 
 app.get("/knockknock", (req, res) => res.send("Who's there?"));
 
-app.post("/twilio/sms", (req, res) => handleUserReply(req, res));
+app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
 
 app.post("/sms/signup", (req, res) => {
   // twilio needs the phone number in E.164 format see https://www.twilio.com/docs/verify/api/verification
@@ -32,7 +28,8 @@ app.post("/sms/signup", (req, res) => {
   if (!phoneNumber) {
     res.status(400).send("Missing phone number.");
   }
-  sendVerificationCode(phoneNumber)
+  twilioNotifyer
+    .sendVerificationCode(phoneNumber)
     .then((response) => {
       res.status(response.statusCode).send(response.message);
     })
@@ -48,7 +45,8 @@ app.post("/sms/verify", (req, res) => {
     return res.status(400).send("Missing phone number or verification code.");
   }
 
-  checkVerificationCode(phoneNumber, verificationCode)
+  twilioNotifyer
+    .checkVerificationCode(phoneNumber, verificationCode)
     .then((response) => {
       if (response.statusCode === 200) {
         const token = jwt.sign({ phoneNumber }, process.env.JWT_SECRET);

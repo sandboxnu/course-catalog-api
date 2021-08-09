@@ -4,7 +4,7 @@
  */
 
 import { User } from "@prisma/client";
-import { sendNotificationText } from "../twilio/notifs";
+import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
 import {
   CourseNotificationInfo,
@@ -30,7 +30,10 @@ class Notifyer {
           .map((course) => {
             const courseMessage = this.generateCourseMessage(course);
             return courseHashToUsers[course.courseHash].map((user) => {
-              return sendNotificationText(user.phoneNumber, courseMessage);
+              return twilioNotifyer.sendNotificationText(
+                user.phoneNumber,
+                courseMessage
+              );
             });
           })
           .flat();
@@ -40,7 +43,10 @@ class Notifyer {
           .map((section) => {
             const sectionMessage = this.generateSectionMessage(section);
             return sectionHashToUsers[section.sectionHash].map((user) => {
-              return sendNotificationText(user.phoneNumber, sectionMessage);
+              return twilioNotifyer.sendNotificationText(
+                user.phoneNumber,
+                sectionMessage
+              );
             });
           })
           .flat();
