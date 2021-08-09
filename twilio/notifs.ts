@@ -9,7 +9,8 @@ export interface TwilioResponse {
   message: string;
 }
 
-export interface UserSubscriptions {
+export interface UserInfo {
+  phoneNumber: string;
   courseIds: string[];
   sectionIds: string[];
 }
@@ -167,7 +168,7 @@ class TwilioNotifyer {
     res.send(twimlResponse.toString());
   }
 
-  async getUserSubscriptions(phoneNumber: string): Promise<UserSubscriptions> {
+  async getUserSubscriptions(phoneNumber: string): Promise<UserInfo> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
     const followedSections = await prisma.followedSection.findMany({
       where: { userId },
@@ -177,6 +178,7 @@ class TwilioNotifyer {
     });
 
     return {
+      phoneNumber,
       sectionIds: followedSections.map((s) => s.sectionHash),
       courseIds: followedCourses.map((c) => c.courseHash),
     };
