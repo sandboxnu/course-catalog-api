@@ -28,6 +28,7 @@ Add docs for configuring incoming SMS webhook (https://www.twilio.com/docs/sms/t
   - ngrok (https://ngrok.com/download), mv ngrok /usr/local/bin, ngrok http 8080, put ngrok-generated-URL in Twilio config
 Add better default message (e.g. explain possible commands)
 Add "STATUS" case
+Change notif toggle to flip BEFORE sending network request to reduce lag, display success banner when req finishes or display error banner (and un-toggle) if fails 
 
 === Deployment TODOs ===
 Get Twilio paid account

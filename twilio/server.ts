@@ -60,7 +60,7 @@ app.post("/sms/verify", (req, res) => {
     .catch((e) => res.status(500).send("Error trying to verify code"));
 });
 
-app.get("/user/:jwt", (req, res) => {
+app.get("/user/subscriptions/:jwt", (req, res) => {
   const token = req.params.jwt;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
@@ -69,6 +69,40 @@ app.get("/user/:jwt", (req, res) => {
       .getUserSubscriptions(phoneNumber)
       .then((userSubscriptions) => {
         res.status(200).send(userSubscriptions);
+      });
+  } catch (error) {
+    res.status(401).send();
+  }
+});
+
+app.put("/user/subscriptions", (req, res) => {
+  const { token, sectionIds, courseIds } = req.body;
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const phoneNumber = decodedToken.phoneNumber;
+    twilioNotifyer
+      .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
+      .then(() => {
+        res.status(200).send();
+      })
+      .catch((error) => res.status(500).send());
+  } catch (error) {
+    res.status(401).send();
+  }
+});
+
+app.delete("/user/subscriptions", (req, res) => {
+  const { token, sectionIds, courseIds } = req.body;
+  try {
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const phoneNumber = decodedToken.phoneNumber;
+    twilioNotifyer
+      .deleteUserSubscriptions(phoneNumber, sectionIds, courseIds)
+      .then(() => {
+        res.status(200).send();
+      })
+      .catch((error) => {
+        res.status(500).send();
       });
   } catch (error) {
     res.status(401).send();
