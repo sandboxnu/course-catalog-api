@@ -3,6 +3,7 @@ import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import twilioNotifyer from "./notifs";
+import notificationsManager from "../services/notificationsManager";
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,
@@ -32,6 +33,7 @@ app.post("/sms/signup", (req, res) => {
     .sendVerificationCode(phoneNumber)
     .then((response) => {
       res.status(response.statusCode).send(response.message);
+      return;
     })
     .catch((e) =>
       res.status(500).send("Error trying to send verification code")
@@ -47,17 +49,23 @@ app.post("/sms/verify", (req, res) => {
 
   twilioNotifyer
     .checkVerificationCode(phoneNumber, verificationCode)
-    .then((response) => {
+    .then(async (response) => {
       if (response.statusCode === 200) {
+        await notificationsManager.upsertUser(phoneNumber);
         const token = jwt.sign({ phoneNumber }, process.env.JWT_SECRET);
         res
           .status(response.statusCode)
           .send({ message: response.message, token });
+        return;
       } else {
         res.status(response.statusCode).send(response.message);
+        return;
       }
     })
-    .catch((e) => res.status(500).send("Error trying to verify code"));
+    .catch((e) => {
+      console.error(e);
+      res.status(500).send("Error trying to verify code");
+    });
 });
 
 app.get("/user/subscriptions/:jwt", (req, res) => {
@@ -65,11 +73,17 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
     const phoneNumber = decodedToken.phoneNumber;
-    twilioNotifyer
+    notificationsManager
       .getUserSubscriptions(phoneNumber)
       .then((userSubscriptions) => {
         res.status(200).send(userSubscriptions);
+        return;
+      })
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send();
       });
+    return;
   } catch (error) {
     res.status(401).send();
   }
@@ -80,12 +94,16 @@ app.put("/user/subscriptions", (req, res) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
     const phoneNumber = decodedToken.phoneNumber;
-    twilioNotifyer
+    notificationsManager
       .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {
         res.status(200).send();
+        return;
       })
-      .catch((error) => res.status(500).send());
+      .catch((error) => {
+        console.error(error);
+        res.status(500).send();
+      });
   } catch (error) {
     res.status(401).send();
   }
@@ -96,12 +114,14 @@ app.delete("/user/subscriptions", (req, res) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
     const phoneNumber = decodedToken.phoneNumber;
-    twilioNotifyer
+    notificationsManager
       .deleteUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {
         res.status(200).send();
+        return;
       })
       .catch((error) => {
+        console.error(error);
         res.status(500).send();
       });
   } catch (error) {

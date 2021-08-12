@@ -54,14 +54,15 @@ class Notifyer {
       await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
         () => {
           macros.log("Notifications sent from notifyer!");
+          return;
         }
       );
     }
   }
 
   private generateCourseMessage(course: CourseNotificationInfo): string {
-    const classCode: string = `${course.subject} ${course.courseId}`;
-    let message: string = "";
+    const classCode = `${course.subject} ${course.courseId}`;
+    let message = "";
     if (course.numberOfSectionsAdded === 1) {
       message += `A section was added to ${classCode}!`;
     } else {

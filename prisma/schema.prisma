@@ -30,9 +30,9 @@ model Course {
   url             String?
   sections        Section[]
 
+  FollowedCourse FollowedCourse[]
   @@unique([classId, termId, subject], name: "uniqueCourseProps")
   @@map(name: "courses")
-  FollowedCourse FollowedCourse[]
 }
 
 model Major {
@@ -117,9 +117,9 @@ model FollowedSection {
 
 model User {
   id               Int               @id @default(autoincrement())
-  phoneNumber      String            @map(name: "phone_number")
+  phoneNumber      String            @unique @map(name: "phone_number")
   followedSections FollowedSection[]
 
-  @@map(name: "users")
   FollowedCourse FollowedCourse[]
+  @@map(name: "users")
 }
