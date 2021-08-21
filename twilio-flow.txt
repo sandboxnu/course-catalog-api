@@ -32,6 +32,7 @@ Change notif toggle to flip BEFORE sending network request to reduce lag, displa
 
 === Deployment TODOs ===
 Get Twilio paid account
+  - figure out URL of prod notifs endpoint
   - configure SMS listener to forward to search URL
   - Configure Twilio environment variables
     - Backend:
@@ -42,4 +43,4 @@ Get Twilio paid account
         CLIENT_ORIGIN
         JWT_SECRET
     - Frontend:
-        ???
+        NEXT_PUBLIC_NOTIFS_ENDPOINT
