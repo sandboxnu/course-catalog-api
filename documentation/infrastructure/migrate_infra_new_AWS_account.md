@@ -73,7 +73,9 @@ Follow these steps for AWS Activate (per project):
 
 ## Creating the New Infrastructure
 
-1. Trigger a run from Terraform. Creating the elasticsearch domain might take up to 40 minutes.
+Warning: this process is ugly and error-prone, you'll likely run into unexplainable failures and have to run things multiple times. It's okay. Here are some of the steps to take, errors we've ran into, and ways we've handled them.
+
+1. Trigger a run from Terraform. Creating the elasticsearch domain might fail the first time (see [this comment](https://github.com/sandboxnu/course-catalog-api/blob/master/infrastructure/terraform/modules/course-catalog-api/elasticsearch.tf#L20)). The second time you run Terraform, creating the elasticsearch domain could take up to 40 minutes.
 2. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
 3. On your machine, open a terminal and run `aws configure` to update your AWS CLI credentials. You'll get prompted for your access key ID and secret access key; fill them in with the appropriate values. Then you'll need to run the `push-image` and `redeploy` script in `./infrastructure/aws` to push new Docker images to the AWS ECR.
 4. If the scrapers are broken, follow the instructions in `documentation/production_scrape.md` to import a scrape into prod.
