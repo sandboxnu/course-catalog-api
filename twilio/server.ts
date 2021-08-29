@@ -4,6 +4,7 @@ import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import twilioNotifyer from "./notifs";
 import notificationsManager from "../services/notificationsManager";
+import macros from "../utils/macros";
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,
@@ -63,7 +64,7 @@ app.post("/sms/verify", (req, res) => {
       }
     })
     .catch((e) => {
-      console.error(e);
+      macros.error(e);
       res.status(500).send("Error trying to verify code");
     });
 });
@@ -80,7 +81,7 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
         return;
       })
       .catch((error) => {
-        console.error(error);
+        macros.error(error);
         res.status(500).send();
       });
     return;
@@ -101,7 +102,7 @@ app.put("/user/subscriptions", (req, res) => {
         return;
       })
       .catch((error) => {
-        console.error(error);
+        macros.error(error);
         res.status(500).send();
       });
   } catch (error) {
@@ -121,7 +122,7 @@ app.delete("/user/subscriptions", (req, res) => {
         return;
       })
       .catch((error) => {
-        console.error(error);
+        macros.error(error);
         res.status(500).send();
       });
   } catch (error) {

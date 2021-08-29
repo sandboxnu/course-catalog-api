@@ -82,7 +82,7 @@ class TwilioNotifyer {
                 "You've attempted to send the verification code too many times. Either verify your code or wait 10 minutes for the verification code to expire.",
             };
           default:
-            console.error(
+            macros.error(
               `Error trying to send verification code to ${recipientNumber}`,
               err
             );
@@ -117,7 +117,7 @@ class TwilioNotifyer {
                 "You've attempted to check the verification code too many times. Either wait 10 minutes for the current verification to expire or request a new verification code.",
             };
           case this.TWILIO_ERRORS.RESOURCE_NOT_FOUND:
-            console.warn(
+            macros.warn(
               `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`
             );
             return {
@@ -131,7 +131,7 @@ class TwilioNotifyer {
                 "Invalid phone number. Please make sure the phone number follows the E.164 format.",
             };
           default:
-            console.error(
+            macros.error(
               `Error trying to validate verification code from ${recipientNumber}`,
               err
             );
@@ -144,7 +144,7 @@ class TwilioNotifyer {
     const message = req.body.Body;
     const senderNumber = req.body.From;
 
-    console.log(`Received a text from ${senderNumber}: ${message}`);
+    macros.log(`Received a text from ${senderNumber}: ${message}`);
 
     const twimlResponse = new MessagingResponse();
 
