@@ -12,6 +12,7 @@ COPY scrapers /app/scrapers
 COPY scripts /app/scripts
 COPY serializers /app/serializers
 COPY services /app/services
+COPY twilio /app/twilio
 COPY types /app/types
 COPY utils /app/utils
 COPY infrastructure/prod /app
@@ -21,12 +22,12 @@ RUN rm -rf node_modules
 
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
-&& wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
+    && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
 ENV dbCertPath /app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-EXPOSE 4000
+EXPOSE 4000 8080
 CMD ["yarn", "prod"]
