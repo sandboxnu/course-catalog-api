@@ -1,5 +1,5 @@
-import { NotificationInfo } from "../services/updater";
-import notifyer from "../services/notifyer";
+import { NotificationInfo } from "../types/notifTypes";
+import { sendNotifications } from "../services/notifyer";
 import twilioNotifyer from "../twilio/notifs";
 import { User } from "@prisma/client";
 
@@ -22,7 +22,7 @@ describe("Notifyer", () => {
       notificationInfo = { updatedCourses: [], updatedSections: [] };
       courseHashToUsers = {};
       sectionHashToUsers = {};
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -75,7 +75,7 @@ describe("Notifyer", () => {
           { id: 2, phoneNumber: "+19879879876" },
         ],
       };
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -120,7 +120,7 @@ describe("Notifyer", () => {
           { id: 2, phoneNumber: "+19879879876" },
         ],
       };
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -146,7 +146,7 @@ describe("Notifyer", () => {
         "neu.edu/202210/ARTF/1122": [{ id: 1, phoneNumber: "+11231231234" }],
       };
       sectionHashToUsers = {};
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -177,7 +177,7 @@ describe("Notifyer", () => {
         "neu.edu/202210/ARTF/1122": [{ id: 1, phoneNumber: "+11231231234" }],
       };
       sectionHashToUsers = {};
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -211,7 +211,7 @@ describe("Notifyer", () => {
           { id: 1, phoneNumber: "+11231231234" },
         ],
       };
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -245,7 +245,7 @@ describe("Notifyer", () => {
           { id: 1, phoneNumber: "+11231231234" },
         ],
       };
-      notifyer.sendNotifications(
+      sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers

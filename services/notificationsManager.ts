@@ -1,11 +1,5 @@
-import macros from "../utils/macros";
 import prisma from "./prisma";
-
-export interface UserInfo {
-  phoneNumber: string;
-  courseIds: string[];
-  sectionIds: string[];
-}
+import { UserInfo } from "../types/notifTypes";
 
 class NotificationsManager {
   async upsertUser(phoneNumber: string): Promise<void> {
@@ -67,36 +61,26 @@ class NotificationsManager {
     courseIds: any
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
-    const sectionTuples = sectionIds.map((s: string) => ({
-      userId,
-      sectionHash: s,
-    }));
-    const courseTuples = courseIds.map((c: string) => ({
-      userId,
-      courseHash: c,
-    }));
 
     const promises = [];
-    for (const s of sectionTuples) {
-      promises.push(
-        prisma.followedSection.deleteMany({
-          where: {
-            userId: s.userId,
-            sectionHash: s.sectionHash,
-          },
-        })
-      );
-    }
-    for (const c of courseTuples) {
-      promises.push(
-        prisma.followedCourse.deleteMany({
-          where: {
-            userId: c.userId,
-            courseHash: c.courseHash,
-          },
-        })
-      );
-    }
+
+    promises.push(
+      prisma.followedSection.deleteMany({
+        where: {
+          userId: userId,
+          sectionHash: { in: sectionIds },
+        },
+      })
+    );
+
+    promises.push(
+      prisma.followedCourse.deleteMany({
+        where: {
+          userId: userId,
+          courseHash: { in: courseIds },
+        },
+      })
+    );
 
     await Promise.all(promises);
     return;
