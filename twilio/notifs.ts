@@ -149,6 +149,7 @@ class TwilioNotifyer {
     const twimlResponse = new MessagingResponse();
 
     switch (message) {
+      // TODO: actually remove user from SearchNEU notifs
       case this.TWILIO_REPLIES.STOP_ALL:
         twimlResponse.message(
           "You have been removed from all SearchNEU notifications."
