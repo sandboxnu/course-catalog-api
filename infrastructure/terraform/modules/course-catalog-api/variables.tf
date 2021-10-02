@@ -59,6 +59,11 @@ variable "app_port" {
   default     = 4000
 }
 
+variable "notif_server_port" {
+  description = "port the notification server runs on"
+  default     = 8080
+}
+
 variable "app_count" {
   description = "number of app instances to run"
   default     = 1
