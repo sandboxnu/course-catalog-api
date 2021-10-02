@@ -272,20 +272,20 @@ resource "aws_security_group" "ecs_tasks" {
   description = "allow inbound access from the ALB only"
   vpc_id      = var.vpc_id
 
-  ingress = [
-    {
-      protocol        = "tcp"
-      from_port       = var.app_port
-      to_port         = var.app_port
-      security_groups = [var.alb_sg_id]
-    },
-    {
-      protocol        = "tcp"
-      from_port       = var.notif_server_port
-      to_port         = var.notif_server_port
-      security_groups = [var.alb_sg_id]
-    }
-  ]
+  ingress {
+    protocol        = "tcp"
+    from_port       = var.app_port
+    to_port         = var.app_port
+    security_groups = [var.alb_sg_id]
+  }
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = var.notif_server_port
+    to_port         = var.notif_server_port
+    security_groups = [var.alb_sg_id]
+  }
+  
 
   egress {
     protocol    = "-1"
