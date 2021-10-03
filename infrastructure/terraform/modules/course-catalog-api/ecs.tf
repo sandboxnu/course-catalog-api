@@ -26,6 +26,11 @@ module "webserver-container" {
       containerPort = var.app_port
       hostPort      = var.app_port
       protocol      = "tcp"
+    },
+    {
+      containerPort = var.notif_server_port
+      hostPort      = var.notif_server_port
+      protocol      = "tcp"
     }
   ]
   
