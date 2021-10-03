@@ -61,6 +61,12 @@ resource "aws_ecs_service" "main" {
     container_port   = var.app_port
   }
 
+  load_balancer {
+    target_group_arn = aws_lb_target_group.notifserver.arn
+    container_name   = "${module.label.id}-webserver"
+    container_port   = var.notif_server_port
+  }
+
   depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]
 }
 

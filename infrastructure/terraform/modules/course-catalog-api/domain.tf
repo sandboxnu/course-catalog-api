@@ -14,7 +14,19 @@ resource "aws_lb_listener_rule" "host_based" {
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.webserver.arn
+
+    forward {
+
+      target_group {
+        arn = aws_lb_target_group.webserver.arn
+      }
+
+      target_group {
+        arn = aws_lb_target_group.notifserver.arn
+      }
+
+    }
+
   }
 
   condition {
@@ -26,6 +38,14 @@ resource "aws_lb_listener_rule" "host_based" {
 
 resource "aws_lb_target_group" "webserver" {
   name        = "${module.label.id}-tg"
+  port        = 80
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+}
+
+resource "aws_lb_target_group" "notifserver" {
+  name        = "${module.label.id}-notif-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
