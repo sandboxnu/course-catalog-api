@@ -85,6 +85,7 @@ class Updater {
 
     await dumpProcessor.main({
       termDump: { sections, classes: {}, subjects: {} },
+      destroy: true,
     });
 
     const totalTime = Date.now() - startTime;
@@ -103,8 +104,11 @@ class Updater {
   async getNotificationInfo(
     sections: ScrapedSection[]
   ): Promise<NotificationInfo> {
-    const { watchedCourseLookup, watchedSectionLookup, oldSectionsByClass } =
-      await this.getOldData();
+    const {
+      watchedCourseLookup,
+      watchedSectionLookup,
+      oldSectionsByClass,
+    } = await this.getOldData();
 
     const newSectionsByClass: Record<string, string[]> = {};
 
