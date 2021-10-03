@@ -14,15 +14,7 @@ resource "aws_lb_listener_rule" "host_based" {
 
   action {
     type             = "forward"
-
-    forward {
-
-      target_group {
-        arn = aws_lb_target_group.webserver.arn
-      }
-
-    }
-
+    target_group_arn = aws_lb_target_group.webserver.arn
   }
 
   condition {
