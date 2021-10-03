@@ -45,7 +45,7 @@ resource "aws_lb_target_group" "webserver" {
 }
 
 resource "aws_lb_target_group" "notifserver" {
-  name        = "${module.label.id}-notif-tg"
+  name        = "${module.label.stage}-cca-notif-tg"
   port        = 80
   protocol    = "HTTP"
   target_type = "ip"
