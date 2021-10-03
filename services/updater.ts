@@ -104,11 +104,8 @@ class Updater {
   async getNotificationInfo(
     sections: ScrapedSection[]
   ): Promise<NotificationInfo> {
-    const {
-      watchedCourseLookup,
-      watchedSectionLookup,
-      oldSectionsByClass,
-    } = await this.getOldData();
+    const { watchedCourseLookup, watchedSectionLookup, oldSectionsByClass } =
+      await this.getOldData();
 
     const newSectionsByClass: Record<string, string[]> = {};
 
