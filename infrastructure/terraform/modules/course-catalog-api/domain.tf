@@ -21,10 +21,6 @@ resource "aws_lb_listener_rule" "host_based" {
         arn = aws_lb_target_group.webserver.arn
       }
 
-      target_group {
-        arn = aws_lb_target_group.notifserver.arn
-      }
-
     }
 
   }
