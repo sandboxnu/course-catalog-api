@@ -35,7 +35,7 @@ resource "aws_lb_listener_rule" "notifs" {
 
   condition {
     host_header {
-      values = ["${module.label.stage}notifs.searchneu.com"]
+      values = ["${module.label.stage == "staging" ? module.label.stage : ""}notifs.searchneu.com"]
     }
   }
 }
