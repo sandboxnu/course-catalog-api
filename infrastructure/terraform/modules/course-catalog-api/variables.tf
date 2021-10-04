@@ -24,10 +24,6 @@ variable "alb_listener_arn" {
   description = "arn of alb https listener"
 }
 
-variable "alb_notifs_listener_arn" {
-  description = "arn of alb https listener for notifications"
-}
-
 variable "alb_sg_id" {
   description = "id of the security group containing the ALB so we can whitelist traffic"
 }
