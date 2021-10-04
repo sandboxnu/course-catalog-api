@@ -24,6 +24,22 @@ resource "aws_lb_listener_rule" "host_based" {
   }
 }
 
+# AWS load balancer rule for notifications server
+resource "aws_lb_listener_rule" "notifs" {
+  listener_arn = aws_lb_listener_rule.notifs.arn
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.notifserver.arn
+  }
+
+  condition {
+    host_header {
+      values = ["${module.label.stage}notifs.searchneu.com"]
+    }
+  }
+}
+
 resource "aws_lb_target_group" "webserver" {
   name        = "${module.label.id}-tg"
   port        = 80
