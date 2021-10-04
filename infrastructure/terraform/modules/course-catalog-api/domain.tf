@@ -26,7 +26,7 @@ resource "aws_lb_listener_rule" "host_based" {
 
 # AWS load balancer rule for notifications server
 resource "aws_lb_listener_rule" "notifs" {
-  listener_arn = aws_lb_listener_rule.notifs.arn
+  listener_arn = var.alb_notifs_listener_arn
 
   action {
     type             = "forward"
