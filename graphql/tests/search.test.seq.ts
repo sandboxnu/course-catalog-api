@@ -29,6 +29,8 @@ const FUNDIES: Course = {
   minCredits: 0,
   coreqs: EMPTY_REQ,
   prereqs: EMPTY_REQ,
+  feeAmount: 0,
+  feeDescription: "",
 };
 
 const SECTION: Section = {
@@ -40,6 +42,7 @@ const SECTION: Section = {
   subject: "CS",
   seatsCapacity: 1,
   seatsRemaining: 1,
+  lastUpdateTime: 20,
   waitCapacity: 0,
   waitRemaining: 0,
 

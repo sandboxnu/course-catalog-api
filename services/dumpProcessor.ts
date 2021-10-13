@@ -246,13 +246,25 @@ class DumpProcessor {
     macros.log("finished with subjects");
 
     if (destroy) {
+      // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
+      // Two days ago (in milliseconds)
+      const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
+
+      // Delete old COURSES
       await prisma.course.deleteMany({
         where: {
           termId: { in: Array.from(coveredTerms) },
-          // delete all courses that haven't been updated in the past 2 days (in milliseconds)
-          lastUpdateTime: {
-            lt: new Date(new Date().getTime() - 48 * 60 * 60 * 1000),
+          lastUpdateTime: { lt: twoDaysAgo },
+        },
+      });
+
+      // Delete old sections
+      await prisma.section.deleteMany({
+        where: {
+          course: {
+            termId: { in: Array.from(coveredTerms) },
           },
+          lastUpdateTime: { lt: twoDaysAgo },
         },
       });
     }
