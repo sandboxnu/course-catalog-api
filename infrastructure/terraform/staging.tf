@@ -8,6 +8,7 @@ module "staging" {
   private_subnet_ids = aws_subnet.private.*.id
 
   alb_listener_arn   = module.alb.https_listener_arns[0]
+
   alb_sg_id          = aws_security_group.lb.id
   alb_dns_name       = module.alb.this_lb_dns_name
   domains            = ["stagingapi.searchneu.com"] 
