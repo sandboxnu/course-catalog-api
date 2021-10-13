@@ -8,3 +8,4 @@ data/*
 !data/major.json
 *.terraform.lock.hcl
 .env
+cache.zip

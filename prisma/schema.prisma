@@ -76,6 +76,7 @@ model Section {
   info           String?
   meetings       Json?
   campus         String?
+  lastUpdateTime DateTime? @map(name: "last_update_time")
   profs          String[]
   seatsCapacity  Int?     @map(name: "seats_capacity")
   seatsRemaining Int?     @map(name: "seats_remaining")
