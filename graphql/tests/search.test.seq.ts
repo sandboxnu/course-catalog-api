@@ -29,8 +29,6 @@ const FUNDIES: Course = {
   minCredits: 0,
   coreqs: EMPTY_REQ,
   prereqs: EMPTY_REQ,
-  feeAmount: 0,
-  feeDescription: "",
 };
 
 const SECTION: Section = {
