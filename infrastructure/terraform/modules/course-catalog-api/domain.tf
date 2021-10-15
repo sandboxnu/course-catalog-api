@@ -50,6 +50,7 @@ resource "aws_lb_target_group" "webserver" {
     matcher = "200"
     path = "/.well-known/apollo/server-health"
     unhealthy_threshold = 3
+    healthy_threshold = 5
   }
 }
 
@@ -63,5 +64,6 @@ resource "aws_lb_target_group" "notifserver" {
     matcher = "200"
     path = "/knockknock"
     unhealthy_threshold = 3
+    healthy_threshold = 5
   }
 }
