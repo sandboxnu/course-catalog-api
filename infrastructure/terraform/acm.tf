@@ -1,7 +1,7 @@
 # Get HTTPS cert
 resource "aws_acm_certificate" "cert" {
   domain_name               = "api.searchneu.com"
-  subject_alternative_names = ["*.api.searchneu.com"]
+  subject_alternative_names = ["*.searchneu.com"]
   validation_method         = "DNS"
 
   #   lifecycle {
