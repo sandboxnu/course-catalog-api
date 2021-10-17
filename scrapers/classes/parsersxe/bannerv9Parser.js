@@ -23,6 +23,7 @@ const request = new Request("bannerv9Parser");
  */
 class Bannerv9Parser {
   async main(termsUrl) {
+    macros.log("here");
     const termIds = await this.getTermList(termsUrl);
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
@@ -45,11 +46,15 @@ class Bannerv9Parser {
    * @returns List of {termId, description}
    */
   async getTermList(termsUrl) {
+    // Query the Banner URL to get a list of the terms
     const bannerTerms = await request.get({ url: termsUrl, json: true });
+    // Parse to get the actual term IDs
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
     const termIds = termList.map((t) => {
       return t.termId;
     });
+
+    // Suffixes for valid term IDs
     const suffixes = [
       "10",
       "12",
@@ -71,10 +76,17 @@ class Bannerv9Parser {
       "58",
       "60",
     ];
+
+    macros.log(termIds);
+
     const undergradIds = termIds
+      // Checks to make sure that the term ID ends with a valid suffix - remove those that don't
       .filter((t) => {
         return suffixes.includes(t.slice(-2));
       })
+      // Sort by descending order (to get the most recent term IDs first)
+      .sort((a, b) => b - a)
+      // Only return as many terms as we have suffixes (ie. a full year's worth of terms)
       .slice(0, suffixes.length);
     return undergradIds;
   }
