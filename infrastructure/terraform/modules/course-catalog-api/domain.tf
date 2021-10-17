@@ -46,6 +46,12 @@ resource "aws_lb_target_group" "webserver" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  health_check {
+    matcher = "200"
+    path = "/.well-known/apollo/server-health"
+    unhealthy_threshold = 3
+    healthy_threshold = 5
+  }
 }
 
 resource "aws_lb_target_group" "notifserver" {
@@ -54,4 +60,10 @@ resource "aws_lb_target_group" "notifserver" {
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
+  health_check {
+    matcher = "200"
+    path = "/knockknock"
+    unhealthy_threshold = 3
+    healthy_threshold = 5
+  }
 }
