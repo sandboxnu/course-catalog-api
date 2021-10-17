@@ -23,7 +23,6 @@ const request = new Request("bannerv9Parser");
  */
 class Bannerv9Parser {
   async main(termsUrl) {
-    macros.log("here");
     const termIds = await this.getTermList(termsUrl);
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
@@ -77,7 +76,6 @@ class Bannerv9Parser {
       "60",
     ];
 
-    macros.log(termIds);
 
     const undergradIds = termIds
       // Checks to make sure that the term ID ends with a valid suffix - remove those that don't
