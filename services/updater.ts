@@ -39,7 +39,6 @@ class Updater {
   SEMS_TO_UPDATE: string[];
 
   static async create() {
-    macros.log("1");
     // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
     const termIds: string[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
@@ -258,7 +257,6 @@ class Updater {
 }
 
 if (require.main === module) {
-  macros.log("starting");
   const updater = Updater.create().then((updater) => {
     updater.start();
   });
