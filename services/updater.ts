@@ -16,6 +16,8 @@ import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 
+import bannerv9Parser from "../scrapers/classes/parsersxe/bannerv9Parser";
+
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
 interface OldData {
@@ -35,15 +37,16 @@ class Updater {
 
   SEMS_TO_UPDATE: string[];
 
-  static create() {
+  static async create() {
+    const termIds = await bannerv9Parser.getTermList();
     return new this();
   }
 
   // DO NOT call the constructor, instead use .create
-  constructor() {
+  constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = ["202210", "202160", "202154", "202150", "202140"];
+    this.SEMS_TO_UPDATE = termIds;
   }
 
   // TODO must call this in server
