@@ -17,6 +17,7 @@ import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 
 import bannerv9Parser from "../scrapers/classes/parsersxe/bannerv9Parser";
+import bannerv9CollegeUrls from "../scrapers/classes/bannerv9CollegeUrls";
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -38,8 +39,13 @@ class Updater {
   SEMS_TO_UPDATE: string[];
 
   static async create() {
-    const termIds = await bannerv9Parser.getTermList();
-    return new this();
+    macros.log("1");
+    // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
+    const termIds: string[] = await bannerv9Parser.getTermList(
+      bannerv9CollegeUrls[0]
+    );
+    macros.log("2");
+    return new this(termIds);
   }
 
   // DO NOT call the constructor, instead use .create
@@ -252,7 +258,10 @@ class Updater {
 }
 
 if (require.main === module) {
-  Updater.create().start();
+  macros.log("starting");
+  const updater = Updater.create().then((updater) => {
+    updater.start();
+  });
 }
 
 export default Updater;
