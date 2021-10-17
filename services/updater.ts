@@ -44,6 +44,7 @@ class Updater {
     const termIds: string[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
     );
+    bannerv9Parser.updateTermIDs(termIds);
     macros.log("2");
     return new this(termIds);
   }
