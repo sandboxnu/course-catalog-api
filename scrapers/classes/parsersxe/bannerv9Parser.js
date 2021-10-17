@@ -24,6 +24,7 @@ const request = new Request("bannerv9Parser");
 class Bannerv9Parser {
   async main(termsUrl) {
     const termIds = await this.getTermList(termsUrl);
+    this.updateTermIDs(termIds);
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
 
@@ -87,6 +88,19 @@ class Bannerv9Parser {
       // Only return as many terms as we have suffixes (ie. a full year's worth of terms)
       .slice(0, suffixes.length);
     return undergradIds;
+  }
+
+  async updateTermIDs(termIds) {
+    await prisma.termIDs.deleteMany({
+      where: {
+        termId: { notIn: Array.from(termIds) },
+      },
+    });
+    for (let term_id of termIds) {
+      await prisma.termIDs.create({
+        data: { termId: term_id },
+      });
+    }
   }
 
   /**

@@ -43,6 +43,11 @@ class Updater {
     const termIds: string[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
     );
+<<<<<<< HEAD
+=======
+    bannerv9Parser.updateTermIDs(termIds);
+    macros.log("2");
+>>>>>>> Create termIDs  table in database
     return new this(termIds);
   }
 
