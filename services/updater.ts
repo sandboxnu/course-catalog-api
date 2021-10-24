@@ -40,14 +40,20 @@ class Updater {
 
   static async create() {
     // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
-    const termIds: string[] = await bannerv9Parser.getTermList(
+    const termInfo: any[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
     );
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     bannerv9Parser.updateTermIDs(termIds);
     macros.log("2");
 >>>>>>> Create termIDs  table in database
+=======
+    bannerv9Parser.updateTermIDs(termInfo);
+
+    const termIds: string[] = termInfo.map((t) => { return t.termId });
+>>>>>>> Update term name parsing, remove hardcoded suffixes
     return new this(termIds);
   }
 

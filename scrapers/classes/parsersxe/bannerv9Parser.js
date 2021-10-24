@@ -48,12 +48,13 @@ class Bannerv9Parser {
   async getTermList(termsUrl) {
     // Query the Banner URL to get a list of the terms
     const bannerTerms = await request.get({ url: termsUrl, json: true });
-    // Parse to get the actual term IDs
-    const termList = TermListParser.serializeTermsList(bannerTerms.body);
-    const termIds = termList.map((t) => {
-      return t.termId;
-    });
 
+    // Parse to get the actual term information
+    const termList = TermListParser.serializeTermsList(bannerTerms.body);
+    // We have 19 terms in a full academic year (between all of the schools), so we just grab the first 20 to be safe
+    const termsInAYear = 20;
+
+<<<<<<< HEAD
     // Suffixes for valid term IDs
     const suffixes = [
       "10",
@@ -83,22 +84,35 @@ class Bannerv9Parser {
       .filter((t) => {
         return suffixes.includes(t.slice(-2));
       })
+=======
+    const filterdTermIds = termList
+>>>>>>> Update term name parsing, remove hardcoded suffixes
       // Sort by descending order (to get the most recent term IDs first)
-      .sort((a, b) => b - a)
-      // Only return as many terms as we have suffixes (ie. a full year's worth of terms)
-      .slice(0, suffixes.length);
-    return undergradIds;
+      .sort((a, b) => b.termId - a.termId)
+      // Only return a full year's worth of term IDs
+      .slice(0, termsInAYear);
+
+    return filterdTermIds;
   }
 
-  async updateTermIDs(termIds) {
+  async updateTermIDs(termInfo) {
+    const termIds = termInfo.map((t) => { return t.termId });
+
+    // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termIDs.deleteMany({
       where: {
         termId: { notIn: Array.from(termIds) },
       },
     });
-    for (let term_id of termIds) {
+
+    // Insert new term IDs, along with their names and sub college (undergrad == null)
+    for (let term of termInfo) {
       await prisma.termIDs.create({
-        data: { termId: term_id },
+        data: {
+          termId: term.termId,
+          text: term.text,
+          subCollege: term.subCollege
+        },
       });
     }
   }

@@ -14,10 +14,7 @@ import prisma from "../services/prisma";
 
 class Main {
   async main() {
-    const classesPromise = classes.main(["neu"]);
-
-    const promises = [classesPromise, matchEmployees.main()];
-
+    const promises = [classes.main(["neu"]), matchEmployees.main()];
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
