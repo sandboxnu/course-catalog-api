@@ -24,6 +24,7 @@ const request = new Request("bannerv9Parser");
 class Bannerv9Parser {
   async main(termsUrl) {
     const termIds = await this.getTermList(termsUrl);
+    macros.log(termIds);
     this.updateTermIDs(termIds);
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
@@ -96,7 +97,9 @@ class Bannerv9Parser {
   }
 
   async updateTermIDs(termInfo) {
-    const termIds = termInfo.map((t) => { return t.termId });
+    const termIds = termInfo.map((t) => {
+      return t.termId;
+    });
 
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
@@ -107,13 +110,20 @@ class Bannerv9Parser {
 
     // Insert new term IDs, along with their names and sub college (undergrad == null)
     for (let term of termInfo) {
-      await prisma.termInfo.create({
-        data: {
-          termId: term.termId,
-          text: term.text,
-          subCollege: term.subCollege
-        },
-      });
+      try {
+        await prisma.termInfo.create({
+          data: {
+            termId: term.termId,
+            text: term.text,
+            subCollege: term.subCollegeName,
+          },
+        });
+      } catch (e) {
+        // The .code property can be accessed in a type-safe manner
+        macros.log(
+          "There is a unique constraint violation, a new user cannot be created with this term_id"
+        );
+      }
     }
   }
 
@@ -155,7 +165,7 @@ class Bannerv9Parser {
 
   // Just a convient test method, if you want to
   async test() {
-    const numTerms = 10;
+    const numTerms = 20;
     const url = `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${numTerms}&searchTerm=`;
     const output = await this.main(url);
     // eslint-disable-next-line global-require

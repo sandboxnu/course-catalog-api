@@ -12,11 +12,12 @@ class TermListParser {
       /* This removes any instance of 'Law ', 'CPS ', and ' (View Only)'
       These strings are uncessary (for LAW and CPS, the subCollegeName tells us all we need)
       */
-      text = text.replace(/(Law\s|CPS\s)|\s\(View Only\)/ig, "");
+      text = text.replace(/(Law\s|CPS\s)|\s\(View Only\)/gi, "");
 
-      if (subCollege === "undergraduate") {
+      // subCollege is defined as a String in our schema, don't think we can make it undefined
+      /*if (subCollege === "undergraduate") {
         subCollege = undefined; // Don't include subcollege if undergrad
-      }
+      }*/
 
       return {
         host: "neu.edu",
@@ -28,7 +29,7 @@ class TermListParser {
   }
 
   /**
-   * "Spring 2019 Semester" -> "undergraduate"
+   * "Spring 2019 Semester" -> "None"
    * "Spring 2019 Law Quarter" -> "LAW"
    * "Spring 2019 CPS Quarter" -> "CPS"
    *
@@ -38,12 +39,10 @@ class TermListParser {
   determineSubCollegeName(termDesc) {
     if (termDesc.includes("CPS")) {
       return "CPS";
-    }
-    else if (termDesc.includes("Law")) {
+    } else if (termDesc.includes("Law")) {
       return "LAW";
-    }
-    else {
-      return "undergraduate";
+    } else {
+      return "None";
     }
   }
 }
