@@ -99,7 +99,7 @@ class Bannerv9Parser {
     const termIds = termInfo.map((t) => { return t.termId });
 
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
-    await prisma.termIDs.deleteMany({
+    await prisma.termInfo.deleteMany({
       where: {
         termId: { notIn: Array.from(termIds) },
       },
@@ -107,7 +107,7 @@ class Bannerv9Parser {
 
     // Insert new term IDs, along with their names and sub college (undergrad == null)
     for (let term of termInfo) {
-      await prisma.termIDs.create({
+      await prisma.termInfo.create({
         data: {
           termId: term.termId,
           text: term.text,
