@@ -40,11 +40,12 @@ class Updater {
 
   static async create() {
     // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
-    const termIds: string[] = await bannerv9Parser.getTermList(
+    const termInfo: any[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
     );
-    bannerv9Parser.updateTermIDs(termIds);
-    macros.log("2");
+    bannerv9Parser.updateTermIDs(termInfo);
+
+    const termIds: string[] = termInfo.map((t) => { return t.termId });
     return new this(termIds);
   }
 

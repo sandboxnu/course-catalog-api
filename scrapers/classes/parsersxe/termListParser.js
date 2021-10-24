@@ -8,10 +8,16 @@ class TermListParser {
     return termsFromBanner.map((term) => {
       let text = term.description;
       let subCollege = this.determineSubCollegeName(text);
+
+      /* This removes any instance of 'Law ', 'CPS ', and ' (View Only)'
+      These strings are uncessary (for LAW and CPS, the subCollegeName tells us all we need)
+      */
+      text = text.replace(/(Law\s|CPS\s)|\s\(View Only\)/ig, "");
+
       if (subCollege === "undergraduate") {
-        text = text.replace(/ (Semester|Quarter)/, "");
         subCollege = undefined; // Don't include subcollege if undergrad
       }
+
       return {
         host: "neu.edu",
         termId: term.code,
@@ -33,10 +39,12 @@ class TermListParser {
     if (termDesc.includes("CPS")) {
       return "CPS";
     }
-    if (termDesc.includes("Law")) {
+    else if (termDesc.includes("Law")) {
       return "LAW";
     }
-    return "undergraduate";
+    else {
+      return "undergraduate";
+    }
   }
 }
 
