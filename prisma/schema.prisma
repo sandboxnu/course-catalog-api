@@ -124,7 +124,7 @@ model User {
   @@map(name: "users")
 }
 
-model TermIDs {
+model TermInfo {
   termId          String   @unique @map(name: "term_id")
   subCollege      String   @map(name: "sub_college")
   text            String
