@@ -108,22 +108,20 @@ class Bannerv9Parser {
       },
     });
 
-    // Insert new term IDs, along with their names and sub college (undergrad == null)
+    // Upsert new term IDs, along with their names and sub college
     for (let term of termInfo) {
-      try {
-        await prisma.termInfo.create({
-          data: {
-            termId: term.termId,
-            text: term.text,
-            subCollege: term.subCollegeName,
-          },
-        });
-      } catch (e) {
-        // The .code property can be accessed in a type-safe manner
-        macros.log(
-          "There is a unique constraint violation, a new user cannot be created with this term_id"
-        );
-      }
+      await prisma.termInfo.upsert({
+        where: { termId: term.termId },
+        update: {
+          text: term.text,
+          subCollege: term.subCollegeName,
+        },
+        create: {
+          termId: term.termId,
+          text: term.text,
+          subCollege: term.subCollegeName,
+        },
+      });
     }
   }
 
