@@ -16,7 +16,7 @@ model Course {
   feeDescription  String?   @map(name: "fee_description")
   host            String?
   id              String    @id
-  lastUpdateTime  DateTime? @map(name: "last_update_time")
+  lastUpdateTime  DateTime  @map(name: "last_update_time") @default(now())
   maxCredits      Int?      @map(name: "max_credits")
   minCredits      Int?      @map(name: "min_credits")
   name            String?
@@ -76,6 +76,7 @@ model Section {
   info           String?
   meetings       Json?
   campus         String?
+  lastUpdateTime DateTime @map(name: "last_update_time") @default(now())
   profs          String[]
   seatsCapacity  Int?     @map(name: "seats_capacity")
   seatsRemaining Int?     @map(name: "seats_remaining")

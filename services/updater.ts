@@ -85,6 +85,7 @@ class Updater {
 
     await dumpProcessor.main({
       termDump: { sections, classes: {}, subjects: {} },
+      destroy: true,
     });
 
     const totalTime = Date.now() - startTime;

@@ -69,6 +69,7 @@ class CourseSerializer {
   }
 
   serializeSection(section) {
+    section.lastUpdateTime = section.lastUpdateTime.getTime();
     return this.finishSectionObj(section);
   }
 
