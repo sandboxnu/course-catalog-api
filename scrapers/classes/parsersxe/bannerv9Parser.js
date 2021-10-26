@@ -24,7 +24,6 @@ const request = new Request("bannerv9Parser");
 class Bannerv9Parser {
   async main(termsUrl) {
     const termIds = await this.getTermList(termsUrl);
-    macros.log(termIds);
     this.updateTermIDs(termIds);
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
@@ -91,6 +90,8 @@ class Bannerv9Parser {
         },
       });
     }
+
+    throw Error;
   }
 
   /**

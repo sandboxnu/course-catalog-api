@@ -16,7 +16,7 @@ model Course {
   feeDescription  String?   @map(name: "fee_description")
   host            String?
   id              String    @id
-  lastUpdateTime  DateTime? @map(name: "last_update_time")
+  lastUpdateTime  DateTime? @default(now()) @map(name: "last_update_time")
   maxCredits      Int?      @map(name: "max_credits")
   minCredits      Int?      @map(name: "min_credits")
   name            String?
@@ -68,21 +68,22 @@ model Professor {
 }
 
 model Section {
-  classHash      String?  @map(name: "class_hash")
-  classType      String?  @map(name: "class_type")
+  classHash      String?   @map(name: "class_hash")
+  classType      String?   @map(name: "class_type")
   crn            String?
   honors         Boolean?
-  id             String   @id
+  id             String    @id
   info           String?
   meetings       Json?
   campus         String?
+  lastUpdateTime DateTime? @default(now()) @map(name: "last_update_time")
   profs          String[]
-  seatsCapacity  Int?     @map(name: "seats_capacity")
-  seatsRemaining Int?     @map(name: "seats_remaining")
+  seatsCapacity  Int?      @map(name: "seats_capacity")
+  seatsRemaining Int?      @map(name: "seats_remaining")
   url            String?
-  waitCapacity   Int?     @map(name: "wait_capacity")
-  waitRemaining  Int?     @map(name: "wait_remaining")
-  course         Course?  @relation(fields: [classHash], references: [id])
+  waitCapacity   Int?      @map(name: "wait_capacity")
+  waitRemaining  Int?      @map(name: "wait_remaining")
+  course         Course?   @relation(fields: [classHash], references: [id])
 
   FollowedSection FollowedSection[]
   @@map(name: "sections")

@@ -17,7 +17,11 @@ class Main {
     const promises = [classes.main(["neu"]), matchEmployees.main()];
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
-    await dumpProcessor.main({ termDump: termDump, profDump: mergedEmployees });
+    await dumpProcessor.main({
+      termDump: termDump,
+      profDump: mergedEmployees,
+      destroy: true,
+    });
 
     macros.log("done scrapers/main.js");
   }
