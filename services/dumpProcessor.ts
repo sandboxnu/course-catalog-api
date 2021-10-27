@@ -140,6 +140,7 @@ class DumpProcessor {
       url: this.strTransform,
       wait_capacity: this.intTransform,
       wait_remaining: this.intTransform,
+      term_half: this.strTransform,
     };
 
     const sectionCols = [
@@ -157,6 +158,7 @@ class DumpProcessor {
       "url",
       "wait_capacity",
       "wait_remaining",
+      "term_half",
     ];
 
     const coveredTerms: Set<string> = new Set();

@@ -38,7 +38,7 @@ class Bannerv9Parser {
       macros.log("Truncating elasticsearch classes index");
       await elastic.resetIndex(elastic.CLASS_INDEX, classMap);
     }
-    return this.scrapeTerms(["202130"]);
+    return this.scrapeTerms(["202210"]);
   }
 
   /**
