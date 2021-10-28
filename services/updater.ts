@@ -31,26 +31,24 @@ interface OldData {
 type ModelName = "course" | "section";
 
 class Updater {
-  // produce a new Updater instance
   COURSE_MODEL: ModelName;
-
   SECTION_MODEL: ModelName;
-
   SEMS_TO_UPDATE: string[];
 
+  // produce a new Updater instance
   static async create() {
-    // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
-    const termInfo: any[] = await bannerv9Parser.getTermList(
-      bannerv9CollegeUrls[0]
-    );
+    // Scrapes a list of terms IDs (and associated info) from Banner - these are the only ones we want to update
+    const termInfo: any[] = await bannerv9Parser.getTermList(bannerv9CollegeUrls[0]);
+    // Update the term IDs we have stored with the ones we just scraped
     bannerv9Parser.updateTermIDs(termInfo);
 
+    // Get a list of just the term IDs
     const termIds: string[] = termInfo.map((t) => { return t.termId });
     return new this(termIds);
   }
 
-  // DO NOT call the constructor, instead use .create
-  constructor(termIds: string[]) {
+  // The constructor should never be directly called - use .create()
+  private constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
     this.SEMS_TO_UPDATE = termIds;

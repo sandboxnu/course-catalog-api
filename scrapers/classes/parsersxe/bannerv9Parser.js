@@ -46,11 +46,10 @@ class Bannerv9Parser {
    * @returns List of {termId, description}
    */
   async getTermList(termsUrl) {
-    // Query the Banner URL to get a list of the terms
+    // Query the Banner URL to get a list of the terms & parse
     const bannerTerms = await request.get({ url: termsUrl, json: true });
-
-    // Parse to get the actual term information
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
+
     // We have 19 terms in a full academic year (between all of the schools), so we just grab the first 20 to be safe
     const termsInAYear = 20;
 
@@ -64,9 +63,7 @@ class Bannerv9Parser {
   }
 
   async updateTermIDs(termInfo) {
-    const termIds = termInfo.map((t) => {
-      return t.termId;
-    });
+    const termIds = termInfo.map((t) => t.termId);
 
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
@@ -90,8 +87,6 @@ class Bannerv9Parser {
         },
       });
     }
-
-    throw Error;
   }
 
   /**
