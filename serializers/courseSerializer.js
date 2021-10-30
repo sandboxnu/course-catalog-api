@@ -6,6 +6,7 @@
 import _ from "lodash";
 import prisma from "../services/prisma";
 
+
 class CourseSerializer {
   // FIXME this pattern is bad
   async bulkSerialize(instances, all = false) {

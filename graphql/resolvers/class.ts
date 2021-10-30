@@ -5,6 +5,7 @@
 import prisma from "../../services/prisma";
 import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
 import keys from "../../utils/keys";
+import macros from "../../utils/macros";
 
 const serializer = new HydrateCourseSerializer();
 
@@ -53,6 +54,7 @@ const getSectionById = async (id) => {
   const res = await prisma.section.findUnique({
     where: { id },
   });
+  serializer.serializeSection(res);
   const { termId, subject, classId } = keys.parseSectionHash(id);
   return { termId, subject, classId, ...res };
 };
