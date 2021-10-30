@@ -44,6 +44,7 @@ class Updater {
 
     // Get a list of just the term IDs
     const termIds: string[] = termInfo.map((t) => { return t.termId });
+    
     return new this(termIds);
   }
 

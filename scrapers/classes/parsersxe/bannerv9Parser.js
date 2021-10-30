@@ -47,7 +47,7 @@ class Bannerv9Parser {
    */
   async getTermList(termsUrl) {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get({ url: termsUrl, json: true });
+    const bannerTerms = await request.get({ url: termsUrl, json: true, cache: false });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
     // We have 19 terms in a full academic year (between all of the schools), so we just grab the first 20 to be safe
