@@ -48,45 +48,13 @@ class Bannerv9Parser {
    */
   async getTermList(termsUrl) {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get({ url: termsUrl, json: true });
+    const bannerTerms = await request.get({ url: termsUrl, json: true, cache: false });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
     // We have 19 terms in a full academic year (between all of the schools), so we just grab the first 20 to be safe
     const termsInAYear = 20;
 
-<<<<<<< HEAD
-    // Suffixes for valid term IDs
-    const suffixes = [
-      "10",
-      "12",
-      "14",
-      "15",
-      "18",
-      "25",
-      "28",
-      "30",
-      "32",
-      "34",
-      "35",
-      "38",
-      "40",
-      "50",
-      "52",
-      "54",
-      "55",
-      "58",
-      "60",
-    ];
-
-
-    const undergradIds = termIds
-      // Checks to make sure that the term ID ends with a valid suffix - remove those that don't
-      .filter((t) => {
-        return suffixes.includes(t.slice(-2));
-      })
-=======
     const filterdTermIds = termList
->>>>>>> Update term name parsing, remove hardcoded suffixes
       // Sort by descending order (to get the most recent term IDs first)
       .sort((a, b) => b.termId - a.termId)
       // Only return a full year's worth of term IDs
