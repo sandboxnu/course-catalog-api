@@ -54,7 +54,7 @@ const getSectionById = async (id) => {
   const res = await prisma.section.findUnique({
     where: { id },
   });
-  serializer.serializeSection(res);
+  serializer.serializeSection(res); // this mutates res
   const { termId, subject, classId } = keys.parseSectionHash(id);
   return { termId, subject, classId, ...res };
 };
