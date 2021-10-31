@@ -42,6 +42,7 @@ const typeDef = gql`
     meetings: JSON
     host: String!
     lastUpdateTime: Float
+    termHalf: String
   }
 `;
 

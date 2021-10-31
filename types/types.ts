@@ -102,4 +102,5 @@ export interface Section {
   url: string;
   profs: string[];
   meetings: BackendMeeting[];
+  termHalf: string;
 }

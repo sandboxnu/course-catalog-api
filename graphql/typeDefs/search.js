@@ -40,6 +40,7 @@ const typeDef = gql`
     subject: [FilterAgg!]
     classType: [FilterAgg!]
     campus: [FilterAgg!]
+    termHalf: [FilterAgg!]
   }
 
   type FilterAgg {

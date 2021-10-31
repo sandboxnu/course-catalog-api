@@ -19,12 +19,16 @@ class Main {
     const promises = [classesPromise, matchEmployees.main()];
 
     const [termDump, mergedEmployees] = await Promise.all(promises);
-
-    await dumpProcessor.main({
-      termDump: termDump,
-      profDump: mergedEmployees,
-      destroy: true,
-    });
+    console.log("Finished Scraping");
+    try {
+      await dumpProcessor.main({
+        termDump: termDump,
+        profDump: mergedEmployees,
+      });
+    } catch (error) {
+      console.log("dump processor failed");
+      console.log(error);
+    }
 
     macros.log("done scrapers/main.js");
   }

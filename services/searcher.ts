@@ -126,6 +126,10 @@ class Searcher {
       return { terms: { "sections.campus.keyword": selectedCampuses } };
     };
 
+    const getTermHalfFilter = (selectedTermHalf: string[]): TermsQuery => {
+      return { terms: { "sections.termHalf.keyword": selectedTermHalf } };
+    };
+
     return {
       nupath: {
         validate: isStringArray,
@@ -153,6 +157,11 @@ class Searcher {
         validate: isStringArray,
         create: getCampusFilter,
         agg: "sections.campus.keyword",
+      },
+      termHalf: {
+        validate: isStringArray,
+        create: getTermHalfFilter,
+        agg: "sections.termHalf.keyword",
       },
     };
   }
@@ -386,6 +395,7 @@ class Searcher {
             subject: [],
             classType: [],
             campus: [],
+            termHalf: [],
           },
     };
   }

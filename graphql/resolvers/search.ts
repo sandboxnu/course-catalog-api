@@ -22,6 +22,7 @@ interface SearchArgs {
   campus?: string[];
   classType?: string[];
   classIdRange?: { min: number; max: number };
+  termHalf?: string[];
 
   offset: number;
   first: number;
@@ -45,6 +46,7 @@ const resolvers = {
             campus: args.campus,
             classType: args.classType,
             classIdRange: args.classIdRange,
+            termHalf: args.termHalf,
           },
           identity
         )
