@@ -6,7 +6,6 @@
 import _ from "lodash";
 import prisma from "../services/prisma";
 
-
 class CourseSerializer {
   // FIXME this pattern is bad
   async bulkSerialize(instances, all = false) {
@@ -66,7 +65,9 @@ class CourseSerializer {
     // TODO unclear what type Prisma will return for lastUpdateTime
     course.lastUpdateTime = course.lastUpdateTime.getTime();
     course.desc = course.description;
-    course.sections = course.sections.map((section) => this.serializeSection(section));
+    course.sections = course.sections.map((section) =>
+      this.serializeSection(section)
+    );
     return this.finishCourseObj(course);
   }
 
