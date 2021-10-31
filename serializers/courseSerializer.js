@@ -65,6 +65,9 @@ class CourseSerializer {
     // TODO unclear what type Prisma will return for lastUpdateTime
     course.lastUpdateTime = course.lastUpdateTime.getTime();
     course.desc = course.description;
+    course.sections = course.sections.map((section) =>
+      this.serializeSection(section)
+    );
     return this.finishCourseObj(course);
   }
 
