@@ -83,6 +83,7 @@ model Section {
   url            String?
   waitCapacity   Int?      @map(name: "wait_capacity")
   waitRemaining  Int?      @map(name: "wait_remaining")
+  termHalf       String?   @map(name: "term_half")
   course         Course?   @relation(fields: [classHash], references: [id])
 
   FollowedSection FollowedSection[]
