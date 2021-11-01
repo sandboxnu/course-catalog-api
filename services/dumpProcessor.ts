@@ -304,7 +304,8 @@ class DumpProcessor {
 
     // Converts HTML entities to UTF8
     // Matches an HTML entity
-    return tempVal.replace(/&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi,
+    return tempVal.replace(
+      /&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi,
       function ($0, $1) {
         // Checks to make sure this isn't a named entity
         if ($1[0] === "#") {
@@ -315,7 +316,8 @@ class DumpProcessor {
           // Otherwise, it's a decimal-based HTML entity
           return String.fromCharCode(parseInt($1.substr(1), 10));
         }
-      });
+      }
+    );
   }
 
   arrayStrTransform(val: Maybe<string>): string {
@@ -333,10 +335,10 @@ class DumpProcessor {
   ): string {
     return val && val.length !== 0
       ? `'{${val
-        .map((v) =>
-          transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
-        )
-        .join(",")}}'`
+          .map((v) =>
+            transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
+          )
+          .join(",")}}'`
       : "array[]::text[]";
   }
 
