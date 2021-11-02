@@ -321,7 +321,7 @@ class Searcher {
   ): Promise<PartialResults> {
     const queries = this.generateMQuery(query, termId, min, max, filters);
     const results: EsMultiResult = await elastic.mquery(
-      `${elastic.CLASS_INDEX},${elastic.EMPLOYEE_INDEX}`,
+      `${elastic.CLASS_ALIAS},${elastic.EMPLOYEE_ALIAS}`,
       queries
     );
     return this.parseResults(

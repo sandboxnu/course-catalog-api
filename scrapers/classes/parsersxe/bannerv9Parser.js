@@ -13,8 +13,6 @@ import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import filters from "../../filters";
 import prisma from "../../../services/prisma";
-import elastic from "../../../utils/elastic";
-import classMap from "../classMapping.json";
 
 const request = new Request("bannerv9Parser");
 
@@ -36,7 +34,6 @@ class Bannerv9Parser {
       const clearSections = prisma.section.deleteMany({});
       await prisma.$transaction([clearCourses, clearSections]);
       macros.log("Truncating elasticsearch classes index");
-      await elastic.resetIndex(elastic.CLASS_INDEX, classMap);
     }
     return this.scrapeTerms(["202130"]);
   }
