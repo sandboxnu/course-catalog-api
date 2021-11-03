@@ -16,7 +16,8 @@ import prisma from "../../../services/prisma";
 import elastic from "../../../utils/elastic";
 import classMap from "../classMapping.json";
 
-const request = new Request("bannerv9Parser");
+// Only used to query the term IDs, so we never want to use a cached version
+const request = new Request("bannerv9Parser", {cache: false});
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
