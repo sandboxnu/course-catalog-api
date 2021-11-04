@@ -3,7 +3,7 @@ module.exports = {
   displayName: "Database Tests",
   rootDir: "../",
   moduleFileExtensions: ["js", "json", "node", "ts"],
-  testMatch: ["**/*.{spec,test}.seq.[jt]s?(x)"],
+  testMatch: ["**/*.(spec|test).seq.[jt]s?(x)"],
   testPathIgnorePatterns: [
     "<rootDir>/tests/jest.config.js",
     "<rootDir>/node_modules",

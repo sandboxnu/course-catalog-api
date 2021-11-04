@@ -8,6 +8,7 @@ Object {
   "crn": "10259",
   "honors": true,
   "host": "neu.edu",
+  "lastUpdateTime": 1578252414987,
   "meetings": Array [
     Object {
       "endDate": 18234,
@@ -64,6 +65,57 @@ Object {
   "crn": "30340",
   "honors": false,
   "host": "neu.edu",
+  "lastUpdateTime": 1578252414987,
+  "meetings": Array [
+    Object {
+      "endDate": 18003,
+      "startDate": 17903,
+      "times": Object {
+        "1": Array [
+          Object {
+            "end": 37200,
+            "start": 33300,
+          },
+        ],
+        "3": Array [
+          Object {
+            "end": 37200,
+            "start": 33300,
+          },
+        ],
+        "4": Array [
+          Object {
+            "end": 37200,
+            "start": 33300,
+          },
+        ],
+      },
+      "type": "Class",
+      "where": "East Village 024",
+    },
+  ],
+  "profs": Array [
+    "Alan Mislove",
+  ],
+  "seatsCapacity": 75,
+  "seatsRemaining": 4,
+  "subject": "CS",
+  "termId": "201930",
+  "url": "https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched?term_in=201930&crn_in=30340",
+  "waitCapacity": 0,
+  "waitRemaining": 0,
+}
+`;
+
+exports[`sectionParser should match snapshot 3`] = `
+Object {
+  "campus": "Boston",
+  "classId": "2500",
+  "classType": "Lecture",
+  "crn": "30340",
+  "honors": false,
+  "host": "neu.edu",
+  "lastUpdateTime": 1636048445779,
   "meetings": Array [
     Object {
       "endDate": 18003,

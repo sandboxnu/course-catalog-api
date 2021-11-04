@@ -4,6 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
+import {decode} from 'html-entities';
 import path from "path";
 import {
   ProfessorCreateInput,
@@ -300,24 +301,8 @@ class DumpProcessor {
   }
 
   strTransform(val: Maybe<string>): string {
-    let tempVal = val ? `'${val.replace(/'/g, "''")}'` : "''";
-
-    // Converts HTML entities to UTF8
-    // Matches an HTML entity
-    return tempVal.replace(
-      /&(#(?:x[0-9a-f]+|\d+)|[a-z]+);?/gi,
-      function ($0, $1) {
-        // Checks to make sure this isn't a named entity
-        if ($1[0] === "#") {
-          if ($1[1].toLowerCase() === "x") {
-            // Check if it's a hex-based HTML entity
-            return String.fromCharCode(parseInt($1.substr(2), 16));
-          }
-          // Otherwise, it's a decimal-based HTML entity
-          return String.fromCharCode(parseInt($1.substr(1), 10));
-        }
-      }
-    );
+    const tempVal = val ? `'${val.replace(/'/g, "''")}'` : "''";
+    return decode(tempVal);
   }
 
   arrayStrTransform(val: Maybe<string>): string {

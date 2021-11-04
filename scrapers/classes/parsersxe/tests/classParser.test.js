@@ -8,6 +8,7 @@ const simplePrereq = {
 
 beforeAll(() => {
   jest.spyOn(Date, "now").mockReturnValue(1578252414987);
+  expect(Date.now()).toEqual(1578252414987);
   jest
     .spyOn(ClassParser, "getDescription")
     .mockReturnValue("class description 123");
