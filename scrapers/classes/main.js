@@ -17,6 +17,7 @@ import addPreRequisiteFor from "./processors/addPreRequisiteFor";
 
 // Parsers
 import bannerv9Parser from "./parsersxe/bannerv9Parser";
+import { exit } from "process";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.
@@ -65,6 +66,7 @@ class Main {
   // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
   runProcessors(dump) {
     // Run the processors, sequentially
+    //console.log(JSON.stringify(dump));
     markMissingPrereqs.go(dump);
     termStartEndDate.go(dump);
 
@@ -112,6 +114,7 @@ class Main {
     macros.warn("BOUT TO SCRAPE");
     const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
     macros.warn("SCRAPEd");
+    console.log(JSON.stringify(bannerv9ParserOutput));
 
     const dump = this.runProcessors(bannerv9ParserOutput);
 
