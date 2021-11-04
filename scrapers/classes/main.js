@@ -44,14 +44,26 @@ class Main {
       return null;
     }
 
+    // Grabs the Banner URL that we're about to scrape
+    const bannerv9Url = bannerv9CollegeUrls[0];
+
+
     const cacheKey = collegeAbbrs.join(",");
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {
         macros.log("using cached class data - not rescraping");
+        // We update the Term IDs list anyways:
+        bannerv9Parser.updateTermIDs(await bannerv9Parser.getTermList(bannerv9Url));
         return cached;
       }
     }
+
+    macros.warn("BOUT TO SCRAPE");
+    const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
+    macros.warn("SCRAPEd");
+
+    const dump = this.runProcessors(bannerv9ParserOutput);
 
     ////////// Not in use right now ///////////////////
     // Originally intented for SearchNEU to branch out to other colleges, that thread's been inactive since ~2017
@@ -75,14 +87,7 @@ class Main {
     //   return null;
     // }
 
-    // Grabs the Banner URL that we're about to scrape
-    const bannerv9Url = bannerv9CollegeUrls[0];
-
-    macros.warn("BOUT TO SCRAPE");
-    const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
-    macros.warn("SCRAPEd");
-
-    const dump = this.runProcessors(bannerv9ParserOutput);
+    
 
     // We don't overwrite cache on custom scrape - cache should always represent a full scrape
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
