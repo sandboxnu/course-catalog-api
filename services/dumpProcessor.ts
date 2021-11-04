@@ -4,7 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
-import {decode} from 'html-entities';
+import { decode } from "html-entities";
 import path from "path";
 import {
   ProfessorCreateInput,
