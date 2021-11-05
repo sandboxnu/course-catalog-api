@@ -6,10 +6,6 @@
 import prisma from "../services/prisma";
 import dumpProcessor from "../services/dumpProcessor";
 import elastic from "../utils/elastic";
-<<<<<<< HEAD
-=======
-import { decode } from "html-entities";
->>>>>>> 29df8fb27ea72a0fa3edfe32991877e9f129527f
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(true);
 
