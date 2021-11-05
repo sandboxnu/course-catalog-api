@@ -1,5 +1,4 @@
 import dumpProcessor from "../services/dumpProcessor";
-import elastic from "../utils/elastic";
 import { decode } from "html-entities";
 
 describe("Entity decoding", () => {
