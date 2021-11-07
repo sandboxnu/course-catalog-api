@@ -38,14 +38,18 @@ class Updater {
   // produce a new Updater instance
   static async create() {
     // Scrapes a list of terms IDs (and associated info) from Banner - these are the only ones we want to update
-    const allTermsInfo: any[] = await bannerv9Parser.getTermList(bannerv9CollegeUrls[0]);
+    const allTermsInfo: any[] = await bannerv9Parser.getTermList(
+      bannerv9CollegeUrls[0]
+    );
     // Update the term IDs we have stored with the ones we just scraped
     bannerv9Parser.updateTermIDs(allTermsInfo);
 
     // Get a list of just the term IDs
     const filteredTermInfos = bannerv9Parser.filterTermIDs(allTermsInfo);
-    const termIds: string[] = filteredTermInfos.map((t) => { return t.termId });
-    
+    const termIds: string[] = filteredTermInfos.map((t) => {
+      return t.termId;
+    });
+
     return new this(termIds);
   }
 

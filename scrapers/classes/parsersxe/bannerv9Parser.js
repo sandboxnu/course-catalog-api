@@ -17,7 +17,7 @@ import elastic from "../../../utils/elastic";
 import classMap from "../classMapping.json";
 
 // Only used to query the term IDs, so we never want to use a cached version
-const request = new Request("bannerv9Parser", {cache: false});
+const request = new Request("bannerv9Parser", { cache: false });
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -48,7 +48,11 @@ class Bannerv9Parser {
    */
   async getTermList(termsUrl) {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get({ url: termsUrl, json: true, cache: false });
+    const bannerTerms = await request.get({
+      url: termsUrl,
+      json: true,
+      cache: false,
+    });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
     const termInfoList = termList
@@ -57,7 +61,6 @@ class Bannerv9Parser {
 
     return termInfoList;
   }
-
 
   filterTermIDs(termInfoList) {
     /*
@@ -86,16 +89,14 @@ class Bannerv9Parser {
     return termInfoList.slice(0, termsInAYear);
   }
 
-
   /**
    * Given a list of TermIDs, it updates the term_info table
    * @param {*} fullTermInfoList A list of ALL term infos queried from Banner (ie. not filtered)
    */
   async updateTermIDs(fullTermInfoList) {
     // Get the termIDs which exist in the courses database
-    let existingIds = await prisma.course.groupBy({ by: ['termId'], }); 
-    existingIds = existingIds.map(t => t["termId"]);
-
+    let existingIds = await prisma.course.groupBy({ by: ["termId"] });
+    existingIds = existingIds.map((t) => t["termId"]);
 
     // The termIDs which we're currently scraping (ie. ones which may not yet exist in the course database)
     let filterdTermInfos = this.filterTermIDs(fullTermInfoList);
@@ -104,8 +105,7 @@ class Bannerv9Parser {
       filterdTermInfos.push(fullTermInfoList[termId]);
     }
 
-
-    let allIds = filterdTermInfos.map(termInfo => termInfo["termId"]);    
+    let allIds = filterdTermInfos.map((termInfo) => termInfo["termId"]);
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
       where: {
@@ -127,7 +127,7 @@ class Bannerv9Parser {
           subCollege: term.subCollegeName,
         },
       });
-    }    
+    }
   }
 
   /**
