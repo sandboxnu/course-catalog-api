@@ -38,7 +38,7 @@ class Bannerv9Parser {
       macros.log("Truncating elasticsearch classes index");
       await elastic.resetIndex(elastic.CLASS_INDEX, classMap);
     }
-    //return this.scrapeTerms(termIds);
+    return this.scrapeTerms(termIds);
   }
 
   /**
@@ -51,8 +51,28 @@ class Bannerv9Parser {
     const bannerTerms = await request.get({ url: termsUrl, json: true, cache: false });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
-    // We have 19 terms in a full academic year (between all of the schools), so we just grab the first 20 to be safe
-    const termsInAYear = 20;
+    /*
+    At most, there are 12 terms that we want to update. Say we're in the spring, and summer semesters have been posted 
+    (so we want to update both)
+    - Undergrad: 
+      - Spring semester
+      - Full summer
+      - Summer I
+      - Summer II
+    - CPS
+      - Spring semester
+      - Spring quarter
+      - Summer semester
+      - Summer quarter
+    - Law
+      - Spring semester
+      - Spring quarter
+      - Summer semester
+      - Summer quarter
+    
+    To be safe, we scrape the latest 12 terms. 
+    */
+    const termsInAYear = 12;
 
     const filterdTermIds = termList
       // Sort by descending order (to get the most recent term IDs first)
