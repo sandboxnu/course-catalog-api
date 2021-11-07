@@ -263,9 +263,12 @@ class Updater {
 }
 
 if (require.main === module) {
-  const updater = Updater.create().then((updater) => {
-    updater.start();
-  });
+  Updater.create()
+    .then((updater) => {
+      updater.start();
+      return null;
+    })
+    .catch(() => null);
 }
 
 export default Updater;
