@@ -3,7 +3,7 @@ import { gql } from "apollo-server";
 const typeDef = gql`
   extend type Query {
     search(
-      termId: Int!
+      termId: String!
       query: String
       subject: [String!]
       nupath: [String!]
