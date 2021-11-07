@@ -52,6 +52,15 @@ class Bannerv9Parser {
     const bannerTerms = await request.get({ url: termsUrl, json: true, cache: false });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
+    const termInfoList = termList
+      // Sort by descending order (to get the most recent term IDs first)
+      .sort((a, b) => b.termId - a.termId);
+
+    return termInfoList;
+  }
+
+
+  filterTermIDs(termInfoList) {
     /*
     At most, there are 12 terms that we want to update. Say we're in the spring, and summer semesters have been posted 
     (so we want to update both)
@@ -75,27 +84,38 @@ class Bannerv9Parser {
     */
     const termsInAYear = 12;
 
-    const filterdTermIds = termList
-      // Sort by descending order (to get the most recent term IDs first)
-      .sort((a, b) => b.termId - a.termId)
-      // Only return a full year's worth of term IDs
-      .slice(0, termsInAYear);
-
-    return filterdTermIds;
+    return termInfoList.slice(0, termsInAYear);
   }
 
-  async updateTermIDs(termInfo) {
-    const termIds = termInfo.map((t) => t.termId);
 
+  /**
+   * Given a list of TermIDs, it updates the term_info table
+   * @param {*} fullTermInfoList A list of ALL term infos queried from Banner (ie. not filtered)
+   */
+  async updateTermIDs(fullTermInfoList) {
+    // Get the termIDs which exist in the courses database
+    let existingIds = await prisma.course.groupBy({ by: ['termId'], }); 
+    existingIds = existingIds.map(t => t["termId"]);
+
+
+    // The termIDs which we're currently scraping (ie. ones which may not yet exist in the course database)
+    let filterdTermInfos = this.filterTermIDs(fullTermInfoList);
+    for (let termId in existingIds) {
+      // Gets the TermInfo for this termID (ie. the college name and the term description)
+      filterdTermInfos.push(fullTermInfoList[termId]);
+    }
+
+
+    let allIds = filterdTermInfos.map(termInfo => termInfo["termId"]);    
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
       where: {
-        termId: { notIn: Array.from(termIds) },
+        termId: { notIn: Array.from(allIds) },
       },
     });
 
     // Upsert new term IDs, along with their names and sub college
-    for (let term of termInfo) {
+    for (let term of filterdTermInfos) {
       await prisma.termInfo.upsert({
         where: { termId: term.termId },
         update: {
@@ -108,7 +128,7 @@ class Bannerv9Parser {
           subCollege: term.subCollegeName,
         },
       });
-    }
+    }    
   }
 
   /**
