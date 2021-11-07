@@ -47,14 +47,15 @@ class Main {
     // Grabs the Banner URL that we're about to scrape
     const bannerv9Url = bannerv9CollegeUrls[0];
 
-
     const cacheKey = collegeAbbrs.join(",");
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {
         macros.log("using cached class data - not rescraping");
         // We update the Term IDs list anyways:
-        bannerv9Parser.updateTermIDs(await bannerv9Parser.getTermList(bannerv9Url));
+        bannerv9Parser.updateTermIDs(
+          await bannerv9Parser.getTermList(bannerv9Url)
+        );
         return cached;
       }
     }
@@ -86,8 +87,6 @@ class Main {
     //   macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
     //   return null;
     // }
-
-    
 
     // We don't overwrite cache on custom scrape - cache should always represent a full scrape
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {

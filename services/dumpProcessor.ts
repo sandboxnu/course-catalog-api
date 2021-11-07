@@ -160,7 +160,7 @@ class DumpProcessor {
       "url",
       "wait_capacity",
       "wait_remaining",
-      "last_update_time"
+      "last_update_time",
     ];
 
     const coveredTerms: Set<string> = new Set();
