@@ -105,8 +105,7 @@ class Bannerv9Parser {
       filterdTermInfos.push(fullTermInfoList[termId]);
     }
 
-
-    const allIds = filterdTermInfos.map(termInfo => termInfo["termId"]);    
+    const allIds = filterdTermInfos.map((termInfo) => termInfo["termId"]);
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
       where: {
