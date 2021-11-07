@@ -7,7 +7,7 @@ class TermListParser {
   serializeTermsList(termsFromBanner) {
     return termsFromBanner.map((term) => {
       let text = term.description;
-      let subCollege = this.determineSubCollegeName(text);
+      const subCollege = this.determineSubCollegeName(text);
 
       /* This removes any instance of 'Law ', 'CPS ', and ' (View Only)'
       These strings are uncessary (for LAW and CPS, the subCollegeName tells us all we need)

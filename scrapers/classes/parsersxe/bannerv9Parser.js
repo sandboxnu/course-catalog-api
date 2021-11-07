@@ -98,14 +98,14 @@ class Bannerv9Parser {
 
 
     // The termIDs which we're currently scraping (ie. ones which may not yet exist in the course database)
-    let filterdTermInfos = this.filterTermIDs(fullTermInfoList);
-    for (let termId in existingIds) {
+    const filterdTermInfos = this.filterTermIDs(fullTermInfoList);
+    for (const termId of existingIds) {
       // Gets the TermInfo for this termID (ie. the college name and the term description)
       filterdTermInfos.push(fullTermInfoList[termId]);
     }
 
 
-    let allIds = filterdTermInfos.map(termInfo => termInfo["termId"]);    
+    const allIds = filterdTermInfos.map(termInfo => termInfo["termId"]);    
     // Delete the old terms (ie. any terms that aren't in the list we pass this function)
     await prisma.termInfo.deleteMany({
       where: {
@@ -114,7 +114,7 @@ class Bannerv9Parser {
     });
 
     // Upsert new term IDs, along with their names and sub college
-    for (let term of filterdTermInfos) {
+    for (const term of filterdTermInfos) {
       await prisma.termInfo.upsert({
         where: { termId: term.termId },
         update: {
