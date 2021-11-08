@@ -103,8 +103,7 @@ class Bannerv9Parser {
       - 'text' - an English, textual description of this term (eg. 'Spring 2021 Semester')
     */
 
-
-    // Get a list of termIDs for which we already have data 
+    // Get a list of termIDs for which we already have data
     //  (ie. terms we've already scraped AND that still have courses associated with them)
     let existingIds = await prisma.course.groupBy({ by: ["termId"] });
     existingIds = existingIds.map((t) => t["termId"]);
@@ -113,15 +112,16 @@ class Bannerv9Parser {
     //  This is a subset of all of the terms (usually, we're only scraping ~10 at a time)
     const filteredTermInfos = this.filterTermIDs(fullTermInfoList);
 
-
     // Convert each termID in the list of existingIds to a TermInfo
     for (const termId of existingIds) {
       // We query the list of all TermInfo objects to get the one associated with this termID
-      const termInfo = fullTermInfoList.filter((termInfo) => { return termInfo['termId'] === termId });
+      const termInfo = fullTermInfoList.filter((termInfo) => {
+        return termInfo["termId"] === termId;
+      });
       // Make sure we have a TermInfo for this term
       if (termInfo.length > 0) {
         filteredTermInfos.push(termInfo[0]);
-      }      
+      }
     }
 
     // Get a list of termIDs, from our list of TermInfos
@@ -134,7 +134,6 @@ class Bannerv9Parser {
         termId: { notIn: Array.from(allIds) },
       },
     });
-
 
     // Upsert new term IDs, along with their names and sub college
     for (const term of filteredTermInfos) {

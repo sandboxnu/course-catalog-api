@@ -104,7 +104,6 @@ export interface Section {
   meetings: BackendMeeting[];
 }
 
-
 export interface TermInfo {
   termId: string;
   subCollege: string;
