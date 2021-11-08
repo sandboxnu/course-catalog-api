@@ -19,7 +19,6 @@ import classMap from "../classMapping.json";
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", { cache: false });
 
-
 /*
 At most, there are 12 terms that we want to update. Say we're in the spring, and summer semesters have been posted 
 (so we want to update both)
@@ -107,7 +106,10 @@ class Bannerv9Parser {
 
     // Filter the full list of TermInfos to get the terms that we are currently scraping/updating
     //  This is a subset of all of the terms (usually, we're only scraping ~10 at a time)
-    const filteredTermInfos = fullTermInfoList.slice(0, NUMBER_OF_TERMS_TO_UPDATE);
+    const filteredTermInfos = fullTermInfoList.slice(
+      0,
+      NUMBER_OF_TERMS_TO_UPDATE
+    );
 
     // Convert each termID in the list of existingIds to a TermInfo
     for (const termId of existingIds) {

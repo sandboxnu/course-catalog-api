@@ -36,14 +36,15 @@ class Updater {
 
   // produce a new Updater instance
   static async create() {
-
     // Get term IDs from our database
-    const termInfos =  await prisma.termInfo.findMany({
-      orderBy:  { termId: "desc" },
-      take: NUMBER_OF_TERMS_TO_UPDATE,  
+    const termInfos = await prisma.termInfo.findMany({
+      orderBy: { termId: "desc" },
+      take: NUMBER_OF_TERMS_TO_UPDATE,
     });
-    
-    const termIds: string[] = termInfos.map((t) => { return t.termId; });
+
+    const termIds: string[] = termInfos.map((t) => {
+      return t.termId;
+    });
     return new this(termIds);
   }
 
