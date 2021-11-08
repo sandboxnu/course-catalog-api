@@ -1,9 +1,10 @@
 import prisma from "../../services/prisma";
+import { TermInfo } from "../../types/types";
 
-const getTermInfos = async (subCollege) => {
+const getTermInfos = async (subCollege: string): Promise<TermInfo> => {
   return await prisma.termInfo.findMany({
     where: { subCollege: subCollege },
-  });
+  }) as TermInfo;
 };
 
 const resolvers = {

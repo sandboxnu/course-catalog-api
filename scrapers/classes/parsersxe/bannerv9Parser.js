@@ -94,27 +94,50 @@ class Bannerv9Parser {
    * @param {*} fullTermInfoList A list of ALL term infos queried from Banner (ie. not filtered)
    */
   async updateTermIDs(fullTermInfoList) {
-    // Get the termIDs which exist in the courses database
+    /* Note the distinction between termID and TermInfo:
+
+    - A termID is a string (eg. '202230')
+    - A TermInfo is an object, containing the keys:
+      - 'termId' (which is a termID)
+      - 'subCollegeName' - the name of the college associated with this term
+      - 'text' - an English, textual description of this term (eg. 'Spring 2021 Semester')
+    */
+
+
+    // Get a list of termIDs for which we already have data 
+    //  (ie. terms we've already scraped AND that still have courses associated with them)
     let existingIds = await prisma.course.groupBy({ by: ["termId"] });
     existingIds = existingIds.map((t) => t["termId"]);
 
-    // The termIDs which we're currently scraping (ie. ones which may not yet exist in the course database)
-    const filterdTermInfos = this.filterTermIDs(fullTermInfoList);
+    // Filter the full list of TermInfos to get the terms that we are currently scraping/updating
+    //  This is a subset of all of the terms (usually, we're only scraping ~10 at a time)
+    const filteredTermInfos = this.filterTermIDs(fullTermInfoList);
+
+
+    // Convert each termID in the list of existingIds to a TermInfo
     for (const termId of existingIds) {
-      // Gets the TermInfo for this termID (ie. the college name and the term description)
-      filterdTermInfos.push(fullTermInfoList[termId]);
+      // We query the list of all TermInfo objects to get the one associated with this termID
+      const termInfo = fullTermInfoList.filter((termInfo) => { return termInfo['termId'] === termId });
+      // Make sure we have a TermInfo for this term
+      if (termInfo.length > 0) {
+        filteredTermInfos.push(termInfo[0]);
+      }      
     }
 
-    const allIds = filterdTermInfos.map((termInfo) => termInfo["termId"]);
-    // Delete the old terms (ie. any terms that aren't in the list we pass this function)
+    // Get a list of termIDs, from our list of TermInfos
+    const allIds = filteredTermInfos.map((termInfo) => termInfo["termId"]);
+    // This deletes any termID which doesn't have associated course data
+    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+    //    If no courses exist, this is no longer a termID we want to keep
     await prisma.termInfo.deleteMany({
       where: {
         termId: { notIn: Array.from(allIds) },
       },
     });
 
+
     // Upsert new term IDs, along with their names and sub college
-    for (const term of filterdTermInfos) {
+    for (const term of filteredTermInfos) {
       await prisma.termInfo.upsert({
         where: { termId: term.termId },
         update: {
