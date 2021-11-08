@@ -19,6 +19,30 @@ import classMap from "../classMapping.json";
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", { cache: false });
 
+
+/*
+At most, there are 12 terms that we want to update. Say we're in the spring, and summer semesters have been posted 
+(so we want to update both)
+- Undergrad: 
+  - Spring semester
+  - Full summer
+  - Summer I
+  - Summer II
+- CPS
+  - Spring semester
+  - Spring quarter
+  - Summer semester
+  - Summer quarter
+- Law
+  - Spring semester
+  - Spring quarter
+  - Summer semester
+  - Summer quarter
+
+To be safe, we scrape the latest 12 terms. 
+*/
+export const NUMBER_OF_TERMS_TO_UPDATE = 12;
+
 /**
  * Top level parser. Exposes nice interface to rest of app.
  */
@@ -62,33 +86,6 @@ class Bannerv9Parser {
     return termInfoList;
   }
 
-  filterTermIDs(termInfoList) {
-    /*
-    At most, there are 12 terms that we want to update. Say we're in the spring, and summer semesters have been posted 
-    (so we want to update both)
-    - Undergrad: 
-      - Spring semester
-      - Full summer
-      - Summer I
-      - Summer II
-    - CPS
-      - Spring semester
-      - Spring quarter
-      - Summer semester
-      - Summer quarter
-    - Law
-      - Spring semester
-      - Spring quarter
-      - Summer semester
-      - Summer quarter
-    
-    To be safe, we scrape the latest 12 terms. 
-    */
-    const termsInAYear = 12;
-
-    return termInfoList.slice(0, termsInAYear);
-  }
-
   /**
    * Given a list of TermIDs, it updates the term_info table
    * @param {*} fullTermInfoList A list of ALL term infos queried from Banner (ie. not filtered)
@@ -110,7 +107,7 @@ class Bannerv9Parser {
 
     // Filter the full list of TermInfos to get the terms that we are currently scraping/updating
     //  This is a subset of all of the terms (usually, we're only scraping ~10 at a time)
-    const filteredTermInfos = this.filterTermIDs(fullTermInfoList);
+    const filteredTermInfos = fullTermInfoList.slice(0, NUMBER_OF_TERMS_TO_UPDATE);
 
     // Convert each termID in the list of existingIds to a TermInfo
     for (const termId of existingIds) {

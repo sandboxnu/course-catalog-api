@@ -16,8 +16,7 @@ import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 
-import bannerv9Parser from "../scrapers/classes/parsersxe/bannerv9Parser";
-import bannerv9CollegeUrls from "../scrapers/classes/bannerv9CollegeUrls";
+import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -37,19 +36,14 @@ class Updater {
 
   // produce a new Updater instance
   static async create() {
-    // Scrapes a list of terms IDs (and associated info) from Banner - these are the only ones we want to update
-    const allTermsInfo: any[] = await bannerv9Parser.getTermList(
-      bannerv9CollegeUrls[0]
-    );
-    // Update the term IDs we have stored with the ones we just scraped
-    bannerv9Parser.updateTermIDs(allTermsInfo);
 
-    // Get a list of just the term IDs
-    const filteredTermInfos = bannerv9Parser.filterTermIDs(allTermsInfo);
-    const termIds: string[] = filteredTermInfos.map((t) => {
-      return t.termId;
+    // Get term IDs from our database
+    const termInfos =  await prisma.termInfo.findMany({
+      orderBy:  { termId: "desc" },
+      take: NUMBER_OF_TERMS_TO_UPDATE,  
     });
-
+    
+    const termIds: string[] = termInfos.map((t) => { return t.termId; });
     return new this(termIds);
   }
 
@@ -268,7 +262,7 @@ if (require.main === module) {
       updater.start();
       return null;
     })
-    .catch(() => null);
+    .catch((msg) => macros.log(msg));
 }
 
 export default Updater;
