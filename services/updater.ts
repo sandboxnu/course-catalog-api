@@ -38,6 +38,7 @@ class Updater {
   static async create() {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
     const termInfo: any[] = await bannerv9Parser.getTermList(
       bannerv9CollegeUrls[0]
@@ -56,11 +57,18 @@ class Updater {
 =======
 >>>>>>> Don't update termIDs for updater runs
 
+=======
+>>>>>>> Prettified Code!
     // Get term IDs from our database
-    const termInfos =  await prisma.termInfo.findMany({
-      orderBy:  { termId: "desc" },
-      take: NUMBER_OF_TERMS_TO_UPDATE,  
+    const termInfos = await prisma.termInfo.findMany({
+      orderBy: { termId: "desc" },
+      take: NUMBER_OF_TERMS_TO_UPDATE,
     });
+
+    const termIds: string[] = termInfos.map((t) => {
+      return t.termId;
+    });
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 >>>>>>> Prettified Code!
@@ -68,6 +76,8 @@ class Updater {
     
     const termIds: string[] = termInfos.map((t) => { return t.termId; });
 >>>>>>> Don't update termIDs for updater runs
+=======
+>>>>>>> Prettified Code!
     return new this(termIds);
   }
 
