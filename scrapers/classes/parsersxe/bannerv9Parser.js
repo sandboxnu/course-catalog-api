@@ -47,9 +47,8 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  */
 class Bannerv9Parser {
   async main(termsUrl) {
-    const termIds = await this.getTermList(termsUrl);
-    macros.log(termIds);
-    this.updateTermIDs(termIds);
+    const termIds = (await this.getAllTermInfos(termsUrl)).map(termInfo => termInfo.termId);
+    /////
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
 
@@ -70,7 +69,7 @@ class Bannerv9Parser {
    * @param termsUrl the starting url to find the terms with v9
    * @returns List of {termId, description}
    */
-  async getTermList(termsUrl) {
+  async getAllTermInfos(termsUrl) {
     // Query the Banner URL to get a list of the terms & parse
     const bannerTerms = await request.get({
       url: termsUrl,
@@ -79,18 +78,15 @@ class Bannerv9Parser {
     });
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
-    const termInfoList = termList
-      // Sort by descending order (to get the most recent term IDs first)
-      .sort((a, b) => b.termId - a.termId);
-
-    return termInfoList;
+    // Sort by descending order (to get the most recent term IDs first)
+    return termList.sort((a, b) => b.termId - a.termId);
   }
 
   /**
-   * Given a list of TermIDs, it updates the term_info table
-   * @param {*} fullTermInfoList A list of ALL term infos queried from Banner (ie. not filtered)
+   * Given a list of all TermInfos, this function returns only those TermInfos for which we have data 
+   * @param {*} allTermInfos A list of ALL term infos queried from Banner (ie. not filtered)
    */
-  async updateTermIDs(fullTermInfoList) {
+  async getCurrentTermInfos(allTermInfos) {
     /* Note the distinction between termID and TermInfo:
 
     - A termID is a string (eg. '202230')
@@ -98,34 +94,24 @@ class Bannerv9Parser {
       - 'termId' (which is a termID)
       - 'subCollegeName' - the name of the college associated with this term
       - 'text' - an English, textual description of this term (eg. 'Spring 2021 Semester')
+    
+    Would be nice if this was a typescript file :(
     */
+      
+    // Get a list of termIDs for which we already have data (ie. terms we've scraped, and that actually have data stored)
+    const existingIds = await prisma.course.groupBy({ by: ["termId"] }).map((t) => t["termId"]);
+    
+    // Get the TermInfo associated with each term ID
+    const existingTermInfos = existingIds.map((termId) => {
+      allTermInfos.find((termInfo) => termInfo["termId"] === termId)
+    })
+    // Filter out any undefined values
+    .filter(termInfo => termInfo !== undefined);
 
-    // Get a list of termIDs for which we already have data
-    //  (ie. terms we've already scraped AND that still have courses associated with them)
-    let existingIds = await prisma.course.groupBy({ by: ["termId"] });
-    existingIds = existingIds.map((t) => t["termId"]);
 
-    // Filter the full list of TermInfos to get the terms that we are currently scraping/updating
-    //  This is a subset of all of the terms (usually, we're only scraping ~10 at a time)
-    const filteredTermInfos = fullTermInfoList.slice(
-      0,
-      NUMBER_OF_TERMS_TO_UPDATE
-    );
+    return existingTermInfos;
 
-    // Convert each termID in the list of existingIds to a TermInfo
-    for (const termId of existingIds) {
-      // We query the list of all TermInfo objects to get the one associated with this termID
-      const termInfo = fullTermInfoList.filter((termInfo) => {
-        return termInfo["termId"] === termId;
-      });
-      // Make sure we have a TermInfo for this term
-      if (termInfo.length > 0) {
-        filteredTermInfos.push(termInfo[0]);
-      }
-    }
 
-    // Get a list of termIDs, from our list of TermInfos
-    const allIds = filteredTermInfos.map((termInfo) => termInfo["termId"]);
     // This deletes any termID which doesn't have associated course data
     //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
     //    If no courses exist, this is no longer a termID we want to keep
@@ -136,17 +122,17 @@ class Bannerv9Parser {
     });
 
     // Upsert new term IDs, along with their names and sub college
-    for (const term of filteredTermInfos) {
+    for (const {termId, subCollege, text } of filteredTermInfos) {
       await prisma.termInfo.upsert({
-        where: { termId: term.termId },
+        where: { termId: termId },
         update: {
-          text: term.text,
-          subCollege: term.subCollegeName,
+          text: text,
+          subCollege: subCollege,
         },
         create: {
-          termId: term.termId,
-          text: term.text,
-          subCollege: term.subCollegeName,
+          termId: termId,
+          text: text,
+          subCollege: subCollege,
         },
       });
     }
