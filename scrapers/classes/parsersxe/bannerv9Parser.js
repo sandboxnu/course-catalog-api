@@ -47,7 +47,9 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  */
 class Bannerv9Parser {
   async main(termsUrl) {
-    const termIds = (await this.getAllTermInfos(termsUrl)).map(termInfo => termInfo.termId);
+    const termIds = (await this.getAllTermInfos(termsUrl)).map(
+      (termInfo) => termInfo.termId
+    );
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
 
@@ -82,7 +84,7 @@ class Bannerv9Parser {
   }
 
   /**
-   * Given a list of all TermInfos, this function returns only those TermInfos for which we have data 
+   * Given a list of all TermInfos, this function returns only those TermInfos for which we have data
    * @param {*} allTermInfos A list of ALL term infos queried from Banner (ie. not filtered)
    */
   async getCurrentTermInfos(allTermInfos) {
@@ -96,17 +98,19 @@ class Bannerv9Parser {
     
     Would be nice if this was a typescript file :(
     */
-      
-    // Get a list of termIDs for which we already have data (ie. terms we've scraped, and that actually have data stored)
-    const existingIds = await prisma.course.groupBy({ by: ["termId"] }).map((t) => t["termId"]);
-    
-    // Get the TermInfo associated with each term ID
-    const existingTermInfos = existingIds.map((termId) => {
-      allTermInfos.find((termInfo) => termInfo["termId"] === termId)
-    })
-    // Filter out any undefined values
-    .filter(termInfo => termInfo !== undefined);
 
+    // Get a list of termIDs for which we already have data (ie. terms we've scraped, and that actually have data stored)
+    const existingIds = await prisma.course
+      .groupBy({ by: ["termId"] })
+      .map((t) => t["termId"]);
+
+    // Get the TermInfo associated with each term ID
+    const existingTermInfos = existingIds
+      .map((termId) => {
+        allTermInfos.find((termInfo) => termInfo["termId"] === termId);
+      })
+      // Filter out any undefined values
+      .filter((termInfo) => termInfo !== undefined);
 
     return existingTermInfos;
   }

@@ -74,14 +74,14 @@ class Main {
     //   return null;
     // }
 
-     // Grabs the Banner URL that we're about to scrape
-     const bannerv9Url = bannerv9CollegeUrls[0];
+    // Grabs the Banner URL that we're about to scrape
+    const bannerv9Url = bannerv9CollegeUrls[0];
 
-     macros.warn("BOUT TO SCRAPE");
-     const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
-     macros.warn("SCRAPEd");
- 
-     const dump = this.runProcessors(bannerv9ParserOutput);
+    macros.warn("BOUT TO SCRAPE");
+    const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
+    macros.warn("SCRAPEd");
+
+    const dump = this.runProcessors(bannerv9ParserOutput);
 
     // We don't overwrite cache on custom scrape - cache should always represent a full scrape
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {

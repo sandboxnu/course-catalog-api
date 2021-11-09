@@ -45,7 +45,7 @@ class Updater {
     const termIds: string[] = termInfos.map((t) => {
       return t.termId;
     });
-    
+
     return new this(termIds);
   }
 

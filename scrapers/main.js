@@ -25,7 +25,7 @@ class Main {
       destroy: true,
     });
 
-    macros.log("Updating term IDs")
+    macros.log("Updating term IDs");
 
     // Update the stored term IDs
     const allTermInfos = bannerv9parser.getAllTermInfos(bannerv9CollegeUrls[0]);

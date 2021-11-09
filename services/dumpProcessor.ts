@@ -431,11 +431,9 @@ class DumpProcessor {
     );
   }
 
-  
   // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
   async updateTermInfos(termInfos: TermInfo[]): Promise<void> {
-
-    const termIds = termInfos.map(t => t.termId);
+    const termIds = termInfos.map((t) => t.termId);
 
     // This deletes any termID which doesn't have associated course data
     //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
@@ -446,7 +444,7 @@ class DumpProcessor {
     });
 
     // Upsert new term IDs, along with their names and sub college
-    for (const {termId, subCollege, text } of termInfos) {
+    for (const { termId, subCollege, text } of termInfos) {
       await prisma.termInfo.upsert({
         where: { termId: termId },
         update: {
