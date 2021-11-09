@@ -5,7 +5,6 @@
 import prisma from "../../services/prisma";
 import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
 import keys from "../../utils/keys";
-import macros from "../../utils/macros";
 
 const serializer = new HydrateCourseSerializer();
 

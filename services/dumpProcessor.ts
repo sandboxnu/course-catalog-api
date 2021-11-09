@@ -15,6 +15,7 @@ import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
 import pMap from "p-map";
+import { TermInfo } from "../types/types";
 
 type Maybe<T> = T | null | undefined;
 
@@ -141,7 +142,6 @@ class DumpProcessor {
       url: this.strTransform,
       wait_capacity: this.intTransform,
       wait_remaining: this.intTransform,
-      last_update_time: this.dateTransform,
     };
 
     const sectionCols = [
@@ -160,7 +160,6 @@ class DumpProcessor {
       "url",
       "wait_capacity",
       "wait_remaining",
-      "last_update_time",
     ];
 
     const coveredTerms: Set<string> = new Set();
@@ -430,6 +429,37 @@ class DumpProcessor {
     return str.replace(/(_[a-z])/g, (group) =>
       group.toUpperCase().replace("_", "")
     );
+  }
+
+  
+  // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+  async updateTermInfos(termInfos: TermInfo[]): Promise<void> {
+
+    const termIds = termInfos.map(t => t.termId);
+
+    // This deletes any termID which doesn't have associated course data
+    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+    await prisma.termInfo.deleteMany({
+      where: {
+        termId: { notIn: Array.from(termIds) },
+      },
+    });
+
+    // Upsert new term IDs, along with their names and sub college
+    for (const {termId, subCollege, text } of termInfos) {
+      await prisma.termInfo.upsert({
+        where: { termId: termId },
+        update: {
+          text: text,
+          subCollege: subCollege,
+        },
+        create: {
+          termId: termId,
+          text: text,
+          subCollege: subCollege,
+        },
+      });
+    }
   }
 }
 

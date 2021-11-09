@@ -7,7 +7,6 @@ import URI from "urijs";
 
 import cache from "../cache";
 import macros from "../../utils/macros";
-import differentCollegeUrls from "./differentCollegeUrls";
 import bannerv9CollegeUrls from "./bannerv9CollegeUrls";
 
 // Processors
@@ -44,18 +43,11 @@ class Main {
       return null;
     }
 
-    // Grabs the Banner URL that we're about to scrape
-    const bannerv9Url = bannerv9CollegeUrls[0];
-
     const cacheKey = collegeAbbrs.join(",");
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {
         macros.log("using cached class data - not rescraping");
-        // We update the Term IDs list anyways:
-        bannerv9Parser.updateTermIDs(
-          await bannerv9Parser.getTermList(bannerv9Url)
-        );
         return cached;
       }
     }
@@ -98,48 +90,6 @@ class Main {
     }
 
     return dump;
-  }
-
-  /**
-   * @deprecated This method is no longer in use. It was originally intended for branching SearchNEU out to other colleges, but is unecessary as long as we are limited to Northeastern.
-   * @param {string[]} collegeAbbrs Main domain names of other colleges
-   * @param {string[]} listToCheck A list of URLs to check
-   * @returns
-   */
-  getUrlsFromCollegeAbbrs(collegeAbbrs, listToCheck) {
-    // This list is modified below, so clone it here so we don't modify the input object.
-    collegeAbbrs = collegeAbbrs.slice(0);
-
-    if (collegeAbbrs.length > 1) {
-      // Need to check the processors... idk
-      macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
-      return null;
-    }
-
-    const urlsToProcess = [];
-
-    listToCheck.forEach((url) => {
-      const urlParsed = new URI(url);
-
-      let primaryHost = urlParsed
-        .hostname()
-        .slice(urlParsed.subdomain().length);
-
-      if (primaryHost.startsWith(".")) {
-        primaryHost = primaryHost.slice(1);
-      }
-
-      primaryHost = primaryHost.split(".")[0];
-
-      if (collegeAbbrs.includes(primaryHost)) {
-        _.pull(collegeAbbrs, primaryHost);
-
-        urlsToProcess.push(url);
-      }
-    });
-
-    macros.log("Processing ", urlsToProcess);
-    return urlsToProcess;
   }
 
   /**

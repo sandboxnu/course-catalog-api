@@ -48,7 +48,6 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 class Bannerv9Parser {
   async main(termsUrl) {
     const termIds = (await this.getAllTermInfos(termsUrl)).map(termInfo => termInfo.termId);
-    /////
     macros.log(`scraping terms: ${termIds}`);
     macros.log(termsUrl);
 
@@ -110,32 +109,6 @@ class Bannerv9Parser {
 
 
     return existingTermInfos;
-
-
-    // This deletes any termID which doesn't have associated course data
-    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
-    //    If no courses exist, this is no longer a termID we want to keep
-    await prisma.termInfo.deleteMany({
-      where: {
-        termId: { notIn: Array.from(allIds) },
-      },
-    });
-
-    // Upsert new term IDs, along with their names and sub college
-    for (const {termId, subCollege, text } of filteredTermInfos) {
-      await prisma.termInfo.upsert({
-        where: { termId: termId },
-        update: {
-          text: text,
-          subCollege: subCollege,
-        },
-        create: {
-          termId: termId,
-          text: text,
-          subCollege: subCollege,
-        },
-      });
-    }
   }
 
   /**
