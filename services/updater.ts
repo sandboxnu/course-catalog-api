@@ -42,15 +42,13 @@ class Updater {
       take: NUMBER_OF_TERMS_TO_UPDATE,
     });
 
-    const termIds: string[] = termInfos.map((t) => {
-      return t.termId;
-    });
+    const termIds: string[] = termInfos.map((t) => t.termId);
 
     return new this(termIds);
   }
 
   // The constructor should never be directly called - use .create()
-  private constructor(termIds: string[]) {
+  constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
     this.SEMS_TO_UPDATE = termIds;
