@@ -36,29 +36,6 @@ class Updater {
 
   // produce a new Updater instance
   static async create() {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    // Scrapes a list of terms IDs from Banner - these are the only ones we want to update
-    const termInfo: any[] = await bannerv9Parser.getTermList(
-      bannerv9CollegeUrls[0]
-    );
-    bannerv9Parser.updateTermIDs(termInfo);
-
-    // Get a list of just the term IDs
-    const termIds: string[] = termInfo.map((t) => { return t.termId });
-=======
-    // Scrapes a list of terms IDs (and associated info) from Banner - these are the only ones we want to update
-    const allTermsInfo: any[] = await bannerv9Parser.getTermList(
-      bannerv9CollegeUrls[0]
-    );
-    // Update the term IDs we have stored with the ones we just scraped
-    bannerv9Parser.updateTermIDs(allTermsInfo);
-=======
->>>>>>> Don't update termIDs for updater runs
-
-=======
->>>>>>> Prettified Code!
     // Get term IDs from our database
     const termInfos = await prisma.termInfo.findMany({
       orderBy: { termId: "desc" },
@@ -68,16 +45,7 @@ class Updater {
     const termIds: string[] = termInfos.map((t) => {
       return t.termId;
     });
-<<<<<<< HEAD
-<<<<<<< HEAD
-
->>>>>>> Prettified Code!
-=======
     
-    const termIds: string[] = termInfos.map((t) => { return t.termId; });
->>>>>>> Don't update termIDs for updater runs
-=======
->>>>>>> Prettified Code!
     return new this(termIds);
   }
 
