@@ -4,7 +4,7 @@ import { TermInfo } from "../../types/types";
 const getTermInfos = async (subCollege: string): Promise<TermInfo> => {
   return (await prisma.termInfo.findMany({
     where: { subCollege: subCollege },
-    orderBy: { termId: 'desc' },
+    orderBy: { termId: "desc" },
   })) as TermInfo;
 };
 
