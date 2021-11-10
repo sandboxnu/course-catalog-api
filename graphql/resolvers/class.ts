@@ -9,7 +9,7 @@ import { Course } from "../../types/types";
 
 const serializer = new HydrateCourseSerializer();
 
-const serializeValues = (results: Course[]) => { 
+const serializeValues = (results: Course[]) => {
   return results.map((result) => serializer.serializeCourse(result));
 };
 
@@ -31,7 +31,11 @@ const getAllClassOccurrences = async (subject: string, classId: string) => {
   return serializeValues(results);
 };
 
-const getClassOccurrence = async (termId: string, subject: string, classId: string) => {
+const getClassOccurrence = async (
+  termId: string,
+  subject: string,
+  classId: string
+) => {
   const res: Course = await prisma.course.findUnique({
     where: {
       uniqueCourseProps: { subject, classId, termId },
