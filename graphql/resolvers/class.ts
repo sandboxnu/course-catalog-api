@@ -5,15 +5,16 @@
 import prisma from "../../services/prisma";
 import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
 import keys from "../../utils/keys";
+import { Course } from "../../types/types";
 
 const serializer = new HydrateCourseSerializer();
 
-const serializeValues = (results) => {
+const serializeValues = (results: Course[]) => { 
   return results.map((result) => serializer.serializeCourse(result));
 };
 
-const getLatestClassOccurrence = async (subject, classId) => {
-  const results = await prisma.course.findMany({
+const getLatestClassOccurrence = async (subject: string, classId: string) => {
+  const results: Course[] = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
@@ -21,8 +22,8 @@ const getLatestClassOccurrence = async (subject, classId) => {
   return serializeValues(results)[0];
 };
 
-const getAllClassOccurrences = async (subject, classId) => {
-  const results = await prisma.course.findMany({
+const getAllClassOccurrences = async (subject: string, classId: string) => {
+  const results: Course[] = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
@@ -30,8 +31,8 @@ const getAllClassOccurrences = async (subject, classId) => {
   return serializeValues(results);
 };
 
-const getClassOccurrence = async (termId, subject, classId) => {
-  const res = await prisma.course.findUnique({
+const getClassOccurrence = async (termId: string, subject: string, classId: string) => {
+  const res: Course = await prisma.course.findUnique({
     where: {
       uniqueCourseProps: { subject, classId, termId },
     },
@@ -41,8 +42,8 @@ const getClassOccurrence = async (termId, subject, classId) => {
   return serializeValues([res])[0];
 };
 
-const getClassOccurrenceById = async (id) => {
-  const res = await prisma.course.findUnique({
+const getClassOccurrenceById = async (id: string) => {
+  const res: Course = await prisma.course.findUnique({
     where: { id },
   });
 
