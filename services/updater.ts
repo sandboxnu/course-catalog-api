@@ -48,6 +48,7 @@ class Updater {
   }
 
   // The constructor should never be directly called - use .create()
+  // HOWEVER, it's called directly for testing purposes - don't make this method private
   constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";

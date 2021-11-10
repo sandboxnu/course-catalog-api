@@ -16,21 +16,20 @@ import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
 
 class Main {
   async main() {
-    const promises = [classes.main(["neu"]), matchEmployees.main()];
+
+    // Get the TermInfo information from Banner
+    const allTermInfos = await bannerv9parser.getAllTermInfos(bannerv9CollegeUrls[0]);
+    const currentTermInfos = await bannerv9parser.getCurrentTermInfos(allTermInfos);
+
+    const promises = [classes.main(["neu"], allTermInfos), matchEmployees.main()];
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
       termDump: termDump,
       profDump: mergedEmployees,
       destroy: true,
+      currentTermInfos: currentTermInfos,
     });
-
-    macros.log("Updating term IDs");
-
-    // Update the stored term IDs
-    const allTermInfos = bannerv9parser.getAllTermInfos(bannerv9CollegeUrls[0]);
-    const currentTermInfos = bannerv9parser.getCurrentTermInfos(allTermInfos);
-    await dumpProcessor.updateTermInfos(currentTermInfos);
 
     macros.log("done scrapers/main.js");
   }
@@ -42,5 +41,5 @@ if (require.main === module) {
   instance
     .main()
     .then(() => prisma.$disconnect())
-    .catch((err) => macros.error(JSON.stringify(err)));
+    .catch(err => macros.error(err));
 }

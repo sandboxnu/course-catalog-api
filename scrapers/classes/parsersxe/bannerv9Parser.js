@@ -46,12 +46,9 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  * Top level parser. Exposes nice interface to rest of app.
  */
 class Bannerv9Parser {
-  async main(termsUrl) {
-    const termIds = (await this.getAllTermInfos(termsUrl)).map(
-      (termInfo) => termInfo.termId
-    );
+  async main(termInfos) {
+    const termIds = termInfos.map(t => t.termId).slice(0, NUMBER_OF_TERMS_TO_UPDATE);
     macros.log(`scraping terms: ${termIds}`);
-    macros.log(termsUrl);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
     if (process.env.CUSTOM_SCRAPE && filters.truncate) {
@@ -93,24 +90,20 @@ class Bannerv9Parser {
     - A termID is a string (eg. '202230')
     - A TermInfo is an object, containing the keys:
       - 'termId' (which is a termID)
-      - 'subCollegeName' - the name of the college associated with this term
+      - 'subCollege' - the name of the college associated with this term
       - 'text' - an English, textual description of this term (eg. 'Spring 2021 Semester')
     
     Would be nice if this was a typescript file :(
     */
 
     // Get a list of termIDs for which we already have data (ie. terms we've scraped, and that actually have data stored)
-    const existingIds = await prisma.course
-      .groupBy({ by: ["termId"] })
-      .map((t) => t["termId"]);
+    const existingIds = (await prisma.course.groupBy({ by: ["termId"] })).map(t => t["termId"]);
 
     // Get the TermInfo associated with each term ID
     const existingTermInfos = existingIds
-      .map((termId) => {
-        allTermInfos.find((termInfo) => termInfo["termId"] === termId);
-      })
-      // Filter out any undefined values
-      .filter((termInfo) => termInfo !== undefined);
+      .map(termId => allTermInfos.find(termInfo => termInfo["termId"] === termId))
+      // Filter out any undefined values (this should never be the case, but better safe than sorry)
+      .filter(termInfo => termInfo !== undefined);
 
     return existingTermInfos;
   }

@@ -35,6 +35,7 @@ class DumpProcessor {
     termDump = { classes: {}, sections: {}, subjects: {} },
     profDump = {},
     destroy = false,
+    currentTermInfos = null,
   }) {
     const profTransforms = {
       big_picture_url: this.strTransform,
@@ -248,6 +249,40 @@ class DumpProcessor {
 
     macros.log("finished with subjects");
 
+
+    // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+    // (only run if the term infos are non-null)
+    if (currentTermInfos !== null) {
+      const termInfos = currentTermInfos as TermInfo[];
+      // This deletes any termID which doesn't have associated course data
+      //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+      await prisma.termInfo.deleteMany({
+        where: {
+          termId: { notIn: termInfos.map((t) => t.termId) },
+        },
+      });
+
+      // Upsert new term IDs, along with their names and sub college
+      for (const { termId, subCollege, text } of termInfos) {
+        await prisma.termInfo.upsert({
+          where: { termId },
+          update: {
+            text,
+            subCollege,
+          },
+          create: {
+            termId,
+            text,
+            subCollege,
+          },
+        });
+      }
+      
+      macros.log("finished with term IDs");
+    }
+
+
+
     if (destroy) {
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
@@ -319,10 +354,10 @@ class DumpProcessor {
   ): string {
     return val && val.length !== 0
       ? `'{${val
-          .map((v) =>
-            transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
-          )
-          .join(",")}}'`
+        .map((v) =>
+          transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
+        )
+        .join(",")}}'`
       : "array[]::text[]";
   }
 
@@ -429,35 +464,6 @@ class DumpProcessor {
     return str.replace(/(_[a-z])/g, (group) =>
       group.toUpperCase().replace("_", "")
     );
-  }
-
-  // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
-  async updateTermInfos(termInfos: TermInfo[]): Promise<void> {
-    const termIds = termInfos.map((t) => t.termId);
-
-    // This deletes any termID which doesn't have associated course data
-    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
-    await prisma.termInfo.deleteMany({
-      where: {
-        termId: { notIn: Array.from(termIds) },
-      },
-    });
-
-    // Upsert new term IDs, along with their names and sub college
-    for (const { termId, subCollege, text } of termInfos) {
-      await prisma.termInfo.upsert({
-        where: { termId: termId },
-        update: {
-          text: text,
-          subCollege: subCollege,
-        },
-        create: {
-          termId: termId,
-          text: text,
-          subCollege: subCollege,
-        },
-      });
-    }
   }
 }
 

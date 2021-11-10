@@ -37,7 +37,7 @@ class Main {
     return dump;
   }
 
-  async main(collegeAbbrs) {
+  async main(collegeAbbrs, termInfos) {
     if (!collegeAbbrs) {
       macros.error("Need collegeAbbrs for scraping classes");
       return null;
@@ -78,7 +78,7 @@ class Main {
     const bannerv9Url = bannerv9CollegeUrls[0];
 
     macros.warn("BOUT TO SCRAPE");
-    const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
+    const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
     macros.warn("SCRAPEd");
 
     const dump = this.runProcessors(bannerv9ParserOutput);
