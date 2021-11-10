@@ -249,7 +249,6 @@ class DumpProcessor {
 
     macros.log("finished with subjects");
 
-
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
     if (currentTermInfos !== null) {
@@ -277,11 +276,9 @@ class DumpProcessor {
           },
         });
       }
-      
+
       macros.log("finished with term IDs");
     }
-
-
 
     if (destroy) {
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
@@ -354,10 +351,10 @@ class DumpProcessor {
   ): string {
     return val && val.length !== 0
       ? `'{${val
-        .map((v) =>
-          transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
-        )
-        .join(",")}}'`
+          .map((v) =>
+            transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
+          )
+          .join(",")}}'`
       : "array[]::text[]";
   }
 

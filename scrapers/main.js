@@ -16,12 +16,18 @@ import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
 
 class Main {
   async main() {
-
     // Get the TermInfo information from Banner
-    const allTermInfos = await bannerv9parser.getAllTermInfos(bannerv9CollegeUrls[0]);
-    const currentTermInfos = await bannerv9parser.getCurrentTermInfos(allTermInfos);
+    const allTermInfos = await bannerv9parser.getAllTermInfos(
+      bannerv9CollegeUrls[0]
+    );
+    const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
+      allTermInfos
+    );
 
-    const promises = [classes.main(["neu"], allTermInfos), matchEmployees.main()];
+    const promises = [
+      classes.main(["neu"], allTermInfos),
+      matchEmployees.main(),
+    ];
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
@@ -41,5 +47,5 @@ if (require.main === module) {
   instance
     .main()
     .then(() => prisma.$disconnect())
-    .catch(err => macros.error(err));
+    .catch((err) => macros.error(err));
 }

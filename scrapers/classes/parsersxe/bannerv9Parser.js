@@ -47,7 +47,9 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  */
 class Bannerv9Parser {
   async main(termInfos) {
-    const termIds = termInfos.map(t => t.termId).slice(0, NUMBER_OF_TERMS_TO_UPDATE);
+    const termIds = termInfos
+      .map((t) => t.termId)
+      .slice(0, NUMBER_OF_TERMS_TO_UPDATE);
     macros.log(`scraping terms: ${termIds}`);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
@@ -97,13 +99,17 @@ class Bannerv9Parser {
     */
 
     // Get a list of termIDs for which we already have data (ie. terms we've scraped, and that actually have data stored)
-    const existingIds = (await prisma.course.groupBy({ by: ["termId"] })).map(t => t["termId"]);
+    const existingIds = (await prisma.course.groupBy({ by: ["termId"] })).map(
+      (t) => t["termId"]
+    );
 
     // Get the TermInfo associated with each term ID
     const existingTermInfos = existingIds
-      .map(termId => allTermInfos.find(termInfo => termInfo["termId"] === termId))
+      .map((termId) =>
+        allTermInfos.find((termInfo) => termInfo["termId"] === termId)
+      )
       // Filter out any undefined values (this should never be the case, but better safe than sorry)
-      .filter(termInfo => termInfo !== undefined);
+      .filter((termInfo) => termInfo !== undefined);
 
     return existingTermInfos;
   }
