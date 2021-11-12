@@ -4,6 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
+import { decode } from "html-entities";
 import path from "path";
 import {
   ProfessorCreateInput,
@@ -300,11 +301,12 @@ class DumpProcessor {
   }
 
   strTransform(val: Maybe<string>): string {
-    return val ? `'${val.replace(/'/g, "''")}'` : "''";
+    const tempVal = val ? `'${DumpProcessor.escapeSingleQuote(val)}'` : "''";
+    return decode(tempVal);
   }
 
   arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${val}"` : "''";
+    return val ? `"${DumpProcessor.escapeSingleQuote(decode(val))}"` : "''";
   }
 
   intTransform(val: Maybe<number>): string {
@@ -428,6 +430,10 @@ class DumpProcessor {
     return str.replace(/(_[a-z])/g, (group) =>
       group.toUpperCase().replace("_", "")
     );
+  }
+
+  static escapeSingleQuote(str: string): string {
+    return str.replace(/'/g, "''");
   }
 }
 
