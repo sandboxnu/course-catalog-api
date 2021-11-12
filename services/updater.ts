@@ -35,7 +35,7 @@ class Updater {
   SEMS_TO_UPDATE: string[];
 
   // produce a new Updater instance
-  static async create() {
+  static async create(): Promise<Updater> {
     // Get term IDs from our database
     const termInfos = await prisma.termInfo.findMany({
       orderBy: { termId: "desc" },
@@ -56,7 +56,7 @@ class Updater {
   }
 
   // TODO must call this in server
-  async start() {
+  async start(): Promise<void> {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
@@ -72,7 +72,7 @@ class Updater {
   }
 
   // Update classes and sections users and notify users if seats have opened up
-  async update() {
+  async update(): Promise<void> {
     macros.log("updating");
 
     const startTime = Date.now();

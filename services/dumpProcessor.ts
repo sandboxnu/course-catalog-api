@@ -36,7 +36,7 @@ class DumpProcessor {
     profDump = {},
     destroy = false,
     currentTermInfos = null,
-  }) {
+  }): Promise<void> {
     const profTransforms = {
       big_picture_url: this.strTransform,
       email: this.strTransform,
