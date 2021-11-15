@@ -9,7 +9,7 @@ import { Course } from "../../types/types";
 
 const serializer = new HydrateCourseSerializer();
 
-const serializeValues = (results: Course[]) => {
+const serializeValues = (results) => {
   return results.map((result) => serializer.serializeCourse(result));
 };
 
@@ -23,7 +23,7 @@ const getLatestClassOccurrence = async (subject: string, classId: string) => {
 };
 
 const getAllClassOccurrences = async (subject: string, classId: string) => {
-  const results: Course[] = await prisma.course.findMany({
+  const results = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
