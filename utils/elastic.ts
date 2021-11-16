@@ -210,6 +210,7 @@ export class Elastic {
           bulk.push({ index: { _id: id } });
           bulk.push(map[id]);
         }
+        // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
         const res = await client.bulk({ index: indexName, body: bulk });
         macros.log(
           `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
