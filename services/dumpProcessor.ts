@@ -4,6 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
+import { decode } from "html-entities";
 import path from "path";
 import {
   ProfessorCreateInput,
@@ -131,6 +132,7 @@ class DumpProcessor {
       honors: this.boolTransform,
       id: this.strTransform,
       info: this.strTransform,
+      last_update_time: this.dateTransform,
       meetings: this.jsonTransform,
       campus: this.strTransform,
       profs: this.arrayTransform,
@@ -149,6 +151,7 @@ class DumpProcessor {
       "honors",
       "id",
       "info",
+      "last_update_time",
       "meetings",
       "campus",
       "profs",
@@ -246,13 +249,25 @@ class DumpProcessor {
     macros.log("finished with subjects");
 
     if (destroy) {
+      // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
+      // Two days ago (in milliseconds)
+      const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
+
+      // Delete old COURSES
       await prisma.course.deleteMany({
         where: {
           termId: { in: Array.from(coveredTerms) },
-          // delete all courses that haven't been updated in the past 2 days (in milliseconds)
-          lastUpdateTime: {
-            lt: new Date(new Date().getTime() - 48 * 60 * 60 * 1000),
+          lastUpdateTime: { lt: twoDaysAgo },
+        },
+      });
+
+      // Delete old sections
+      await prisma.section.deleteMany({
+        where: {
+          course: {
+            termId: { in: Array.from(coveredTerms) },
           },
+          lastUpdateTime: { lt: twoDaysAgo },
         },
       });
     }
@@ -286,11 +301,12 @@ class DumpProcessor {
   }
 
   strTransform(val: Maybe<string>): string {
-    return val ? `'${val.replace(/'/g, "''")}'` : "''";
+    const tempVal = val ? `'${DumpProcessor.escapeSingleQuote(val)}'` : "''";
+    return decode(tempVal);
   }
 
   arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${val}"` : "''";
+    return val ? `"${DumpProcessor.escapeSingleQuote(decode(val))}"` : "''";
   }
 
   intTransform(val: Maybe<number>): string {
@@ -414,6 +430,10 @@ class DumpProcessor {
     return str.replace(/(_[a-z])/g, (group) =>
       group.toUpperCase().replace("_", "")
     );
+  }
+
+  static escapeSingleQuote(str: string): string {
+    return str.replace(/'/g, "''");
   }
 }
 

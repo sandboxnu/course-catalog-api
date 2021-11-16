@@ -8,6 +8,7 @@ Object {
   "crn": "10259",
   "honors": true,
   "host": "neu.edu",
+  "lastUpdateTime": 1578252414987,
   "meetings": Array [
     Object {
       "endDate": 18234,
@@ -64,6 +65,7 @@ Object {
   "crn": "30340",
   "honors": false,
   "host": "neu.edu",
+  "lastUpdateTime": 1578252414987,
   "meetings": Array [
     Object {
       "endDate": 18003,

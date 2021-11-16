@@ -47,6 +47,7 @@ class SectionParser {
       seatsRemaining: SR.seatsAvailable,
       waitCapacity: SR.waitCapacity,
       waitRemaining: SR.waitAvailable,
+      lastUpdateTime: Date.now(),
       classType: SR.scheduleTypeDescription,
       campus: SR.campusDescription,
       honors: SR.sectionAttributes.some((a) => {

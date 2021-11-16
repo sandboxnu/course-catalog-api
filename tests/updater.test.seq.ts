@@ -1,5 +1,4 @@
 import _ from "lodash";
-import { InputJsonValue } from "@prisma/client";
 import Updater from "../services/updater";
 import {
   Course as CourseType,
@@ -29,6 +28,8 @@ const defaultClassProps = {
   minCredits: 0,
   coreqs: EMPTY_REQ,
   prereqs: EMPTY_REQ,
+  feeAmount: 0,
+  feeDescription: "",
 };
 
 const defaultSectionProps = {
@@ -161,8 +162,13 @@ const PL_S1: SectionType = {
   ...defaultSectionProps,
 };
 
+const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
+const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
+
 const UPDATER: Updater = new Updater();
-const mockSendUpdate = jest.fn();
+const mockSendNotification = jest.fn(() => {
+  return Promise.resolve();
+});
 
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -171,12 +177,23 @@ beforeEach(async () => {
   jest.spyOn(dumpProcessor, "main").mockImplementation(() => {
     return Promise.resolve();
   });
-  jest.spyOn(UPDATER, "sendUpdates").mockImplementation(mockSendUpdate);
-  await prisma.section.deleteMany({});
-  await prisma.course.deleteMany({});
+
+  // jest.mock("../services/notifyer.ts", () => ({
+  //   __esModule: true,
+  //   sendNotifications: mockSendNotification,
+  // }));
+
+  await prisma.user.create({ data: USER_ONE });
+  await prisma.user.create({ data: USER_TWO });
 });
 
 afterEach(async () => {
+  await prisma.followedCourse.deleteMany({});
+  await prisma.followedSection.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.section.deleteMany({});
+  await prisma.course.deleteMany({});
+
   jest.clearAllTimers();
 });
 
@@ -202,13 +219,15 @@ function createSection(
         "prereqs",
         "prereqsFor",
         "optPrereqsFor",
-      ]), // FIXME very sus
+        "feeAmount",
+        "feeDescription",
+      ]),
       id: Keys.getSectionHash(sec),
       crn: sec.crn,
       seatsRemaining,
       waitRemaining,
       info: "",
-      meetings: sec.meetings as unknown as InputJsonValue, // FIXME sus
+      meetings: sec.meetings,
       profs: { set: sec.profs },
       course: { connect: { id: Keys.getClassHash(sec) } },
     },
@@ -222,7 +241,7 @@ describe("Updater", () => {
     });
     jest.spyOn(termParser, "parseSections").mockImplementation(mockTermParser);
     jest.spyOn(UPDATER, "getNotificationInfo").mockImplementation(async () => {
-      return null;
+      return { updatedCourses: [], updatedSections: [] };
     });
 
     await UPDATER.update();
@@ -233,12 +252,16 @@ describe("Updater", () => {
   });
 
   describe("getNotificationInfo", () => {
+    let FUNDIES_ONE_COURSE;
+    let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
+      FUNDIES_ONE_COURSE = dumpProcessor.processCourse(FUNDIES_ONE);
+      FUNDIES_TWO_COURSE = dumpProcessor.processCourse(FUNDIES_TWO);
       await prisma.course.create({
-        data: dumpProcessor.processCourse(FUNDIES_ONE),
+        data: FUNDIES_ONE_COURSE,
       });
       await prisma.course.create({
-        data: dumpProcessor.processCourse(FUNDIES_TWO),
+        data: FUNDIES_TWO_COURSE,
       });
 
       await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
@@ -254,7 +277,13 @@ describe("Updater", () => {
       });
     });
 
-    it("does not include courses with no new sections to notifications", async () => {
+    it("does not include watched courses with no new sections to notifications", async () => {
+      await prisma.followedCourse.create({
+        data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
+      });
+      await prisma.followedCourse.create({
+        data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
+      });
       const notificationInfo = await UPDATER.getNotificationInfo([
         { ...FUNDIES_ONE_S1, seatsRemaining: 0 },
         { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
@@ -266,7 +295,10 @@ describe("Updater", () => {
       });
     });
 
-    it("does include courses with new sections to notifications", async () => {
+    it("does include watched courses with new sections to notifications", async () => {
+      await prisma.followedCourse.create({
+        data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
+      });
       const notificationInfo = await UPDATER.getNotificationInfo([
         FUNDIES_ONE_NEW_SECTION,
       ]);
@@ -285,7 +317,29 @@ describe("Updater", () => {
       });
     });
 
-    it("does include sections with seat increase or waitlist increase", async () => {
+    it("does not include unwatched courses with new sections to notifications", async () => {
+      await prisma.followedCourse.create({
+        data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
+      });
+      const notificationInfo = await UPDATER.getNotificationInfo([
+        FUNDIES_ONE_NEW_SECTION,
+      ]);
+      expect(notificationInfo).toEqual({
+        updatedCourses: [],
+        updatedSections: [],
+      });
+    });
+
+    it("does include watched sections with seat increase or waitlist increase", async () => {
+      await prisma.followedSection.create({
+        data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1), userId: 1 },
+      });
+      await prisma.followedSection.create({
+        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
+      });
+      await prisma.followedSection.create({
+        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2), userId: 2 },
+      });
       const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
       const waitlistIncrease = {
         ...FUNDIES_TWO_S1,
@@ -336,10 +390,42 @@ describe("Updater", () => {
       });
     });
 
-    it("does not include sections that previously had seats", async () => {
+    it("does not include unwatched sections with seat increase or waitlist increase", async () => {
+      const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
+      const waitlistIncrease = {
+        ...FUNDIES_TWO_S1,
+        seatsRemaining: 0,
+        waitRemaining: 1,
+      };
+      const seatWaitlistIncrease = {
+        ...FUNDIES_TWO_S2,
+        seatsRemaining: 1,
+        waitRemaining: 2,
+      };
+      const notificationInfo = await UPDATER.getNotificationInfo([
+        seatIncrease,
+        waitlistIncrease,
+        seatWaitlistIncrease,
+      ]);
+      expect(notificationInfo).toEqual({
+        updatedCourses: [],
+        updatedSections: [],
+      });
+    });
+
+    it("does not include watched sections that previously had seats", async () => {
       // insert 'old' sections into database
       await createSection(FUNDIES_ONE_S2, 5, 5);
       await createSection(FUNDIES_ONE_NEW_SECTION, 5, 5);
+      await prisma.followedSection.create({
+        data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S2), userId: 1 },
+      });
+      await prisma.followedSection.create({
+        data: {
+          sectionHash: Keys.getSectionHash(FUNDIES_ONE_NEW_SECTION),
+          userId: 2,
+        },
+      });
       const notificationInfo = await UPDATER.getNotificationInfo([
         { ...FUNDIES_ONE_S2, seatsRemaining: 6, waitRemaining: 6 },
         { ...FUNDIES_ONE_NEW_SECTION, seatsRemaining: 4, waitRemaining: 5 },
@@ -350,7 +436,10 @@ describe("Updater", () => {
       });
     });
 
-    it("does not include sections with no change", async () => {
+    it("does not include watched sections with no change", async () => {
+      await prisma.followedSection.create({
+        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
+      });
       const notificationInfo = await UPDATER.getNotificationInfo([
         { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
       ]);
@@ -361,13 +450,17 @@ describe("Updater", () => {
     });
   });
 
-  describe("everything but sendUpdate()", () => {
+  describe("update", () => {
+    let FUNDIES_ONE_COURSE;
+    let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
+      FUNDIES_ONE_COURSE = dumpProcessor.processCourse(FUNDIES_ONE);
+      FUNDIES_TWO_COURSE = dumpProcessor.processCourse(FUNDIES_TWO);
       await prisma.course.create({
-        data: dumpProcessor.processCourse(FUNDIES_ONE),
+        data: FUNDIES_ONE_COURSE,
       });
       await prisma.course.create({
-        data: dumpProcessor.processCourse(FUNDIES_TWO),
+        data: FUNDIES_TWO_COURSE,
       });
 
       await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
@@ -380,59 +473,92 @@ describe("Updater", () => {
       );
     });
 
-    it("calls sendUpdates() with the right notification info", async () => {
-      jest
-        .spyOn(termParser, "parseSections")
-        .mockImplementation(async (termId) => {
-          const sections = [
-            FUNDIES_ONE_S1, // more seats
-            FUNDIES_ONE_NEW_SECTION, // new fundies 1 section
-            { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 }, // no change
-            { ...FUNDIES_TWO_S2, seatsRemaining: 0, waitRemaining: 2 }, // 2 more wait seats
-            {
-              ...FUNDIES_TWO_S3,
-              seatsRemaining: FUNDIES_TWO_S3.seatsRemaining - 2,
-            }, // seat decrease
-          ];
-          return sections.filter((section) => section.termId === termId);
-        });
-
-      const expectedNotification = {
-        updatedCourses: [
-          {
-            termId: FUNDIES_ONE.termId,
-            subject: FUNDIES_ONE.subject,
-            courseId: FUNDIES_ONE.classId,
-            courseHash: Keys.getClassHash(FUNDIES_ONE),
-            campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
-            numberOfSectionsAdded: 1,
-          },
-        ],
-        updatedSections: [
-          {
-            termId: FUNDIES_ONE_S1.termId,
-            subject: FUNDIES_ONE_S1.subject,
-            courseId: FUNDIES_ONE_S1.classId,
-            crn: FUNDIES_ONE_S1.crn,
-            sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1),
-            campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
-            seatsRemaining: FUNDIES_ONE_S1.seatsRemaining,
-          },
-          {
-            termId: FUNDIES_TWO_S2.termId,
-            subject: FUNDIES_TWO_S2.subject,
-            courseId: FUNDIES_TWO_S2.classId,
-            crn: FUNDIES_TWO_S2.crn,
-            sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2),
-            campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
-            seatsRemaining: 0,
-          },
-        ],
-      };
-      await UPDATER.update();
-      expect(mockSendUpdate.mock.calls.length).toBe(1);
-      expect(mockSendUpdate.mock.calls[0][0]).toEqual(expectedNotification);
-    });
+    // it("calls sendNotifications() with the right notification info", async () => {
+    //   jest
+    //     .spyOn(termParser, "parseSections")
+    //     .mockImplementation(async (termId) => {
+    //       const sections = [
+    //         FUNDIES_ONE_S1, // more seats
+    //         FUNDIES_ONE_NEW_SECTION, // new fundies 1 section
+    //         { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 }, // no change
+    //         { ...FUNDIES_TWO_S2, seatsRemaining: 0, waitRemaining: 2 }, // 2 more wait seats
+    //         {
+    //           ...FUNDIES_TWO_S3,
+    //           seatsRemaining: FUNDIES_TWO_S3.seatsRemaining - 2,
+    //         }, // seat decrease
+    //       ];
+    //       return sections.filter((section) => section.termId === termId);
+    //     });
+    //   await prisma.followedCourse.create({
+    //     data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
+    //   });
+    //   await prisma.followedCourse.create({
+    //     data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 2 },
+    //   });
+    //   await prisma.followedSection.create({
+    //     data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1), userId: 1 },
+    //   });
+    //   await prisma.followedSection.create({
+    //     data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
+    //   });
+    //   await prisma.followedSection.create({
+    //     data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2), userId: 1 },
+    //   });
+    //   await prisma.followedSection.create({
+    //     data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2), userId: 2 },
+    //   });
+    //   await prisma.followedSection.create({
+    //     data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S3), userId: 2 },
+    //   });
+    //   const expectedNotification = {
+    //     updatedCourses: [
+    //       {
+    //         termId: FUNDIES_ONE.termId,
+    //         subject: FUNDIES_ONE.subject,
+    //         courseId: FUNDIES_ONE.classId,
+    //         courseHash: Keys.getClassHash(FUNDIES_ONE),
+    //         campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
+    //         numberOfSectionsAdded: 1,
+    //       },
+    //     ],
+    //     updatedSections: [
+    //       {
+    //         termId: FUNDIES_ONE_S1.termId,
+    //         subject: FUNDIES_ONE_S1.subject,
+    //         courseId: FUNDIES_ONE_S1.classId,
+    //         crn: FUNDIES_ONE_S1.crn,
+    //         sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1),
+    //         campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
+    //         seatsRemaining: FUNDIES_ONE_S1.seatsRemaining,
+    //       },
+    //       {
+    //         termId: FUNDIES_TWO_S2.termId,
+    //         subject: FUNDIES_TWO_S2.subject,
+    //         courseId: FUNDIES_TWO_S2.classId,
+    //         crn: FUNDIES_TWO_S2.crn,
+    //         sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2),
+    //         campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
+    //         seatsRemaining: 0,
+    //       },
+    //     ],
+    //   };
+    //   const expectedCourseHashToUser = {
+    //     [FUNDIES_ONE_COURSE.id]: [USER_ONE, USER_TWO],
+    //   };
+    //   const expectedSectionHashToUser = {
+    //     [Keys.getSectionHash(FUNDIES_ONE_S1)]: [USER_ONE],
+    //     [Keys.getSectionHash(FUNDIES_TWO_S1)]: [USER_TWO],
+    //     [Keys.getSectionHash(FUNDIES_TWO_S2)]: [USER_ONE, USER_TWO],
+    //     [Keys.getSectionHash(FUNDIES_TWO_S3)]: [USER_TWO],
+    //   };
+    //   await UPDATER.update();
+    //   expect(mockSendNotification.mock.calls.length).toBe(1);
+    //   expect(mockSendNotification.mock.calls[0]).toEqual([
+    //     expectedNotification,
+    //     expectedCourseHashToUser,
+    //     expectedSectionHashToUser,
+    //   ]);
+    // });
 
     it("updates the database", async () => {
       jest.spyOn(dumpProcessor, "main").mockRestore();

@@ -26,6 +26,11 @@ module "webserver-container" {
       containerPort = var.app_port
       hostPort      = var.app_port
       protocol      = "tcp"
+    },
+    {
+      containerPort = var.notif_server_port
+      hostPort      = var.notif_server_port
+      protocol      = "tcp"
     }
   ]
   
@@ -59,6 +64,12 @@ resource "aws_ecs_service" "main" {
     target_group_arn = aws_lb_target_group.webserver.arn
     container_name   = "${module.label.id}-webserver"
     container_port   = var.app_port
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.notifserver.arn
+    container_name   = "${module.label.id}-webserver"
+    container_port   = var.notif_server_port
   }
 
   depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]
@@ -156,7 +167,7 @@ resource "aws_ecs_service" "update" {
   name            = "${module.label.id}-update"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.update.arn
-  desired_count   = var.stage == "staging" ? 0 : 1
+  desired_count   =  1
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -278,6 +289,14 @@ resource "aws_security_group" "ecs_tasks" {
     to_port         = var.app_port
     security_groups = [var.alb_sg_id]
   }
+
+  ingress {
+    protocol        = "tcp"
+    from_port       = var.notif_server_port
+    to_port         = var.notif_server_port
+    security_groups = [var.alb_sg_id]
+  }
+  
 
   egress {
     protocol    = "-1"
