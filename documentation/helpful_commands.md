@@ -38,11 +38,3 @@ A jump server, jump host or jump box is a system on a network used to access and
 #### Q: How I copy a local folder/file into the Jumphost?
 
 - In a terminal on your machine, run `scp -i <PATH TO YOUR JUMPHOST PRIVATE KEY> <PATH TO SOME FOLDER/FILE> <JUMPHOST USER>@<JUMPHOST PUBLIC IP ADDRESS>:<DIRECTORY>`
-
-### Deployment
-
-#### Q: How do I deploy CCA code changes to staging or prod?
-
-- Run `./infrastructure/aws/push-image` in `course-catalog-api` to push a new Docker image to AWS ECR with the `staging` tag
-- Run `./infrastructure/aws/redeploy staging` in `course-catalog-api` to redeploy staging CCA with the latest Docker image tagged with `staging`
-- Run `./infrastructure/aws/redeploy prod` in `course-catalog-api` to tag the latest `staging` Docker image with a `prod` tag and redeploy prod CCA using that image
