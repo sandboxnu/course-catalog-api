@@ -124,3 +124,10 @@ model User {
   FollowedCourse FollowedCourse[]
   @@map(name: "users")
 }
+
+model TermInfo {
+  termId          String   @unique @map(name: "term_id")
+  subCollege      String   @map(name: "sub_college")
+  text            String
+  @@map(name: "term_ids")
+}

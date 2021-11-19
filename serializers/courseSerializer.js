@@ -70,7 +70,6 @@ class CourseSerializer {
         this.serializeSection(section)
       );
     }
-
     return this.finishCourseObj(course);
   }
 

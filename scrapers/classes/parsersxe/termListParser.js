@@ -7,22 +7,23 @@ class TermListParser {
   serializeTermsList(termsFromBanner) {
     return termsFromBanner.map((term) => {
       let text = term.description;
-      let subCollege = this.determineSubCollegeName(text);
-      if (subCollege === "undergraduate") {
-        text = text.replace(/ (Semester|Quarter)/, "");
-        subCollege = undefined; // Don't include subcollege if undergrad
-      }
+      const subCollege = this.determineSubCollegeName(text);
+
+      /* This removes any instance of 'Law ', 'CPS ', and ' (View Only)'
+      These strings are uncessary (for LAW and CPS, the subCollege tells us all we need) */
+      text = text.replace(/(Law\s|CPS\s)|\s\(View Only\)/gi, "");
+
       return {
         host: "neu.edu",
         termId: term.code,
         text: text,
-        subCollegeName: subCollege,
+        subCollege: subCollege,
       };
     });
   }
 
   /**
-   * "Spring 2019 Semester" -> "undergraduate"
+   * "Spring 2019 Semester" -> "NEU"
    * "Spring 2019 Law Quarter" -> "LAW"
    * "Spring 2019 CPS Quarter" -> "CPS"
    *
@@ -32,11 +33,11 @@ class TermListParser {
   determineSubCollegeName(termDesc) {
     if (termDesc.includes("CPS")) {
       return "CPS";
-    }
-    if (termDesc.includes("Law")) {
+    } else if (termDesc.includes("Law")) {
       return "LAW";
+    } else {
+      return "NEU";
     }
-    return "undergraduate";
   }
 }
 

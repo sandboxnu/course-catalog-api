@@ -16,6 +16,8 @@ import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 
+import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
+
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
 interface OldData {
@@ -28,36 +30,33 @@ interface OldData {
 type ModelName = "course" | "section";
 
 class Updater {
-  // produce a new Updater instance
   COURSE_MODEL: ModelName;
-
   SECTION_MODEL: ModelName;
-
   SEMS_TO_UPDATE: string[];
 
-  static create() {
-    return new this();
+  // produce a new Updater instance
+  static async create(): Promise<Updater> {
+    // Get term IDs from our database
+    const termInfos = await prisma.termInfo.findMany({
+      orderBy: { termId: "desc" },
+      take: NUMBER_OF_TERMS_TO_UPDATE,
+    });
+
+    const termIds: string[] = termInfos.map((t) => t.termId);
+
+    return new this(termIds);
   }
 
-  // DO NOT call the constructor, instead use .create
-  constructor() {
+  // The constructor should never be directly called - use .create()
+  // HOWEVER, it's called directly for testing purposes - don't make this method private
+  constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = [
-      "202210",
-      "202230",
-      "202214",
-      "202215",
-      "202225",
-      "202234",
-      "202235",
-      "202212",
-      "202232",
-    ];
+    this.SEMS_TO_UPDATE = termIds;
   }
 
   // TODO must call this in server
-  async start() {
+  async start(): Promise<void> {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
@@ -73,7 +72,7 @@ class Updater {
   }
 
   // Update classes and sections users and notify users if seats have opened up
-  async update() {
+  async update(): Promise<void> {
     macros.log("updating");
 
     const startTime = Date.now();
@@ -259,7 +258,12 @@ class Updater {
 }
 
 if (require.main === module) {
-  Updater.create().start();
+  Updater.create()
+    .then((updater) => {
+      updater.start();
+      return null;
+    })
+    .catch((msg) => macros.log(msg));
 }
 
 export default Updater;

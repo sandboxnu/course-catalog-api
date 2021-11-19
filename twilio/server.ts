@@ -36,7 +36,7 @@ app.post("/sms/signup", (req, res) => {
       res.status(response.statusCode).send(response.message);
       return;
     })
-    .catch((e) =>
+    .catch(() =>
       res.status(500).send("Error trying to send verification code")
     );
 });
