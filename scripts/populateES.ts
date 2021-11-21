@@ -29,6 +29,7 @@ export async function bulkUpsertProfs(profs: Professor[]): Promise<void> {
 }
 
 export async function populateES(): Promise<void> {
+  console.log(`prisma.course: ${JSON.stringify(prisma.course.findMany())}`);
   const [courses, professors] = await Promise.all([
     prisma.course.findMany(),
     prisma.professor.findMany(),

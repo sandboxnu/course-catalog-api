@@ -7,6 +7,7 @@ const typeDef = gql`
       query: String
       subject: [String!]
       nupath: [String!]
+      termHalf: [String!]
       campus: [String!]
       classType: [String!]
       classIdRange: IntRange
