@@ -11,8 +11,10 @@ import Request from "../../request";
 import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import util from "./util";
-import { getSubjectDescriptions } from "./subjectAbbreviationParser";
+import {getSubjectDescriptions} from "./subjectAbbreviationParser";
 import filters from "../../filters";
+import {CourseSR, ParsedCourseSR, ParsedTermSR, SectionSR} from "../../../types/searchResultTypes";
+import {CourseRef, Section} from "../../../types/types";
 
 const request = new Request("termParser");
 
@@ -22,10 +24,11 @@ class TermParser {
    * @param termId id of term to get
    * @returns Object {classes, sections} where classes is a list of class data
    */
-  async parseTerm(termId) {
+  async parseTerm(termId: string): Promise<ParsedTermSR> {
     const subjectTable = await getSubjectDescriptions(termId);
-    let sections = await this.parseSections(termId);
-    const courseIdentifiers = {};
+    let sections: Section[] = await this.parseSections(termId);
+
+    const courseIdentifiers: Record<string, CourseRef> = {};
 
     if (process.env.CUSTOM_SCRAPE) {
       // If we are doing a custom scrape, filter sections before scraping the course details
@@ -47,16 +50,18 @@ class TermParser {
           subject,
           classId,
         })
-      ] = { termId, subject, classId };
+      ] = { termId, subject, classId } as CourseRef;
     });
 
-    let classes = await pMap(
+    const unfilteredClasses = await pMap(
       Object.values(courseIdentifiers),
       ({ subject, classId }) => {
         return ClassParser.parseClass(termId, subject, classId);
       },
       { concurrency: 500 }
-    );
+    )
+
+    let classes = unfilteredClasses.filter(c => c !== false) as ParsedCourseSR[];
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
     if (!process.env.CUSTOM_SCRAPE) {
@@ -77,9 +82,12 @@ class TermParser {
    * @param {*} termId the termId we are scraping
    * @returns the input classes array, mutated to include coreqs/prereqs/etc
    */
-  async addCourseRefs(classes, courseIdentifiers, termId) {
+  async addCourseRefs(classes: ParsedCourseSR[],
+                      courseIdentifiers: Record<string, CourseRef>,
+                      termId: string): Promise<ParsedCourseSR[]> {
+
     const refsPerCourse = classes.map((c) => ClassParser.getAllCourseRefs(c));
-    const courseRefs = Object.assign({}, ...refsPerCourse);
+    const courseRefs = Object.assign({}, ...refsPerCourse); // Shallow copy
     await pMap(
       Object.keys(courseRefs),
       async (ref) => {
@@ -101,8 +109,9 @@ class TermParser {
     return classes;
   }
 
-  async parseSections(termId) {
+  async parseSections(termId: string): Promise<Section[]> {
     const searchResults = await this.requestsSectionsForTerm(termId);
+
     return searchResults.map((a) => {
       return SectionParser.parseSectionFromSearchResult(a);
     });
@@ -110,18 +119,18 @@ class TermParser {
 
   /**
    * Gets information about all the sections from the given term code.
-   * @param termCode
+   * @param termId
    * @return {Promise<Array>}
    */
-  async requestsClassesForTerm(termCode) {
-    const cookiejar = await util.getCookiesForSearch(termCode);
+  async requestsClassesForTerm(termId: string): Promise<CourseSR[]> {
+    const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {
-      return this.concatPagination(async (offset, pageSize) => {
+      return await this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
           url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
           qs: {
-            txt_term: termCode,
+            txt_term: termId,
             pageOffset: offset,
             pageMaxSize: pageSize,
           },
@@ -129,30 +138,30 @@ class TermParser {
           json: true,
         });
         if (req.body.success) {
-          return { items: req.body.data, totalCount: req.body.totalCount };
+          return {items: req.body.data, totalCount: req.body.totalCount};
         }
         return false;
-      });
+      }) as CourseSR[];
     } catch (error) {
-      macros.error(`Could not get class data for ${termCode}`);
+      macros.error(`Could not get class data for ${termId}`);
     }
     return Promise.reject();
   }
 
   /**
    * Gets information about all the sections from the given term code.
-   * @param termCode
+   * @param termId
    * @return {Promise<Array>}
    */
-  async requestsSectionsForTerm(termCode) {
-    const cookiejar = await util.getCookiesForSearch(termCode);
+  async requestsSectionsForTerm(termId: string): Promise<SectionSR[]> {
+    const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {
-      return this.concatPagination(async (offset, pageSize) => {
+      return await this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
           url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
           qs: {
-            txt_term: termCode,
+            txt_term: termId,
             pageOffset: offset,
             pageMaxSize: pageSize,
           },
@@ -160,21 +169,23 @@ class TermParser {
           json: true,
         });
         if (req.body.success) {
-          return { items: req.body.data, totalCount: req.body.totalCount };
+          return {items: req.body.data, totalCount: req.body.totalCount};
         }
         return false;
-      });
+      }) as SectionSR[];
     } catch (error) {
-      macros.error(`Could not get section data for ${termCode}`);
+      macros.error(`Could not get section data for ${termId}`);
     }
     return Promise.reject();
   }
 
   /**
    * Send paginated requests and merge the results
-   * @param {TermParser~doRequest} doRequest - The callback that sends the response.
+   * @param doRequest - The callback that sends the response.
+   * @param itemsPerRequest - the number of items allowed per request
    */
-  async concatPagination(doRequest, itemsPerRequest = 500) {
+  async concatPagination(doRequest: (x: number, y: number) => Promise<false | { items: string; totalCount: number; }>,
+                         itemsPerRequest = 500): Promise<unknown[]> {
     // Send initial request just to get the total number of items
     const countRequest = await doRequest(0, 1);
     if (!countRequest) {
@@ -196,15 +207,10 @@ class TermParser {
 
     // finally, merge all the items into one array
     const chunks = await Promise.all(sectionsPool);
-    if (
-      chunks.some((s) => {
-        return s === false;
-      })
-    ) {
+    if (chunks.some(s => s === false)) {
       throw Error("Missing data");
     }
-    const sections = _(chunks).map("items").flatten().value();
-    return sections;
+    return _(chunks).map("items").flatten().value();
   }
 }
 

@@ -7,6 +7,7 @@ import _ from "lodash";
 import cheerio from "cheerio";
 import macros from "../../../utils/macros";
 import util from "./util";
+import {BooleanReq, CourseReq} from "../../../types/types";
 
 class PrereqParser {
   /**
@@ -14,10 +15,10 @@ class PrereqParser {
    * @param html HTML String from banner to parse
    * @param subjectAbbreviationTable info on the subject abbreviations
    */
-  serializeCoreqs(html, subjectAbbreviationTable) {
+  serializeCoreqs(html: string, subjectAbbreviationTable: Record<string, string>): BooleanReq {
     const $ = cheerio.load(html);
     const table = $("table");
-    const rows = util.parseTable(table);
+    const rows: Record<string, string>[] = util.parseTable(table);
     /*
      * some classes have 5 columns instead of 3.
      *
@@ -29,9 +30,11 @@ class PrereqParser {
      * POST https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/getCorequisites
      * term=202010&courseReferenceNumber=11939
      */
-    const coreqs = [];
+    const coreqs: { subject: string, classId: string }[] = [];
+
     rows.forEach((row) => {
-      const { subject, coursenumber } = row;
+      const { subject } = row;
+      const classId = row.coursenumber;
       const subjectAbbreviation = _.get(
         subjectAbbreviationTable,
         subject,
@@ -40,7 +43,7 @@ class PrereqParser {
       if (subjectAbbreviation) {
         coreqs.push({
           subject: subjectAbbreviation,
-          classId: coursenumber,
+          classId: classId,
         });
       } else {
         macros.warn(`Coreqs: can't find abbreviation for "${subject}"`);
@@ -58,14 +61,15 @@ class PrereqParser {
    * @param html HTML String from banner to parse
    * @param subjectAbbreviationTable info on the subject abbreviations
    */
-  serializePrereqs(html, subjectAbbreviationTable) {
+  serializePrereqs(html: string, subjectAbbreviationTable: Record<string, string>): BooleanReq {
     const $ = cheerio.load(html);
     const allRows = util.parseTable($("table"));
 
     let rowIndex = 0;
-    function parsePrereqs() {
+
+    function parsePrereqs(): BooleanReq {
       const parsed = [];
-      let boolean = "and";
+      let boolean: "and"|"or" = "and";
       while (rowIndex < allRows.length) {
         const row = allRows[rowIndex];
         const { subject, coursenumber } = row;
@@ -81,7 +85,7 @@ class PrereqParser {
           (row.test && row.score);
 
         if (row["and/or"]) {
-          boolean = row["and/or"].toLowerCase();
+          boolean = row["and/or"].toLowerCase() as "and"|"or";
         }
 
         if (row.subject && !subjectAbbreviation) {
@@ -90,7 +94,7 @@ class PrereqParser {
         }
         const curr = row.test
           ? row.test
-          : { classId: coursenumber, subject: subjectAbbreviation };
+          : { classId: coursenumber, subject: subjectAbbreviation } as CourseReq;
 
         rowIndex++;
         if (leftParen) {
@@ -118,6 +122,7 @@ class PrereqParser {
         values: parsed,
       };
     }
+
     return parsePrereqs();
   }
 }

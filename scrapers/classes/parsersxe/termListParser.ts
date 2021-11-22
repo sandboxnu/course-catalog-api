@@ -3,15 +3,16 @@
  * See the license file in the root folder for details.
  */
 
+import {TermInfo} from "../../../types/types";
+
 class TermListParser {
-  serializeTermsList(termsFromBanner) {
+  serializeTermsList(termsFromBanner: {code: string, description: string}[]): TermInfo[] {
     return termsFromBanner.map((term) => {
-      let text = term.description;
-      const subCollege = this.determineSubCollegeName(text);
+      const subCollege = this.determineSubCollegeName(term.description);
 
       /* This removes any instance of 'Law ', 'CPS ', and ' (View Only)'
-      These strings are uncessary (for LAW and CPS, the subCollege tells us all we need) */
-      text = text.replace(/(Law\s|CPS\s)|\s\(View Only\)/gi, "");
+      These strings are unnecessary (for LAW and CPS, the subCollege tells us all we need) */
+      const text = term.description.replace(/(Law\s|CPS\s)|\s\(View Only\)/gi, "");
 
       return {
         host: "neu.edu",
@@ -30,7 +31,7 @@ class TermListParser {
    * @param termDesc
    * @returns {string}
    */
-  determineSubCollegeName(termDesc) {
+  determineSubCollegeName(termDesc: string): string {
     if (termDesc.includes("CPS")) {
       return "CPS";
     } else if (termDesc.includes("Law")) {

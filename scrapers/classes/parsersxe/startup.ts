@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 /* eslint-disable */
-// entrypoint for using the node binary itself to run bannerv9Parser.js
+// entrypoint for using the node binary itself to run bannerv9Parser.ts
 // so we can use --heap-prof
 // use NODE_ENV=prod because caching messes up everything
 
@@ -13,14 +13,16 @@ require("@babel/register");
 require("regenerator-runtime/runtime");
 
 console.log(`[${new Date()}]\tstarting parsersxe/startup.js`);
-require("./bannerv9Parser.js")
-  .default.main(
-    `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${maxTerms}&searchTerm=`
+
+const Parser = require("./bannerv9Parser.ts").default;
+
+Parser.getAllTermInfos(`https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${maxTerms}&searchTerm=`)
+  .then(terms => Parser.main(terms)
+      .then(saveFile)
+      .catch((exception) => {
+        return saveFile(exception.toString());
+      })
   )
-  .then(saveFile)
-  .catch((exception) => {
-    return saveFile(exception.toString());
-  })
   .finally(() => {
     return console.log(`[${new Date()}]\t~finally done~`);
   });

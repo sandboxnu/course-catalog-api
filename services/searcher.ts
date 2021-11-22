@@ -34,7 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
-} from "../types/search_types";
+} from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };
