@@ -4,7 +4,7 @@
  */
 
 import macros from "../../../utils/macros";
-import BaseProcessor from "./baseProcessor";
+import {BaseProcessor, instance as baseProcessor} from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
@@ -13,10 +13,7 @@ import {CourseReq, isBooleanReq, isCourseReq, Requisite} from "../../../types/ty
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
-class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
-  MarkMissingPrereqs: typeof MarkMissingPrereqs;
-
-
+export class MarkMissingPrereqs extends BaseProcessor {
   updatePrereqs(prereqs: Requisite, host: string, termId: string, keyToRows): Requisite {
     if (!(isBooleanReq(prereqs))) {
       return prereqs
@@ -54,7 +51,7 @@ class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
   // at minimum it will be a host
   // or if just one class {host, termId, subject, classId}
   go(termDump: ParsedTermSR): ParsedCourseSR[] {
-    const keyToRows = BaseProcessor.getClassHash(termDump);
+    const keyToRows = baseProcessor.getClassHash(termDump);
 
     const updatedClasses: ParsedCourseSR[] = [];
 
@@ -94,8 +91,7 @@ class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
   }
 }
 
-MarkMissingPrereqs.prototype.MarkMissingPrereqs = MarkMissingPrereqs;
-const instance = new MarkMissingPrereqs();
+export const instance = new MarkMissingPrereqs();
 
 if (require.main === module) {
   instance.go({
@@ -104,5 +100,3 @@ if (require.main === module) {
     subjects: {}
   })
 }
-
-export default instance;

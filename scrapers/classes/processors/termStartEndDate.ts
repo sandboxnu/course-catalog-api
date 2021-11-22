@@ -6,16 +6,15 @@
 import _ from "lodash";
 
 import macros from "../../../utils/macros";
-import BaseProcessor from "./baseProcessor";
+import {BaseProcessor} from "./baseProcessor";
 import {ParsedTermSR} from "../../../types/searchResultTypes";
 
 // This file adds startDate and endDate to each term based on the start and end dates in sections in that term
 // The start date is the first date that over 10% of sections start on, and the end is the last date that over 10% of sections end on
 // If no one date has over 10% sections start on that date, it is just the first/last date
 
-class TermStartEndDate extends BaseProcessor.BaseProcessor {
-  TermStartEndDate: typeof TermStartEndDate;
 
+class TermStartEndDate extends BaseProcessor {
   go(termDump: ParsedTermSR & {terms: unknown[]}): ParsedTermSR & {terms: unknown[]} {
     // If this term dump is just updating a few classes as part of the updater.js
     // There will be no terms
@@ -124,5 +123,7 @@ class TermStartEndDate extends BaseProcessor.BaseProcessor {
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// @ts-ignore
 TermStartEndDate.prototype.TermStartEndDate = TermStartEndDate;
 export default new TermStartEndDate();

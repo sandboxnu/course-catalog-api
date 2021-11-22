@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import BaseProcessor from "./baseProcessor";
+import {BaseProcessor} from "./baseProcessor";
 import macros from "../../../utils/macros";
 
 // THIS DOES NOT WORK YET
@@ -13,7 +13,7 @@ import macros from "../../../utils/macros";
 //
 // ALSO: make sure to remove any classes added to coreqs from prereqs. ENVR 1201 (lab for 1200) has 1200 as a prereq
 
-class FindMissingLabs extends BaseProcessor.BaseProcessor {
+class FindMissingLabs extends BaseProcessor {
   go(query, callback) {
     this.getClassHash(query);
     const cllbck = (err, keyToRow) => {

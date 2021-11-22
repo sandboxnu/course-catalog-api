@@ -8,57 +8,54 @@ import keys from "../../../utils/keys";
 import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
 import {Section} from "../../../types/types";
 
-class BaseProcessor {
-  BaseProcessor: typeof BaseProcessor;
+export class BaseProcessor {
+	groupSectionsByClass(sections: Section[]): Section[][] {
+		const classHash: Record<string, Section[]> = {};
 
-  groupSectionsByClass(sections: Section[]): Section[][] {
-    const classHash: Record<string, Section[]> = {};
+		sections.forEach((section) => {
+			const obj = {
+				host: section.host,
+				termId: section.termId,
+				subject: section.subject,
+				classId: section.classId,
+			};
 
-    sections.forEach((section) => {
-      const obj = {
-        host: section.host,
-        termId: section.termId,
-        subject: section.subject,
-        classId: section.classId,
-      };
+			const hash = keys.getClassHash(obj);
 
-      const hash = keys.getClassHash(obj);
+			if (!classHash[hash]) {
+				classHash[hash] = [];
+			}
 
-      if (!classHash[hash]) {
-        classHash[hash] = [];
-      }
+			classHash[hash].push(section);
+		});
 
-      classHash[hash].push(section);
-    });
+		return Object.values(classHash);
+	}
 
-    return Object.values(classHash);
-  }
+	getClassHash(termDump: ParsedTermSR): Record<string, ParsedCourseSR> {
+		// Make obj to find results here quickly.
+		const keyToRows: Record<string, ParsedCourseSR> = {};
 
-  getClassHash(termDump: ParsedTermSR): Record<string, ParsedCourseSR> {
-    // Make obj to find results here quickly.
-    const keyToRows: Record<string, ParsedCourseSR> = {};
+		termDump.classes.forEach((aClass) => {
+			if (
+					!aClass.host ||
+					!aClass.termId ||
+					!aClass.subject ||
+					!aClass.classId
+			) {
+				macros.error("ERROR class doesn't have required fields??", aClass);
+				return;
+			}
 
-    termDump.classes.forEach((aClass) => {
-      if (
-        !aClass.host ||
-        !aClass.termId ||
-        !aClass.subject ||
-        !aClass.classId
-      ) {
-        macros.error("ERROR class doesn't have required fields??", aClass);
-        return;
-      }
+			// multiple classes could have same key
+			const hash = keys.getClassHash(aClass);
 
-      // multiple classes could have same key
-      const hash = keys.getClassHash(aClass);
+			// only need to keep subject and classId
+			keyToRows[hash] = aClass;
+		});
 
-      // only need to keep subject and classId
-      keyToRows[hash] = aClass;
-    });
-
-    return keyToRows;
-  }
+		return keyToRows;
+	}
 }
 
-BaseProcessor.prototype.BaseProcessor = BaseProcessor;
-export default new BaseProcessor();
+export const instance = new BaseProcessor();

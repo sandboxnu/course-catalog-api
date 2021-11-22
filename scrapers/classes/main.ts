@@ -7,15 +7,15 @@ import URI from "urijs";
 
 import cache from "../cache";
 import macros from "../../utils/macros";
-import bannerv9CollegeUrls from "./bannerv9CollegeUrls";
 
 // Processors
-import markMissingPrereqs from "./processors/markMissingPrereqs";
-import termStartEndDate from "./processors/termStartEndDate";
+import {instance as markMissingPrereqs}  from "./processors/markMissingPrereqs";
 import addPreRequisiteFor from "./processors/addPreRequisiteFor";
 
 // Parsers
-import bannerv9Parser from "./parsersxe/bannerv9Parser";
+import {instance as bannerv9Parser} from "./parsersxe/bannerv9Parser";
+import {ParsedTermSR} from "../../types/searchResultTypes";
+import {TermInfo} from "../../types/types";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.
@@ -26,10 +26,10 @@ class Main {
   // Runs the processors over a termDump.
   // The input of this function should be the output of restructureData, above.
   // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
-  runProcessors(dump) { //ParsedTermSR
+  runProcessors(dump: ParsedTermSR): ParsedTermSR {
     // Run the processors, sequentially
     markMissingPrereqs.go(dump);
-    termStartEndDate.go(dump);
+    // termStartEndDate.go(dump); DEPRECATED
 
     // Add new processors here.
     addPreRequisiteFor.go(dump);
@@ -37,7 +37,7 @@ class Main {
     return dump;
   }
 
-  async main(collegeAbbrs, termInfos) {
+  async main(collegeAbbrs: string[], termInfos: TermInfo[]): Promise<unknown> {
     if (!collegeAbbrs) {
       macros.error("Need collegeAbbrs for scraping classes");
       return null;
@@ -53,7 +53,7 @@ class Main {
     }
 
     ////////// Not in use right now ///////////////////
-    // Originally intented for SearchNEU to branch out to other colleges, that thread's been inactive since ~2017
+    // Originally intended for SearchNEU to branch out to other colleges, that thread's been inactive since ~2017
 
     // const bannerv8Urls = this.getUrlsFromCollegeAbbrs(
     //   collegeAbbrs,
@@ -74,9 +74,6 @@ class Main {
     //   return null;
     // }
 
-    // Grabs the Banner URL that we're about to scrape
-    const bannerv9Url = bannerv9CollegeUrls[0];
-
     macros.warn("BOUT TO SCRAPE");
     const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
     macros.warn("SCRAPEd");
@@ -93,12 +90,12 @@ class Main {
   }
 
   /**
-   * @deprecated This method is no longer in use. It was originally intended for branching SearchNEU out to other colleges, but is unecessary as long as we are limited to Northeastern.
+   * @deprecated This method is no longer in use. It was originally intended for branching SearchNEU out to other colleges, but is unnecessary as long as we are limited to Northeastern.
    * @param {string[]} collegeAbbrs Main domain names of other colleges
    * @param {string[]} listToCheck A list of URLs to check
    * @returns
    */
-  getUrlsFromCollegeAbbrs(collegeAbbrs, listToCheck) {
+  getUrlsFromCollegeAbbrs(collegeAbbrs: string[], listToCheck: string[]): string[] {
     // This list is modified below, so clone it here so we don't modify the input object.
     collegeAbbrs = collegeAbbrs.slice(0);
 
@@ -140,7 +137,7 @@ const instance = new Main();
 if (require.main === module) {
   // instance.main(['mscc']);
   // instance.main(['uncfsu']);
-  instance.main(["neu"]);
+  instance.main(["neu"], []);
   // instance.main(['fit']);
 }
 

@@ -37,7 +37,7 @@ class Main {
       currentTermInfos: currentTermInfos,
     });
 
-    macros.log("done scrapers/main.js");
+    macros.log("done scrapers/main.ts");
   }
 }
 

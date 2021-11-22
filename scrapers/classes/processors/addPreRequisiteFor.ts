@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import BaseProcessor from "./baseProcessor";
+import {BaseProcessor} from "./baseProcessor";
 import keys from "../../../utils/keys";
 import macros from "../../../utils/macros";
 import {isCourseReq, Requisite} from "../../../types/types";
@@ -13,7 +13,7 @@ import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
  * Adds the prerequisite-for field for classes that are a predecessor for
  * other classes.
  */
-class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
+class AddPreRequisiteFor extends BaseProcessor {
 	classMap = {};
 
 	/**

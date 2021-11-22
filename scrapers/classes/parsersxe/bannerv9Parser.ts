@@ -33,9 +33,7 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 /**
  * Top level parser. Exposes nice interface to rest of app.
  */
-class Bannerv9Parser {
-	Bannerv9Parser: typeof Bannerv9Parser;
-
+export class Bannerv9Parser {
 	async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
 
 		const termIds: string[] = termInfos
@@ -152,11 +150,8 @@ class Bannerv9Parser {
 }
 
 
-Bannerv9Parser.prototype.Bannerv9Parser = Bannerv9Parser; // TODO - why does this exist?
-const instance = new Bannerv9Parser();
+export const instance = new Bannerv9Parser();
 
 if (require.main === module) {
 	instance.test();
 }
-
-export default instance;
