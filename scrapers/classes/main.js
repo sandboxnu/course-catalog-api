@@ -66,7 +66,6 @@ class Main {
   // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
   runProcessors(dump) {
     // Run the processors, sequentially
-    //console.log(JSON.stringify(dump));
     markMissingPrereqs.go(dump);
     termStartEndDate.go(dump);
 
@@ -114,7 +113,6 @@ class Main {
     macros.warn("BOUT TO SCRAPE");
     const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
     macros.warn("SCRAPEd");
-    console.log(JSON.stringify(bannerv9ParserOutput));
 
     const dump = this.runProcessors(bannerv9ParserOutput);
 
