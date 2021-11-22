@@ -15,14 +15,15 @@ import macros from "../../../utils/macros";
 
 class FindMissingLabs extends BaseProcessor.BaseProcessor {
   go(query, callback) {
-    this.getClassHash(query, (err, keyToRow) => {
+    this.getClassHash(query);
+    const cllbck = (err, keyToRow) => {
       for (const key of Object.keys(keyToRow)) {
         const aClass = keyToRow[key];
 
         const name = aClass.name;
 
         const match = name.match(
-          /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g
+            /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g
         );
         if (match) {
           let coreqsArray = [];
@@ -37,14 +38,12 @@ class FindMissingLabs extends BaseProcessor.BaseProcessor {
         }
       }
       return callback();
-    });
+    }
   }
 }
 
 const instance = new FindMissingLabs();
 
 if (require.main === module) {
-  instance.go({ host: "neu.edu", termId: "201630" });
+  instance.go({ host: "neu.edu", termId: "201630" }, () => null);
 }
-
-export default instance;

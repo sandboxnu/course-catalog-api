@@ -5,10 +5,14 @@
 
 import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {Section} from "../../../types/types";
 
 class BaseProcessor {
-  groupSectionsByClass(sections) {
-    const classHash = {};
+  BaseProcessor: typeof BaseProcessor;
+
+  groupSectionsByClass(sections: Section[]): Section[][] {
+    const classHash: Record<string, Section[]> = {};
 
     sections.forEach((section) => {
       const obj = {
@@ -30,9 +34,9 @@ class BaseProcessor {
     return Object.values(classHash);
   }
 
-  getClassHash(termDump) {
+  getClassHash(termDump: ParsedTermSR): Record<string, ParsedCourseSR> {
     // Make obj to find results here quickly.
-    const keyToRows = {};
+    const keyToRows: Record<string, ParsedCourseSR> = {};
 
     termDump.classes.forEach((aClass) => {
       if (

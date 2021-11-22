@@ -7,19 +7,27 @@ import macros from "../../../utils/macros";
 import BaseProcessor from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {CourseReq, isBooleanReq, isCourseReq, Requisite} from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
 class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
-  updatePrereqs(prereqs, host, termId, keyToRows) {
+  MarkMissingPrereqs: typeof MarkMissingPrereqs;
+
+
+  updatePrereqs(prereqs: Requisite, host: string, termId: string, keyToRows): Requisite {
+    if (!(isBooleanReq(prereqs))) {
+      return prereqs
+    }
+
     for (let i = prereqs.values.length - 1; i >= 0; i--) {
       const prereqEntry = prereqs.values[i];
 
       // prereqEntry could be Object{subject:classId:} or string i think
-      if (typeof prereqEntry === "string") {
-        continue;
-      } else if (prereqEntry.classId && prereqEntry.subject) {
+
+      if (isCourseReq(prereqEntry)) {
         const hash = keys.getClassHash({
           host: host,
           termId: termId,
@@ -28,11 +36,13 @@ class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
         });
 
         if (!keyToRows[hash]) {
-          prereqs.values[i].missing = true;
+          (prereqs.values[i] as CourseReq).missing = true;
         }
-      } else if (prereqEntry.type && prereqEntry.values) {
+      }
+      else if (isBooleanReq(prereqEntry)) {
         this.updatePrereqs(prereqEntry, host, termId, keyToRows);
-      } else {
+      }
+      else if (typeof prereqEntry !== 'string') {
         macros.error("wtf is ", prereqEntry, prereqs);
       }
     }
@@ -43,10 +53,10 @@ class MarkMissingPrereqs extends BaseProcessor.BaseProcessor {
   // if an entire college needs to be updated, it could be just {host:'neu.edu'}
   // at minimum it will be a host
   // or if just one class {host, termId, subject, classId}
-  go(termDump) {
-    const keyToRows = this.getClassHash(termDump);
+  go(termDump: ParsedTermSR): ParsedCourseSR[] {
+    const keyToRows = BaseProcessor.getClassHash(termDump);
 
-    const updatedClasses = [];
+    const updatedClasses: ParsedCourseSR[] = [];
 
     // loop through classes to update, and get the new data from all the classes
     for (const aClass of termDump.classes) {
@@ -88,16 +98,11 @@ MarkMissingPrereqs.prototype.MarkMissingPrereqs = MarkMissingPrereqs;
 const instance = new MarkMissingPrereqs();
 
 if (require.main === module) {
-  instance.go(
-    [
-      {
-        host: "neu.edu",
-      },
-    ],
-    (err) => {
-      macros.log("DONE!", err);
-    }
-  );
+  instance.go({
+    classes: [],
+    sections: [],
+    subjects: {}
+  })
 }
 
 export default instance;

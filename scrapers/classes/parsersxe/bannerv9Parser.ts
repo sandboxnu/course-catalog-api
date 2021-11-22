@@ -34,7 +34,10 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  * Top level parser. Exposes nice interface to rest of app.
  */
 class Bannerv9Parser {
+	Bannerv9Parser: typeof Bannerv9Parser;
+
 	async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
+
 		const termIds: string[] = termInfos
 		.map((t) => t.termId)
 		.slice(0, NUMBER_OF_TERMS_TO_UPDATE);
@@ -148,8 +151,7 @@ class Bannerv9Parser {
 	}
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore
+
 Bannerv9Parser.prototype.Bannerv9Parser = Bannerv9Parser; // TODO - why does this exist?
 const instance = new Bannerv9Parser();
 
