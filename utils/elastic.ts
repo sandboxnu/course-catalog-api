@@ -14,7 +14,7 @@ import {
   EsMapping,
   EsMultiResult,
   EsResult,
-} from "../types/search_types";
+} from "../types/searchTypes";
 
 const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";

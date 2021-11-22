@@ -9,8 +9,10 @@ import keys from "../../../utils/keys";
 import Request from "../../request";
 import PrereqParser from "./prereqParser";
 import util from "./util";
-import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
+import {getSubjectAbbreviations} from "./subjectAbbreviationParser";
 import macros from "../../../utils/macros";
+import {BooleanReq, CourseRef} from "../../../types/types";
+import {CourseSR, ParsedCourseSR} from "../../../types/searchResultTypes";
 
 const request = new Request("classParser");
 
@@ -27,16 +29,16 @@ class ClassParser {
    * Build class data from scratch, sending a new search result query for this specific class.
    * @param termId term of class
    * @param subject subject code of class
-   * @param courseNumber course number of class
+   * @param classId course number of class
    */
-  async parseClass(termId, subject, courseNumber) {
+  async parseClass(termId: string, subject: string, classId: string): Promise<false | ParsedCourseSR> {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
       url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       qs: {
         txt_term: termId,
         txt_subject: subject,
-        txt_courseNumber: courseNumber,
+        txt_courseNumber: classId,
         startDatepicker: "",
         endDatepicker: "",
         pageOffset: 0,
@@ -58,7 +60,7 @@ class ClassParser {
    * @param SR Search result from /courseSearchResults (browse course catalog)
    * @param termId the termId that the class belongs to. Required cause searchresult doesn't include termid for some reason
    */
-  async parseClassFromSearchResult(SR, termId) {
+  async parseClassFromSearchResult(SR: CourseSR, termId: string): Promise<ParsedCourseSR> {
     const subjectAbbreviations = await getSubjectAbbreviations(termId);
     const { subjectCode, courseNumber } = SR;
     const description = await this.getDescription(
@@ -85,7 +87,8 @@ class ClassParser {
     );
     const { amount: feeAmount, description: feeDescription } =
       await this.getFees(termId, subjectCode, courseNumber);
-    const classDetails = {
+    // The type we have is basically an expanded Course
+    const classDetails: ParsedCourseSR = {
       host: "neu.edu",
       termId: termId,
       subject: subjectCode,
@@ -107,6 +110,7 @@ class ClassParser {
       feeAmount,
       feeDescription,
     };
+
     if (prereqs) {
       classDetails.prereqs = prereqs;
     }
@@ -116,67 +120,68 @@ class ClassParser {
     return classDetails;
   }
 
-  async getDescription(termId, subject, courseNumber) {
+  async getDescription(termId: string, subject: string, classId: string): Promise<string> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseDescription",
       termId,
       subject,
-      courseNumber
+      classId
     );
     // Double decode the description, because banner double encodes the description :(
     return he.decode(he.decode(req.body.trim()));
   }
 
-  async getPrereqs(termId, subject, courseNumber, subjectAbbreviationTable) {
+  async getPrereqs(termId: string, subject: string, classId: string,
+                   subjectAbbreviationTable: Record<string, string>): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getPrerequisites",
       termId,
       subject,
-      courseNumber
+      classId
     );
     return PrereqParser.serializePrereqs(req.body, subjectAbbreviationTable);
   }
 
-  async getCoreqs(termId, subject, courseNumber, subjectAbbreviationTable) {
+  async getCoreqs(termId: string, subject: string, classId: string,
+                  subjectAbbreviationTable: Record<string, string>): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getCorequisites",
       termId,
       subject,
-      courseNumber
+      classId
     );
     return PrereqParser.serializeCoreqs(req.body, subjectAbbreviationTable);
   }
 
-  async getAttributes(termId, subject, courseNumber) {
+  async getAttributes(termId: string, subject: string, classId: string): Promise<string[]> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseAttributes",
       termId,
       subject,
-      courseNumber
+      classId
     );
     return this.serializeAttributes(req.body);
   }
 
-  serializeAttributes(str) {
+  serializeAttributes(str: string): string[] {
     return he
       .decode(str)
       .split("<br/>")
-      .map((a) => {
-        return a.trim();
-      });
+      .map(a => a.trim());
   }
 
-  async getFees(termId, subject, courseNumber) {
+  async getFees(termId: string, subject: string,
+                classId: string): Promise<{ amount: number, description: string }> {
     const req = await this.courseSearchResultsPostRequest(
       "getFees",
       termId,
       subject,
-      courseNumber
+      classId
     );
     return this.parseFees(req.body);
   }
 
-  parseFees(html) {
+  parseFees(html: string): { amount: number, description: string } {
     const trimmed = html.trim();
     if (trimmed === "No fee information available.") {
       return { amount: null, description: "" };
@@ -201,9 +206,9 @@ class ClassParser {
     return { amount: parseInt(amount, 10), description };
   }
 
-  nupath(attributes) {
+  nupath(attributes: string[]): string[] {
     const regex = new RegExp("NUpath (.*?) *NC.{2}");
-    return attributes.filter((a) => regex.test(a)).map((a) => regex.exec(a)[1]);
+    return attributes.filter(a => regex.test(a)).map((a) => regex.exec(a)[1]);
   }
 
   /**
@@ -215,31 +220,30 @@ class ClassParser {
    * @param endpoint
    * @param termId
    * @param subject
-   * @param courseNumber
+   * @param classId
    */
   async courseSearchResultsPostRequest(
-    endpoint,
-    termId,
-    subject,
-    courseNumber
-  ) {
+    endpoint: string,
+    termId: string,
+    subject: string,
+    classId: string
+  ): Promise<{body: string}> {
     /*
      * if the request fails because termId and/or crn are invalid,
      * request will retry 35 attempts before crashing.
      */
-    const req = await request.post({
+    return await request.post({
       url: `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/${endpoint}`,
       form: {
         term: termId,
         subjectCode: subject,
-        courseNumber: courseNumber,
+        courseNumber: classId,
       },
       cache: false,
     });
-    return req;
   }
 
-  getAllCourseRefs(course) {
+  getAllCourseRefs(course: ParsedCourseSR): Record<string, CourseRef> {
     const termId = course.termId;
     const prereqRefs = this.getRefsFromJson(course.prereqs, termId);
     const coreqRefs = this.getRefsFromJson(course.coreqs, termId);
@@ -254,7 +258,7 @@ class ClassParser {
     };
   }
 
-  getRefsFromJson(obj, termId) {
+  getRefsFromJson(obj, termId: string): Record<string, CourseRef> {
     if (!obj) return {};
 
     return obj.values.reduce((acc, val) => {

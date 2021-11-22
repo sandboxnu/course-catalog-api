@@ -9,3 +9,4 @@ data/*
 *.terraform.lock.hcl
 .env
 cache.zip
+.idea/
