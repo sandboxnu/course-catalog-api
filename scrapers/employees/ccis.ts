@@ -11,9 +11,10 @@ import cache from "../cache";
 import {
   standardizeEmail,
   standardizePhone,
-  parseGoogleScolarLink,
+  parseGoogleScholarLink,
   parseNameWithSpaces,
 } from "./util";
+import {Employee} from "../../types/types";
 
 const request = new Request("CCIS");
 
@@ -46,10 +47,10 @@ const request = new Request("CCIS");
 // But we could use the middle one as the first name if it starts and ends with parens
 
 class NeuCCISFaculty {
-  parsePeopleList(resp) {
+  parsePeopleList(resp): Employee[] {
     const $ = cheerio.load(resp.body);
 
-    const output = [];
+    const output: Employee[] = [];
 
     const peopleElements = $(
       "div.letter > div.people > article.people-directory"
@@ -57,7 +58,7 @@ class NeuCCISFaculty {
 
     for (let i = 0; i < peopleElements.length; i++) {
       const $personElement = $(peopleElements[i]);
-      const obj = {};
+      const obj: any = {};
 
       obj.name = $("h3.person-name", $personElement).text().trim();
 
@@ -138,7 +139,7 @@ class NeuCCISFaculty {
     return output;
   }
 
-  parseDetailpage(resp, obj = {}) {
+  parseDetailpage(resp, obj: any = {}): Employee {
     const $ = cheerio.load(resp.body);
 
     const office = $("div.contact-block > div.address > p").text();
@@ -171,7 +172,7 @@ class NeuCCISFaculty {
       "div.contact-block > div.contact-links > p.google-scholar > a"
     ).attr("href");
 
-    const userId = parseGoogleScolarLink(googleScholarUrl);
+    const userId = parseGoogleScholarLink(googleScholarUrl);
     if (userId) {
       obj.googleScholarId = userId;
     }
@@ -186,7 +187,7 @@ class NeuCCISFaculty {
     return obj;
   }
 
-  async main() {
+  async main(): Promise<any | Employee[]> {
     // If this is dev and this data is already scraped, just return the data.
     if (macros.DEV && require.main !== module) {
       const devData = await cache.get(

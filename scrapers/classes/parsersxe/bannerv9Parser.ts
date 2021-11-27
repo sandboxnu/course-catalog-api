@@ -17,7 +17,7 @@ import elastic from "../../../utils/elastic";
 import classMap from "../classMapping.json";
 import {Section, TermInfo} from "../../../types/types";
 import {EsMapping} from "../../../types/searchTypes";
-import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/scraperClasses";
 
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", {cache: false});

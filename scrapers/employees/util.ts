@@ -6,7 +6,7 @@ export function occurrences(
   string: string,
   subString: string,
   allowOverlapping: boolean
-) {
+): number {
   string += "";
   subString += "";
   if (subString.length <= 0) {
@@ -53,18 +53,16 @@ export function parseNameWithSpaces(name: string): {
     );
   }
 
-  const obj = {
+  return {
     firstName: splitName[0],
     lastName: splitName[splitName.length - 1],
   };
-
-  return obj;
 }
 
 // Standardizes email addresses found across different pages
 // Removes a 'mailto:' from the beginning
 // Ensures the email contains a @
-export function standardizeEmail(email: string) {
+export function standardizeEmail(email: string): null | string {
   if (!email) {
     return null;
   }
@@ -84,7 +82,7 @@ export function standardizeEmail(email: string) {
   return email.toLowerCase().trim();
 }
 
-export function standardizePhone(phone: string) {
+export function standardizePhone(phone: string): null | string {
   if (!phone) {
     return null;
   }
@@ -110,7 +108,7 @@ export function standardizePhone(phone: string) {
 
 // Parses the google scholar id from a link that should contain a google scholar link.
 // Get the Google Scholar ID with this: https://scholar.google.com/citations?user=[id here]
-export function parseGoogleScolarLink(link: string) {
+export function parseGoogleScholarLink(link: string): null | string {
   if (!link) {
     return null;
   }
@@ -128,7 +126,7 @@ export function parseGoogleScolarLink(link: string) {
 // subdomain.bob.co -> bob.co
 // bob.co -> bob.co
 // This could be improved by using public lists of top-level domains.
-export function getBaseHost(url: string) {
+export function getBaseHost(url: string): null | string {
   const homepage = new URI(url).hostname();
   if (!homepage || homepage === "") {
     macros.error("could not find homepage of", url);

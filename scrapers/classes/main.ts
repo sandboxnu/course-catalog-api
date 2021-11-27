@@ -14,7 +14,7 @@ import addPreRequisiteFor from "./processors/addPreRequisiteFor";
 
 // Parsers
 import {instance as bannerv9Parser} from "./parsersxe/bannerv9Parser";
-import {ParsedTermSR} from "../../types/searchResultTypes";
+import {ParsedTermSR} from "../../types/scraperClasses";
 import {TermInfo} from "../../types/types";
 
 // This is the main entry point for scraping classes

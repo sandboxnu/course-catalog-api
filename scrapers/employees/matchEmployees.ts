@@ -14,6 +14,7 @@ import ccisFaculty from "./ccis";
 import csshFaculty from "./cssh";
 import camdFaculty from "./camd";
 import coeFaculty from "./coe";
+import {Employee, MatchEmployee} from "../../types/types";
 
 // This file combines the data from the ccis website and the NEU Employees site
 // If there is a match, the data from the ccis site has priority over the data from the employee site.
@@ -48,24 +49,26 @@ import coeFaculty from "./coe";
 // officeStreetAddress: 177 Huntington Ave
 
 class CombineCCISandEmployees {
+  analytics: Record<string, number>;
+
   constructor() {
     // Keep track of things that can happen during matching.
     // Output analytics and some statistics after merging each list.
     this.analytics = {};
   }
 
-  resetAnalytics() {
+  resetAnalytics(): void {
     this.analytics = {};
   }
 
-  logAnalyticsEvent(eventName) {
+  logAnalyticsEvent(eventName: string): void {
     if (this.analytics[eventName] === undefined) {
       this.analytics[eventName] = 0;
     }
     this.analytics[eventName]++;
   }
 
-  okToMatch(matchObj, person, peopleListIndex) {
+  okToMatch(matchObj: MatchEmployee, person: Employee, peopleListIndex: number): null | boolean {
     if (person.emails) {
       const emailDomainMap = {};
 
@@ -108,8 +111,8 @@ class CombineCCISandEmployees {
     return true;
   }
 
-  async main(peopleLists) {
-    peopleLists = await Promise.all([
+  async main() {
+    const peopleLists = await Promise.all([
       neuEmployees.main(),
       ccisFaculty.main(),
       csshFaculty.main(),
@@ -117,7 +120,7 @@ class CombineCCISandEmployees {
       coeFaculty.main(),
     ]);
 
-    const mergedPeopleList = [];
+    const mergedPeopleList: MatchEmployee[] = [];
 
     let peopleListIndex = 0;
 

@@ -7,7 +7,7 @@ import macros from "../../../utils/macros";
 import {BaseProcessor, instance as baseProcessor} from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
-import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/scraperClasses";
 import {CourseReq, isBooleanReq, isCourseReq, Requisite} from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.

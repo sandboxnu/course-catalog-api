@@ -71,6 +71,11 @@ export interface Employee {
 	officeRoom?: string;
 }
 
+export interface MatchEmployee extends Employee {
+	matches: Employee[];
+	peopleListIndexMatches: Record<number, boolean>;
+}
+
 // A course within a semester
 export interface Course {
 	host: string;

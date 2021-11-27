@@ -7,7 +7,7 @@ import {BaseProcessor} from "./baseProcessor";
 import keys from "../../../utils/keys";
 import macros from "../../../utils/macros";
 import {isCourseReq, Requisite} from "../../../types/types";
-import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/scraperClasses";
 
 /**
  * Adds the prerequisite-for field for classes that are a predecessor for

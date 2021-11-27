@@ -8,7 +8,7 @@ import fs from "fs-extra";
 
 import macros from "../../utils/macros";
 import keys from "../../utils/keys";
-import {ParsedTermSR} from "../../types/searchResultTypes";
+import {ParsedTermSR} from "../../types/scraperClasses";
 
 // Creates the term dump of classes.
 

@@ -5,7 +5,7 @@
 
 import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
-import {ParsedCourseSR, ParsedTermSR} from "../../../types/searchResultTypes";
+import {ParsedCourseSR, ParsedTermSR} from "../../../types/scraperClasses";
 import {Section} from "../../../types/types";
 
 export class BaseProcessor {

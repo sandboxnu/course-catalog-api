@@ -8,7 +8,7 @@ import _ from "lodash";
 import he from "he";
 import macros from "../../../utils/macros";
 import Request from "../../request";
-import {SubjectDescription} from "../../../types/searchResultTypes";
+import {SubjectDescription} from "../../../types/scraperClasses";
 
 const request = new Request("subjectAbberviationParser");
 

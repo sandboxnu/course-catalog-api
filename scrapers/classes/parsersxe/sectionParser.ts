@@ -6,7 +6,7 @@
 import Request from "../../request";
 import util from "./util";
 import MeetingParser from "./meetingParser";
-import {SectionSR} from "../../../types/searchResultTypes";
+import {SectionSR} from "../../../types/scraperClasses";
 import {Section} from "../../../types/types";
 
 const requestObj = new Request("sectionParser");
