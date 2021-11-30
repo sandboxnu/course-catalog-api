@@ -61,15 +61,20 @@ class Updater {
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
 
-    const interval = setInterval(async () => {
-      try {
-        await this.update();
-      } catch (e) {
-        macros.warn("Updater failed with: ", e);
-        clearInterval(interval);
-        process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
-      }
+    setInterval(() => {
+      this.updateOrExit();
     }, intervalTime);
+
+    this.updateOrExit();
+  }
+
+  async updateOrExit(): Promise<void> {
+    try {
+      await this.update();
+    } catch (e) {
+      macros.warn("Updater failed with: ", e);
+      process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
+    }
   }
 
   // Update classes and sections users and notify users if seats have opened up
