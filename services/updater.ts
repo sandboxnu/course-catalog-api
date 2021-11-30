@@ -66,6 +66,7 @@ class Updater {
         this.update();
       } catch (e) {
         macros.warn("Updater failed with: ", e);
+        process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
       }
     }, intervalTime);
     this.update();
@@ -73,7 +74,7 @@ class Updater {
 
   // Update classes and sections users and notify users if seats have opened up
   async update(): Promise<void> {
-    macros.log("updating");
+    macros.log(`updating terms ${JSON.stringify(this.SEMS_TO_UPDATE)}`);
 
     const startTime = Date.now();
 
@@ -83,7 +84,7 @@ class Updater {
         return termParser.parseSections(termId);
       })
     ).flat();
-
+    macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.COURSE_MODEL
@@ -92,11 +93,17 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    const dumpProcessorStartTime = Date.now();
+    macros.log("running dump processor");
     await dumpProcessor.main({
       termDump: { sections, classes: {}, subjects: {} },
       destroy: true,
     });
-
+    macros.log(
+      `finished running dump processor in ${
+        Date.now() - dumpProcessorStartTime
+      } ms.`
+    );
     const totalTime = Date.now() - startTime;
 
     await sendNotifications(
@@ -106,7 +113,9 @@ class Updater {
     );
 
     macros.log(
-      `Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`
+      `Done running updater onInterval. It took ${totalTime} ms (${
+        totalTime / 60000
+      } minutes). Updated ${sections.length} sections.`
     );
   }
 
