@@ -4,7 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
-import { decode } from "html-entities";
+import he from "he";
 import path from "path";
 import {
   ProfessorCreateInput,
@@ -337,11 +337,11 @@ class DumpProcessor {
 
   strTransform(val: Maybe<string>): string {
     const tempVal = val ? `'${DumpProcessor.escapeSingleQuote(val)}'` : "''";
-    return decode(tempVal);
+    return he.decode(tempVal);
   }
 
   arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${DumpProcessor.escapeSingleQuote(decode(val))}"` : "''";
+    return val ? `"${DumpProcessor.escapeSingleQuote(he.decode(val))}"` : "''";
   }
 
   intTransform(val: Maybe<number>): string {
