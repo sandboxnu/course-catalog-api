@@ -4,11 +4,8 @@
  */
 import _ from "lodash";
 import CourseSerializer from "./courseSerializer";
-import {Course, Section} from "../types/types";
-import {
-  SerializedSection
-} from "../types/serializerTypes";
-
+import { Course, Section } from "../types/types";
+import { SerializedSection } from "../types/serializerTypes";
 
 class HydrateCourseSerializer extends CourseSerializer<Course, Section> {
   courseProps(): string[] {

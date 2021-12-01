@@ -68,7 +68,6 @@ const resolvers = {
   },
 
   SearchResultItem: {
-    // eslint-disable-next-line no-underscore-dangle
     __resolveType(obj: SearchResultItem) {
       return "firstName" in obj ? "Employee" : "ClassOccurrence";
     },

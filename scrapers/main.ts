@@ -8,10 +8,10 @@ import macros from "../utils/macros";
 import classes from "./classes/main";
 import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
-import {instance as bannerv9parser} from "./classes/parsersxe/bannerv9Parser";
+import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
 import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
-import {ParsedTermSR} from "../types/scraperTypes";
-import {Employee} from "../types/types";
+import { ParsedTermSR } from "../types/scraperTypes";
+import { EmployeeWithId } from "../types/types";
 
 // Main file for scraping
 // Run this to run all the scrapers
@@ -31,7 +31,10 @@ class Main {
       matchEmployees.main(),
     ];
 
-    const [termDump, mergedEmployees] = (await Promise.all(promises)) as [ParsedTermSR, Employee[]];
+    const [termDump, mergedEmployees] = (await Promise.all(promises)) as [
+      ParsedTermSR,
+      EmployeeWithId[]
+    ];
 
     await dumpProcessor.main({
       termDump: termDump,
