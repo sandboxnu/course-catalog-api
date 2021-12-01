@@ -61,14 +61,19 @@ class Updater {
     const intervalTime = macros.PROD ? 300000 : 30000;
 
     setInterval(() => {
-      try {
-        this.update();
-      } catch (e) {
-        macros.warn("Updater failed with: ", e);
-        process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
-      }
+      this.updateOrExit();
     }, intervalTime);
-    this.update();
+
+    this.updateOrExit();
+  }
+
+  async updateOrExit(): Promise<void> {
+    try {
+      await this.update();
+    } catch (e) {
+      macros.warn("Updater failed with: ", e);
+      process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
+    }
   }
 
   // Update classes and sections users and notify users if seats have opened up
@@ -95,10 +100,12 @@ class Updater {
 
     const dumpProcessorStartTime = Date.now();
     macros.log("running dump processor");
+
     await dumpProcessor.main({
       termDump: { sections, classes: [], subjects: {} },
       destroy: true,
     });
+
     macros.log(
       `finished running dump processor in ${
         Date.now() - dumpProcessorStartTime

@@ -93,7 +93,7 @@ describe("classParser", () => {
   });
 
   describe("getAllCourseRefs", () => {
-    it.only("collects all the course refs", () => {
+    it("collects all the course refs", () => {
       const course = {
         id: "neu.edu/202030/CS/2510",
         maxCredits: 4,
