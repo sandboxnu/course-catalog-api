@@ -7,7 +7,7 @@ import _ from "lodash";
 
 import macros from "../../../utils/macros";
 import {BaseProcessor} from "./baseProcessor";
-import {ParsedTermSR} from "../../../types/scraperClasses";
+import {ParsedTermSR} from "../../../types/scraperTypes";
 
 // This file adds startDate and endDate to each term based on the start and end dates in sections in that term
 // The start date is the first date that over 10% of sections start on, and the end is the last date that over 10% of sections end on

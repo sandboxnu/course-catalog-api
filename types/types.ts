@@ -4,8 +4,8 @@
  */
 
 // A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
-import {ParsedTermSR} from "./scraperClasses";
-import {Professor} from "@prisma/client";
+import {ParsedTermSR} from "./scraperTypes";
+import {Prisma} from "@prisma/client";
 
 export interface BackendMeeting {
 	startDate: number;
@@ -74,6 +74,8 @@ export interface Employee {
 	officeRoom?: string;
 	id?: string;
 }
+
+export type EmployeeWithId = Employee & {id: string};
 
 export interface MatchEmployee extends Employee {
 	matches: Employee[];
@@ -158,7 +160,12 @@ export interface CourseRef {
 
 export interface Dump {
 	termDump?: ParsedTermSR;
-	profDump?: Employee[];
+	profDump?: EmployeeWithId[];
 	destroy?: boolean;
 	currentTermInfos?: TermInfo[],
 }
+
+export type BulkUpsertInput =
+		Prisma.SectionCreateInput
+		| Prisma.CourseCreateInput
+		| Prisma.ProfessorCreateInput;

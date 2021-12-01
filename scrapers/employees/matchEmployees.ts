@@ -14,7 +14,7 @@ import ccisFaculty from "./ccis";
 import csshFaculty from "./cssh";
 import camdFaculty from "./camd";
 import coeFaculty from "./coe";
-import {Employee, MatchEmployee} from "../../types/types";
+import {Employee, EmployeeWithId, MatchEmployee} from "../../types/types";
 
 // This file combines the data from the ccis website and the NEU Employees site
 // If there is a match, the data from the ccis site has priority over the data from the employee site.
@@ -111,7 +111,7 @@ class CombineCCISandEmployees {
     return true;
   }
 
-  async main(): Promise<Employee[]> {
+  async main(): Promise<EmployeeWithId[]> {
     const peopleLists = await Promise.all([
       neuEmployees.main(),
       ccisFaculty.main(),
@@ -329,7 +329,7 @@ class CombineCCISandEmployees {
       peopleListIndex++;
     }
 
-    let mergedEmployees: (Employee & {id?: string})[] = [];
+    let mergedEmployees: Employee[] = [];
 
     mergedPeopleList.forEach((person) => {
       if (person.matches.length === 1) {
@@ -372,7 +372,7 @@ class CombineCCISandEmployees {
 
     // Add IDs to people that don't have them (IDs are only scraped from employee directory)
     const startTime = Date.now();
-    mergedEmployees.forEach((person, index) => {
+    mergedEmployees.forEach((person: Employee, index): EmployeeWithId => {
       if (person.id) {
         return;
       }
@@ -429,7 +429,7 @@ class CombineCCISandEmployees {
       JSON.stringify(employeeDump)
     );
 
-    return mergedEmployees;
+    return mergedEmployees as EmployeeWithId[];
   }
 }
 

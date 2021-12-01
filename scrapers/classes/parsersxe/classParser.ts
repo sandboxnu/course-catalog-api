@@ -12,7 +12,7 @@ import util from "./util";
 import {getSubjectAbbreviations} from "./subjectAbbreviationParser";
 import macros from "../../../utils/macros";
 import {BooleanReq, CourseRef} from "../../../types/types";
-import {CourseSR, ParsedCourseSR} from "../../../types/scraperClasses";
+import {CourseSR, ParsedCourseSR} from "../../../types/scraperTypes";
 
 const request = new Request("classParser");
 

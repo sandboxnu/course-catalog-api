@@ -13,7 +13,7 @@ import SectionParser from "./sectionParser";
 import util from "./util";
 import {getSubjectDescriptions} from "./subjectAbbreviationParser";
 import filters from "../../filters";
-import {CourseSR, ParsedCourseSR, ParsedTermSR, SectionSR} from "../../../types/scraperClasses";
+import {CourseSR, ParsedCourseSR, ParsedTermSR, SectionSR} from "../../../types/scraperTypes";
 import {CourseRef, Section} from "../../../types/types";
 
 const request = new Request("termParser");

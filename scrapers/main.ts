@@ -10,7 +10,7 @@ import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
 import {instance as bannerv9parser} from "./classes/parsersxe/bannerv9Parser";
 import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
-import {ParsedTermSR} from "../types/scraperClasses";
+import {ParsedTermSR} from "../types/scraperTypes";
 import {Employee} from "../types/types";
 
 // Main file for scraping
