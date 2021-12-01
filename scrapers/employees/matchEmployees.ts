@@ -14,7 +14,7 @@ import ccisFaculty from "./ccis";
 import csshFaculty from "./cssh";
 import camdFaculty from "./camd";
 import coeFaculty from "./coe";
-import {Employee, EmployeeWithId, MatchEmployee} from "../../types/types";
+import { Employee, EmployeeWithId, MatchEmployee } from "../../types/types";
 
 // This file combines the data from the ccis website and the NEU Employees site
 // If there is a match, the data from the ccis site has priority over the data from the employee site.
@@ -68,7 +68,11 @@ class CombineCCISandEmployees {
     this.analytics[eventName]++;
   }
 
-  okToMatch(matchObj: MatchEmployee, person: Employee, peopleListIndex: number): null | boolean {
+  okToMatch(
+    matchObj: MatchEmployee,
+    person: Employee,
+    peopleListIndex: number
+  ): null | boolean {
     if (person.emails) {
       const emailDomainMap = {};
 
@@ -394,10 +398,9 @@ class CombineCCISandEmployees {
     ];
     const beforeModifyCount = mergedEmployees.length;
     mergedEmployees = mergedEmployees.filter((person) => {
-      return !(person.emails &&
-					_.intersection(person.emails, hiddenProfs).length > 0);
-
-
+      return !(
+        person.emails && _.intersection(person.emails, hiddenProfs).length > 0
+      );
     });
 
     // Remove data from individual entries

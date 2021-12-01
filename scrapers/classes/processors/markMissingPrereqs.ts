@@ -4,19 +4,29 @@
  */
 
 import macros from "../../../utils/macros";
-import {BaseProcessor, instance as baseProcessor} from "./baseProcessor";
+import { BaseProcessor, instance as baseProcessor } from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
-import {ParsedCourseSR, ParsedTermSR} from "../../../types/scraperTypes";
-import {CourseReq, isBooleanReq, isCourseReq, Requisite} from "../../../types/types";
+import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import {
+  CourseReq,
+  isBooleanReq,
+  isCourseReq,
+  Requisite,
+} from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
 export class MarkMissingPrereqs extends BaseProcessor {
-  updatePrereqs(prereqs: Requisite, host: string, termId: string, keyToRows): Requisite {
-    if (!(isBooleanReq(prereqs))) {
-      return prereqs
+  updatePrereqs(
+    prereqs: Requisite,
+    host: string,
+    termId: string,
+    keyToRows
+  ): Requisite {
+    if (!isBooleanReq(prereqs)) {
+      return prereqs;
     }
 
     for (let i = prereqs.values.length - 1; i >= 0; i--) {
@@ -35,11 +45,9 @@ export class MarkMissingPrereqs extends BaseProcessor {
         if (!keyToRows[hash]) {
           (prereqs.values[i] as CourseReq).missing = true;
         }
-      }
-      else if (isBooleanReq(prereqEntry)) {
+      } else if (isBooleanReq(prereqEntry)) {
         this.updatePrereqs(prereqEntry, host, termId, keyToRows);
-      }
-      else if (typeof prereqEntry !== 'string') {
+      } else if (typeof prereqEntry !== "string") {
         macros.error("wtf is ", prereqEntry, prereqs);
       }
     }
@@ -97,6 +105,6 @@ if (require.main === module) {
   instance.go({
     classes: [],
     sections: [],
-    subjects: {}
-  })
+    subjects: {},
+  });
 }

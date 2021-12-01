@@ -5,11 +5,12 @@
 
 import _ from "lodash";
 import prisma from "../services/prisma";
-import {Course, Section} from "../types/types";
-import {Section as PrismaSection} from "@prisma/client";
+import { Course, Section } from "../types/types";
+import { Section as PrismaSection } from "@prisma/client";
 import {
-  PrismaCourseWithSections, SerializedCourse,
-  SerializedSection
+  PrismaCourseWithSections,
+  SerializedCourse,
+  SerializedSection,
 } from "../types/serializerTypes";
 
 /* The type of this class is complicated by the fact that this needs to support Course, and also
@@ -20,9 +21,10 @@ import {
  */
 class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
   // FIXME this pattern is bad
-  async bulkSerialize(instances: PrismaCourseWithSections[],
-                      all = false): Promise<Record<string, SerializedCourse<C,S>>> {
-
+  async bulkSerialize(
+    instances: PrismaCourseWithSections[],
+    all = false
+  ): Promise<Record<string, SerializedCourse<C, S>>> {
     const courses = instances.map((course) => {
       return this.serializeCourse(course);
     });
@@ -54,7 +56,10 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
       .value();
   }
 
-  bulkSerializeCourse(course: C, sections: PrismaSection[]): SerializedCourse<C,S> {
+  bulkSerializeCourse(
+    course: C,
+    sections: PrismaSection[]
+  ): SerializedCourse<C, S> {
     const serializedSections = this.serializeSections(sections, course);
 
     return {
@@ -64,7 +69,10 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     };
   }
 
-  serializeSections(sections: PrismaSection[], parentCourse: C): (S & Partial<C>)[] {
+  serializeSections(
+    sections: PrismaSection[],
+    parentCourse: C
+  ): (S & Partial<C>)[] {
     if (sections.length === 0) return [];
 
     return sections
@@ -72,8 +80,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
         return this.serializeSection(section);
       })
       .map((section) => {
-        return { ...section,
-          ..._.pick(parentCourse, this.courseProps()) };
+        return { ...section, ..._.pick(parentCourse, this.courseProps()) };
       });
   }
 
@@ -95,12 +102,11 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
 
     if (innerCourse.sections) {
       innerCourse.sections = innerCourse.sections.map((section) =>
-          this.serializeSection(section)
+        this.serializeSection(section)
       );
     }
     return this.finishCourseObj(innerCourse);
   }
-
 
   serializeSection(section: PrismaSection): S {
     return this._serializeSection(section);

@@ -5,7 +5,7 @@
 import _ from "lodash";
 
 import CourseSerializer from "./courseSerializer";
-import {ESCourse, ESSection} from "../types/serializerTypes";
+import { ESCourse, ESSection } from "../types/serializerTypes";
 
 class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
   courseProps(): string[] {

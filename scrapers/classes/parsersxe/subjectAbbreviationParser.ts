@@ -8,7 +8,7 @@ import _ from "lodash";
 import he from "he";
 import macros from "../../../utils/macros";
 import Request from "../../request";
-import {SubjectDescription} from "../../../types/scraperTypes";
+import { SubjectDescription } from "../../../types/scraperTypes";
 
 const request = new Request("subjectAbberviationParser");
 
@@ -30,7 +30,8 @@ export const getSubjectDescriptions = _.memoize(async (termId: string) => {
 
 async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   const MAX = 500; // If there are more than 500 THIS WILL BREAK. Would make it smarter but not worth it rn.
-  const URL = "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearch/get_subject";
+  const URL =
+    "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearch/get_subject";
   const subjectUrl = `${URL}?searchTerm=&term=${termId}&offset=1&max=${MAX}`;
   const response = await request.get({
     url: subjectUrl,
@@ -43,7 +44,9 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   return response.body;
 }
 
-function createDescriptionTable(subjects: SubjectDescription[]): Record<string, string> {
+function createDescriptionTable(
+  subjects: SubjectDescription[]
+): Record<string, string> {
   const mappedSubjects = subjects.map((subject) => {
     return {
       subjectCode: subject.code,
@@ -55,7 +58,9 @@ function createDescriptionTable(subjects: SubjectDescription[]): Record<string, 
   return _.mapValues(mappedByDesc, "subjectCode");
 }
 
-function createAbbrTable(subjects: SubjectDescription[]): Record<string, string> {
+function createAbbrTable(
+  subjects: SubjectDescription[]
+): Record<string, string> {
   const mappedSubjects = subjects.map((subject) => {
     return {
       description: he.decode(subject.description) as string,

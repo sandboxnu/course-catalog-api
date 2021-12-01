@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import {BaseProcessor} from "./baseProcessor";
+import { BaseProcessor } from "./baseProcessor";
 import macros from "../../../utils/macros";
 
 // THIS DOES NOT WORK YET
@@ -23,7 +23,7 @@ class FindMissingLabs extends BaseProcessor {
         const name = aClass.name;
 
         const match = name.match(
-            /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g
+          /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g
         );
         if (match) {
           let coreqsArray = [];
@@ -38,7 +38,7 @@ class FindMissingLabs extends BaseProcessor {
         }
       }
       return callback();
-    }
+    };
   }
 }
 

@@ -9,10 +9,10 @@ import keys from "../../../utils/keys";
 import Request from "../../request";
 import PrereqParser from "./prereqParser";
 import util from "./util";
-import {getSubjectAbbreviations} from "./subjectAbbreviationParser";
+import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
 import macros from "../../../utils/macros";
-import {BooleanReq, CourseRef} from "../../../types/types";
-import {CourseSR, ParsedCourseSR} from "../../../types/scraperTypes";
+import { BooleanReq, CourseRef } from "../../../types/types";
+import { CourseSR, ParsedCourseSR } from "../../../types/scraperTypes";
 
 const request = new Request("classParser");
 
@@ -31,7 +31,11 @@ class ClassParser {
    * @param subject subject code of class
    * @param classId course number of class
    */
-  async parseClass(termId: string, subject: string, classId: string): Promise<false | ParsedCourseSR> {
+  async parseClass(
+    termId: string,
+    subject: string,
+    classId: string
+  ): Promise<false | ParsedCourseSR> {
     const cookiejar = await util.getCookiesForSearch(termId);
     const req = await request.get({
       url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
@@ -60,7 +64,10 @@ class ClassParser {
    * @param SR Search result from /courseSearchResults (browse course catalog)
    * @param termId the termId that the class belongs to. Required cause searchresult doesn't include termid for some reason
    */
-  async parseClassFromSearchResult(SR: CourseSR, termId: string): Promise<ParsedCourseSR> {
+  async parseClassFromSearchResult(
+    SR: CourseSR,
+    termId: string
+  ): Promise<ParsedCourseSR> {
     const subjectAbbreviations = await getSubjectAbbreviations(termId);
     const { subjectCode, courseNumber } = SR;
     const description = await this.getDescription(
@@ -120,7 +127,11 @@ class ClassParser {
     return classDetails;
   }
 
-  async getDescription(termId: string, subject: string, classId: string): Promise<string> {
+  async getDescription(
+    termId: string,
+    subject: string,
+    classId: string
+  ): Promise<string> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseDescription",
       termId,
@@ -131,8 +142,12 @@ class ClassParser {
     return he.decode(he.decode(req.body.trim()));
   }
 
-  async getPrereqs(termId: string, subject: string, classId: string,
-                   subjectAbbreviationTable: Record<string, string>): Promise<BooleanReq> {
+  async getPrereqs(
+    termId: string,
+    subject: string,
+    classId: string,
+    subjectAbbreviationTable: Record<string, string>
+  ): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getPrerequisites",
       termId,
@@ -142,8 +157,12 @@ class ClassParser {
     return PrereqParser.serializePrereqs(req.body, subjectAbbreviationTable);
   }
 
-  async getCoreqs(termId: string, subject: string, classId: string,
-                  subjectAbbreviationTable: Record<string, string>): Promise<BooleanReq> {
+  async getCoreqs(
+    termId: string,
+    subject: string,
+    classId: string,
+    subjectAbbreviationTable: Record<string, string>
+  ): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getCorequisites",
       termId,
@@ -153,7 +172,11 @@ class ClassParser {
     return PrereqParser.serializeCoreqs(req.body, subjectAbbreviationTable);
   }
 
-  async getAttributes(termId: string, subject: string, classId: string): Promise<string[]> {
+  async getAttributes(
+    termId: string,
+    subject: string,
+    classId: string
+  ): Promise<string[]> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseAttributes",
       termId,
@@ -167,11 +190,14 @@ class ClassParser {
     return he
       .decode(str)
       .split("<br/>")
-      .map(a => a.trim());
+      .map((a) => a.trim());
   }
 
-  async getFees(termId: string, subject: string,
-                classId: string): Promise<{ amount: number, description: string }> {
+  async getFees(
+    termId: string,
+    subject: string,
+    classId: string
+  ): Promise<{ amount: number; description: string }> {
     const req = await this.courseSearchResultsPostRequest(
       "getFees",
       termId,
@@ -181,7 +207,7 @@ class ClassParser {
     return this.parseFees(req.body);
   }
 
-  parseFees(html: string): { amount: number, description: string } {
+  parseFees(html: string): { amount: number; description: string } {
     const trimmed = html.trim();
     if (trimmed === "No fee information available.") {
       return { amount: null, description: "" };
@@ -208,7 +234,7 @@ class ClassParser {
 
   nupath(attributes: string[]): string[] {
     const regex = new RegExp("NUpath (.*?) *NC.{2}");
-    return attributes.filter(a => regex.test(a)).map((a) => regex.exec(a)[1]);
+    return attributes.filter((a) => regex.test(a)).map((a) => regex.exec(a)[1]);
   }
 
   /**
@@ -227,7 +253,7 @@ class ClassParser {
     termId: string,
     subject: string,
     classId: string
-  ): Promise<{body: string}> {
+  ): Promise<{ body: string }> {
     /*
      * if the request fails because termId and/or crn are invalid,
      * request will retry 35 attempts before crashing.

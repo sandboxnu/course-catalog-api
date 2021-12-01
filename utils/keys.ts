@@ -18,122 +18,133 @@ import macros from "./macros";
 const KEYS_REGEX = /[^A-Za-z0-9.]/g;
 
 class Keys {
-	// The five keys to track the five different data structures
-	static allKeys = ["host", "termId", "subject", "classId", "crn"];
+  // The five keys to track the five different data structures
+  static allKeys = ["host", "termId", "subject", "classId", "crn"];
 
-	// Internal use only.
-	// Gets a hash from the object from 0 to the given key index
-	// eg if key index is 3 it would be a subject hash - host, termId, subject
-	// returns the hash - a string
-	static getHashWithKeysSlice(obj, endIndex: number): string | null {
-		if (!obj) {
-			return null;
-		}
+  // Internal use only.
+  // Gets a hash from the object from 0 to the given key index
+  // eg if key index is 3 it would be a subject hash - host, termId, subject
+  // returns the hash - a string
+  static getHashWithKeysSlice(obj, endIndex: number): string | null {
+    if (!obj) {
+      return null;
+    }
 
-		const keys = Keys.allKeys.slice(0, endIndex);
+    const keys = Keys.allKeys.slice(0, endIndex);
 
-		const output = [];
+    const output = [];
 
-		for (const key of keys) {
-			// Make sure it has every key it should.
-			if (!obj[key]) {
-				return null;
-			}
+    for (const key of keys) {
+      // Make sure it has every key it should.
+      if (!obj[key]) {
+        return null;
+      }
 
-			output.push(obj[key].replace(KEYS_REGEX, "_"));
-		}
+      output.push(obj[key].replace(KEYS_REGEX, "_"));
+    }
 
-		if (output.length > 0) {
-			return output.join("/");
-		}
+    if (output.length > 0) {
+      return output.join("/");
+    }
 
-		return "";
-	}
+    return "";
+  }
 
-	// Takes in an object with a host field and returns a host hash
-	static getHostHash(obj: {host: string}): string | null {
-		const hash = this.getHashWithKeysSlice(obj, 1);
+  // Takes in an object with a host field and returns a host hash
+  static getHostHash(obj: { host: string }): string | null {
+    const hash = this.getHashWithKeysSlice(obj, 1);
 
-		if (!hash) {
-			macros.error("Can't make host hash invalid info", obj);
-			return null;
-		}
+    if (!hash) {
+      macros.error("Can't make host hash invalid info", obj);
+      return null;
+    }
 
-		return hash;
-	}
+    return hash;
+  }
 
-	// Takes in an object with a host,termId field and returns a term hash
-	static getTermHash(obj: { host: string, termId: string }): string | null {
-		const hash = this.getHashWithKeysSlice(obj, 2);
+  // Takes in an object with a host,termId field and returns a term hash
+  static getTermHash(obj: { host: string; termId: string }): string | null {
+    const hash = this.getHashWithKeysSlice(obj, 2);
 
-		if (!hash) {
-			macros.error("Can't make term hash invalid info", obj);
-			return null;
-		}
+    if (!hash) {
+      macros.error("Can't make term hash invalid info", obj);
+      return null;
+    }
 
-		return hash;
-	}
+    return hash;
+  }
 
-	// Takes in an object with a host,termId,subject field and returns a subject hash
-	static getSubjectHash(obj: { host: string, termId: string, subject: string }):
-			string | null {
-		const hash = this.getHashWithKeysSlice(obj, 3);
+  // Takes in an object with a host,termId,subject field and returns a subject hash
+  static getSubjectHash(obj: {
+    host: string;
+    termId: string;
+    subject: string;
+  }): string | null {
+    const hash = this.getHashWithKeysSlice(obj, 3);
 
-		if (!hash) {
-			macros.error("Can't make subject hash invalid info", obj);
-			return null;
-		}
+    if (!hash) {
+      macros.error("Can't make subject hash invalid info", obj);
+      return null;
+    }
 
-		return hash;
-	}
+    return hash;
+  }
 
-	// Takes in an object with a host,termId,subject,classId field and returns a class hash
-	static getClassHash(obj: {
-		host: string, termId: string, subject: string,
-		classId: string
-	}): string | null {
-		const hash = this.getHashWithKeysSlice(obj, 4);
+  // Takes in an object with a host,termId,subject,classId field and returns a class hash
+  static getClassHash(obj: {
+    host: string;
+    termId: string;
+    subject: string;
+    classId: string;
+  }): string | null {
+    const hash = this.getHashWithKeysSlice(obj, 4);
 
-		if (!hash) {
-			macros.error("Can't make class hash invalid info", obj);
-			return null;
-		}
+    if (!hash) {
+      macros.error("Can't make class hash invalid info", obj);
+      return null;
+    }
 
-		return hash;
-	}
+    return hash;
+  }
 
-	// Takes in an object with a host,termId,subject,classId,crn field and returns a section hash
-	static getSectionHash(obj: {
-		host: string, termId: string, subject: string,
-		classId: string, crn: string
-	}): string | null {
-		const hash = this.getHashWithKeysSlice(obj, 5);
+  // Takes in an object with a host,termId,subject,classId,crn field and returns a section hash
+  static getSectionHash(obj: {
+    host: string;
+    termId: string;
+    subject: string;
+    classId: string;
+    crn: string;
+  }): string | null {
+    const hash = this.getHashWithKeysSlice(obj, 5);
 
-		if (!hash) {
-			macros.error("Can't make section hash invalid info", obj);
-			return null;
-		}
+    if (!hash) {
+      macros.error("Can't make section hash invalid info", obj);
+      return null;
+    }
 
-		return hash;
-	}
+    return hash;
+  }
 
-	static parseSectionHash(hash: string): null | {
-		host: string, termId: string, subject: string, classId: string, crn: string
-	} {
-
-		const hashSplit = hash.split("/");
-		if (!(hashSplit && hashSplit.length === 5)) {
-			macros.error("Invalid class hash", hash);
-			return null;
-		}
-		return {
-			host: hashSplit[0],
-			termId: hashSplit[1],
-			subject: hashSplit[2],
-			classId: hashSplit[3],
-			crn: hashSplit[4],
-		};
-	}
+  static parseSectionHash(hash: string): null | {
+    host: string;
+    termId: string;
+    subject: string;
+    classId: string;
+    crn: string;
+  } {
+    const hashSplit = hash.split("/");
+    if (!(hashSplit && hashSplit.length === 5)) {
+      macros.error("Invalid class hash", hash);
+      return null;
+    }
+    return {
+      host: hashSplit[0],
+      termId: hashSplit[1],
+      subject: hashSplit[2],
+      classId: hashSplit[3],
+      crn: hashSplit[4],
+    };
+  }
 }
 
 export default Keys;

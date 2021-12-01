@@ -432,8 +432,7 @@ class Searcher {
     ) {
       ({ results, resultCount, took, hydrateDuration, aggregations } =
         await this.getOneSearchResult(subject, patternResults[2], termId));
-    }
-    else {
+    } else {
       const searchResults = await this.getSearchResults(
         query,
         termId,

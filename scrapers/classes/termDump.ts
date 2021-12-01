@@ -8,7 +8,7 @@ import fs from "fs-extra";
 
 import macros from "../../utils/macros";
 import keys from "../../utils/keys";
-import {ParsedTermSR} from "../../types/scraperTypes";
+import { ParsedTermSR } from "../../types/scraperTypes";
 
 // Creates the term dump of classes.
 
@@ -35,7 +35,7 @@ class TermDump {
         };
       }
 
-      termMapDump[termHash]['classMap'][hash] = aClass;
+      termMapDump[termHash]["classMap"][hash] = aClass;
     }
 
     for (const section of termDump.sections) {
@@ -57,7 +57,7 @@ class TermDump {
         };
       }
 
-      termMapDump[termHash]['sectionMap'][hash] = section;
+      termMapDump[termHash]["sectionMap"][hash] = section;
     }
 
     const promises = [];
@@ -66,7 +66,7 @@ class TermDump {
 
     for (const value of values) {
       // Put them in a different file.
-      if (!('host' in value && 'termId' in value)) {
+      if (!("host" in value && "termId" in value)) {
         macros.error("No host or Id?", value);
         continue;
       }
@@ -74,12 +74,12 @@ class TermDump {
       const folderPath = path.join(
         macros.PUBLIC_DIR,
         "getTermDump",
-        value['host']
+        value["host"]
       );
       promises.push(
         fs.ensureDir(folderPath).then(() => {
           return fs.writeFile(
-            path.join(folderPath, `${value['termId']}.json`),
+            path.join(folderPath, `${value["termId"]}.json`),
             JSON.stringify(value)
           );
         })
@@ -99,4 +99,3 @@ class TermDump {
 }
 
 export default new TermDump();
-

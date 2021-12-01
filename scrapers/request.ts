@@ -17,16 +17,18 @@ import dnsCache from "dnscache";
 
 import cache from "./cache";
 import macros from "../utils/macros";
-import {Cookie, CookieJar, Response} from "request";
+import { Cookie, CookieJar, Response } from "request";
 import {
   HostAnalytics,
   NativeRequestConfig,
   RequestAnalytics,
   CustomRequestConfig,
-  RequestPool, PartialRequestConfig, AmplitudeEvent
+  RequestPool,
+  PartialRequestConfig,
+  AmplitudeEvent,
 } from "../types/requestTypes";
-import {IncomingMessage} from "http";
-import {Socket} from "net";
+import { IncomingMessage } from "http";
+import { Socket } from "net";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
@@ -145,7 +147,7 @@ class Request {
     this.openRequests = 0;
 
     // Stuff for analytics on a per-hostname basis.
-    this.analytics = {}
+    this.analytics = {};
 
     // Hostnames that had a request since the last call to onInterval.
     this.activeHostnames = {};
@@ -214,7 +216,10 @@ class Request {
         separateReqPools[hostname]
       );
 
-      const totalAnalytics: Partial<AmplitudeEvent> = {...moreAnalytics, ...this.analytics[hostname]};
+      const totalAnalytics: Partial<AmplitudeEvent> = {
+        ...moreAnalytics,
+        ...this.analytics[hostname],
+      };
 
       macros.log(hostname);
       macros.log(JSON.stringify(totalAnalytics, null, 4));
@@ -227,9 +232,8 @@ class Request {
     this.activeHostnames = {};
 
     // Shared pool
-    const sharedPoolAnalytics: Partial<AmplitudeEvent> = this.getAnalyticsFromAgent(
-      separateReqDefaultPool
-    );
+    const sharedPoolAnalytics: Partial<AmplitudeEvent> =
+      this.getAnalyticsFromAgent(separateReqDefaultPool);
     macros.log(JSON.stringify(sharedPoolAnalytics, null, 4));
 
     // Also upload it to Amplitude.
@@ -308,8 +312,8 @@ class Request {
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
     // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
-    const output: NativeRequestConfig = {...defaultConfig, ...config};
-    output.headers = {...defaultConfig.headers, ...config.headers};
+    const output: NativeRequestConfig = { ...defaultConfig, ...config };
+    output.headers = { ...defaultConfig.headers, ...config.headers };
 
     macros.verbose("Firing request to", output.url);
 
@@ -412,7 +416,7 @@ class Request {
     const hostname = urlParsed.hostname();
     this.ensureAnalyticsObject(hostname);
 
-    let newKey: string|undefined;
+    let newKey: string | undefined;
 
     if (macros.DEV && config.cache) {
       // Skipping the hashing when it is not necessary significantly speeds this up.
@@ -422,10 +426,10 @@ class Request {
         newKey = config.url;
       } else {
         // Make a new request without the cookies and the cookie jar.
-        const headersWithoutCookie = {...config.headers};
+        const headersWithoutCookie = { ...config.headers };
         headersWithoutCookie.Cookie = undefined;
 
-        const configToHash: Partial<NativeRequestConfig> = {...config};
+        const configToHash: Partial<NativeRequestConfig> = { ...config };
         configToHash.headers = headersWithoutCookie;
         configToHash.jar = undefined;
 
@@ -450,11 +454,11 @@ class Request {
     let tryCount = 0;
 
     const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
-    let requestDuration: number|undefined;
+    let requestDuration: number | undefined;
 
     return retry(
       async () => {
-        let response: undefined|Response;
+        let response: undefined | Response;
         tryCount++;
         try {
           const requestStart = Date.now();
@@ -507,11 +511,11 @@ class Request {
         // Save the response to a file for development
         if (macros.DEV && config.cache) {
           await cache.set(
-              macros.REQUESTS_CACHE_DIR,
-              config.cacheName,
-              newKey,
-              response.toJSON(),
-              true
+            macros.REQUESTS_CACHE_DIR,
+            config.cacheName,
+            newKey,
+            response.toJSON(),
+            true
           );
         }
 
@@ -562,8 +566,10 @@ class RequestInput {
     return instance.request(output as CustomRequestConfig);
   }
 
-  standardizeInputConfig(config: PartialRequestConfig|string,
-                         method = "GET"): CustomRequestConfig {
+  standardizeInputConfig(
+    config: PartialRequestConfig | string,
+    method = "GET"
+  ): CustomRequestConfig {
     if (typeof config === "string") {
       config = {
         method: method,
@@ -596,7 +602,7 @@ class RequestInput {
   }
 
   // Helpers for get and post
-  async get(config: PartialRequestConfig|undefined): Promise<Response> {
+  async get(config: PartialRequestConfig | undefined): Promise<Response> {
     if (!config) {
       macros.error("Warning, request get called with no config");
       return null;
@@ -612,7 +618,7 @@ class RequestInput {
     return this.request(config);
   }
 
-  async post(config: PartialRequestConfig): Promise<null|Response> {
+  async post(config: PartialRequestConfig): Promise<null | Response> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;

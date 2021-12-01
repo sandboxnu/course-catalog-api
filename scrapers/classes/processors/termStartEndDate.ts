@@ -6,16 +6,17 @@
 import _ from "lodash";
 
 import macros from "../../../utils/macros";
-import {BaseProcessor} from "./baseProcessor";
-import {ParsedTermSR} from "../../../types/scraperTypes";
+import { BaseProcessor } from "./baseProcessor";
+import { ParsedTermSR } from "../../../types/scraperTypes";
 
 // This file adds startDate and endDate to each term based on the start and end dates in sections in that term
 // The start date is the first date that over 10% of sections start on, and the end is the last date that over 10% of sections end on
 // If no one date has over 10% sections start on that date, it is just the first/last date
 
-
 class TermStartEndDate extends BaseProcessor {
-  go(termDump: ParsedTermSR & {terms: unknown[]}): ParsedTermSR & {terms: unknown[]} {
+  go(
+    termDump: ParsedTermSR & { terms: unknown[] }
+  ): ParsedTermSR & { terms: unknown[] } {
     // If this term dump is just updating a few classes as part of the updater.js
     // There will be no terms
     // In this case just return.
@@ -32,7 +33,7 @@ class TermStartEndDate extends BaseProcessor {
     return termDump;
   }
 
-  runOnTerm(termDump: ParsedTermSR & {terms: unknown[]}, term: any): void {
+  runOnTerm(termDump: ParsedTermSR & { terms: unknown[] }, term: any): void {
     // Don't run on this term if this term already has a startDate and endDate.
     if (term.startDate && term.endDate) {
       return term;
@@ -44,9 +45,9 @@ class TermStartEndDate extends BaseProcessor {
 
     if (!termDump.sections || termDump.sections.length === 0) {
       macros.error(
-          "No sections in db???",
-          termDump.sections,
-          Object.keys(termDump)
+        "No sections in db???",
+        termDump.sections,
+        Object.keys(termDump)
       );
     }
 
@@ -89,9 +90,9 @@ class TermStartEndDate extends BaseProcessor {
     // Pick the first day if nothing was decisive.
     if (!finalStartDate) {
       macros.log(
-          "Warning, no start date was definitive",
-          term.termId,
-          startDates
+        "Warning, no start date was definitive",
+        term.termId,
+        startDates
       );
       finalStartDate = startDateKeys[0];
     }

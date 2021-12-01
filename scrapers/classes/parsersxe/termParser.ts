@@ -11,10 +11,15 @@ import Request from "../../request";
 import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import util from "./util";
-import {getSubjectDescriptions} from "./subjectAbbreviationParser";
+import { getSubjectDescriptions } from "./subjectAbbreviationParser";
 import filters from "../../filters";
-import {CourseSR, ParsedCourseSR, ParsedTermSR, SectionSR} from "../../../types/scraperTypes";
-import {CourseRef, Section} from "../../../types/types";
+import {
+  CourseSR,
+  ParsedCourseSR,
+  ParsedTermSR,
+  SectionSR,
+} from "../../../types/scraperTypes";
+import { CourseRef, Section } from "../../../types/types";
 
 const request = new Request("termParser");
 
@@ -59,9 +64,11 @@ class TermParser {
         return ClassParser.parseClass(termId, subject, classId);
       },
       { concurrency: 500 }
-    )
+    );
 
-    let classes = unfilteredClasses.filter(c => c !== false) as ParsedCourseSR[];
+    let classes = unfilteredClasses.filter(
+      (c) => c !== false
+    ) as ParsedCourseSR[];
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
     if (!process.env.CUSTOM_SCRAPE) {
@@ -82,10 +89,11 @@ class TermParser {
    * @param {*} termId the termId we are scraping
    * @returns the input classes array, mutated to include coreqs/prereqs/etc
    */
-  async addCourseRefs(classes: ParsedCourseSR[],
-                      courseIdentifiers: Record<string, CourseRef>,
-                      termId: string): Promise<ParsedCourseSR[]> {
-
+  async addCourseRefs(
+    classes: ParsedCourseSR[],
+    courseIdentifiers: Record<string, CourseRef>,
+    termId: string
+  ): Promise<ParsedCourseSR[]> {
     const refsPerCourse = classes.map((c) => ClassParser.getAllCourseRefs(c));
     const courseRefs = Object.assign({}, ...refsPerCourse); // Shallow copy
     await pMap(
@@ -126,7 +134,7 @@ class TermParser {
     const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {
-      return await this.concatPagination(async (offset, pageSize) => {
+      return (await this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
           url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
           qs: {
@@ -138,10 +146,10 @@ class TermParser {
           json: true,
         });
         if (req.body.success) {
-          return {items: req.body.data, totalCount: req.body.totalCount};
+          return { items: req.body.data, totalCount: req.body.totalCount };
         }
         return false;
-      }) as CourseSR[];
+      })) as CourseSR[];
     } catch (error) {
       macros.error(`Could not get class data for ${termId}`);
     }
@@ -157,7 +165,7 @@ class TermParser {
     const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {
-      return await this.concatPagination(async (offset, pageSize) => {
+      return (await this.concatPagination(async (offset, pageSize) => {
         const req = await request.get({
           url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
           qs: {
@@ -169,10 +177,10 @@ class TermParser {
           json: true,
         });
         if (req.body.success) {
-          return {items: req.body.data, totalCount: req.body.totalCount};
+          return { items: req.body.data, totalCount: req.body.totalCount };
         }
         return false;
-      }) as SectionSR[];
+      })) as SectionSR[];
     } catch (error) {
       macros.error(`Could not get section data for ${termId}`);
     }
@@ -184,8 +192,13 @@ class TermParser {
    * @param doRequest - The callback that sends the response.
    * @param itemsPerRequest - the number of items allowed per request
    */
-  async concatPagination(doRequest: (x: number, y: number) => Promise<false | { items: string; totalCount: number; }>,
-                         itemsPerRequest = 500): Promise<unknown[]> {
+  async concatPagination(
+    doRequest: (
+      x: number,
+      y: number
+    ) => Promise<false | { items: string; totalCount: number }>,
+    itemsPerRequest = 500
+  ): Promise<unknown[]> {
     // Send initial request just to get the total number of items
     const countRequest = await doRequest(0, 1);
     if (!countRequest) {
@@ -207,7 +220,7 @@ class TermParser {
 
     // finally, merge all the items into one array
     const chunks = await Promise.all(sectionsPool);
-    if (chunks.some(s => s === false)) {
+    if (chunks.some((s) => s === false)) {
       throw Error("Missing data");
     }
     return _(chunks).map("items").flatten().value();

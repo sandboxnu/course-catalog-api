@@ -4,14 +4,14 @@
  */
 import path from "path";
 import fs from "fs-extra";
-import Rollbar, {MaybeError} from "rollbar";
+import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
 
 import moment from "moment";
 import commonMacros from "./abstractMacros";
-import {AmplitudeTrackResponse} from "amplitude/dist/responses";
-import {AmplitudeEvent} from "../types/requestTypes";
+import { AmplitudeTrackResponse } from "amplitude/dist/responses";
+import { AmplitudeEvent } from "../types/requestTypes";
 
 dotenv.config();
 
@@ -27,7 +27,7 @@ const amplitude = new Amplitude(commonMacros.amplitudeToken);
 
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
-let oldcwd: null|string = null;
+let oldcwd: null | string = null;
 while (oldcwd !== process.cwd()) {
   try {
     fs.statSync("package.json");
@@ -122,7 +122,7 @@ class Macros extends commonMacros {
     if (!exists) {
       envVariables = {};
     } else {
-      envVariables = JSON.parse(fs.readFileSync(configFileName, 'utf8'));
+      envVariables = JSON.parse(fs.readFileSync(configFileName, "utf8"));
     }
 
     envVariables = Object.assign(envVariables, process.env);
@@ -140,7 +140,10 @@ class Macros extends commonMacros {
   }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
-  static async logAmplitudeEvent(type: string, event: AmplitudeEvent): Promise<null|void|AmplitudeTrackResponse> {
+  static async logAmplitudeEvent(
+    type: string,
+    event: AmplitudeEvent
+  ): Promise<null | void | AmplitudeTrackResponse> {
     if (!Macros.PROD) {
       return null;
     }
@@ -251,7 +254,7 @@ class Macros extends commonMacros {
   }
 
   // Use console.warn to log stuff during testing
-  static verbose(...args: any): void|null {
+  static verbose(...args: any): void | null {
     if (!process.env.VERBOSE) {
       return;
     }

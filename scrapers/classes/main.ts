@@ -9,13 +9,13 @@ import cache from "../cache";
 import macros from "../../utils/macros";
 
 // Processors
-import {instance as markMissingPrereqs}  from "./processors/markMissingPrereqs";
+import { instance as markMissingPrereqs } from "./processors/markMissingPrereqs";
 import addPreRequisiteFor from "./processors/addPreRequisiteFor";
 
 // Parsers
-import {instance as bannerv9Parser} from "./parsersxe/bannerv9Parser";
-import {ParsedTermSR} from "../../types/scraperTypes";
-import {TermInfo} from "../../types/types";
+import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
+import { ParsedTermSR } from "../../types/scraperTypes";
+import { TermInfo } from "../../types/types";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.
@@ -37,7 +37,10 @@ class Main {
     return dump;
   }
 
-  async main(collegeAbbrs: string[], termInfos: TermInfo[]): Promise<ParsedTermSR> {
+  async main(
+    collegeAbbrs: string[],
+    termInfos: TermInfo[]
+  ): Promise<ParsedTermSR> {
     if (!collegeAbbrs) {
       macros.error("Need collegeAbbrs for scraping classes");
       return null;
@@ -95,7 +98,10 @@ class Main {
    * @param {string[]} listToCheck A list of URLs to check
    * @returns
    */
-  getUrlsFromCollegeAbbrs(collegeAbbrs: string[], listToCheck: string[]): string[] {
+  getUrlsFromCollegeAbbrs(
+    collegeAbbrs: string[],
+    listToCheck: string[]
+  ): string[] {
     // This list is modified below, so clone it here so we don't modify the input object.
     collegeAbbrs = collegeAbbrs.slice(0);
 

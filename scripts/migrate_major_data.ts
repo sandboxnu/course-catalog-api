@@ -30,7 +30,7 @@ interface MajorJSON {
 
 function fetchData(): MajorJSON {
   return JSON.parse(
-    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME), 'utf-8')
+    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME), "utf-8")
   );
 }
 

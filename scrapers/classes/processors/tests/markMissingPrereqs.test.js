@@ -4,7 +4,7 @@
  */
 
 import testData from "./testData";
-import {instance as markMissingPrereqs} from "../markMissingPrereqs";
+import { instance as markMissingPrereqs } from "../markMissingPrereqs";
 
 it("can substitute one line", () => {
   const keyToRows = {

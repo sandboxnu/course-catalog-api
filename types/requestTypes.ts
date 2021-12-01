@@ -1,49 +1,51 @@
-import {CoreOptions} from "request";
+import { CoreOptions } from "request";
 
 export interface HostAnalytics {
-	totalBytesDownloaded: number;
-	totalErrors: number;
-	totalGoodRequests: number;
-	startTime: number | null;
+  totalBytesDownloaded: number;
+  totalErrors: number;
+  totalGoodRequests: number;
+  startTime: number | null;
 }
 
-export type RequestAnalytics = Record<string, HostAnalytics>
+export type RequestAnalytics = Record<string, HostAnalytics>;
 
 export interface RequestPool {
-	maxSockets: number;
-	keepAlive: boolean;
-	maxFreeSockets: number;
+  maxSockets: number;
+  keepAlive: boolean;
+  maxFreeSockets: number;
 }
 
 export interface CustomRequestConfig extends CoreOptions {
-	url: string;
-	method: string;
-	cache?: boolean;
-	cacheName?: string;
-	headers?: Record<string, string>;
-	retryCount?: number;
-	requiredInBody?: string[];
-	shortBodyWarning?: boolean;
-	pool?: RequestPool;
+  url: string;
+  method: string;
+  cache?: boolean;
+  cacheName?: string;
+  headers?: Record<string, string>;
+  retryCount?: number;
+  requiredInBody?: string[];
+  shortBodyWarning?: boolean;
+  pool?: RequestPool;
 }
 
-export type PartialRequestConfig = Partial<CustomRequestConfig> & {url: string} | string;
+export type PartialRequestConfig =
+  | (Partial<CustomRequestConfig> & { url: string })
+  | string;
 
 export interface NativeRequestConfig extends CustomRequestConfig {
-	method: string;
-	headers: Record<string, string>;
-	pool: RequestPool;
-	timeout: number;
-	resolveWithFullResponse: boolean;
-	rejectUnauthorized: boolean;
-	requestCert: boolean;
-	ciphers: string;
+  method: string;
+  headers: Record<string, string>;
+  pool: RequestPool;
+  timeout: number;
+  resolveWithFullResponse: boolean;
+  rejectUnauthorized: boolean;
+  requestCert: boolean;
+  ciphers: string;
 }
 
 export interface AmplitudeEvent {
-	totalBytesDownloaded?: number;
-	totalErrors?: number;
-	totalGoodRequests?: number;
-	startTime?: number | null;
-	hostname: string;
+  totalBytesDownloaded?: number;
+  totalErrors?: number;
+  totalGoodRequests?: number;
+  startTime?: number | null;
+  hostname: string;
 }

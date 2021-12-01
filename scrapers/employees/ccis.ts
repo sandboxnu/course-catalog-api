@@ -14,7 +14,7 @@ import {
   parseGoogleScholarLink,
   parseNameWithSpaces,
 } from "./util";
-import {Employee} from "../../types/types";
+import { Employee } from "../../types/types";
 
 const request = new Request("CCIS");
 

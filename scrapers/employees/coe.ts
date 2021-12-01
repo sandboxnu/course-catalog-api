@@ -14,7 +14,7 @@ import {
   standardizePhone,
   parseNameWithSpaces,
 } from "./util";
-import {Employee} from "../../types/types";
+import { Employee } from "../../types/types";
 
 const request = new Request("COE");
 
@@ -23,7 +23,7 @@ const request = new Request("COE");
 // Phone numbers with extentions are not parsed http://www.civ.neu.edu/people/patterson-mark
 
 class COE {
-  parsePeopleList(resp: { body: string | Buffer}): Employee[] {
+  parsePeopleList(resp: { body: string | Buffer }): Employee[] {
     let $ = cheerio.load(resp.body);
 
     const people = $(".grid--4 > div > div")

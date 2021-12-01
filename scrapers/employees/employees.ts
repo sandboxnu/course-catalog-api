@@ -9,12 +9,12 @@ import _ from "lodash";
 import cookie from "cookie";
 import he from "he";
 
-import {Response} from "request";
+import { Response } from "request";
 import Request from "../request";
 import cache from "../cache";
 import macros from "../../utils/macros";
-import {occurrences, standardizeEmail} from "./util";
-import {Employee} from "../../types/types";
+import { occurrences, standardizeEmail } from "./util";
+import { Employee } from "../../types/types";
 
 const request = new Request("Employees");
 
@@ -58,366 +58,372 @@ const request = new Request("Employees");
 // and we could get rid of domutils too lmao
 
 class NeuEmployee {
-	people: Employee[];
-	couldNotFindNameList: Record<string, boolean>;
-	cookiePromise: null | string;
-
-
-	constructor() {
-		this.people = [];
-		this.couldNotFindNameList = {};
-		this.cookiePromise = null;
-	}
-
-	handleRequestResponse(body: string, callback: (error: Error | null, dom: any[]) => void): void {
-		const handler = new htmlparser.DomHandler(callback);
-		const parser = new htmlparser.Parser(handler);
-		parser.write(body);
-		parser.done();
-	}
-
-	//returns a {colName:[values]} where colname is the first in the column
-	//regardless if its part of the header or the first row of the body
-	parseTable(table: any): null | {rowCount: number, parsedTable: {}} {
-		if (table.name !== "table") {
-			macros.error("parse table was not given a table..");
-			return null;
-		}
-
-		//includes both header rows and body rows
-		const rows = domutils.getElementsByTagName("tr", table);
-
-		if (rows.length === 0) {
-			return null;
-		}
-
-		const retVal = {};
-		const heads = [];
-
-		//the headers
-		rows[0].children.forEach((element) => {
-			if (element.type !== "tag" || ["th", "td"].indexOf(element.name) === -1) {
-				return;
-			}
-
-			const text = domutils
-			.getText(element)
-			.trim()
-			.toLowerCase()
-			.replace(/\s/gi, "");
-			retVal[text] = [];
-			heads.push(text);
-		});
-
-		//add the other rows
-		rows.slice(1).forEach((row) => {
-			let index = 0;
-			row.children.forEach((element) => {
-				if (
-						element.type !== "tag" ||
-						["th", "td"].indexOf(element.name) === -1
-				) {
-					return;
-				}
-				if (index >= heads.length) {
-					macros.log(
-							"warning, table row is longer than head, ignoring content",
-							index,
-							heads,
-							rows
-					);
-					return;
-				}
-
-				retVal[heads[index]].push(domutils.getText(element).trim());
-
-				//only count valid elements, not all row.children
-				index++;
-			});
-
-			//add empty strings until reached heads length
-			for (; index < heads.length; index++) {
-				retVal[heads[index]].push("");
-			}
-		});
-		return {
-			rowCount: rows.length - 1,
-			parsedTable: retVal,
-		};
-	}
-
-	async getCookiePromise(): Promise<string> {
-		if (this.cookiePromise) {
-			return this.cookiePromise;
-		}
-
-		macros.verbose("neu employee getting cookie");
-
-		this.cookiePromise = await request.get({
-			url: "https://prod-web.neu.edu/wasapp/employeelookup/public/main.action",
-		})
-		.then((resp) => {
-			// Parse the cookie from the response
-			const cookieString = resp.headers["set-cookie"][0];
-			const cookies = cookie.parse(cookieString);
-			return cookies.JSESSIONID;
-		});
-
-		return this.cookiePromise;
-	}
-
-	hitWithLetters(lastNameStart: string, jsessionCookie: string): Promise<Response> {
-		return request.get({
-			url: `https://prod-web.neu.edu/wasapp/employeelookup/public/searchEmployees.action?searchBy=Last+Name&queryType=begins+with&searchText=${lastNameStart}&deptText=&addrText=&numText=&divText=&facStaff=2`,
-			headers: {
-				Cookie: `JSESSIONID=${jsessionCookie}`,
-			},
-		});
-	}
-
-	// Given a list of things, will find the first one that is longer than 1 letter (a-z)
-	findName(list: string[]): string {
-		for (let i = 0; i < list.length; i++) {
-			const noSymbols = list[i].toLowerCase().replace(/[^0-9a-zA-Z]/gi, "");
-
-			if (
-					noSymbols.length > 1 &&
-					!["ii", "iii", "jr", "sr", "dr"].includes(noSymbols)
-			) {
-				return list[i];
-			}
-		}
-
-		// Only log each warning once, just to not spam the macros. This method is called a lot.
-		const logMatchString = list.join("");
-		if (this.couldNotFindNameList[logMatchString]) {
-			return null;
-		}
-		this.couldNotFindNameList[logMatchString] = true;
-
-		macros.log("Could not find name from list:", list);
-		return null;
-	}
-
-	// This splits the employee name by the comma in the middle and the name after the comma is the first name and the name before is the last name
-	// The util function for this does not split the name by the comma, it assumes that the name is just separated by spaces.
-	getFirstLastName(name: string): null | { firstName: string, lastName: string } {
-		if (name.match(/jr.?,/gi)) {
-			name = name.replace(/, jr.?,/gi, ",");
-		}
-
-		name = _.trim(name, ",");
-
-		if (occurrences(name, ",", false) !== 1) {
-			macros.log("Name has != 1 commas", name);
-			return null;
-		}
-
-		const splitOnComma = name.split(",");
-
-		const beforeCommaSplit = splitOnComma[1].trim().split(" ");
-		const firstName = this.findName(beforeCommaSplit);
-
-		const afterCommaSplit = splitOnComma[0].trim().split(" ").reverse();
-		const lastName = this.findName(afterCommaSplit);
-
-		return {
-			firstName: firstName,
-			lastName: lastName
-		}
-	}
-
-	parseLettersResponse(response, lastNameStart: string): Promise<void> {
-		return new Promise((resolve, reject) => {
-			this.handleRequestResponse(response.body, (err, dom) => {
-				const elements = domutils.getElementsByTagName("table", dom);
-
-				for (let i = 0; i < elements.length; i++) {
-					const element = elements[i];
-
-					const goal = {
-						width: "100%",
-					};
-
-					if (_.isEqual(element.attribs, goal)) {
-						// Delete one of the elements that is before the header that would mess stuff up
-						domutils.removeElement(element.children[1].children[1]);
-
-						const tableData: any = this.parseTable(element);
-
-						if (!tableData) {
-							return resolve();
-						}
-
-						const parsedTable = tableData.parsedTable;
-						const rowCount = tableData.rowCount;
-
-						macros.log("Found", rowCount, " people on page ", lastNameStart);
-
-						for (let j = 0; j < rowCount; j++) {
-							const person: any = {};
-							const nameWithComma = he
-							.decode(parsedTable.name[j])
-							.split("\n\n")[0];
-
-							if (nameWithComma.includes("Do Not Use ")) {
-								macros.log("Skipping entry that says Do Not Use.");
-								continue;
-							}
-
-							// Put the first name before the last name.
-							// Another way to do this would be to hit the detail section of each employee and scrape the name from the title.
-							const commaNameSplit = nameWithComma.split(",");
-
-							for (let k = 0; k < commaNameSplit.length; k++) {
-								commaNameSplit[k] = commaNameSplit[k].trim();
-							}
-
-							// Remove Jr and Jr.
-							_.pull(commaNameSplit, "Jr", "Jr.");
-
-							if (commaNameSplit.length > 2) {
-								macros.warn(
-										"Has more than one comma skipping.",
-										commaNameSplit
-								);
-								person.name = nameWithComma;
-							}
-							else {
-								person.name = `${commaNameSplit[1].trim()} ${commaNameSplit[0].trim()}`;
-							}
-
-							// Generate first name and last name from the name on the person
-							const firstLastName = this.getFirstLastName(nameWithComma);
-							if (!firstLastName) {
-								continue;
-							}
-							const {firstName, lastName} = firstLastName;
-							if (firstName && lastName) {
-								person.firstName = firstName;
-								person.lastName = lastName;
-							}
-
-							// The "#anchor_68409676" tags on the page are randomly generated each time the page is loaded,
-							// so use this hrefparameter id instead, which should be more stable.
-							// This hrefparameter param is a url encoded, base64 string.
-							// We could decode it, but there's just no point.
-							const idMatch = parsedTable.name[j].match(
-									/.hrefparameter\s+=\s+"id=([\d\w%+/]+)";/i
-							);
-							if (!idMatch) {
-								macros.warn(
-										"Unable to parse id, using random number",
-										nameWithComma
-								);
-								person.id = String(Math.random());
-							}
-							else {
-								let id = idMatch[1];
-
-								// Trim the id if it is too long. This is just a sanity check.
-								// 35 is just a arbitrary decided number.
-								if (id.length > 35) {
-									macros.warn("person id over 35 chars?", id);
-									id = id.slice(0, 35);
-								}
-
-								person.id = id;
-							}
-
-							let phone = parsedTable.phone[j];
-							phone = phone.replace(/\D/g, "");
-
-							// Maybe add support for guesing area code if it is ommitted and most of the other ones have the same area code
-							if (phone.length === 10) {
-								person.phone = phone;
-							}
-
-							// Scrape the email from the table
-							const email = standardizeEmail(parsedTable.email[j]);
-							if (email) {
-								person.emails = [email];
-							}
-
-							// Scrape the primaryappointment
-							const primaryappointment = parsedTable.primaryappointment[j];
-							if (
-									primaryappointment &&
-									primaryappointment !== "Not Available"
-							) {
-								person.primaryRole = he.decode(
-										parsedTable.primaryappointment[j]
-								);
-							}
-
-							// Scrape the primary department
-							person.primaryDepartment = he.decode(
-									parsedTable.primarydepartment[j]
-							);
-
-							// Add it to the people list
-							this.people.push(person);
-						}
-						return resolve();
-					}
-				}
-
-				macros.error("YOOOOO it didnt find the table", response.body.length);
-				macros.error(response.body);
-				return reject();
-			});
-		});
-	}
-
-	async get(lastNameStart: string): Promise<any> {
-		const jsessionCookie = await this.getCookiePromise();
-
-		macros.verbose("neu employee got cookie", jsessionCookie);
-
-		const response = await this.hitWithLetters(lastNameStart, jsessionCookie);
-
-		return this.parseLettersResponse(response, lastNameStart);
-	}
-
-	async main(): Promise<Employee[]> {
-		// if this is dev and this data is already scraped, just return the data
-		if (macros.DEV && require.main !== module) {
-			const devData = await cache.get(
-					macros.DEV_DATA_DIR,
-					this.constructor.name,
-					"main"
-			);
-			if (devData) {
-				return devData as Employee[];
-			}
-		}
-
-		const promises = [];
-
-		const alphabetArray = macros.ALPHABET.split("");
-
-		for (const firstLetter of alphabetArray) {
-			for (const secondLetter of alphabetArray) {
-				promises.push(this.get(firstLetter + secondLetter));
-			}
-		}
-
-		await Promise.all(promises);
-
-		macros.verbose("Done all employee requests");
-
-		if (macros.DEV) {
-			await cache.set(
-					macros.DEV_DATA_DIR,
-					this.constructor.name,
-					"main",
-					this.people
-			);
-			macros.log(this.people.length, "employees saved to a file!");
-		}
-
-		return this.people;
-	}
+  people: Employee[];
+  couldNotFindNameList: Record<string, boolean>;
+  cookiePromise: null | string;
+
+  constructor() {
+    this.people = [];
+    this.couldNotFindNameList = {};
+    this.cookiePromise = null;
+  }
+
+  handleRequestResponse(
+    body: string,
+    callback: (error: Error | null, dom: any[]) => void
+  ): void {
+    const handler = new htmlparser.DomHandler(callback);
+    const parser = new htmlparser.Parser(handler);
+    parser.write(body);
+    parser.done();
+  }
+
+  //returns a {colName:[values]} where colname is the first in the column
+  //regardless if its part of the header or the first row of the body
+  parseTable(table: any): null | { rowCount: number; parsedTable: {} } {
+    if (table.name !== "table") {
+      macros.error("parse table was not given a table..");
+      return null;
+    }
+
+    //includes both header rows and body rows
+    const rows = domutils.getElementsByTagName("tr", table);
+
+    if (rows.length === 0) {
+      return null;
+    }
+
+    const retVal = {};
+    const heads = [];
+
+    //the headers
+    rows[0].children.forEach((element) => {
+      if (element.type !== "tag" || ["th", "td"].indexOf(element.name) === -1) {
+        return;
+      }
+
+      const text = domutils
+        .getText(element)
+        .trim()
+        .toLowerCase()
+        .replace(/\s/gi, "");
+      retVal[text] = [];
+      heads.push(text);
+    });
+
+    //add the other rows
+    rows.slice(1).forEach((row) => {
+      let index = 0;
+      row.children.forEach((element) => {
+        if (
+          element.type !== "tag" ||
+          ["th", "td"].indexOf(element.name) === -1
+        ) {
+          return;
+        }
+        if (index >= heads.length) {
+          macros.log(
+            "warning, table row is longer than head, ignoring content",
+            index,
+            heads,
+            rows
+          );
+          return;
+        }
+
+        retVal[heads[index]].push(domutils.getText(element).trim());
+
+        //only count valid elements, not all row.children
+        index++;
+      });
+
+      //add empty strings until reached heads length
+      for (; index < heads.length; index++) {
+        retVal[heads[index]].push("");
+      }
+    });
+    return {
+      rowCount: rows.length - 1,
+      parsedTable: retVal,
+    };
+  }
+
+  async getCookiePromise(): Promise<string> {
+    if (this.cookiePromise) {
+      return this.cookiePromise;
+    }
+
+    macros.verbose("neu employee getting cookie");
+
+    this.cookiePromise = await request
+      .get({
+        url: "https://prod-web.neu.edu/wasapp/employeelookup/public/main.action",
+      })
+      .then((resp) => {
+        // Parse the cookie from the response
+        const cookieString = resp.headers["set-cookie"][0];
+        const cookies = cookie.parse(cookieString);
+        return cookies.JSESSIONID;
+      });
+
+    return this.cookiePromise;
+  }
+
+  hitWithLetters(
+    lastNameStart: string,
+    jsessionCookie: string
+  ): Promise<Response> {
+    return request.get({
+      url: `https://prod-web.neu.edu/wasapp/employeelookup/public/searchEmployees.action?searchBy=Last+Name&queryType=begins+with&searchText=${lastNameStart}&deptText=&addrText=&numText=&divText=&facStaff=2`,
+      headers: {
+        Cookie: `JSESSIONID=${jsessionCookie}`,
+      },
+    });
+  }
+
+  // Given a list of things, will find the first one that is longer than 1 letter (a-z)
+  findName(list: string[]): string {
+    for (let i = 0; i < list.length; i++) {
+      const noSymbols = list[i].toLowerCase().replace(/[^0-9a-zA-Z]/gi, "");
+
+      if (
+        noSymbols.length > 1 &&
+        !["ii", "iii", "jr", "sr", "dr"].includes(noSymbols)
+      ) {
+        return list[i];
+      }
+    }
+
+    // Only log each warning once, just to not spam the macros. This method is called a lot.
+    const logMatchString = list.join("");
+    if (this.couldNotFindNameList[logMatchString]) {
+      return null;
+    }
+    this.couldNotFindNameList[logMatchString] = true;
+
+    macros.log("Could not find name from list:", list);
+    return null;
+  }
+
+  // This splits the employee name by the comma in the middle and the name after the comma is the first name and the name before is the last name
+  // The util function for this does not split the name by the comma, it assumes that the name is just separated by spaces.
+  getFirstLastName(
+    name: string
+  ): null | { firstName: string; lastName: string } {
+    if (name.match(/jr.?,/gi)) {
+      name = name.replace(/, jr.?,/gi, ",");
+    }
+
+    name = _.trim(name, ",");
+
+    if (occurrences(name, ",", false) !== 1) {
+      macros.log("Name has != 1 commas", name);
+      return null;
+    }
+
+    const splitOnComma = name.split(",");
+
+    const beforeCommaSplit = splitOnComma[1].trim().split(" ");
+    const firstName = this.findName(beforeCommaSplit);
+
+    const afterCommaSplit = splitOnComma[0].trim().split(" ").reverse();
+    const lastName = this.findName(afterCommaSplit);
+
+    return {
+      firstName: firstName,
+      lastName: lastName,
+    };
+  }
+
+  parseLettersResponse(response, lastNameStart: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.handleRequestResponse(response.body, (err, dom) => {
+        const elements = domutils.getElementsByTagName("table", dom);
+
+        for (let i = 0; i < elements.length; i++) {
+          const element = elements[i];
+
+          const goal = {
+            width: "100%",
+          };
+
+          if (_.isEqual(element.attribs, goal)) {
+            // Delete one of the elements that is before the header that would mess stuff up
+            domutils.removeElement(element.children[1].children[1]);
+
+            const tableData: any = this.parseTable(element);
+
+            if (!tableData) {
+              return resolve();
+            }
+
+            const parsedTable = tableData.parsedTable;
+            const rowCount = tableData.rowCount;
+
+            macros.log("Found", rowCount, " people on page ", lastNameStart);
+
+            for (let j = 0; j < rowCount; j++) {
+              const person: any = {};
+              const nameWithComma = he
+                .decode(parsedTable.name[j])
+                .split("\n\n")[0];
+
+              if (nameWithComma.includes("Do Not Use ")) {
+                macros.log("Skipping entry that says Do Not Use.");
+                continue;
+              }
+
+              // Put the first name before the last name.
+              // Another way to do this would be to hit the detail section of each employee and scrape the name from the title.
+              const commaNameSplit = nameWithComma.split(",");
+
+              for (let k = 0; k < commaNameSplit.length; k++) {
+                commaNameSplit[k] = commaNameSplit[k].trim();
+              }
+
+              // Remove Jr and Jr.
+              _.pull(commaNameSplit, "Jr", "Jr.");
+
+              if (commaNameSplit.length > 2) {
+                macros.warn(
+                  "Has more than one comma skipping.",
+                  commaNameSplit
+                );
+                person.name = nameWithComma;
+              } else {
+                person.name = `${commaNameSplit[1].trim()} ${commaNameSplit[0].trim()}`;
+              }
+
+              // Generate first name and last name from the name on the person
+              const firstLastName = this.getFirstLastName(nameWithComma);
+              if (!firstLastName) {
+                continue;
+              }
+              const { firstName, lastName } = firstLastName;
+              if (firstName && lastName) {
+                person.firstName = firstName;
+                person.lastName = lastName;
+              }
+
+              // The "#anchor_68409676" tags on the page are randomly generated each time the page is loaded,
+              // so use this hrefparameter id instead, which should be more stable.
+              // This hrefparameter param is a url encoded, base64 string.
+              // We could decode it, but there's just no point.
+              const idMatch = parsedTable.name[j].match(
+                /.hrefparameter\s+=\s+"id=([\d\w%+/]+)";/i
+              );
+              if (!idMatch) {
+                macros.warn(
+                  "Unable to parse id, using random number",
+                  nameWithComma
+                );
+                person.id = String(Math.random());
+              } else {
+                let id = idMatch[1];
+
+                // Trim the id if it is too long. This is just a sanity check.
+                // 35 is just a arbitrary decided number.
+                if (id.length > 35) {
+                  macros.warn("person id over 35 chars?", id);
+                  id = id.slice(0, 35);
+                }
+
+                person.id = id;
+              }
+
+              let phone = parsedTable.phone[j];
+              phone = phone.replace(/\D/g, "");
+
+              // Maybe add support for guesing area code if it is ommitted and most of the other ones have the same area code
+              if (phone.length === 10) {
+                person.phone = phone;
+              }
+
+              // Scrape the email from the table
+              const email = standardizeEmail(parsedTable.email[j]);
+              if (email) {
+                person.emails = [email];
+              }
+
+              // Scrape the primaryappointment
+              const primaryappointment = parsedTable.primaryappointment[j];
+              if (
+                primaryappointment &&
+                primaryappointment !== "Not Available"
+              ) {
+                person.primaryRole = he.decode(
+                  parsedTable.primaryappointment[j]
+                );
+              }
+
+              // Scrape the primary department
+              person.primaryDepartment = he.decode(
+                parsedTable.primarydepartment[j]
+              );
+
+              // Add it to the people list
+              this.people.push(person);
+            }
+            return resolve();
+          }
+        }
+
+        macros.error("YOOOOO it didnt find the table", response.body.length);
+        macros.error(response.body);
+        return reject();
+      });
+    });
+  }
+
+  async get(lastNameStart: string): Promise<any> {
+    const jsessionCookie = await this.getCookiePromise();
+
+    macros.verbose("neu employee got cookie", jsessionCookie);
+
+    const response = await this.hitWithLetters(lastNameStart, jsessionCookie);
+
+    return this.parseLettersResponse(response, lastNameStart);
+  }
+
+  async main(): Promise<Employee[]> {
+    // if this is dev and this data is already scraped, just return the data
+    if (macros.DEV && require.main !== module) {
+      const devData = await cache.get(
+        macros.DEV_DATA_DIR,
+        this.constructor.name,
+        "main"
+      );
+      if (devData) {
+        return devData as Employee[];
+      }
+    }
+
+    const promises = [];
+
+    const alphabetArray = macros.ALPHABET.split("");
+
+    for (const firstLetter of alphabetArray) {
+      for (const secondLetter of alphabetArray) {
+        promises.push(this.get(firstLetter + secondLetter));
+      }
+    }
+
+    await Promise.all(promises);
+
+    macros.verbose("Done all employee requests");
+
+    if (macros.DEV) {
+      await cache.set(
+        macros.DEV_DATA_DIR,
+        this.constructor.name,
+        "main",
+        this.people
+      );
+      macros.log(this.people.length, "employees saved to a file!");
+    }
+
+    return this.people;
+  }
 }
 
 const instance = new NeuEmployee();
@@ -425,5 +431,5 @@ const instance = new NeuEmployee();
 export default instance;
 
 if (require.main === module) {
-	instance.main();
+  instance.main();
 }
