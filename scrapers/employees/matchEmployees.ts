@@ -111,7 +111,7 @@ class CombineCCISandEmployees {
     return true;
   }
 
-  async main() {
+  async main(): Promise<Employee[]> {
     const peopleLists = await Promise.all([
       neuEmployees.main(),
       ccisFaculty.main(),
@@ -293,13 +293,7 @@ class CombineCCISandEmployees {
         // If still has no match, add to the end of the matchedArray and generate phone and matching lastName and firstName
         // If there was a match, update the list of emails to match with
         if (matchesFound === 0) {
-          const newMatchPerson = {
-            matches: [person],
-            emails: [],
-            firstName: person.firstName,
-            lastName: person.lastName,
-            peopleListIndexMatches: {},
-          };
+          const newMatchPerson: any = {};
 
           newMatchPerson.peopleListIndexMatches[peopleListIndex] = true;
 
@@ -335,7 +329,7 @@ class CombineCCISandEmployees {
       peopleListIndex++;
     }
 
-    let mergedEmployees = [];
+    let mergedEmployees: (Employee & {id?: string})[] = [];
 
     mergedPeopleList.forEach((person) => {
       if (person.matches.length === 1) {
@@ -343,7 +337,7 @@ class CombineCCISandEmployees {
         return;
       }
 
-      const output = {};
+      const output: any = {};
       for (const profile of person.matches) {
         for (const attrName of Object.keys(profile)) {
           // Merge emails
@@ -400,14 +394,10 @@ class CombineCCISandEmployees {
     ];
     const beforeModifyCount = mergedEmployees.length;
     mergedEmployees = mergedEmployees.filter((person) => {
-      if (
-        person.emails &&
-        _.intersection(person.emails, hiddenProfs).length > 0
-      ) {
-        return false;
-      }
+      return !(person.emails &&
+					_.intersection(person.emails, hiddenProfs).length > 0);
 
-      return true;
+
     });
 
     // Remove data from individual entries

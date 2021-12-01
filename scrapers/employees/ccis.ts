@@ -139,7 +139,7 @@ class NeuCCISFaculty {
     return output;
   }
 
-  parseDetailpage(resp, obj: any = {}): Employee {
+  parseDetailPage(resp, obj: any = {}): Employee {
     const $ = cheerio.load(resp.body);
 
     const office = $("div.contact-block > div.address > p").text();
@@ -187,7 +187,7 @@ class NeuCCISFaculty {
     return obj;
   }
 
-  async main(): Promise<any | Employee[]> {
+  async main(): Promise<Employee[]> {
     // If this is dev and this data is already scraped, just return the data.
     if (macros.DEV && require.main !== module) {
       const devData = await cache.get(
@@ -196,7 +196,7 @@ class NeuCCISFaculty {
         "main"
       );
       if (devData) {
-        return devData;
+        return devData as Employee[];
       }
     }
 
@@ -213,7 +213,7 @@ class NeuCCISFaculty {
     peopleObjects.forEach((obj) => {
       promises.push(
         request.get(obj.url).then((personResponse) => {
-          output.push(this.parseDetailpage(personResponse, obj));
+          output.push(this.parseDetailPage(personResponse, obj));
           return;
         })
       );

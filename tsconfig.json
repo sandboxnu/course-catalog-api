@@ -10,7 +10,8 @@
       "es5",
       "scripthost",
       "es2015.promise"
-    ]
+    ],
+    "skipLibCheck": true
   },
   "include": ["./scrapers/**/*"],
   "exclude": ["node_modules"]

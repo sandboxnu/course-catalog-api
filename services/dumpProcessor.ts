@@ -6,17 +6,13 @@ import fs from "fs-extra";
 import _ from "lodash";
 import { decode } from "html-entities";
 import path from "path";
-import {
-  ProfessorCreateInput,
-  CourseCreateInput,
-  SectionCreateInput,
-} from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
 import pMap from "p-map";
-import { TermInfo } from "../types/types";
+import {Dump} from "../types/types";
 
 type Maybe<T> = T | null | undefined;
 
@@ -28,16 +24,17 @@ class DumpProcessor {
   }
 
   /**
-   * @param {Object} termDump object containing all class and section data, normally acquired from scrapers
-   * @param {Object} profDump object containing all professor data, normally acquired from scrapers
-   * @param {boolean} destroy determines if courses that haven't been updated for the last two days will be removed from the database
+   * @param termDump object containing all class and section data, normally acquired from scrapers
+   * @param profDump object containing all professor data, normally acquired from scrapers
+   * @param destroy determines if courses that haven't been updated for the last two days will be removed from the database
+   * @param currentTermInfos the term infos for which we have data
    */
   async main({
-    termDump = { classes: {}, sections: {}, subjects: {} },
-    profDump = {},
+    termDump = { classes: [], sections: [], subjects: {} },
+    profDump = [],
     destroy = false,
     currentTermInfos = null,
-  }): Promise<void> {
+  }: Dump): Promise<void> {
     const profTransforms = {
       big_picture_url: this.strTransform,
       email: this.strTransform,
@@ -192,7 +189,7 @@ class DumpProcessor {
     macros.log("finished with courses");
 
     // FIXME this is a bad hack that will work
-    const courseIds = new Set(
+    const courseIds: Set<string> = new Set(
       (await prisma.course.findMany({ select: { id: true } })).map(
         (elem) => elem.id
       )
@@ -253,7 +250,7 @@ class DumpProcessor {
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
     if (currentTermInfos !== null) {
-      const termInfos = currentTermInfos as TermInfo[];
+      const termInfos = currentTermInfos;
       // This deletes any termID which doesn't have associated course data
       //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
       await prisma.termInfo.deleteMany({
@@ -374,19 +371,19 @@ class DumpProcessor {
     return val ? "TRUE" : "FALSE";
   }
 
-  processProf(profInfo: any): ProfessorCreateInput {
+  processProf(profInfo: any): Prisma.ProfessorCreateInput {
     const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
     return _.omit(correctedQuery, [
       "title",
       "interests",
       "officeStreetAddress",
-    ]) as ProfessorCreateInput;
+    ]) as Prisma.ProfessorCreateInput;
   }
 
   processCourse(
     classInfo: any,
     coveredTerms: Set<string> = new Set()
-  ): CourseCreateInput {
+  ): Prisma.CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
@@ -412,7 +409,7 @@ class DumpProcessor {
   constituteCourse(
     classInfo: any,
     coveredTerms: Set<string> = new Set()
-  ): CourseCreateInput {
+  ): Prisma.CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
@@ -434,7 +431,7 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  processSection(secInfo: any): SectionCreateInput {
+  processSection(secInfo: any): Prisma.SectionCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
@@ -445,10 +442,10 @@ class DumpProcessor {
       "termId",
       "subject",
       "host",
-    ]) as SectionCreateInput;
+    ]) as Prisma.SectionCreateInput;
   }
 
-  constituteSection(secInfo: any): SectionCreateInput {
+  constituteSection(secInfo: any): Prisma.SectionCreateInput & {classHash: string} {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
@@ -458,7 +455,7 @@ class DumpProcessor {
       "termId",
       "subject",
       "host",
-    ]) as SectionCreateInput;
+    ]) as Prisma.SectionCreateInput & {classHash: string};
   }
 
   toCamelCase(str: string): string {

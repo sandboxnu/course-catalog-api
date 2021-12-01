@@ -4,6 +4,8 @@
  */
 
 // A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
+import {ParsedTermSR} from "./scraperClasses";
+
 export interface BackendMeeting {
 	startDate: number;
 	endDate: number;
@@ -150,3 +152,10 @@ export interface CourseRef {
 	classId: string;
 }
 
+
+export interface Dump {
+	termDump?: ParsedTermSR;
+	profDump?: Employee[];
+	destroy?: boolean;
+	currentTermInfos?: TermInfo[],
+}

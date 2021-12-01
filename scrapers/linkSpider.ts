@@ -30,7 +30,7 @@ const request = new Request("LinkSpider");
 // and a integer.
 // Returns a list of URLs.
 class LinkSpider {
-  async main(inputUrls, depth = 1) {
+  async main(inputUrls: string[], depth = 1): Promise<string[]> {
     if (!inputUrls || inputUrls.length === 0) {
       macros.error("Link Spider needs a starting url");
       return null;
@@ -95,7 +95,7 @@ class LinkSpider {
     return returnUrls;
   }
 
-  async test() {
+  async test(): Promise<void> {
     // const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201810&subj_code_in=FINA&crse_numb_in=6283');
     // const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201810&subj_code_in=ENGW&crse_numb_in=3302');
     const output = await this.main(["https://google.com"]);

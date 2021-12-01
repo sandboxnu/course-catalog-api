@@ -17,6 +17,16 @@ import dnsCache from "dnscache";
 
 import cache from "./cache";
 import macros from "../utils/macros";
+import {Cookie, CookieJar, Response} from "request";
+import {
+  HostAnalytics,
+  NativeRequestConfig,
+  RequestAnalytics,
+  CustomRequestConfig,
+  RequestPool, PartialRequestConfig
+} from "../types/requestTypes";
+import {IncomingMessage} from "http";
+import {Socket} from "net";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
@@ -47,7 +57,7 @@ import macros from "../utils/macros";
 // than we are trying to request. Windows has no limit and travis has it set to 500k by default, but Mac OSX and Linux Desktop often have them
 // set really low (256) which could interefere with this.
 // https://github.com/request/request
-const separateReqDefaultPool = {
+const separateReqDefaultPool: RequestPool = {
   maxSockets: 50,
   keepAlive: true,
   maxFreeSockets: 50,
@@ -56,7 +66,7 @@ const separateReqDefaultPool = {
 // Specific limits for some sites. CCIS has active measures against one IP making too many requests
 // and will reject request if too many are made too quickly.
 // Some other schools' servers will crash/slow to a crawl if too many requests are sent too quickly.
-const separateReqPools = {
+const separateReqPools: Record<string, RequestPool> = {
   "www.ccis.northeastern.edu": {
     maxSockets: 8,
     keepAlive: true,
@@ -126,26 +136,25 @@ const RETRY_DELAY_DELTA = 150;
 const LAUNCH_TIME = moment();
 
 class Request {
+  openRequests: number;
+  analytics: RequestAnalytics;
+  activeHostnames: Record<string, boolean>;
+  timer: null | NodeJS.Timeout;
+
   constructor() {
     this.openRequests = 0;
 
     // Stuff for analytics on a per-hostname basis.
-    this.analytics = {};
+    this.analytics = {}
 
     // Hostnames that had a request since the last call to onInterval.
     this.activeHostnames = {};
-
-    // Template for each analytics object
-    // totalBytesDownloaded: 0,
-    //   totalErrors: 0,
-    //   totalGoodRequests: 0,
-    //   startTime: null
 
     // Log the progress of things every 5 seconds
     this.timer = null;
   }
 
-  ensureAnalyticsObject(hostname) {
+  ensureAnalyticsObject(hostname: string): void {
     if (this.analytics[hostname]) {
       return;
     }
@@ -158,7 +167,7 @@ class Request {
     };
   }
 
-  getAnalyticsFromAgent(pool) {
+  getAnalyticsFromAgent(pool: RequestPool): {} | HostAnalytics {
     let agent = pool["https:false:ALL"];
 
     if (!agent) {
@@ -176,19 +185,19 @@ class Request {
       maxSockets: pool.maxSockets,
     };
 
-    const socketArrays = Object.values(agent.sockets);
+    const socketArrays: Socket[][] = Object.values(agent.sockets);
     for (const arr of socketArrays) {
       moreAnalytics.socketCount += arr.length;
     }
 
-    const requestArrays = Object.values(agent.requests);
+    const requestArrays: IncomingMessage[][] = Object.values(agent.requests);
     for (const arr of requestArrays) {
       moreAnalytics.requestCount += arr.length;
     }
     return moreAnalytics;
   }
 
-  onInterval() {
+  onInterval(): void {
     const analyticsHostnames = Object.keys(this.analytics);
 
     for (const hostname of analyticsHostnames) {
@@ -205,7 +214,7 @@ class Request {
         separateReqPools[hostname]
       );
 
-      const totalAnalytics = {};
+      const totalAnalytics: any = {};
       Object.assign(totalAnalytics, moreAnalytics, this.analytics[hostname]);
 
       macros.log(hostname);
@@ -219,7 +228,7 @@ class Request {
     this.activeHostnames = {};
 
     // Shared pool
-    const sharedPoolAnalytics = this.getAnalyticsFromAgent(
+    const sharedPoolAnalytics: any = this.getAnalyticsFromAgent(
       separateReqDefaultPool
     );
     macros.log(JSON.stringify(sharedPoolAnalytics, null, 4));
@@ -241,7 +250,7 @@ class Request {
     );
   }
 
-  async fireRequest(config) {
+  async fireRequest(config: CustomRequestConfig): Promise<Response> {
     // Default to JSON for POST bodies
     if (config.method === "POST" && !config.headers["Content-Type"]) {
       config.headers["Content-Type"] = "application/json";
@@ -255,7 +264,7 @@ class Request {
 
     // Setup the default config
     // Change some settings from the default request settings for
-    const defaultConfig = {
+    const defaultConfig: any = {
       headers: {},
     };
 
@@ -300,13 +309,8 @@ class Request {
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
     // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
-    const output = {};
-    const headers = {};
-
-    Object.assign(headers, defaultConfig.headers, config.headers);
-    Object.assign(output, defaultConfig, config);
-
-    output.headers = headers;
+    const output: NativeRequestConfig = {...defaultConfig, ...config};
+    output.headers = {...defaultConfig.headers, ...config.headers};
 
     macros.verbose("Firing request to", output.url);
 
@@ -323,7 +327,7 @@ class Request {
     }
 
     this.openRequests++;
-    let response;
+    let response: undefined | Response;
     let error;
     try {
       response = await request(output);
@@ -344,7 +348,7 @@ class Request {
     return response;
   }
 
-  doAnyStringsInArray(array, body) {
+  doAnyStringsInArray(array: string[], body: any): boolean {
     for (let i = 0; i < array.length; i++) {
       if (body.includes(array[i])) {
         return true;
@@ -353,7 +357,7 @@ class Request {
     return false;
   }
 
-  safeToCacheByUrl(config) {
+  safeToCacheByUrl(config: CustomRequestConfig): boolean {
     if (config.method !== "GET") {
       return false;
     }
@@ -365,7 +369,7 @@ class Request {
 
     _.pull(listOfHeaders, "Cookie");
     if (listOfHeaders.length > 0) {
-      const configToLog = {};
+      const configToLog: any = {};
       Object.assign(configToLog, config);
       configToLog.jar = null;
 
@@ -402,14 +406,14 @@ class Request {
   }
 
   // Outputs a response object. Get the body of this object with ".body".
-  async request(config) {
+  async request(config: CustomRequestConfig): Promise<Response> {
     macros.verbose("Request hitting", config);
 
     const urlParsed = new URI(config.url);
     const hostname = urlParsed.hostname();
     this.ensureAnalyticsObject(hostname);
 
-    let newKey;
+    let newKey: string|undefined;
 
     if (macros.DEV && config.cache) {
       // Skipping the hashing when it is not necessary significantly speeds this up.
@@ -419,12 +423,10 @@ class Request {
         newKey = config.url;
       } else {
         // Make a new request without the cookies and the cookie jar.
-        const headersWithoutCookie = {};
-        Object.assign(headersWithoutCookie, config.headers);
+        const headersWithoutCookie = {...config.headers};
         headersWithoutCookie.Cookie = undefined;
 
-        const configToHash = {};
-        Object.assign(configToHash, config);
+        const configToHash: Partial<NativeRequestConfig> = {...config};
         configToHash.headers = headersWithoutCookie;
         configToHash.jar = undefined;
 
@@ -437,7 +439,7 @@ class Request {
         newKey
       );
       if (content) {
-        return content;
+        return content as Response;
       }
     }
 
@@ -449,11 +451,11 @@ class Request {
     let tryCount = 0;
 
     const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
-    let requestDuration;
+    let requestDuration: number|undefined;
 
     return retry(
       async () => {
-        let response;
+        let response: undefined|Response;
         tryCount++;
         try {
           const requestStart = Date.now();
@@ -505,12 +507,12 @@ class Request {
 
         // Save the response to a file for development
         if (macros.DEV && config.cache) {
-          cache.set(
-            macros.REQUESTS_CACHE_DIR,
-            config.cacheName,
-            newKey,
-            response.toJSON(),
-            true
+          await cache.set(
+              macros.REQUESTS_CACHE_DIR,
+              config.cacheName,
+              newKey,
+              response.toJSON(),
+              true
           );
         }
 
@@ -538,6 +540,9 @@ class Request {
 const instance = new Request();
 
 class RequestInput {
+  cacheName: string;
+  config: Partial<CustomRequestConfig>;
+
   constructor(cacheName, config = {}) {
     this.cacheName = cacheName;
     this.config = config;
@@ -548,17 +553,18 @@ class RequestInput {
     }
   }
 
-  async request(config) {
+  async request(config: PartialRequestConfig): Promise<Response> {
     const output = {};
     config = this.standardizeInputConfig(config);
 
     // Use the fields from this.config that were not specified in cache.
     Object.assign(output, this.config, config);
 
-    return instance.request(output);
+    return instance.request(output as CustomRequestConfig);
   }
 
-  standardizeInputConfig(config, method = "GET") {
+  standardizeInputConfig(config: PartialRequestConfig|string,
+                         method = "GET"): CustomRequestConfig {
     if (typeof config === "string") {
       config = {
         method: method,
@@ -583,15 +589,15 @@ class RequestInput {
       }
     }
 
-    return config;
+    return config as CustomRequestConfig;
   }
 
-  static get(config) {
-    return new this().get(config);
+  static get(config): Promise<Response> {
+    return new this(null).get(config);
   }
 
   // Helpers for get and post
-  async get(config) {
+  async get(config: PartialRequestConfig|undefined): Promise<Response> {
     if (!config) {
       macros.error("Warning, request get called with no config");
       return null;
@@ -607,7 +613,7 @@ class RequestInput {
     return this.request(config);
   }
 
-  async post(config) {
+  async post(config: PartialRequestConfig): Promise<null|Response> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
@@ -623,7 +629,7 @@ class RequestInput {
     return this.request(config);
   }
 
-  async head(config) {
+  async head(config: PartialRequestConfig): Promise<null | Response> {
     if (!config) {
       macros.error("Warning, request head called with no config");
       return null;
@@ -636,21 +642,21 @@ class RequestInput {
     }
 
     config.method = "HEAD";
-    return instance.request(config);
+    return instance.request(config as CustomRequestConfig);
   }
 
   // Pass through methods to deal with cookies.
-  jar() {
+  jar(): CookieJar {
     return request.jar();
   }
 
-  cookie(cookie) {
+  cookie(cookie): Cookie {
     return request.cookie(cookie);
   }
 
   // Do a head request. If that fails, do a get request. If that fails, the site is down and return false
   // need to turn off high retry count
-  async isPageUp() {
+  async isPageUp(): Promise<void> {
     throw new Error("This does not work yet");
   }
 }

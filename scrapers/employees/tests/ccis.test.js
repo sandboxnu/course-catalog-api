@@ -26,7 +26,7 @@ it("parseDetailpage", async (done) => {
   );
   const resp = JSON.parse(data);
 
-  const output = ccis.parseDetailpage(resp);
+  const output = ccis.parseDetailPage(resp);
 
   expect(output).toMatchSnapshot();
   done();

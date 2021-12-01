@@ -9,10 +9,12 @@ import _ from "lodash";
 import cookie from "cookie";
 import he from "he";
 
+import {Response} from "request";
 import Request from "../request";
 import cache from "../cache";
 import macros from "../../utils/macros";
 import {occurrences, standardizeEmail} from "./util";
+import {Employee} from "../../types/types";
 
 const request = new Request("Employees");
 
@@ -55,7 +57,7 @@ const request = new Request("Employees");
 // and employees.parseLettersResponse should be sync, and not async
 // and we could get rid of domutils too lmao
 
-class Employee {
+class NeuEmployee {
 	people: Employee[];
 	couldNotFindNameList: Record<string, boolean>;
 	cookiePromise: null | string;
@@ -151,8 +153,7 @@ class Employee {
 
 		macros.verbose("neu employee getting cookie");
 
-		this.cookiePromise = request
-		.get({
+		this.cookiePromise = await request.get({
 			url: "https://prod-web.neu.edu/wasapp/employeelookup/public/main.action",
 		})
 		.then((resp) => {
@@ -165,7 +166,7 @@ class Employee {
 		return this.cookiePromise;
 	}
 
-	hitWithLetters(lastNameStart: string, jsessionCookie: string): undefined {
+	hitWithLetters(lastNameStart: string, jsessionCookie: string): Promise<Response> {
 		return request.get({
 			url: `https://prod-web.neu.edu/wasapp/employeelookup/public/searchEmployees.action?searchBy=Last+Name&queryType=begins+with&searchText=${lastNameStart}&deptText=&addrText=&numText=&divText=&facStaff=2`,
 			headers: {
@@ -226,7 +227,7 @@ class Employee {
 		}
 	}
 
-	parseLettersResponse(response, lastNameStart: string): Promise<any> {
+	parseLettersResponse(response, lastNameStart: string): Promise<void> {
 		return new Promise((resolve, reject) => {
 			this.handleRequestResponse(response.body, (err, dom) => {
 				const elements = domutils.getElementsByTagName("table", dom);
@@ -378,7 +379,7 @@ class Employee {
 		return this.parseLettersResponse(response, lastNameStart);
 	}
 
-	async main(): Promise<any | Employee[]> {
+	async main(): Promise<Employee[]> {
 		// if this is dev and this data is already scraped, just return the data
 		if (macros.DEV && require.main !== module) {
 			const devData = await cache.get(
@@ -387,7 +388,7 @@ class Employee {
 					"main"
 			);
 			if (devData) {
-				return devData;
+				return devData as Employee[];
 			}
 		}
 
@@ -419,7 +420,7 @@ class Employee {
 	}
 }
 
-const instance = new Employee();
+const instance = new NeuEmployee();
 
 export default instance;
 

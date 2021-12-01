@@ -37,7 +37,7 @@ class Main {
     return dump;
   }
 
-  async main(collegeAbbrs: string[], termInfos: TermInfo[]): Promise<unknown> {
+  async main(collegeAbbrs: string[], termInfos: TermInfo[]): Promise<ParsedTermSR> {
     if (!collegeAbbrs) {
       macros.error("Need collegeAbbrs for scraping classes");
       return null;
@@ -48,7 +48,7 @@ class Main {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {
         macros.log("using cached class data - not rescraping");
-        return cached;
+        return cached as ParsedTermSR;
       }
     }
 

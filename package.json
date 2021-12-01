@@ -7,8 +7,8 @@
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
     "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.js",
     "dev:notifs": "ENABLE_NOTIFS=true yarn dev",
-    "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.js",
-    "scrape:custom": "CUSTOM_SCRAPE=true yarn babel-node-ts --max_old_space_size=12000 scrapers/main.js",
+    "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
+    "scrape:custom": "CUSTOM_SCRAPE=true yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
     "updater": "yarn babel-node-ts services/updater.ts",
     "resetIndex": "yarn babel-node-ts scripts/resetIndex.js",
     "populateES": "yarn babel-node-ts scripts/populateES.ts",
@@ -145,7 +145,7 @@
     "react-transition-group": "^4.0.1",
     "regenerator-runtime": "^0.13.2",
     "request": "^2.81.0",
-    "request-promise-native": "^1.0.3",
+    "request-promise-native": "^1.0.9",
     "resolve-url-loader": "^3.0.0",
     "rollbar": "^2.19.4",
     "sass-loader": "^7.0.1",
@@ -184,6 +184,7 @@
     "@babel/preset-env": "^7.0.0",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.8.3",
+    "@types/async-retry": "^1.4.3",
     "@types/atob": "^2.1.2",
     "@types/cheerio": "^0.22.30",
     "@types/cookie": "^0.4.1",
@@ -201,6 +202,7 @@
     "@types/react-router": "^5.1.17",
     "@types/react-router-dom": "^5.1.3",
     "@types/request": "^2.48.7",
+    "@types/request-promise-native": "^1.0.18",
     "@types/urijs": "^1.19.17",
     "@types/webpack": "^4.41.8",
     "@typescript-eslint/eslint-plugin": "^2.23.0",
@@ -234,7 +236,7 @@
     "style-loader": "^1.0.0",
     "stylelint": "^10.0.1",
     "stylelint-config-standard": "^18.2.0",
-    "typescript": "^3.8.3"
+    "typescript": "^4.1.6"
   },
   "jest": {
     "snapshotSerializers": [

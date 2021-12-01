@@ -8,14 +8,16 @@ import macros from "../utils/macros";
 import classes from "./classes/main";
 import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
-import bannerv9parser from "./classes/parsersxe/bannerv9Parser";
+import {instance as bannerv9parser} from "./classes/parsersxe/bannerv9Parser";
 import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
+import {ParsedTermSR} from "../types/scraperClasses";
+import {Employee} from "../types/types";
 
 // Main file for scraping
 // Run this to run all the scrapers
 
 class Main {
-  async main() {
+  async main(): Promise<void> {
     // Get the TermInfo information from Banner
     const allTermInfos = await bannerv9parser.getAllTermInfos(
       bannerv9CollegeUrls[0]
@@ -24,11 +26,12 @@ class Main {
       allTermInfos
     );
 
-    const promises = [
+    const promises: any[] = [
       classes.main(["neu"], allTermInfos),
       matchEmployees.main(),
     ];
-    const [termDump, mergedEmployees] = await Promise.all(promises);
+
+    const [termDump, mergedEmployees] = (await Promise.all(promises)) as [ParsedTermSR, Employee[]];
 
     await dumpProcessor.main({
       termDump: termDump,

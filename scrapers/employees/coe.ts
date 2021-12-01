@@ -14,6 +14,7 @@ import {
   standardizePhone,
   parseNameWithSpaces,
 } from "./util";
+import {Employee} from "../../types/types";
 
 const request = new Request("COE");
 
@@ -22,14 +23,14 @@ const request = new Request("COE");
 // Phone numbers with extentions are not parsed http://www.civ.neu.edu/people/patterson-mark
 
 class COE {
-  parsePeopleList(resp) {
+  parsePeopleList(resp: { body: string | Buffer}): Employee[] {
     let $ = cheerio.load(resp.body);
 
     const people = $(".grid--4 > div > div")
       .get()
       .map((person) => {
         $ = cheerio.load(person);
-        const obj = {};
+        const obj: any = {};
 
         const name = $("h2 > a").get(0).children[0].data;
         if (name) {
@@ -97,7 +98,7 @@ class COE {
     return _.pull(people, null);
   }
 
-  async main() {
+  async main(): Promise<Employee[]> {
     if (macros.DEV && require.main !== module) {
       const devData = await cache.get(
         macros.DEV_DATA_DIR,
@@ -105,7 +106,7 @@ class COE {
         "main"
       );
       if (devData) {
-        return devData;
+        return devData as Employee[];
       }
     }
 
