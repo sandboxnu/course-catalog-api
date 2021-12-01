@@ -150,7 +150,7 @@ export class Bannerv9Parser {
     const url = `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${numTerms}&searchTerm=`;
     const termInfos = await this.getAllTermInfos(url);
     const output = await this.main(termInfos);
-    // eslint-disable-next-line global-require
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").writeFileSync(
       "parsersxe.json",
       JSON.stringify(output, null, 4)

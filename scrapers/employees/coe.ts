@@ -30,7 +30,7 @@ class COE {
       .get()
       .map((person) => {
         $ = cheerio.load(person);
-        const obj: any = {};
+        const obj: Partial<Employee> = {};
 
         const name = $("h2 > a").get(0).children[0].data;
         if (name) {
@@ -92,7 +92,7 @@ class COE {
           }
         );
 
-        return obj;
+        return obj as Employee;
       });
 
     return _.pull(people, null);

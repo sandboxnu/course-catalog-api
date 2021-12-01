@@ -26,7 +26,7 @@ class Main {
       allTermInfos
     );
 
-    const promises: any[] = [
+    const promises: Promise<unknown>[] = [
       classes.main(["neu"], allTermInfos),
       matchEmployees.main(),
     ];

@@ -297,7 +297,13 @@ class CombineCCISandEmployees {
         // If still has no match, add to the end of the matchedArray and generate phone and matching lastName and firstName
         // If there was a match, update the list of emails to match with
         if (matchesFound === 0) {
-          const newMatchPerson: any = {};
+          const newMatchPerson: Partial<MatchEmployee> = {
+            matches: [person],
+            emails: [],
+            firstName: person.firstName,
+            lastName: person.lastName,
+            peopleListIndexMatches: {},
+          };
 
           newMatchPerson.peopleListIndexMatches[peopleListIndex] = true;
 
@@ -312,7 +318,7 @@ class CombineCCISandEmployees {
             this.logAnalyticsEvent("unmatched PhD Student");
           }
 
-          mergedPeopleList.push(newMatchPerson);
+          mergedPeopleList.push(newMatchPerson as MatchEmployee);
         } else if (matchesFound > 1) {
           macros.warn(`${matchesFound} matches found for ${person.name} !!!!`);
         }
@@ -341,7 +347,7 @@ class CombineCCISandEmployees {
         return;
       }
 
-      const output: any = {};
+      const output: Partial<Employee> = {};
       for (const profile of person.matches) {
         for (const attrName of Object.keys(profile)) {
           // Merge emails
@@ -364,7 +370,7 @@ class CombineCCISandEmployees {
         }
       }
 
-      mergedEmployees.push(output);
+      mergedEmployees.push(output as Employee);
     });
 
     // Add an empty array for emails if the object dosen't have an emails field

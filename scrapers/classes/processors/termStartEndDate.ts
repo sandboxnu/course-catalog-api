@@ -14,6 +14,7 @@ import { ParsedTermSR } from "../../../types/scraperTypes";
 // If no one date has over 10% sections start on that date, it is just the first/last date
 
 class TermStartEndDate extends BaseProcessor {
+  TermStartEndDate: typeof TermStartEndDate;
   go(
     termDump: ParsedTermSR & { terms: unknown[] }
   ): ParsedTermSR & { terms: unknown[] } {
@@ -124,7 +125,5 @@ class TermStartEndDate extends BaseProcessor {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-// @ts-ignore
 TermStartEndDate.prototype.TermStartEndDate = TermStartEndDate;
 export default new TermStartEndDate();

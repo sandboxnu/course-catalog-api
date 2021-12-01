@@ -65,7 +65,9 @@ export interface Employee {
   primaryRole?: string;
   phone?: string;
   emails: string[];
+  email?: string;
   url?: string;
+  officeStreetAddress?: string;
   streetAddress?: string;
   personalSite?: string;
   googleScholarId?: string;
@@ -73,7 +75,11 @@ export interface Employee {
   pic?: string;
   link?: string;
   officeRoom?: string;
+  office?: string;
   id?: string;
+  image?: string;
+  interests?: string;
+  title?: string;
 }
 
 export type EmployeeWithId = Employee & { id: string };
@@ -169,3 +175,13 @@ export type BulkUpsertInput =
   | Prisma.SectionCreateInput
   | Prisma.CourseCreateInput
   | Prisma.ProfessorCreateInput;
+
+export type SingleTransformFunction = (any) => string;
+export type ArrayTransformFunction = (
+  any,
+  string,
+  SingleTransformFunction
+) => string;
+export type TransformFunction =
+  | SingleTransformFunction
+  | ArrayTransformFunction;

@@ -96,6 +96,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     This allows us to ensure that the argument is still of the expected type, AND to modify
       the object to another type in-place.
    */
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   private _serializeCourse(innerCourse: any): C {
     innerCourse.lastUpdateTime = innerCourse.lastUpdateTime.getTime();
     innerCourse.desc = innerCourse.description;
@@ -113,6 +114,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
   }
 
   // See _serializeCourse for an explanation of this pattern.
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   private _serializeSection(section: any): S {
     section.lastUpdateTime = section.lastUpdateTime.getTime();
     return this.finishSectionObj(section);

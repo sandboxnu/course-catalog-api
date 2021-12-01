@@ -43,7 +43,7 @@ export class Elastic {
   }
 
   // replace an index with a fresh one with a specified mapping
-  async resetIndex(indexName: string, mapping: EsMapping): Promise<any> {
+  async resetIndex(indexName: string, mapping: EsMapping): Promise<void> {
     const exists =
       (await client.indices.exists({ index: indexName })).statusCode === 200;
     if (exists) {
@@ -60,7 +60,7 @@ export class Elastic {
   }
 
   // Bulk index a collection of documents using ids from hashmap
-  async bulkIndexFromMap(indexName: string, map: EsBulkData): Promise<any> {
+  async bulkIndexFromMap(indexName: string, map: EsBulkData): Promise<unknown> {
     const chunks = _.chunk(Object.keys(map), BULKSIZE);
     return pMap(
       chunks,
@@ -105,7 +105,7 @@ export class Elastic {
     return client.msearch({ body: multiQuery });
   }
 
-  closeClient() {
+  closeClient(): void {
     client.close();
   }
 }

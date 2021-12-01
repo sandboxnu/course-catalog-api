@@ -14,7 +14,7 @@ import { ParsedTermSR } from "../../types/scraperTypes";
 
 class TermDump {
   async main(termDump: ParsedTermSR): Promise<unknown> {
-    const termMapDump: Record<string, object> = {};
+    const termMapDump: Record<string, Record<string, unknown>> = {};
     macros.log("TERM DUMPING");
 
     for (const aClass of termDump.classes) {
@@ -74,7 +74,7 @@ class TermDump {
       const folderPath = path.join(
         macros.PUBLIC_DIR,
         "getTermDump",
-        value["host"]
+        value["host"] as string
       );
       promises.push(
         fs.ensureDir(folderPath).then(() => {

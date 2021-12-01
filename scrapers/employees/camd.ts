@@ -40,7 +40,7 @@ class Camd {
   }
 
   parseDetailPage(url: string, body: string | Buffer): Employee {
-    const obj: any = { url: url };
+    const obj: Partial<Employee> = { url: url };
 
     const $ = cheerio.load(body);
 
@@ -142,7 +142,7 @@ class Camd {
       }
     });
 
-    return obj;
+    return obj as Employee;
   }
 
   async main(): Promise<Employee[]> {

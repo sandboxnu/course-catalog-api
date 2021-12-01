@@ -80,7 +80,9 @@ class NeuEmployee {
 
   //returns a {colName:[values]} where colname is the first in the column
   //regardless if its part of the header or the first row of the body
-  parseTable(table: any): null | { rowCount: number; parsedTable: {} } {
+  parseTable(
+    table: any
+  ): null | { rowCount: number; parsedTable: Record<string, unknown> } {
     if (table.name !== "table") {
       macros.error("parse table was not given a table..");
       return null;
@@ -263,7 +265,7 @@ class NeuEmployee {
             macros.log("Found", rowCount, " people on page ", lastNameStart);
 
             for (let j = 0; j < rowCount; j++) {
-              const person: any = {};
+              const person: Partial<Employee> = {};
               const nameWithComma = he
                 .decode(parsedTable.name[j])
                 .split("\n\n")[0];
@@ -362,7 +364,7 @@ class NeuEmployee {
               );
 
               // Add it to the people list
-              this.people.push(person);
+              this.people.push(person as Employee);
             }
             return resolve();
           }
@@ -375,7 +377,7 @@ class NeuEmployee {
     });
   }
 
-  async get(lastNameStart: string): Promise<any> {
+  async get(lastNameStart: string): Promise<Promise<void>> {
     const jsessionCookie = await this.getCookiePromise();
 
     macros.verbose("neu employee got cookie", jsessionCookie);

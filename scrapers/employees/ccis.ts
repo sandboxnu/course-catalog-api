@@ -58,7 +58,7 @@ class NeuCCISFaculty {
 
     for (let i = 0; i < peopleElements.length; i++) {
       const $personElement = $(peopleElements[i]);
-      const obj: any = {};
+      const obj: Partial<Employee> = {};
 
       obj.name = $("h3.person-name", $personElement).text().trim();
 
@@ -134,12 +134,12 @@ class NeuCCISFaculty {
         }
       });
 
-      output.push(obj);
+      output.push(obj as Employee);
     }
     return output;
   }
 
-  parseDetailPage(resp, obj: any = {}): Employee {
+  parseDetailPage(resp, obj: Partial<Employee> = {}): Employee {
     const $ = cheerio.load(resp.body);
 
     const office = $("div.contact-block > div.address > p").text();
@@ -184,7 +184,7 @@ class NeuCCISFaculty {
       obj.bigPictureUrl = obj.bigPictureUrl.trim();
     }
 
-    return obj;
+    return obj as Employee;
   }
 
   async main(): Promise<Employee[]> {

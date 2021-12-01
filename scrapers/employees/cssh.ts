@@ -32,7 +32,7 @@ class Cssh {
     url: string,
     resp: { body: string | Buffer }
   ): null | Employee {
-    const obj: any = {};
+    const obj: Partial<Employee> = {};
 
     obj.url = url;
 
@@ -67,6 +67,7 @@ class Cssh {
     const image = $(
       "#lightbox-container > div.col-lg-3.col-md-3.col-sm-6.fac-single > img.headshot"
     ).attr("src");
+
     if (image) {
       obj.image = image.trim();
     } else {
@@ -195,7 +196,7 @@ class Cssh {
       obj.officeStreetAddress = office[1];
     }
 
-    return obj;
+    return obj as Employee;
   }
 
   async main(): Promise<Employee[]> {

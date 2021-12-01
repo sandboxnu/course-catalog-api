@@ -15,6 +15,12 @@ export interface RequestPool {
   maxFreeSockets: number;
 }
 
+export interface AgentAnalytics {
+  socketCount: number;
+  requestCount: number;
+  maxSockets: number;
+}
+
 export interface CustomRequestConfig extends CoreOptions {
   url: string;
   method: string;
@@ -42,10 +48,10 @@ export interface NativeRequestConfig extends CustomRequestConfig {
   ciphers: string;
 }
 
-export interface AmplitudeEvent {
+export type AmplitudeEvent = Partial<AgentAnalytics> & {
   totalBytesDownloaded?: number;
   totalErrors?: number;
   totalGoodRequests?: number;
   startTime?: number | null;
   hostname: string;
-}
+};

@@ -28,6 +28,7 @@ const amplitude = new Amplitude(commonMacros.amplitudeToken);
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
 let oldcwd: null | string = null;
+
 while (oldcwd !== process.cwd()) {
   try {
     fs.statSync("package.json");
@@ -171,7 +172,7 @@ class Macros extends commonMacros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  static logRollbarError(args: { stack: any }, shouldExit: boolean): void {
+  static logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
     if (!Macros.PROD) {
       return;
@@ -213,6 +214,9 @@ class Macros extends commonMacros {
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static critical(...args: any): void {
     if (Macros.TEST) {
       console.error("macros.critical called");
@@ -225,6 +229,9 @@ class Macros extends commonMacros {
 
   // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
   // Will log something to rollbar and rollbar will send off an email
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static warn(...args: any): void {
     super.warn(...args);
 
@@ -235,9 +242,10 @@ class Macros extends commonMacros {
 
   // Use this for stuff that should never happen, but does not mean the program cannot continue.
   // This will continue running in dev, but will exit on CI
-  // Will log stack trace
-  // and cause CI to fail
-  // so CI will send an email
+  // Will log stack trace and cause CI to fail,  so CI will send an email
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static error(...args: any): void {
     super.error(...args);
 
@@ -254,7 +262,9 @@ class Macros extends commonMacros {
   }
 
   // Use console.warn to log stuff during testing
-  static verbose(...args: any): void | null {
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static verbose(...args: any): void {
     if (!process.env.VERBOSE) {
       return;
     }

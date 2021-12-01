@@ -19,13 +19,13 @@ import cache from "./cache";
 import macros from "../utils/macros";
 import { Cookie, CookieJar, Response } from "request";
 import {
-  HostAnalytics,
   NativeRequestConfig,
   RequestAnalytics,
   CustomRequestConfig,
   RequestPool,
   PartialRequestConfig,
   AmplitudeEvent,
+  AgentAnalytics,
 } from "../types/requestTypes";
 import { IncomingMessage } from "http";
 import { Socket } from "net";
@@ -169,7 +169,9 @@ class Request {
     };
   }
 
-  getAnalyticsFromAgent(pool: RequestPool): {} | HostAnalytics {
+  getAnalyticsFromAgent(
+    pool: RequestPool
+  ): Record<string, never> | AgentAnalytics {
     let agent = pool["https:false:ALL"];
 
     if (!agent) {
@@ -267,7 +269,7 @@ class Request {
 
     // Setup the default config
     // Change some settings from the default request settings for
-    const defaultConfig: any = {
+    const defaultConfig: Partial<NativeRequestConfig> = {
       headers: {},
     };
 
@@ -312,7 +314,7 @@ class Request {
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
     // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
-    const output: NativeRequestConfig = { ...defaultConfig, ...config };
+    const output = { ...defaultConfig, ...config } as NativeRequestConfig;
     output.headers = { ...defaultConfig.headers, ...config.headers };
 
     macros.verbose("Firing request to", output.url);
@@ -372,8 +374,7 @@ class Request {
 
     _.pull(listOfHeaders, "Cookie");
     if (listOfHeaders.length > 0) {
-      const configToLog: any = {};
-      Object.assign(configToLog, config);
+      const configToLog = { ...config };
       configToLog.jar = null;
 
       macros.log(

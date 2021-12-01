@@ -12,7 +12,13 @@ import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
 import pMap from "p-map";
-import { BulkUpsertInput, Dump, EmployeeWithId, Section } from "../types/types";
+import {
+  BulkUpsertInput,
+  Dump,
+  EmployeeWithId,
+  Section,
+  TransformFunction,
+} from "../types/types";
 
 type Maybe<T> = T | null | undefined;
 
@@ -317,7 +323,7 @@ class DumpProcessor {
   bulkUpsert(
     tableName: string,
     columnNames: string[],
-    valTransforms: Record<string, Function>,
+    valTransforms: Record<string, TransformFunction>,
     vals: BulkUpsertInput[]
   ): string {
     let query = `INSERT INTO ${tableName} (${columnNames.join(",")}) VALUES `;
@@ -352,9 +358,9 @@ class DumpProcessor {
   }
 
   arrayTransform(
-    val: Maybe<any[]>,
+    val: Maybe<unknown[]>,
     kind: string,
-    transforms: Record<string, Function>
+    transforms: Record<string, TransformFunction>
   ): string {
     return val && val.length !== 0
       ? `'{${val
@@ -365,7 +371,7 @@ class DumpProcessor {
       : "array[]::text[]";
   }
 
-  jsonTransform(val: Maybe<any>): string {
+  jsonTransform(val: Maybe<unknown>): string {
     return val ? `'${JSON.stringify(val)}'` : "'{}'";
   }
 
