@@ -39,3 +39,11 @@ export interface NativeRequestConfig extends CustomRequestConfig {
 	requestCert: boolean;
 	ciphers: string;
 }
+
+export interface AmplitudeEvent {
+	totalBytesDownloaded?: number;
+	totalErrors?: number;
+	totalGoodRequests?: number;
+	startTime?: number | null;
+	hostname: string;
+}

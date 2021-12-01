@@ -5,16 +5,16 @@
 import prisma from "../../services/prisma";
 import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
 import keys from "../../utils/keys";
-import { Course } from "../../types/types";
+import {Course as PrismaCourse} from "@prisma/client";
 
 const serializer = new HydrateCourseSerializer();
 
-const serializeValues = (results) => {
+const serializeValues = (results: PrismaCourse[]) => {
   return results.map((result) => serializer.serializeCourse(result));
 };
 
 const getLatestClassOccurrence = async (subject: string, classId: string) => {
-  const results: Course[] = await prisma.course.findMany({
+  const results: PrismaCourse[] = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },

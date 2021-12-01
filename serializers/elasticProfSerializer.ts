@@ -4,10 +4,11 @@
  */
 import _ from "lodash";
 import ProfSerializer from "./profSerializer";
+import {Professor as PrismaProfessor} from "@prisma/client";
+import {ESProfessor} from "../types/serializerTypes";
 
-class ElasticProfSerializer extends ProfSerializer {
-  /* eslint-disable no-underscore-dangle */
-  _serializeProf(prof) {
+class ElasticProfSerializer extends ProfSerializer<ESProfessor> {
+  _serializeProf(prof: PrismaProfessor): ESProfessor {
     return _.pick(prof, ["name", "emails", "phone"]);
   }
 }

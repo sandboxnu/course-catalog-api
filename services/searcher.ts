@@ -432,7 +432,8 @@ class Searcher {
     ) {
       ({ results, resultCount, took, hydrateDuration, aggregations } =
         await this.getOneSearchResult(subject, patternResults[2], termId));
-    } else {
+    }
+    else {
       const searchResults = await this.getSearchResults(
         query,
         termId,
@@ -442,6 +443,7 @@ class Searcher {
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
+
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
       );

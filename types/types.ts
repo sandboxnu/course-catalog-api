@@ -5,6 +5,7 @@
 
 // A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
 import {ParsedTermSR} from "./scraperClasses";
+import {Professor} from "@prisma/client";
 
 export interface BackendMeeting {
 	startDate: number;
@@ -71,6 +72,7 @@ export interface Employee {
 	pic?: string;
 	link?: string;
 	officeRoom?: string;
+	id?: string;
 }
 
 export interface MatchEmployee extends Employee {
@@ -96,6 +98,7 @@ export interface Course {
 	prereqs: Requisite;
 	feeAmount: number;
 	feeDescription: string;
+	sections?: Section[];
 }
 
 // A co or pre requisite object.

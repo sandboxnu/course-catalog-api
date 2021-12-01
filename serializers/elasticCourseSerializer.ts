@@ -5,13 +5,14 @@
 import _ from "lodash";
 
 import CourseSerializer from "./courseSerializer";
+import {ESCourse, ESSection} from "../types/serializerTypes";
 
-class ElasticCourseSerializer extends CourseSerializer {
-  courseProps() {
+class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
+  courseProps(): string[] {
     return [];
   }
 
-  finishCourseObj(course) {
+  finishCourseObj(course): ESCourse {
     return _.pick(course, [
       "host",
       "name",
@@ -22,7 +23,7 @@ class ElasticCourseSerializer extends CourseSerializer {
     ]);
   }
 
-  finishSectionObj(section) {
+  finishSectionObj(section): ESSection {
     return _.pick(section, ["profs", "classType", "crn", "campus"]);
   }
 }

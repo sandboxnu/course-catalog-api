@@ -5,7 +5,7 @@
 import fs from "fs-extra";
 import path from "path";
 import pMap from "p-map";
-import { Major, InputJsonObject } from "@prisma/client";
+import { Major, Prisma } from "@prisma/client";
 import prisma from "../services/prisma";
 
 // In order to execute this module, you need a directory `data`
@@ -20,8 +20,8 @@ const CONCURRENCY_COUNT = 10;
 interface MajorInput {
   id: string;
   yearVersion: string;
-  major: InputJsonObject;
-  plansOfStudy: InputJsonObject;
+  major: Prisma.InputJsonObject;
+  plansOfStudy: Prisma.InputJsonObject;
 }
 
 interface MajorJSON {
@@ -30,7 +30,7 @@ interface MajorJSON {
 
 function fetchData(): MajorJSON {
   return JSON.parse(
-    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME))
+    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME), 'utf-8')
   );
 }
 

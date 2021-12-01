@@ -23,7 +23,7 @@ import {
   NativeRequestConfig,
   RequestAnalytics,
   CustomRequestConfig,
-  RequestPool, PartialRequestConfig
+  RequestPool, PartialRequestConfig, AmplitudeEvent
 } from "../types/requestTypes";
 import {IncomingMessage} from "http";
 import {Socket} from "net";
@@ -214,28 +214,27 @@ class Request {
         separateReqPools[hostname]
       );
 
-      const totalAnalytics: any = {};
-      Object.assign(totalAnalytics, moreAnalytics, this.analytics[hostname]);
+      const totalAnalytics: Partial<AmplitudeEvent> = {...moreAnalytics, ...this.analytics[hostname]};
 
       macros.log(hostname);
       macros.log(JSON.stringify(totalAnalytics, null, 4));
 
       // Also log the event to Amplitude.
       totalAnalytics.hostname = hostname;
-      macros.logAmplitudeEvent("Scrapers", totalAnalytics);
+      macros.logAmplitudeEvent("Scrapers", totalAnalytics as AmplitudeEvent);
     }
 
     this.activeHostnames = {};
 
     // Shared pool
-    const sharedPoolAnalytics: any = this.getAnalyticsFromAgent(
+    const sharedPoolAnalytics: Partial<AmplitudeEvent> = this.getAnalyticsFromAgent(
       separateReqDefaultPool
     );
     macros.log(JSON.stringify(sharedPoolAnalytics, null, 4));
 
     // Also upload it to Amplitude.
     sharedPoolAnalytics.hostname = "shared";
-    macros.logAmplitudeEvent("Scrapers", sharedPoolAnalytics);
+    macros.logAmplitudeEvent("Scrapers", sharedPoolAnalytics as AmplitudeEvent);
 
     if (this.openRequests === 0) {
       clearInterval(this.timer);
