@@ -2,13 +2,13 @@ import { UserInputError } from "apollo-server";
 import prisma from "../../services/prisma";
 import { Major as PrismaMajor } from "@prisma/client";
 
-const noResultsError = (recordType): void => {
+const noResultsError = (recordType): never => {
   throw new UserInputError(`${recordType} not found!`);
 };
 
 const getLatestMajorOccurrence = async (
   majorId: string
-): Promise<PrismaMajor | void> => {
+): Promise<PrismaMajor> => {
   const majors: PrismaMajor[] = await prisma.major.findMany({
     where: { majorId: majorId },
     orderBy: { yearVersion: "desc" },

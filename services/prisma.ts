@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import macros from "../utils/macros";
 
-let prisma;
+let prisma: PrismaClient;
 try {
   prisma = new PrismaClient();
 } catch (e) {
