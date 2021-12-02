@@ -4,6 +4,7 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
+import he from "he";
 import path from "path";
 import {
   ProfessorCreateInput,
@@ -15,6 +16,7 @@ import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
 import pMap from "p-map";
+import { TermInfo } from "../types/types";
 
 type Maybe<T> = T | null | undefined;
 
@@ -34,7 +36,8 @@ class DumpProcessor {
     termDump = { classes: {}, sections: {}, subjects: {} },
     profDump = {},
     destroy = false,
-  }) {
+    currentTermInfos = null,
+  }): Promise<void> {
     const profTransforms = {
       big_picture_url: this.strTransform,
       email: this.strTransform,
@@ -131,6 +134,7 @@ class DumpProcessor {
       honors: this.boolTransform,
       id: this.strTransform,
       info: this.strTransform,
+      last_update_time: this.dateTransform,
       meetings: this.jsonTransform,
       campus: this.strTransform,
       profs: this.arrayTransform,
@@ -150,6 +154,7 @@ class DumpProcessor {
       "honors",
       "id",
       "info",
+      "last_update_time",
       "meetings",
       "campus",
       "profs",
@@ -247,18 +252,43 @@ class DumpProcessor {
 
     macros.log("finished with subjects");
 
+    // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+    // (only run if the term infos are non-null)
+    if (currentTermInfos !== null) {
+      const termInfos = currentTermInfos as TermInfo[];
+      // This deletes any termID which doesn't have associated course data
+      //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+      await prisma.termInfo.deleteMany({
+        where: {
+          termId: { notIn: termInfos.map((t) => t.termId) },
+        },
+      });
+
+      // Upsert new term IDs, along with their names and sub college
+      for (const { termId, subCollege, text } of termInfos) {
+        await prisma.termInfo.upsert({
+          where: { termId },
+          update: {
+            text,
+            subCollege,
+          },
+          create: {
+            termId,
+            text,
+            subCollege,
+          },
+        });
+      }
+
+      macros.log("finished with term IDs");
+    }
+
     if (destroy) {
+      console.log("destroying old courses and sections");
+
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
       const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
-
-      // Delete old COURSES
-      await prisma.course.deleteMany({
-        where: {
-          termId: { in: Array.from(coveredTerms) },
-          lastUpdateTime: { lt: twoDaysAgo },
-        },
-      });
 
       // Delete old sections
       await prisma.section.deleteMany({
@@ -266,6 +296,14 @@ class DumpProcessor {
           course: {
             termId: { in: Array.from(coveredTerms) },
           },
+          lastUpdateTime: { lt: twoDaysAgo },
+        },
+      });
+
+      // Delete old COURSES
+      await prisma.course.deleteMany({
+        where: {
+          termId: { in: Array.from(coveredTerms) },
           lastUpdateTime: { lt: twoDaysAgo },
         },
       });
@@ -300,11 +338,12 @@ class DumpProcessor {
   }
 
   strTransform(val: Maybe<string>): string {
-    return val ? `'${val.replace(/'/g, "''")}'` : "''";
+    const tempVal = val ? `'${DumpProcessor.escapeSingleQuote(val)}'` : "''";
+    return he.decode(tempVal);
   }
 
   arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${val}"` : "''";
+    return val ? `"${DumpProcessor.escapeSingleQuote(he.decode(val))}"` : "''";
   }
 
   intTransform(val: Maybe<number>): string {
@@ -428,6 +467,10 @@ class DumpProcessor {
     return str.replace(/(_[a-z])/g, (group) =>
       group.toUpperCase().replace("_", "")
     );
+  }
+
+  static escapeSingleQuote(str: string): string {
+    return str.replace(/'/g, "''");
   }
 }
 

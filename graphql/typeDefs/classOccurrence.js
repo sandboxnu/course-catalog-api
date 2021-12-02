@@ -5,7 +5,7 @@ const typeDef = gql`
     name: String!
     subject: String!
     classId: String!
-    termId: Int!
+    termId: String!
 
     desc: String!
     prereqs: JSON

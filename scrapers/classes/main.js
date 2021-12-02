@@ -7,7 +7,6 @@ import URI from "urijs";
 
 import cache from "../cache";
 import macros from "../../utils/macros";
-import differentCollegeUrls from "./differentCollegeUrls";
 import bannerv9CollegeUrls from "./bannerv9CollegeUrls";
 
 // Processors
@@ -25,6 +24,81 @@ import { exit } from "process";
 // This file also generates the search index and data dumps.
 
 class Main {
+  // Runs the processors over a termDump.
+  // The input of this function should be the output of restructureData, above.
+  // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
+  runProcessors(dump) {
+    // Run the processors, sequentially
+    markMissingPrereqs.go(dump);
+    termStartEndDate.go(dump);
+
+    // Add new processors here.
+    addPreRequisiteFor.go(dump);
+
+    return dump;
+  }
+
+  async main(collegeAbbrs, termInfos) {
+    if (!collegeAbbrs) {
+      macros.error("Need collegeAbbrs for scraping classes");
+      return null;
+    }
+
+    const cacheKey = collegeAbbrs.join(",");
+    if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
+      const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
+      if (cached) {
+        macros.log("using cached class data - not rescraping");
+        return cached;
+      }
+    }
+
+    ////////// Not in use right now ///////////////////
+    // Originally intented for SearchNEU to branch out to other colleges, that thread's been inactive since ~2017
+
+    // const bannerv8Urls = this.getUrlsFromCollegeAbbrs(
+    //   collegeAbbrs,
+    //   differentCollegeUrls
+    // );
+    // if (bannerv8Urls.length > 1) {
+    //   macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
+    //   return null;
+    // }
+
+    ///////////// Ditto, see above /////////////////////
+    // const bannerv9Urls = this.getUrlsFromCollegeAbbrs(
+    //   collegeAbbrs,
+    //   bannerv9CollegeUrls
+    // );
+    // if (bannerv9Urls.length > 1) {
+    //   macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
+    //   return null;
+    // }
+
+    // Grabs the Banner URL that we're about to scrape
+    const bannerv9Url = bannerv9CollegeUrls[0];
+
+    macros.warn("BOUT TO SCRAPE");
+    const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
+    macros.warn("SCRAPEd");
+
+    const dump = this.runProcessors(bannerv9ParserOutput);
+
+    // We don't overwrite cache on custom scrape - cache should always represent a full scrape
+    if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
+      await cache.set(macros.DEV_DATA_DIR, "classes", cacheKey, dump);
+      macros.log("classes file saved for", collegeAbbrs, "!");
+    }
+
+    return dump;
+  }
+
+  /**
+   * @deprecated This method is no longer in use. It was originally intended for branching SearchNEU out to other colleges, but is unecessary as long as we are limited to Northeastern.
+   * @param {string[]} collegeAbbrs Main domain names of other colleges
+   * @param {string[]} listToCheck A list of URLs to check
+   * @returns
+   */
   getUrlsFromCollegeAbbrs(collegeAbbrs, listToCheck) {
     // This list is modified below, so clone it here so we don't modify the input object.
     collegeAbbrs = collegeAbbrs.slice(0);
@@ -59,70 +133,6 @@ class Main {
 
     macros.log("Processing ", urlsToProcess);
     return urlsToProcess;
-  }
-
-  // Runs the processors over a termDump.
-  // The input of this function should be the output of restructureData, above.
-  // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
-  runProcessors(dump) {
-    // Run the processors, sequentially
-    markMissingPrereqs.go(dump);
-    termStartEndDate.go(dump);
-
-    // Add new processors here.
-    addPreRequisiteFor.go(dump);
-
-    return dump;
-  }
-
-  async main(collegeAbbrs) {
-    if (!collegeAbbrs) {
-      macros.error("Need collegeAbbrs for scraping classes");
-      return null;
-    }
-
-    const cacheKey = collegeAbbrs.join(",");
-    if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
-      const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
-      if (cached) {
-        macros.log("using cached class data - not rescraping");
-        return cached;
-      }
-    }
-
-    const bannerv8Urls = this.getUrlsFromCollegeAbbrs(
-      collegeAbbrs,
-      differentCollegeUrls
-    );
-    if (bannerv8Urls.length > 1) {
-      macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
-      return null;
-    }
-
-    const bannerv9Urls = this.getUrlsFromCollegeAbbrs(
-      collegeAbbrs,
-      bannerv9CollegeUrls
-    );
-    if (bannerv9Urls.length > 1) {
-      macros.error("Unsure if can do more than one abbr at at time. Exiting. ");
-      return null;
-    }
-
-    const bannerv9Url = bannerv9Urls[0];
-
-    macros.warn("BOUT TO SCRAPE");
-    const bannerv9ParserOutput = await bannerv9Parser.main(bannerv9Url);
-    macros.warn("SCRAPEd");
-
-    const dump = this.runProcessors(bannerv9ParserOutput);
-
-    // We don't overwrite cache on custom scrape - cache should always represent a full scrape
-    if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
-      await cache.set(macros.DEV_DATA_DIR, "classes", cacheKey, dump);
-      macros.log("classes file saved for", collegeAbbrs, "!");
-    }
-
-    return dump;
   }
 }
 

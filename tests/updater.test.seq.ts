@@ -165,7 +165,7 @@ const PL_S1: SectionType = {
 const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
 const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
 
-const UPDATER: Updater = new Updater();
+const UPDATER: Updater = new Updater(SEMS_TO_UPDATE);
 const mockSendNotification = jest.fn(() => {
   return Promise.resolve();
 });
