@@ -140,14 +140,14 @@ export class Elastic {
         index: nextIndexName,
         body: mapping,
       });
-      macros.log(`Creating index ${nextIndexName}`);
+      macros.log(`Created index ${nextIndexName}`);
 
       // Reindex data from the old (current) into the newly made index
       // If the mappings between the two indexes are drastically different,
       // you can pass an optional script parameter to map data cross the mappings.
       // Ideally, this would be configurable outside of the code, for now being left out.
       macros.log(`Reindexing data from index ${name} to ${nextIndexName}`);
-      await client.reindex({
+      const reindexResponse = await client.reindex({
         body: {
           source: {
             index: name,
@@ -156,7 +156,22 @@ export class Elastic {
             index: nextIndexName,
           },
         },
+        wait_for_completion: false,
       });
+
+      // Here we poll the elasticsearch task, seeing if the task for reindexing is completed.
+      // We need to do this because reindexing large indices can cause the original reindex
+      // response to time out when waiting on the data to transfer. So instead of waiting, we
+      // take the task id and periodically check whether the reindexing task is done before proceeding.
+      while (
+        !(await client.tasks.get({ task_id: reindexResponse.body["task"] }))
+          .body["completed"]
+      ) {
+        // if the task is incomplete, meaning we enter the while, we sleep the program for 5 seconds
+        macros.log(`Checking reindexing status of ${nextIndexName}`);
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+
       macros.log(`Reindexed data from index ${name} to ${nextIndexName}`);
 
       // Change the alias to point to our new index
