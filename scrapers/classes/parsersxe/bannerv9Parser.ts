@@ -13,10 +13,7 @@ import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
 import filters from "../../filters";
 import prisma from "../../../services/prisma";
-import elastic from "../../../utils/elastic";
-import classMap from "../classMapping.json";
 import { Section, TermInfo } from "../../../types/types";
-import { EsMapping } from "../../../types/searchTypes";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 
 // Only used to query the term IDs, so we never want to use a cached version
@@ -48,7 +45,6 @@ export class Bannerv9Parser {
       const clearSections = prisma.section.deleteMany({});
       await prisma.$transaction([clearCourses, clearSections]);
       macros.log("Truncating elasticsearch classes index");
-      await elastic.resetIndex(elastic.CLASS_INDEX, classMap as EsMapping);
     }
     return this.scrapeTerms(termIds);
   }

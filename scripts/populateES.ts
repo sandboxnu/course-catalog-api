@@ -20,7 +20,7 @@ export async function bulkUpsertCourses(
     courses,
     true
   );
-  return elastic.bulkIndexFromMap(elastic.CLASS_INDEX, serializedCourses);
+  return elastic.bulkIndexFromMap(elastic.CLASS_ALIAS, serializedCourses);
 }
 
 export async function bulkUpsertProfs(
@@ -29,7 +29,7 @@ export async function bulkUpsertProfs(
   const serializedProfs = await new ElasticProfSerializer().bulkSerialize(
     profs
   );
-  return elastic.bulkIndexFromMap(elastic.EMPLOYEE_INDEX, serializedProfs);
+  return elastic.bulkIndexFromMap(elastic.EMPLOYEE_ALIAS, serializedProfs);
 }
 
 export async function populateES(): Promise<void> {

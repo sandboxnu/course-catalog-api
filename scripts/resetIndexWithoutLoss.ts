@@ -3,11 +3,11 @@ import macros from "../utils/macros";
 
 if (require.main === module) {
   macros.log(
-    "Resetting indices for URL",
+    "Resetting indices without data loss for URL",
     macros.getEnvVariable("elasticURL") || "localhost:9200"
   );
   (async () => {
-    await elastic.resetIndex();
+    await elastic.resetIndexWithoutLoss();
     macros.log("Success! Closing elastic client and exiting.");
     elastic.closeClient();
     process.exit();

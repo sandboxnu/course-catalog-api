@@ -1,6 +1,7 @@
 import twilio, { Twilio } from "twilio";
 import express from "express";
 import macros from "../utils/macros";
+import notificationsManager from "../services/notificationsManager";
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 
@@ -29,6 +30,7 @@ class TwilioNotifyer {
       MAX_CHECK_ATTEMPTS_REACHED: 60202,
       MAX_SEND_ATTEMPTS_REACHED: 60203,
       RESOURCE_NOT_FOUND: 20404,
+      USER_UNSUBSCRIBED: 21610,
     };
     this.TWILIO_VERIF_CHECK_APPROVED = "approved";
     this.twilioClient = twilio(
@@ -47,11 +49,22 @@ class TwilioNotifyer {
         macros.log(`Sent notification text to ${recipientNumber}`);
         return;
       })
-      .catch((err) => {
-        macros.error(
-          `Error trying to send notification text to ${recipientNumber}`,
-          err
-        );
+      .catch(async (err) => {
+        switch (err.code) {
+          case this.TWILIO_ERRORS.USER_UNSUBSCRIBED:
+            macros.warn(
+              `${recipientNumber} has unsubscribed from notifications`
+            );
+            await notificationsManager.deleteAllUserSubscriptions(
+              recipientNumber
+            );
+            return;
+          default:
+            macros.error(
+              `Error trying to send notification text to ${recipientNumber}`,
+              err
+            );
+        }
       });
   }
 
