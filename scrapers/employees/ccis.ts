@@ -100,7 +100,7 @@ class NeuCCISFaculty {
         const mailto = standardizeEmail(emailElements.attr("href").trim());
 
         if (!mailto || !email || mailto !== email) {
-          macros.log("Warning: bad emails?", email, mailto, obj.name);
+          macros.warn("Warning: bad emails?", email, mailto, obj.name);
         } else {
           obj.emails = [email];
         }
@@ -121,7 +121,7 @@ class NeuCCISFaculty {
 
         if (tel || phone) {
           if (!tel || !phone || tel !== phone) {
-            macros.log("phone tel mismatch", tel, phone, obj);
+            macros.warn("phone tel mismatch", tel, phone, obj);
           } else {
             obj.phone = phone;
           }
@@ -130,7 +130,7 @@ class NeuCCISFaculty {
 
       ["name", "url", "emails"].forEach((attrName) => {
         if (!obj[attrName]) {
-          macros.log("Missing", attrName, "for", obj.name);
+          macros.warn("Missing", attrName, "for", obj.name);
         }
       });
 
@@ -231,7 +231,6 @@ class NeuCCISFaculty {
       macros.log(output.length, "people in ccis saved to a file!");
     }
 
-    macros.log("done!");
     return output;
   }
 }

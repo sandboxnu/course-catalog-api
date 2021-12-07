@@ -96,7 +96,7 @@ class CombineCCISandEmployees {
         if (emailDomainMap[domain] && emailDomainMap[domain] !== email) {
           this.logAnalyticsEvent("emailDomainMismatch");
 
-          macros.log(
+          macros.verbose(
             `Not matching people because they had different emails on the same domain. ${emailDomainMap[domain]} ${email}`
           );
           return false;
@@ -106,7 +106,7 @@ class CombineCCISandEmployees {
 
     if (matchObj.peopleListIndexMatches[peopleListIndex]) {
       this.logAnalyticsEvent("sameListNotMatching");
-      macros.log(
+      macros.verbose(
         `Not matching ${matchObj.firstName} ${matchObj.lastName} and ${person.name} because they came from the same list.`
       );
       return false;
@@ -130,7 +130,7 @@ class CombineCCISandEmployees {
 
     // First, match people from the different data sources. The merging happens after the matching
     for (const peopleList of peopleLists) {
-      macros.log(`At people list index  ${peopleListIndex}`);
+      macros.log(`At people list index #${peopleListIndex}`);
 
       this.resetAnalytics();
 
@@ -151,7 +151,7 @@ class CombineCCISandEmployees {
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log(
+              macros.verbose(
                 `Not ok to match 1. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
               );
               continue;
@@ -171,9 +171,7 @@ class CombineCCISandEmployees {
             matchesFound++;
             this.logAnalyticsEvent("matchedByEmail");
             if (matchesFound > 1) {
-              macros.log(
-                `Warning 1: ${matchesFound} matches found ${matchedPerson} ${person}`
-              );
+              macros.warn(`${matchesFound} matches found for ${person.name}`);
             }
           }
         }
@@ -181,7 +179,7 @@ class CombineCCISandEmployees {
         // The rest of this code requires both a first name and a last name
         if (!person.firstName || !person.lastName) {
           this.logAnalyticsEvent("missingNameUnmatchedEmail");
-          macros.log(
+          macros.verbose(
             `Don't have person first name or last name and did not match with email. ${person}`
           );
           continue;
@@ -204,7 +202,7 @@ class CombineCCISandEmployees {
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log(
+              macros.verbose(
                 `Not ok to perfect name match. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
               );
               continue;
@@ -220,7 +218,7 @@ class CombineCCISandEmployees {
             matchedPerson.emails = _.uniq(matchedPerson.emails);
             matchedPerson.peopleListIndexMatches[peopleListIndex] = true;
 
-            macros.log(
+            macros.verbose(
               `Matching: ${person.firstName} ${person.lastName} : ${matchedPerson.firstName} ${matchedPerson.lastName}`
             );
 
@@ -228,9 +226,7 @@ class CombineCCISandEmployees {
             this.logAnalyticsEvent("matchedByPerfectName");
             matchesFound++;
             if (matchesFound > 1) {
-              macros.log(
-                `Warning 4: ${matchesFound} matches found ${matchedPerson} ${person}`
-              );
+              macros.warn(`${matchesFound} matches found for ${person.name}`);
             }
           }
         }
@@ -263,7 +259,7 @@ class CombineCCISandEmployees {
 
             // Final checks to see if it is ok to declare a match.
             if (!this.okToMatch(matchedPerson, person, peopleListIndex)) {
-              macros.log(
+              macros.verbose(
                 `Not ok to match 2. ${matchedPerson.firstName} ${matchedPerson.lastName} ${person.name}`
               );
               continue;
@@ -279,7 +275,7 @@ class CombineCCISandEmployees {
             matchedPerson.emails = _.uniq(matchedPerson.emails);
             matchedPerson.peopleListIndexMatches[peopleListIndex] = true;
 
-            macros.log(
+            macros.verbose(
               `Matching: ${person.firstName} ${person.lastName} : ${matchedPerson.firstName} ${matchedPerson.lastName}`
             );
 
@@ -287,9 +283,7 @@ class CombineCCISandEmployees {
             this.logAnalyticsEvent("matchedByName");
             matchesFound++;
             if (matchesFound > 1) {
-              macros.log(
-                `Warning 2: ${matchesFound} matches found ${matchedPerson} ${person}`
-              );
+              macros.warn(`${matchesFound} matches found for ${person.name}`);
             }
           }
         }
@@ -312,7 +306,7 @@ class CombineCCISandEmployees {
           }
 
           if (peopleListIndex > 1) {
-            macros.log(`Adding ${person.firstName} ${person.lastName}`);
+            macros.verbose(`Adding ${person.firstName} ${person.lastName}`);
           }
           if (person.primaryRole === "PhD Student") {
             this.logAnalyticsEvent("unmatched PhD Student");
@@ -320,7 +314,7 @@ class CombineCCISandEmployees {
 
           mergedPeopleList.push(newMatchPerson as MatchEmployee);
         } else if (matchesFound > 1) {
-          macros.warn(`${matchesFound} matches found for ${person.name} !!!!`);
+          macros.warn(`${matchesFound} matches found for ${person.name}`);
         }
       }
 
@@ -335,7 +329,10 @@ class CombineCCISandEmployees {
           this.analytics.people - this.analytics.matched;
       }
 
-      macros.log(JSON.stringify(this.analytics, null, 4));
+      if (Object.keys(this.analytics).length > 0) {
+        // Print if we have anything to
+        macros.log("Analytics:", JSON.stringify(this.analytics, null, 4));
+      }
       peopleListIndex++;
     }
 
@@ -361,7 +358,7 @@ class CombineCCISandEmployees {
           }
 
           if (output[attrName] && output[attrName] !== profile[attrName]) {
-            macros.log(
+            macros.verbose(
               `Overriding ${output[attrName]} \twith ${profile[attrName]}`
             );
           }
@@ -390,7 +387,7 @@ class CombineCCISandEmployees {
       mergedEmployees[index].id = objectHash(person);
     });
 
-    macros.log(
+    macros.verbose(
       `Spent ${
         Date.now() - startTime
       } ms generating object hashes for employees without IDs.`
@@ -417,7 +414,7 @@ class CombineCCISandEmployees {
       }
     }
 
-    macros.log(
+    macros.verbose(
       `Changed/Removed ${
         beforeModifyCount - mergedEmployees.length
       } person(s) from the employee list.`

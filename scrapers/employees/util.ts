@@ -115,7 +115,7 @@ export function parseGoogleScholarLink(link: string): null | string {
 
   const userId = new URI(link).query(true).user;
   if (!userId && link) {
-    macros.log("Error parsing google url", link);
+    macros.warn("Error parsing google url", link);
     return null;
   }
   return userId;

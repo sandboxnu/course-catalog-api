@@ -124,7 +124,7 @@ class NeuEmployee {
           return;
         }
         if (index >= heads.length) {
-          macros.log(
+          macros.warn(
             "warning, table row is longer than head, ignoring content",
             index,
             heads,
@@ -203,7 +203,7 @@ class NeuEmployee {
     }
     this.couldNotFindNameList[logMatchString] = true;
 
-    macros.log("Could not find name from list:", list);
+    macros.warn("Could not find name from list:", list);
     return null;
   }
 
@@ -219,7 +219,7 @@ class NeuEmployee {
     name = _.trim(name, ",");
 
     if (occurrences(name, ",", false) !== 1) {
-      macros.log("Name has != 1 commas", name);
+      macros.warn("Name has != 1 commas", name);
       return null;
     }
 
@@ -262,7 +262,12 @@ class NeuEmployee {
             const parsedTable = tableData.parsedTable;
             const rowCount = tableData.rowCount;
 
-            macros.log("Found", rowCount, " people on page ", lastNameStart);
+            macros.verbose(
+              "Found",
+              rowCount,
+              " people on page ",
+              lastNameStart
+            );
 
             for (let j = 0; j < rowCount; j++) {
               const person: Partial<Employee> = {};
@@ -271,7 +276,7 @@ class NeuEmployee {
                 .split("\n\n")[0];
 
               if (nameWithComma.includes("Do Not Use ")) {
-                macros.log("Skipping entry that says Do Not Use.");
+                macros.verbose("Skipping entry that says Do Not Use.");
                 continue;
               }
 

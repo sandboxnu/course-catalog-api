@@ -12,6 +12,7 @@ import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
 import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
 import { ParsedTermSR } from "../types/scraperTypes";
 import { EmployeeWithId } from "../types/types";
+import "colors";
 
 // Main file for scraping
 // Run this to run all the scrapers
@@ -43,7 +44,7 @@ class Main {
       currentTermInfos: currentTermInfos,
     });
 
-    macros.log("done scrapers/main.ts");
+    macros.log("Done scraping".green.underline);
   }
 }
 

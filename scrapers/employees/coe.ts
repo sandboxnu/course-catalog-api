@@ -83,10 +83,10 @@ class COE {
         ["name", "link", "title", "interests", "email", "phone", "pic"].forEach(
           (attrName) => {
             if (!obj[attrName]) {
-              macros.log(
+              macros.verbose(
                 `Could not parse ${attrName} for ${
                   obj.name || "someone with no name"
-                }`
+                } - ${obj[attrName]}`
               );
             }
           }
@@ -126,7 +126,6 @@ class COE {
       macros.log(peopleObjects.length, "coe people saved!");
     }
 
-    macros.log("done");
     return peopleObjects;
   }
 }

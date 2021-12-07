@@ -111,7 +111,7 @@ class Cache {
       const buffer = await fs.readFile(msgPackFileExtension);
       const midTime = Date.now();
       const retVal = msgpack.decode(buffer);
-      macros.log(
+      macros.verbose(
         `It took ${Date.now() - midTime} ms to parse and ${
           midTime - startTime
         } to load ${msgPackFileExtension}`
@@ -127,7 +127,7 @@ class Cache {
       const buffer = await fs.readFile(jsonFileExtension, "utf8");
       const midTime = Date.now();
       const retVal = JSON.parse(buffer);
-      macros.log(
+      macros.verbose(
         `It took ${Date.now() - midTime} ms to parse and ${
           midTime - startTime
         } to load ${jsonFileExtension}`
@@ -188,7 +188,7 @@ class Cache {
 
     const timeSpendEncoding = Date.now() - startTime;
     this.totalTimeSpendEncoding += timeSpendEncoding;
-    macros.log(
+    macros.verbose(
       `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`
     );
     await fs.writeFile(`${destinationFile}.new`, buffer);
@@ -198,7 +198,7 @@ class Cache {
     // This prevents the cache file from getting into an invalid state if the process is killed while the program is saving.
     // If the file does not exist, ignore the error
     await fs.rename(`${destinationFile}.new`, destinationFile);
-    macros.log(
+    macros.verbose(
       `It took ${Date.now() - startTime} ms to save ${destinationFile} (${
         this.totalTimeSpendCloning
       } ms spent cloning so far).`

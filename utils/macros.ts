@@ -12,6 +12,9 @@ import moment from "moment";
 import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
+import "colors";
+import { createLogger, format, transports } from "winston";
+import "winston-daily-rotate-file";
 
 dotenv.config();
 
@@ -76,6 +79,43 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 let envVariables: EnvVars = null;
 
 class Macros extends commonMacros {
+  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
+
+  static logger = createLogger({
+    level: "info",
+    format: format.combine(
+      format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss",
+      }),
+      format.errors({ stack: true }),
+      format.splat(),
+      format.json()
+    ),
+    defaultMeta: { service: "course-catalog-api" },
+    transports: [
+      new transports.DailyRotateFile({
+        filename: "%DATE%-warn.log",
+        level: "warn",
+        dirname: Macros.dirname,
+        maxSize: "20m",
+        maxFiles: "365d",
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-info.log",
+        level: "info",
+        dirname: Macros.dirname,
+        maxSize: "20m",
+        maxFiles: "365d",
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-verbose.log",
+        level: "verbose",
+        dirname: Macros.dirname,
+        maxSize: "20m",
+        maxFiles: "365d",
+      }),
+    ],
+  });
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
@@ -218,9 +258,14 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static critical(...args: any): void {
+    Macros.logger.error(args);
+
     if (Macros.TEST) {
       console.error("macros.critical called");
-      console.error(...args);
+      console.error(
+        "Consider using the VERBOSE env flag for more info",
+        ...args
+      );
     } else {
       Macros.error(...args);
       process.exit(1);
@@ -233,7 +278,10 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static warn(...args: any): void {
-    super.warn(...args);
+    Macros.logger.warn(args);
+    super.warn(
+      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
+    );
 
     if (Macros.PROD) {
       this.logRollbarError(args, false);
@@ -247,7 +295,8 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static error(...args: any): void {
-    super.error(...args);
+    Macros.logger.error(args);
+    super.error("Consider using the VERBOSE env flag for more info", ...args);
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
@@ -261,11 +310,32 @@ class Macros extends commonMacros {
     }
   }
 
+  static log(...args: any): void {
+    Macros.logger.info(args);
+    console.log(...args);
+  }
+
+  static http(...args: any): void {
+    Macros.logger.http(args);
+    if (
+      !process.env.LOG_LEVEL ||
+      (process.env.LOG_LEVEL !== "VERBOSE" && process.env.LOG_LEVEL !== "HTTP")
+    ) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
   // Use console.warn to log stuff during testing
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static verbose(...args: any): void {
-    if (!process.env.VERBOSE) {
+    Macros.logger.verbose(args);
+    if (
+      !process.env.LOG_LEVEL ||
+      process.env.LOG_LEVEL.toUpperCase() !== "VERBOSE"
+    ) {
       return;
     }
 

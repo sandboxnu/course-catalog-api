@@ -36,7 +36,7 @@ export class Bannerv9Parser {
       .map((t) => t.termId)
       .slice(0, NUMBER_OF_TERMS_TO_UPDATE);
 
-    macros.log(`scraping terms: ${termIds}`);
+    macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
     if (process.env.CUSTOM_SCRAPE && filters.truncate) {

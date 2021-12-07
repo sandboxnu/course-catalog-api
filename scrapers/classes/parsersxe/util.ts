@@ -72,7 +72,7 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
       .map((el) => $(el).text());
     if (values.length >= heads.length) {
       // TODO look into which classes trigger this
-      macros.log(
+      macros.warn(
         "warning, table row is longer than head, ignoring some content"
       );
     }

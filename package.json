@@ -93,6 +93,7 @@
     "body-parser": "^1.17.2",
     "cheerio": "^0.22.0",
     "classnames": "^2.2.5",
+    "colors": "^1.4.0",
     "compression": "^1.6.2",
     "cookie": "^0.4.0",
     "core-js": "^3.0.1",
@@ -165,6 +166,8 @@
     "webpack-dev-middleware": "^3.0.1",
     "webpack-hot-middleware": "^2.16.1",
     "whois": "^2.3.9",
+    "winston": "^3.3.3",
+    "winston-daily-rotate-file": "^4.5.5",
     "xmldom": "^0.1.27"
   },
   "devDependencies": {

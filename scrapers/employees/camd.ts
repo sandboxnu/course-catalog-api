@@ -105,7 +105,7 @@ class Camd {
       const possiblePhone = standardizePhone(text);
       if (possiblePhone) {
         if (obj.phone) {
-          macros.log("Duplicate phone?", obj.phone, possiblePhone);
+          macros.warn("Duplicate phone?", obj.phone, possiblePhone);
         }
 
         obj.phone = possiblePhone;
@@ -120,7 +120,7 @@ class Camd {
         }
 
         if (obj.officeRoom) {
-          macros.log(
+          macros.verbose(
             "Two matches for office, keeping the longer one",
             obj.office,
             text
@@ -138,7 +138,7 @@ class Camd {
 
         obj.officeRoom = text;
       } else {
-        macros.log("Warn: unknown prop in description", text);
+        macros.warn("Warn: unknown prop in description", text);
       }
     });
 
