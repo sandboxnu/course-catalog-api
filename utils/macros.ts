@@ -78,7 +78,37 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 // {...} = the file
 let envVariables: EnvVars = null;
 
+enum LogLevel {
+  CRITICAL = -1,
+  ERROR = 0,
+  WARN = 1,
+  INFO = 2,
+  HTTP = 3,
+  VERBOSE = 4,
+}
+
+function getLogLevel(input: string): LogLevel {
+  switch (input.toUpperCase()) {
+    case "CRITICAL":
+      return LogLevel.CRITICAL;
+    case "ERROR":
+      return LogLevel.ERROR;
+    case "WARN":
+      return LogLevel.WARN;
+    case "INFO":
+      return LogLevel.INFO;
+    case "HTTP":
+      return LogLevel.HTTP;
+    case "VERBOSE":
+      return LogLevel.VERBOSE;
+    default:
+      return LogLevel.INFO;
+  }
+}
+
 class Macros extends commonMacros {
+  static logLevel = getLogLevel(process.env.LOG_LEVEL);
+
   static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
 
   static logger = createLogger({
@@ -279,6 +309,11 @@ class Macros extends commonMacros {
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static warn(...args: any): void {
     Macros.logger.warn(args);
+
+    if (LogLevel.WARN > Macros.logLevel) {
+      return;
+    }
+
     super.warn(
       ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
     );
@@ -296,6 +331,7 @@ class Macros extends commonMacros {
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static error(...args: any): void {
     Macros.logger.error(args);
+
     super.error("Consider using the VERBOSE env flag for more info", ...args);
 
     if (Macros.PROD) {
@@ -312,15 +348,18 @@ class Macros extends commonMacros {
 
   static log(...args: any): void {
     Macros.logger.info(args);
+
+    if (LogLevel.INFO > Macros.logLevel) {
+      return;
+    }
+
     console.log(...args);
   }
 
   static http(...args: any): void {
     Macros.logger.http(args);
-    if (
-      !process.env.LOG_LEVEL ||
-      (process.env.LOG_LEVEL !== "VERBOSE" && process.env.LOG_LEVEL !== "HTTP")
-    ) {
+
+    if (LogLevel.HTTP > Macros.logLevel) {
       return;
     }
 
@@ -332,10 +371,8 @@ class Macros extends commonMacros {
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static verbose(...args: any): void {
     Macros.logger.verbose(args);
-    if (
-      !process.env.LOG_LEVEL ||
-      process.env.LOG_LEVEL.toUpperCase() !== "VERBOSE"
-    ) {
+
+    if (LogLevel.VERBOSE > Macros.logLevel) {
       return;
     }
 
