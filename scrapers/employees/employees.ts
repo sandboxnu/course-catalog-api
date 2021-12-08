@@ -125,7 +125,7 @@ class NeuEmployee {
         }
         if (index >= heads.length) {
           macros.warn(
-            "warning, table row is longer than head, ignoring content",
+            "Table row is longer than head, ignoring content",
             index,
             heads,
             rows
