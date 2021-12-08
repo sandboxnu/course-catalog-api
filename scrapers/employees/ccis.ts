@@ -228,7 +228,7 @@ class NeuCCISFaculty {
         "main",
         output
       );
-      macros.log(output.length, "people in ccis saved to a file!");
+      macros.log(output.length, "CCIS employees saved.");
     }
 
     return output;

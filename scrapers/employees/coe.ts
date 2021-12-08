@@ -123,7 +123,7 @@ class COE {
         "main",
         peopleObjects
       );
-      macros.log(peopleObjects.length, "coe people saved!");
+      macros.log(peopleObjects.length, "COE employees saved.");
     }
 
     return peopleObjects;

@@ -203,7 +203,7 @@ class Camd {
         "main",
         people
       );
-      macros.log(people.length, "camd people saved to the cache file!");
+      macros.log(people.length, "CAMD employees saved.");
     }
 
     return people;

@@ -184,7 +184,7 @@ class NeuEmployee {
   }
 
   // Given a list of things, will find the first one that is longer than 1 letter (a-z)
-  findName(list: string[]): string {
+  findName(list: string[], referenceName: string): string {
     for (let i = 0; i < list.length; i++) {
       const noSymbols = list[i].toLowerCase().replace(/[^0-9a-zA-Z]/gi, "");
 
@@ -203,7 +203,9 @@ class NeuEmployee {
     }
     this.couldNotFindNameList[logMatchString] = true;
 
-    macros.warn("Could not find name from list:", list);
+    macros.warn(
+      `Could not find name from list: ${list}  (called by ${referenceName})`
+    );
     return null;
   }
 
@@ -226,10 +228,10 @@ class NeuEmployee {
     const splitOnComma = name.split(",");
 
     const beforeCommaSplit = splitOnComma[1].trim().split(" ");
-    const firstName = this.findName(beforeCommaSplit);
+    const firstName = this.findName(beforeCommaSplit, name);
 
     const afterCommaSplit = splitOnComma[0].trim().split(" ").reverse();
-    const lastName = this.findName(afterCommaSplit);
+    const lastName = this.findName(afterCommaSplit, name);
 
     return {
       firstName: firstName,
@@ -331,7 +333,7 @@ class NeuEmployee {
                 // Trim the id if it is too long. This is just a sanity check.
                 // 35 is just a arbitrary decided number.
                 if (id.length > 35) {
-                  macros.warn("person id over 35 chars?", id);
+                  macros.verbose("person id over 35 chars?", id);
                   id = id.slice(0, 35);
                 }
 
@@ -426,7 +428,7 @@ class NeuEmployee {
         "main",
         this.people
       );
-      macros.log(this.people.length, "employees saved to a file!");
+      macros.log(this.people.length, "NEU employees saved.");
     }
 
     return this.people;

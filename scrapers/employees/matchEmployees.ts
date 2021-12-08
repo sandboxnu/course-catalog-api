@@ -14,6 +14,7 @@ import ccisFaculty from "./ccis";
 import csshFaculty from "./cssh";
 import camdFaculty from "./camd";
 import coeFaculty from "./coe";
+import "colors";
 import { Employee, EmployeeWithId, MatchEmployee } from "../../types/types";
 
 // This file combines the data from the ccis website and the NEU Employees site
@@ -435,6 +436,7 @@ class CombineCCISandEmployees {
       JSON.stringify(employeeDump)
     );
 
+    macros.log("Done scraping employees!".green.underline);
     return mergedEmployees as EmployeeWithId[];
   }
 }

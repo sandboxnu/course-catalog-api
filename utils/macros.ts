@@ -88,6 +88,8 @@ enum LogLevel {
 }
 
 function getLogLevel(input: string): LogLevel {
+  input = input ? input : "";
+
   switch (input.toUpperCase()) {
     case "CRITICAL":
       return LogLevel.CRITICAL;
@@ -332,7 +334,10 @@ class Macros extends commonMacros {
   static error(...args: any): void {
     Macros.logger.error(args);
 
-    super.error("Consider using the VERBOSE env flag for more info", ...args);
+    super.error(
+      "Consider using the LOG_LEVEL environment variable to see more\nValid options are VERBOSE, HTTP, and INFO (default)\n",
+      ...args
+    );
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.

@@ -246,7 +246,7 @@ class Cssh {
         "main",
         people
       );
-      macros.log(people.length, "cssh people saved to a file!");
+      macros.log(people.length, "CSSH employees saved.");
     }
 
     return people;
