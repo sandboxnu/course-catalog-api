@@ -231,10 +231,7 @@ class NeuEmployee {
     const afterCommaSplit = splitOnComma[0].trim().split(" ").reverse();
     const lastName = this.findName(afterCommaSplit);
 
-    return {
-      firstName: firstName,
-      lastName: lastName,
-    };
+    return { firstName, lastName };
   }
 
   parseLettersResponse(response, lastNameStart: string): Promise<void> {

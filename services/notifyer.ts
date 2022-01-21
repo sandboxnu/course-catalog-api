@@ -54,7 +54,7 @@ export async function sendNotifications(
           );
         });
       })
-      .reduce((acc, val) => acc.concat(val), []);
+      .flat();
 
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
@@ -67,7 +67,7 @@ export async function sendNotifications(
             );
           });
         })
-        .reduce((acc, val) => acc.concat(val), []);
+        .flat();
 
     await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
       () => {

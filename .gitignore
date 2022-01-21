@@ -10,3 +10,4 @@ data/*
 .env
 cache.zip
 .idea/*
+logs/

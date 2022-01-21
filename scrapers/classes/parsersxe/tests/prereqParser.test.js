@@ -6,7 +6,7 @@ jest.mock("../subjectAbbreviationParser");
 const subjectAbbreviationTable = getSubjectAbbreviations();
 
 describe("prereqParser", () => {
-  it("should parse corequisites", async () => {
+  it("should parse corequisites", () => {
     const phys1161coreqs = PrereqParser.serializeCoreqs(
       PrereqParserData.coreqs.phys1161,
       subjectAbbreviationTable
