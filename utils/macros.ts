@@ -388,6 +388,13 @@ class Macros extends commonMacros {
   }
 }
 
-Macros.verbose("Starting in verbose mode.");
+Macros.log(
+  `**** Starting using log level: ${Macros.logLevel} (${
+    LogLevel[Macros.logLevel]
+  })`
+);
+Macros.log(
+  "**** Change the log level using the 'LOG_LEVEL' environment variable"
+);
 
 export default Macros;
