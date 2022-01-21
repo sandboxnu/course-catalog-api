@@ -29,9 +29,9 @@ class NotificationsManager {
   }
 
   async putUserSubscriptions(
-    phoneNumber: any,
-    sectionIds: any,
-    courseIds: any
+    phoneNumber: string,
+    sectionIds: string[],
+    courseIds: string[]
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
     const sectionTuples = sectionIds.map((s: string) => ({
@@ -57,9 +57,9 @@ class NotificationsManager {
   }
 
   async deleteUserSubscriptions(
-    phoneNumber: any,
-    sectionIds: any,
-    courseIds: any
+    phoneNumber: string,
+    sectionIds: string[],
+    courseIds: string[]
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
 

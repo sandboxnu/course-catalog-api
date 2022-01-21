@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`meetingParser.js 1`] = `
+exports[`meetingParser.ts 1`] = `
 Array [
   Object {
     "endDate": 18067,

@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
@@ -56,7 +55,7 @@ class Updater {
   }
 
   // TODO must call this in server
-  async start(): Promise<void> {
+  start(): void {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
@@ -88,7 +87,8 @@ class Updater {
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
         return termParser.parseSections(termId);
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
+
     macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
@@ -102,7 +102,7 @@ class Updater {
     macros.log("running dump processor");
 
     await dumpProcessor.main({
-      termDump: { sections, classes: {}, subjects: {} },
+      termDump: { sections, classes: [], subjects: {} },
       destroy: true,
     });
 
@@ -203,7 +203,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedCourseLookup: Record<string, Course> = {};
     for (const s of watchedCourses) {
@@ -217,7 +217,7 @@ class Updater {
           where: { section: { course: { termId } } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedSectionLookup: Record<string, Section> = {};
     for (const s of watchedSections) {
@@ -230,7 +230,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {

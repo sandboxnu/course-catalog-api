@@ -5,16 +5,23 @@
 import prisma from "../../services/prisma";
 import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
 import keys from "../../utils/keys";
-import { Course } from "../../types/types";
+import {
+  Course as PrismaCourse,
+  Section as PrismaSection,
+} from "@prisma/client";
+import { Course, Section } from "../../types/types";
 
 const serializer = new HydrateCourseSerializer();
 
-const serializeValues = (results) => {
+const serializeValues = (results: PrismaCourse[]): Course[] => {
   return results.map((result) => serializer.serializeCourse(result));
 };
 
-const getLatestClassOccurrence = async (subject: string, classId: string) => {
-  const results: Course[] = await prisma.course.findMany({
+const getLatestClassOccurrence = async (
+  subject: string,
+  classId: string
+): Promise<Course> => {
+  const results: PrismaCourse[] = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
@@ -22,7 +29,10 @@ const getLatestClassOccurrence = async (subject: string, classId: string) => {
   return serializeValues(results)[0];
 };
 
-const getAllClassOccurrences = async (subject: string, classId: string) => {
+const getAllClassOccurrences = async (
+  subject: string,
+  classId: string
+): Promise<Course[]> => {
   const results = await prisma.course.findMany({
     where: { subject, classId },
     include: { sections: true },
@@ -35,8 +45,8 @@ const getClassOccurrence = async (
   termId: string,
   subject: string,
   classId: string
-) => {
-  const res: Course = await prisma.course.findUnique({
+): Promise<Course> => {
+  const res: PrismaCourse = await prisma.course.findUnique({
     where: {
       uniqueCourseProps: { subject, classId, termId },
     },
@@ -46,8 +56,8 @@ const getClassOccurrence = async (
   return serializeValues([res])[0];
 };
 
-const getClassOccurrenceById = async (id: string) => {
-  const res: Course = await prisma.course.findUnique({
+const getClassOccurrenceById = async (id: string): Promise<Course> => {
+  const res: PrismaCourse = await prisma.course.findUnique({
     where: { id },
     include: { sections: true },
   });
@@ -55,13 +65,14 @@ const getClassOccurrenceById = async (id: string) => {
   return serializeValues([res])[0];
 };
 
-const getSectionById = async (id) => {
-  const res = await prisma.section.findUnique({
+const getSectionById = async (id: string): Promise<Section> => {
+  const res: PrismaSection = await prisma.section.findUnique({
     where: { id },
   });
-  serializer.serializeSection(res); // this mutates res
+  const resSec: Section = serializer.serializeSection(res); // this mutates res
   const { termId, subject, classId } = keys.parseSectionHash(id);
-  return { termId, subject, classId, ...res };
+
+  return { termId, subject, classId, ...resSec };
 };
 
 const resolvers = {

@@ -14,7 +14,7 @@ import {
   EsMapping,
   EsMultiResult,
   EsResult,
-} from "../types/search_types";
+} from "../types/searchTypes";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
 
@@ -79,7 +79,7 @@ export class Elastic {
   }
 
   // replace an index with a fresh one with a specified mapping
-  async resetIndex(): Promise<any> {
+  async resetIndex(): Promise<void> {
     await this.fetchIndexNames();
 
     for (const index of this.indexes) {
@@ -111,7 +111,7 @@ export class Elastic {
   }
 
   // This function resets the index without loss of data in the index
-  async resetIndexWithoutLoss() {
+  async resetIndexWithoutLoss(): Promise<void> {
     await this.fetchIndexNames();
 
     for (const index of this.indexes) {
@@ -272,7 +272,7 @@ export class Elastic {
     return client.msearch({ body: multiQuery });
   }
 
-  closeClient() {
+  closeClient(): void {
     client.close();
   }
 }

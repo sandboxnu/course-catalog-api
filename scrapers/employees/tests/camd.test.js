@@ -15,7 +15,7 @@ it("should work for profile page", async (done) => {
 
   const url = "https://camd.northeastern.edu/gamedesign/people/jason-duhaime/";
 
-  const output = camd.parseDetailpage(url, body);
+  const output = camd.parseDetailPage(url, body);
 
   expect(output).toMatchSnapshot();
 

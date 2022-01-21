@@ -10,6 +10,8 @@ import dotenv from "dotenv";
 
 import moment from "moment";
 import commonMacros from "./abstractMacros";
+import { AmplitudeTrackResponse } from "amplitude/dist/responses";
+import { AmplitudeEvent } from "../types/requestTypes";
 
 dotenv.config();
 
@@ -25,7 +27,8 @@ const amplitude = new Amplitude(commonMacros.amplitudeToken);
 
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
-let oldcwd: string;
+let oldcwd: null | string = null;
+
 while (oldcwd !== process.cwd()) {
   try {
     fs.statSync("package.json");
@@ -120,7 +123,7 @@ class Macros extends commonMacros {
     if (!exists) {
       envVariables = {};
     } else {
-      envVariables = JSON.parse(fs.readFileSync(configFileName));
+      envVariables = JSON.parse(fs.readFileSync(configFileName, "utf8"));
     }
 
     envVariables = Object.assign(envVariables, process.env);
@@ -129,7 +132,7 @@ class Macros extends commonMacros {
   }
 
   // Gets the current time, just used for logging
-  static getTime() {
+  static getTime(): string {
     return moment().format("hh:mm:ss a");
   }
 
@@ -138,7 +141,10 @@ class Macros extends commonMacros {
   }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
-  static async logAmplitudeEvent(type: string, event: any) {
+  static async logAmplitudeEvent(
+    type: string,
+    event: AmplitudeEvent
+  ): Promise<null | void | AmplitudeTrackResponse> {
     if (!Macros.PROD) {
       return null;
     }
@@ -155,7 +161,7 @@ class Macros extends commonMacros {
     });
   }
 
-  static getRollbar() {
+  static getRollbar(): Rollbar {
     if (Macros.PROD && !this.rollbar) {
       console.error("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
     }
@@ -166,16 +172,14 @@ class Macros extends commonMacros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  static async logRollbarError(args: any, shouldExit: boolean) {
+  static logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
     if (!Macros.PROD) {
       return;
     }
 
-    const stack = new Error().stack;
-
     // The middle object can include any properties and values, much like amplitude.
-    args.stack = stack;
+    args.stack = new Error().stack;
 
     // Search through the args array for an error. If one is found, log that separately.
     let possibleError: MaybeError;
@@ -186,7 +190,7 @@ class Macros extends commonMacros {
         break;
       }
     }
-    // eslint-disable-next-line no-console
+
     console.log("sending to rollbar", possibleError, args);
 
     if (possibleError) {
@@ -210,10 +214,13 @@ class Macros extends commonMacros {
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
-  static critical(...args: any) {
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static critical(...args: any): void {
     if (Macros.TEST) {
-      console.error("macros.critical called"); // eslint-disable-line no-console
-      console.error(...args); // eslint-disable-line no-console
+      console.error("macros.critical called");
+      console.error(...args);
     } else {
       Macros.error(...args);
       process.exit(1);
@@ -222,7 +229,10 @@ class Macros extends commonMacros {
 
   // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
   // Will log something to rollbar and rollbar will send off an email
-  static async warn(...args: any) {
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static warn(...args: any): void {
     super.warn(...args);
 
     if (Macros.PROD) {
@@ -232,10 +242,11 @@ class Macros extends commonMacros {
 
   // Use this for stuff that should never happen, but does not mean the program cannot continue.
   // This will continue running in dev, but will exit on CI
-  // Will log stack trace
-  // and cause CI to fail
-  // so CI will send an email
-  static async error(...args: any) {
+  // Will log stack trace and cause CI to fail,  so CI will send an email
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static error(...args: any): void {
     super.error(...args);
 
     if (Macros.PROD) {
@@ -251,12 +262,14 @@ class Macros extends commonMacros {
   }
 
   // Use console.warn to log stuff during testing
-  static verbose(...args: any) {
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static verbose(...args: any): void {
     if (!process.env.VERBOSE) {
       return;
     }
 
-    console.log(...args); // eslint-disable-line no-console
+    console.log(...args);
   }
 }
 

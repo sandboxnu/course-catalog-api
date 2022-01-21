@@ -14,7 +14,7 @@ it("should be able to parse a detail apge", async () => {
     "utf8"
   );
 
-  const output = cssh.parseDetailpage(
+  const output = cssh.parseDetailPage(
     "https://www.northeastern.edu/cssh/faculty/max-abrahms",
     { body: body }
   );

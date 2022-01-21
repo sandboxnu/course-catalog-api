@@ -34,7 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
-} from "../types/search_types";
+} from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };
@@ -66,19 +66,19 @@ class Searcher {
 
   static generateFilters(): FilterPrelude {
     // type validating functions
-    const isString = (arg: any): arg is string => {
+    const isString = (arg: unknown): arg is string => {
       return typeof arg === "string";
     };
 
-    const isStringArray = (arg: any): arg is string[] => {
+    const isStringArray = (arg: unknown): arg is string[] => {
       return Array.isArray(arg) && arg.every((elem) => isString(elem));
     };
 
-    const isTrue = (arg: any): arg is true => {
+    const isTrue = (arg: unknown): arg is true => {
       return typeof arg === "boolean" && arg;
     };
 
-    const isNum = (arg: any): arg is number => {
+    const isNum = (arg: unknown): arg is number => {
       return typeof arg === "number";
     };
 
@@ -405,8 +405,9 @@ class Searcher {
    * Search for classes and employees
    * @param  {string}  query  The search to query for
    * @param  {string}  termId The termId to look within
-   * @param  {integer} min    The index of first document to retreive
-   * @param  {integer} max    The index of last document to retreive
+   * @param  {number} min    The index of first document to retreive
+   * @param  {number} max    The index of last document to retreive
+   * @param filters
    */
   async search(
     query: string,
@@ -442,6 +443,7 @@ class Searcher {
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
+
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
       );
