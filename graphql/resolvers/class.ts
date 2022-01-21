@@ -49,6 +49,7 @@ const getClassOccurrence = async (
 const getClassOccurrenceById = async (id: string) => {
   const res: Course = await prisma.course.findUnique({
     where: { id },
+    include: { sections: true },
   });
 
   return serializeValues([res])[0];
