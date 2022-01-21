@@ -21,6 +21,7 @@ import {
 } from "../../../types/scraperTypes";
 import { CourseRef, Section } from "../../../types/types";
 import "colors";
+import { DoRequestReturn } from "../../../types/requestTypes";
 
 const request = new Request("termParser");
 
@@ -68,9 +69,10 @@ class TermParser {
       { concurrency: 500 }
     );
 
+    // Course requests which fetch no data will return false
     let classes = unfilteredClasses.filter(
-      (c) => c !== false
-    ) as ParsedCourseSR[];
+      (c): c is ParsedCourseSR => c !== false
+    );
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
     if (!process.env.CUSTOM_SCRAPE) {
@@ -195,12 +197,9 @@ class TermParser {
    * @param itemsPerRequest - the number of items allowed per request
    */
   async concatPagination(
-    doRequest: (
-      x: number,
-      y: number
-    ) => Promise<false | { items: string; totalCount: number }>,
+    doRequest: (x: number, y: number) => Promise<false | DoRequestReturn>,
     itemsPerRequest = 500
-  ): Promise<unknown[]> {
+  ): Promise<(SectionSR | CourseSR)[]> {
     // Send initial request just to get the total number of items
     const countRequest = await doRequest(0, 1);
     if (!countRequest) {
@@ -211,7 +210,7 @@ class TermParser {
 
     // third, create a thread pool to make requests, 500 items per request.
     // (500 is the limit)
-    const sectionsPool = [];
+    const sectionsPool: Promise<false | DoRequestReturn>[] = [];
     for (
       let nextCourseIndex = 0;
       nextCourseIndex < totalCount;
@@ -225,7 +224,10 @@ class TermParser {
     if (chunks.some((s) => s === false)) {
       throw Error("Missing data");
     }
-    return _(chunks).map("items").flatten().value();
+    return _(chunks as DoRequestReturn[])
+      .map("items")
+      .flatten()
+      .value() as (SectionSR | CourseSR)[];
   }
 }
 

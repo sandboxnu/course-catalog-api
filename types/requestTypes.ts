@@ -55,3 +55,5 @@ export type AmplitudeEvent = Partial<AgentAnalytics> & {
   startTime?: number | null;
   hostname: string;
 };
+
+export type DoRequestReturn = { items: unknown; totalCount: number };

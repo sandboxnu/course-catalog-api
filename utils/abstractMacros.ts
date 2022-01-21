@@ -25,9 +25,6 @@ class Macros {
   // This is the same token in the frontend and the backend, and does not need to be kept private.
   static amplitudeToken = "e0801e33a10c3b66a3c1ac8ebff53359";
 
-  // Also decided to keep all the other tracker Id's here because the amplitude one needs to be here and might as well keep them all in the same place.
-  // static fullStoryToken = "4ZDGH";
-
   // Rollbar token
   static rollbarToken = "3a76015293344e6f9c47e35c9ce4c84c";
 

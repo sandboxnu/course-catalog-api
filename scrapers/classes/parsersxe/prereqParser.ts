@@ -45,8 +45,8 @@ class PrereqParser {
       );
       if (subjectAbbreviation) {
         coreqs.push({
+          classId,
           subject: subjectAbbreviation,
-          classId: classId,
         });
       } else {
         macros.warn(`Coreqs: can't find abbreviation for "${subject}"`);
