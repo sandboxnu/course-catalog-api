@@ -20,7 +20,6 @@ import {
   SectionSR,
 } from "../../../types/scraperTypes";
 import { CourseRef, Section } from "../../../types/types";
-import "colors";
 import { DoRequestReturn } from "../../../types/requestTypes";
 
 const request = new Request("termParser");
