@@ -14,8 +14,8 @@ CCA uses the folling 3rd party services. The site depends on most of these being
 ## Analytics
 
 - Amplitude
+- FullStory - record video sessions
 - Google Analytics
-- Google Search Console
 
 ## APM
 
