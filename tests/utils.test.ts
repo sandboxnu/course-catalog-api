@@ -1,24 +1,24 @@
 import dumpProcessor from "../services/dumpProcessor";
-import { decode } from "html-entities";
+import he from "he";
 
 describe("Entity decoding", () => {
   it("should handle empty string", () => {
-    expect(decode("")).toEqual("");
+    expect(he.decode("")).toEqual("");
   });
   it("should handle single ampersand", () => {
-    expect(decode("&")).toEqual("&");
+    expect(he.decode("&")).toEqual("&");
   });
   it("should handle incomplete entity", () => {
-    expect(decode("&a")).toEqual("&a");
+    expect(he.decode("&a")).toEqual("&a");
   });
   it("should handle invalid numeric entities", () => {
-    expect(decode("&#2013266066;")).toEqual(String.fromCharCode(65533));
+    expect(he.decode("&#2013266066;")).toEqual(String.fromCharCode(65533));
   });
-  it("should decode numeric entities without semicolon", () => {
-    expect(decode("&#34C&#34")).toEqual('"C"');
+  it("should he.decode numeric entities without semicolon", () => {
+    expect(he.decode("&#34C&#34")).toEqual('"C"');
   });
-  it("should decode incomplete named entities followed by alphanumeric characters", () => {
-    expect(decode("&uumlber")).toEqual("über");
+  it("should he.decode incomplete named entities followed by alphanumeric characters", () => {
+    expect(he.decode("&uumlber")).toEqual("über");
   });
 });
 

@@ -15,6 +15,9 @@ import majorResolvers from "./resolvers/major";
 import majorTypeDef from "./typeDefs/major";
 import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
 
+import termInfoResolvers from "./resolvers/termInfo";
+import termInfoTypeDef from "./typeDefs/termInfo";
+
 if (macros.PROD || process.env.ENABLE_NOTIFS) {
   require("../twilio/server");
 }
@@ -49,8 +52,15 @@ const server = new ApolloServer({
     majorTypeDef,
     majorOccurrenceTypeDef,
     searchTypeDef,
+    termInfoTypeDef,
   ],
-  resolvers: [JSONResolvers, classResolvers, majorResolvers, searchResolvers],
+  resolvers: [
+    JSONResolvers,
+    classResolvers,
+    majorResolvers,
+    searchResolvers,
+    termInfoResolvers,
+  ],
 });
 
 if (require.main === module) {

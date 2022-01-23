@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
@@ -15,6 +14,8 @@ import termParser from "../scrapers/classes/parsersxe/termParser";
 import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
+
+import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
 
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
@@ -28,53 +29,56 @@ interface OldData {
 type ModelName = "course" | "section";
 
 class Updater {
-  // produce a new Updater instance
   COURSE_MODEL: ModelName;
-
   SECTION_MODEL: ModelName;
-
   SEMS_TO_UPDATE: string[];
 
-  static create() {
-    return new this();
+  // produce a new Updater instance
+  static async create(): Promise<Updater> {
+    // Get term IDs from our database
+    const termInfos = await prisma.termInfo.findMany({
+      orderBy: { termId: "desc" },
+      take: NUMBER_OF_TERMS_TO_UPDATE,
+    });
+
+    const termIds: string[] = termInfos.map((t) => t.termId);
+
+    return new this(termIds);
   }
 
-  // DO NOT call the constructor, instead use .create
-  constructor() {
+  // The constructor should never be directly called - use .create()
+  // HOWEVER, it's called directly for testing purposes - don't make this method private
+  constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = [
-      "202210",
-      "202230",
-      "202214",
-      "202215",
-      "202225",
-      "202234",
-      "202235",
-      "202212",
-      "202232",
-    ];
+    this.SEMS_TO_UPDATE = termIds;
   }
 
   // TODO must call this in server
-  async start() {
+  start(): void {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
 
     setInterval(() => {
-      try {
-        this.update();
-      } catch (e) {
-        macros.warn("Updater failed with: ", e);
-      }
+      this.updateOrExit();
     }, intervalTime);
-    this.update();
+
+    this.updateOrExit();
+  }
+
+  async updateOrExit(): Promise<void> {
+    try {
+      await this.update();
+    } catch (e) {
+      macros.warn("Updater failed with: ", e);
+      process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
+    }
   }
 
   // Update classes and sections users and notify users if seats have opened up
-  async update() {
-    macros.log("updating");
+  async update(): Promise<void> {
+    macros.log(`updating terms ${JSON.stringify(this.SEMS_TO_UPDATE)}`);
 
     const startTime = Date.now();
 
@@ -83,8 +87,9 @@ class Updater {
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
         return termParser.parseSections(termId);
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
+    macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.COURSE_MODEL
@@ -93,11 +98,19 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    const dumpProcessorStartTime = Date.now();
+    macros.log("running dump processor");
+
     await dumpProcessor.main({
-      termDump: { sections, classes: {}, subjects: {} },
+      termDump: { sections, classes: [], subjects: {} },
       destroy: true,
     });
 
+    macros.log(
+      `finished running dump processor in ${
+        Date.now() - dumpProcessorStartTime
+      } ms.`
+    );
     const totalTime = Date.now() - startTime;
 
     await sendNotifications(
@@ -107,7 +120,9 @@ class Updater {
     );
 
     macros.log(
-      `Done running updater onInterval. It took ${totalTime} ms. Updated ${sections.length} sections.`
+      `Done running updater onInterval. It took ${totalTime} ms (${
+        totalTime / 60000
+      } minutes). Updated ${sections.length} sections.`
     );
   }
 
@@ -188,7 +203,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedCourseLookup: Record<string, Course> = {};
     for (const s of watchedCourses) {
@@ -202,7 +217,7 @@ class Updater {
           where: { section: { course: { termId } } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedSectionLookup: Record<string, Section> = {};
     for (const s of watchedSections) {
@@ -215,7 +230,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {
@@ -259,7 +274,12 @@ class Updater {
 }
 
 if (require.main === module) {
-  Updater.create().start();
+  Updater.create()
+    .then((updater) => {
+      updater.start();
+      return null;
+    })
+    .catch((msg) => macros.log(msg));
 }
 
 export default Updater;

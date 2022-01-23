@@ -1,5 +1,5 @@
 node_modules/
-cache
+cache*
 dist
 public
 *.log
@@ -9,3 +9,5 @@ data/*
 *.terraform.lock.hcl
 .env
 cache.zip
+.idea/*
+logs/

@@ -4,21 +4,21 @@ exports[`termListParser pulls out relevant data 1`] = `
 Array [
   Object {
     "host": "neu.edu",
-    "subCollegeName": "CPS",
+    "subCollege": "CPS",
     "termId": "202034",
-    "text": "Spring 2020 CPS Semester",
+    "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
-    "subCollegeName": "LAW",
+    "subCollege": "LAW",
     "termId": "202032",
-    "text": "Spring 2020 Law Semester",
+    "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
-    "subCollegeName": undefined,
+    "subCollege": "NEU",
     "termId": "202030",
-    "text": "Spring 2020",
+    "text": "Spring 2020 Semester",
   },
 ]
 `;

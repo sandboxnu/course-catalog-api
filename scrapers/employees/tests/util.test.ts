@@ -1,7 +1,7 @@
 import {
   standardizeEmail,
   standardizePhone,
-  parseGoogleScolarLink,
+  parseGoogleScholarLink,
   parseNameWithSpaces,
   getBaseHost,
   occurrences,
@@ -29,11 +29,11 @@ it("standardizePhone works", () => {
 
 it("parseGoogleScolarLink works", () => {
   const url = "https://scholar.google.com/citations?user=aaaaaaa&hl=en&oi=ao";
-  const input = parseGoogleScolarLink(url);
+  const input = parseGoogleScholarLink(url);
   expect(input).toEqual("aaaaaaa");
 
   const url2 = "https://scholar.google.com/oi=ao";
-  const input2 = parseGoogleScolarLink(url2);
+  const input2 = parseGoogleScholarLink(url2);
   expect(input2).toEqual(null);
 });
 it("should parse a name with spaces", () => {

@@ -1,5 +1,6 @@
 import prisma from "./prisma";
 import { UserInfo } from "../types/notifTypes";
+import macros from "../utils/macros";
 
 class NotificationsManager {
   async upsertUser(phoneNumber: string): Promise<void> {
@@ -28,9 +29,9 @@ class NotificationsManager {
   }
 
   async putUserSubscriptions(
-    phoneNumber: any,
-    sectionIds: any,
-    courseIds: any
+    phoneNumber: string,
+    sectionIds: string[],
+    courseIds: string[]
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
     const sectionTuples = sectionIds.map((s: string) => ({
@@ -56,9 +57,9 @@ class NotificationsManager {
   }
 
   async deleteUserSubscriptions(
-    phoneNumber: any,
-    sectionIds: any,
-    courseIds: any
+    phoneNumber: string,
+    sectionIds: string[],
+    courseIds: string[]
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
 
@@ -83,6 +84,18 @@ class NotificationsManager {
     );
 
     await Promise.all(promises);
+    return;
+  }
+
+  async deleteAllUserSubscriptions(phoneNumber: string): Promise<void> {
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    await prisma.followedSection.deleteMany({
+      where: { userId },
+    });
+    await prisma.followedCourse.deleteMany({
+      where: { userId },
+    });
+    macros.log(`deleted all user subscriptions for ${phoneNumber}`);
     return;
   }
 }

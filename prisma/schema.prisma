@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
@@ -83,7 +84,7 @@ model Section {
   url            String?
   waitCapacity   Int?      @map(name: "wait_capacity")
   waitRemaining  Int?      @map(name: "wait_remaining")
-  course         Course?   @relation(fields: [classHash], references: [id])
+  course         Course?   @relation(fields: [classHash], references: [id], onDelete: Cascade)
 
   FollowedSection FollowedSection[]
   @@map(name: "sections")
@@ -98,9 +99,9 @@ model Subject {
 
 model FollowedCourse {
   courseHash String @map(name: "course_hash")
-  course     Course @relation(fields: [courseHash], references: [id])
+  course     Course @relation(fields: [courseHash], references: [id], onDelete: Cascade)
   userId     Int    @map(name: "user_id")
-  user       User   @relation(fields: [userId], references: [id])
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, courseHash])
   @@map(name: "followed_courses")
@@ -108,9 +109,9 @@ model FollowedCourse {
 
 model FollowedSection {
   sectionHash String  @map(name: "section_hash")
-  section     Section @relation(fields: [sectionHash], references: [id])
+  section     Section @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
   userId      Int     @map(name: "user_id")
-  user        User    @relation(fields: [userId], references: [id])
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, sectionHash])
   @@map(name: "followed_sections")
@@ -123,4 +124,12 @@ model User {
 
   FollowedCourse FollowedCourse[]
   @@map(name: "users")
+}
+
+model TermInfo {
+  termId     String @unique @map(name: "term_id")
+  subCollege String @map(name: "sub_college")
+  text       String
+
+  @@map(name: "term_ids")
 }

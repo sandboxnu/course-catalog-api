@@ -28,7 +28,7 @@ it("should be able to parse a page of be", async (done) => {
 
   employees.parseLettersResponse({ body: body }, "be");
 
-  // As documented in the employees.js file, the decoded string should be 16 bytes.
+  // As documented in the employees.ts file, the decoded string should be 16 bytes.
   // Idk what those bytes mean, but we can check the length
   for (const employee of employees.people) {
     expect(atob(decodeURIComponent(employee.id)).length).toBe(16);

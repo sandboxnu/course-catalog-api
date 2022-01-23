@@ -25,9 +25,6 @@ class Macros {
   // This is the same token in the frontend and the backend, and does not need to be kept private.
   static amplitudeToken = "e0801e33a10c3b66a3c1ac8ebff53359";
 
-  // Also decided to keep all the other tracker Id's here because the amplitude one needs to be here and might as well keep them all in the same place.
-  static fullStoryToken = "4ZDGH";
-
   // Rollbar token
   static rollbarToken = "3a76015293344e6f9c47e35c9ce4c84c";
 
@@ -36,7 +33,10 @@ class Macros {
 
   // Use this for normal logging
   // Will log as normal, but stays silent during testing
-  static log(...args: any) {
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static log(...args: any): void {
     if (process.env.NODE_ENV === "test") {
       return;
     }
@@ -44,20 +44,25 @@ class Macros {
     console.log(...args); // eslint-disable-line no-console
   }
 
-  static warn(...args: any) {
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static warn(...args: any): void {
     if (process.env.NODE_ENV === "test") {
       return;
     }
 
     args = ["Warn:"].concat(args);
-    console.warn(...args); // eslint-disable-line no-console
+    console.warn(...args);
   }
 
-  static error(...args: any) {
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static error(...args: any): void {
     if (Macros.TEST) {
       return;
     }
 
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     const fullArgs: string[] = args.map((a: any) =>
       util.inspect(a, false, null, !Macros.PROD)
     );
@@ -67,8 +72,8 @@ class Macros {
   }
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-  static isNumeric(n: any) {
-    return !isNaN(parseFloat(n)) && isFinite(n); //eslint-disable-line no-restricted-globals
+  static isNumeric(n: any): boolean {
+    return !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(n);
   }
 }
 
