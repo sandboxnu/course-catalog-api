@@ -1,6 +1,6 @@
 # Services
 
-CCA uses the folling 3rd party services. The site depends on most of these being up to run correctly. Some are just used for analytics.
+CCA uses the following 3rd party services. The site depends on most of these being up to run correctly. Some are just used for analytics.
 
 ## Notifications
 
