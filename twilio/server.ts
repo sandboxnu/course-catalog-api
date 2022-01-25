@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
+import request from "request-promise-native";
 import twilioNotifyer from "./notifs";
 import notificationsManager from "../services/notificationsManager";
 import macros from "../utils/macros";
@@ -130,4 +131,37 @@ app.delete("/user/subscriptions", (req, res) => {
   } catch (error) {
     res.status(401).send();
   }
+});
+
+app.post("/feedback", async (req, res) => {
+  const { message, contact } = req.body;
+
+  const parsed_contact = contact === "" ? "No email provided" : contact;
+
+  const data = {
+    text: "Someone submitted some feedback",
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `Someone submitted some feedback:\n> *Contact*: \`${parsed_contact}\` \n> *Message*: ${message}`,
+        },
+      },
+    ],
+  };
+  const parsed_data = JSON.stringify(data);
+
+  return await request
+    .post({ url: process.env.SLACK_WEBHOOK_SECRET, body: parsed_data })
+    .then((_) => res.status(200).send())
+    .catch((error) => {
+      macros.error(error);
+
+      if (error.response) {
+        res.status(error.response.status).send(error.response.statusText);
+      } else {
+        res.status(500).send();
+      }
+    });
 });
