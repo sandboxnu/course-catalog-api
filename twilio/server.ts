@@ -153,7 +153,7 @@ app.post("/feedback", async (req, res) => {
   const parsed_data = JSON.stringify(data);
 
   return await request
-    .post({ url: process.env.SLACK_WEBHOOK_SECRET, body: parsed_data })
+    .post({ url: process.env.SLACK_WEBHOOK_URL, body: parsed_data })
     .then((_) => res.status(200).send())
     .catch((error) => {
       macros.error(error);
