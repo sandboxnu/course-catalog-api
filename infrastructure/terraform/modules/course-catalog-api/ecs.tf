@@ -114,7 +114,10 @@ module "scrape-scheduled-task" {
   version = "v2.0.2"
 
   name                = "${module.label.id}-scrape"
-  schedule_expression = "cron(0 0 * * ? *)"
+  # commenting out since scrapers don't work and this causes a new scraping task
+  # to generate everyday resulting in tons of stale scrapers if someone does not 
+  # manually delete them
+  # schedule_expression = "cron(0 0 * * ? *)"
   is_enabled          = "true"
 
   target_cluster_arn = aws_ecs_cluster.main.id
