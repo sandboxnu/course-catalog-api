@@ -109,28 +109,29 @@ resource "aws_ecs_task_definition" "scrape" {
   container_definitions    = module.scrape-container.json_map_encoded_list
 }
 
-module "scrape-scheduled-task" {
-  source  = "baikonur-oss/fargate-scheduled-task/aws"
-  version = "v2.0.2"
+# 01/25/2022: commenting out since scrapers don't work and this causes a new scraping task
+# to generate everyday resulting in tons of stale scrapers if someone does not 
+# manually delete them
 
-  name                = "${module.label.id}-scrape"
-  # commenting out since scrapers don't work and this causes a new scraping task
-  # to generate everyday resulting in tons of stale scrapers if someone does not 
-  # manually delete them
-  # schedule_expression = "cron(0 0 * * ? *)"
-  is_enabled          = "true"
+# module "scrape-scheduled-task" {
+#   source  = "baikonur-oss/fargate-scheduled-task/aws"
+#   version = "v2.0.2"
 
-  target_cluster_arn = aws_ecs_cluster.main.id
+#   name                = "${module.label.id}-scrape"
+#   schedule_expression = "cron(0 0 * * ? *)"
+#   is_enabled          = "true"
 
-  execution_role_arn  = aws_iam_role.ecs_task_execution_role.arn
+#   target_cluster_arn = aws_ecs_cluster.main.id
 
-  task_definition_arn = aws_ecs_task_definition.scrape.arn
-  task_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  task_count          = "1"
+#   execution_role_arn  = aws_iam_role.ecs_task_execution_role.arn
 
-  subnet_ids         = var.public_subnet_ids
-  security_group_ids = [aws_security_group.ecs_tasks.id]
-}
+#   task_definition_arn = aws_ecs_task_definition.scrape.arn
+#   task_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+#   task_count          = "1"
+
+#   subnet_ids         = var.public_subnet_ids
+#   security_group_ids = [aws_security_group.ecs_tasks.id]
+# }
 
 # =============== Updater service ================
 
