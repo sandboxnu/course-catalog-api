@@ -1,11 +1,21 @@
 name: Tests
 
-on: pull_request
+on: push
+  pull_request
 
 jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11.5
+        env:
+          POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD:
+        ports:
+          - 5432:5432
     env:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
