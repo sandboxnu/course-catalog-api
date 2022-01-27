@@ -47,7 +47,7 @@ class TermDump {
       });
 
       if (!termMapDump[termHash]) {
-        macros.log("Found section with no class?", termHash, hash);
+        macros.warn("Found section with no class?", termHash, hash);
         termMapDump[termHash] = {
           classMap: {},
           sectionMap: {},

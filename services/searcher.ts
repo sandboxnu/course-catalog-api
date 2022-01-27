@@ -189,9 +189,9 @@ class Searcher {
     const validFilters: FilterInput = {};
     Object.keys(filters).forEach((currFilter) => {
       if (!(currFilter in this.filters)) {
-        macros.log("Invalid filter key.", currFilter);
+        macros.warn("Invalid filter key.", currFilter);
       } else if (!this.filters[currFilter].validate(filters[currFilter])) {
-        macros.log("Invalid filter value type.", currFilter);
+        macros.warn("Invalid filter value type.", currFilter);
       } else {
         validFilters[currFilter] = filters[currFilter];
       }

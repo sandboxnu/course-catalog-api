@@ -17,7 +17,7 @@ const request = new Request("subjectAbberviationParser");
  */
 export const getSubjectAbbreviations = _.memoize(async (termId: string) => {
   macros.log(
-    `SubjectAbberviationParser: Not memoized. Scraping term ${termId}`
+    `SubjectAbbreviationParser: Not memoized. Scraping term ${termId}`
   );
   const subjectResponse = await requestSubjects(termId);
   return createDescriptionTable(subjectResponse);

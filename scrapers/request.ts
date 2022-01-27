@@ -179,7 +179,7 @@ class Request {
     }
 
     if (!agent) {
-      macros.log("Agent is false,", pool);
+      macros.http("Agent is false,", pool);
       return {};
     }
 
@@ -209,8 +209,8 @@ class Request {
         continue;
       }
       if (!separateReqPools[hostname]) {
-        macros.log(hostname);
-        macros.log(JSON.stringify(this.analytics[hostname], null, 4));
+        macros.http(hostname);
+        macros.http(JSON.stringify(this.analytics[hostname], null, 4));
         continue;
       }
 
@@ -223,8 +223,8 @@ class Request {
         ...this.analytics[hostname],
       };
 
-      macros.log(hostname);
-      macros.log(JSON.stringify(totalAnalytics, null, 4));
+      macros.http(hostname);
+      macros.http(JSON.stringify(totalAnalytics, null, 4));
 
       // Also log the event to Amplitude.
       totalAnalytics.hostname = hostname;
@@ -236,7 +236,7 @@ class Request {
     // Shared pool
     const sharedPoolAnalytics: Partial<AmplitudeEvent> =
       this.getAnalyticsFromAgent(separateReqDefaultPool);
-    macros.log(JSON.stringify(sharedPoolAnalytics, null, 4));
+    macros.http(JSON.stringify(sharedPoolAnalytics, null, 4));
 
     // Also upload it to Amplitude.
     sharedPoolAnalytics.hostname = "shared";
@@ -248,7 +248,7 @@ class Request {
 
     // Log the current time.
     const currentTime = moment();
-    macros.log(
+    macros.http(
       "Uptime:",
       moment.duration(moment().diff(LAUNCH_TIME)).asMinutes(),
       `(${currentTime.format("h:mm:ss a")})`
@@ -317,13 +317,13 @@ class Request {
     const output = { ...defaultConfig, ...config } as NativeRequestConfig;
     output.headers = { ...defaultConfig.headers, ...config.headers };
 
-    macros.verbose("Firing request to", output.url);
+    macros.http("Firing request to", output.url);
 
     // If there are not any open requests right now, start the interval
     // Only start the logging interval on production on AWS, only start it on Travis
     if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
       clearInterval(this.timer);
-      macros.log("Starting request analytics timer.");
+      macros.http("Starting request analytics timer.");
       this.analytics[hostname].startTime = Date.now();
       this.timer = setInterval(() => this.onInterval(), 5000);
       setTimeout(() => {
@@ -342,7 +342,7 @@ class Request {
     this.openRequests--;
 
     if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
-      macros.log("Stopping request analytics timer.");
+      macros.http("Stopping request analytics timer.");
       clearInterval(this.timer);
     }
 
@@ -377,7 +377,7 @@ class Request {
       const configToLog = { ...config };
       configToLog.jar = null;
 
-      macros.log(
+      macros.http(
         "Not caching by url b/c it has other headers",
         listOfHeaders,
         configToLog
@@ -399,7 +399,7 @@ class Request {
     );
 
     if (listOfConfigOptions.length > 0) {
-      macros.log(
+      macros.http(
         "Not caching by url b/c it has other config options",
         listOfConfigOptions
       );
@@ -411,7 +411,7 @@ class Request {
 
   // Outputs a response object. Get the body of this object with ".body".
   async request(config: CustomRequestConfig): Promise<Response> {
-    macros.verbose("Request hitting", config);
+    macros.http("Request hitting", config);
 
     const urlParsed = new URI(config.url);
     const hostname = urlParsed.hostname();
@@ -472,7 +472,7 @@ class Request {
 
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
-            macros.log(
+            macros.error(
               `Try#: ${tryCount} Code: ${
                 err.statusCode ||
                 err.RequestError ||
@@ -497,14 +497,14 @@ class Request {
           config.requiredInBody &&
           !this.doAnyStringsInArray(config.requiredInBody, response.body)
         ) {
-          macros.log(
+          macros.warn(
             `Try#: ${tryCount} Warning, body did not contain specified text ${response.body.length} ${response.statusCode} ${this.openRequests} ${config.url}`
           );
           throw new Error("Body missing required text.");
         }
 
         if (response.body.length < 4000 && !config.shortBodyWarning === false) {
-          macros.log(
+          macros.warn(
             `Warning, short body ${config.url} ${response.body} ${this.openRequests}`
           );
         }
@@ -523,7 +523,7 @@ class Request {
         // Don't log this on travis because it causes more than 4 MB to be logged and travis will kill the job
         this.analytics[hostname].totalBytesDownloaded += response.body.length;
         if (!macros.PROD) {
-          macros.log(
+          macros.http(
             `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
           );
         }

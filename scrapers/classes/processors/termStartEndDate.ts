@@ -90,7 +90,7 @@ class TermStartEndDate extends BaseProcessor {
 
     // Pick the first day if nothing was decisive.
     if (!finalStartDate) {
-      macros.log(
+      macros.warn(
         "Warning, no start date was definitive",
         term.termId,
         startDates
@@ -115,7 +115,7 @@ class TermStartEndDate extends BaseProcessor {
     // Pick the last day if nothing was decisive.
     // (the endDateKeys are in reverse chronological order)
     if (!finalEndDate) {
-      macros.log("Warning, no end date was definitive", term.termId, endDates);
+      macros.warn("Warning, no end date was definitive", term.termId, endDates);
       finalEndDate = endDateKeys[0];
     }
 

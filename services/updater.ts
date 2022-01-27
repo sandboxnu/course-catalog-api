@@ -78,7 +78,7 @@ class Updater {
 
   // Update classes and sections users and notify users if seats have opened up
   async update(): Promise<void> {
-    macros.log(`updating terms ${JSON.stringify(this.SEMS_TO_UPDATE)}`);
+    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
 
     const startTime = Date.now();
 
@@ -99,7 +99,7 @@ class Updater {
     );
 
     const dumpProcessorStartTime = Date.now();
-    macros.log("running dump processor");
+    macros.log("Running dump processor");
 
     await dumpProcessor.main({
       termDump: { sections, classes: [], subjects: {} },
@@ -120,9 +120,11 @@ class Updater {
     );
 
     macros.log(
-      `Done running updater onInterval. It took ${totalTime} ms (${
-        totalTime / 60000
-      } minutes). Updated ${sections.length} sections.`
+      `${
+        "Done running updater onInterval".underline.green
+      }. It took ${totalTime} ms (${(totalTime / 60000).toFixed(
+        2
+      )} minutes). Updated ${sections.length} sections.`
     );
   }
 

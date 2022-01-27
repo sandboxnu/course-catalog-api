@@ -31,6 +31,7 @@ class TermParser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async parseTerm(termId: string): Promise<ParsedTermSR> {
+    macros.log(`Parsing term ${termId}`);
     const subjectTable = await getSubjectDescriptions(termId);
     let sections: Section[] = await this.parseSections(termId);
 
@@ -56,7 +57,7 @@ class TermParser {
           subject,
           classId,
         })
-      ] = { termId, subject, classId };
+      ] = { termId, subject, classId } as CourseRef;
     });
 
     const unfilteredClasses = await pMap(
@@ -78,7 +79,7 @@ class TermParser {
     }
 
     macros.log(
-      `scraped ${classes.length} classes and ${sections.length} sections`
+      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
     );
 
     return { classes, sections, subjects: subjectTable };

@@ -51,7 +51,7 @@ class Macros {
       return;
     }
 
-    args = ["Warn:"].concat(args);
+    args = ["Warning:"].concat(args);
     console.warn(...args);
   }
 

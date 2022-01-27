@@ -11,7 +11,6 @@ import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import pMap from "p-map";
 import {
   BulkUpsertInput,
   Dump,
@@ -182,7 +181,7 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with profs");
+    macros.log("DumpProcessor: finished with profs");
 
     await Promise.all(
       _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
@@ -197,7 +196,7 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with courses");
+    macros.log("DumpProcessor: finished with courses");
 
     // FIXME this is a bad hack that will work
     const courseIds: Set<string> = new Set(
@@ -217,27 +216,14 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with sections");
+    macros.log("DumpProcessor: finished with sections");
 
-    const courseUpdateTimes: Record<string, Date> = processedSections.reduce(
-      (acc: Record<string, Date>, section) => {
-        return { ...acc, [section.classHash]: new Date() };
-      },
-      {}
-    );
+    await prisma.course.updateMany({
+      where: { id: { in: processedSections.map((s) => s.classHash) } },
+      data: { lastUpdateTime: new Date() },
+    });
 
-    await pMap(
-      Object.entries(courseUpdateTimes),
-      async ([id, updateTime]) => {
-        await prisma.course.update({
-          where: { id },
-          data: { lastUpdateTime: updateTime },
-        });
-      },
-      { concurrency: 10 }
-    );
-
-    macros.log("finished updating times");
+    macros.log("DumpProcessor: finished updating times");
 
     await Promise.all(
       Object.entries(termDump.subjects).map(([key, value]) => {
@@ -256,7 +242,7 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with subjects");
+    macros.log("DumpProcessor: finished with subjects");
 
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
@@ -286,11 +272,11 @@ class DumpProcessor {
         });
       }
 
-      macros.log("finished with term IDs");
+      macros.log("DumpProcessor: finished with term IDs");
     }
 
     if (destroy) {
-      console.log("destroying old courses and sections");
+      macros.log("DumpProcessor: destroying old courses and sections");
 
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
@@ -315,7 +301,7 @@ class DumpProcessor {
       });
     }
 
-    macros.log("finished cleaning up");
+    macros.log("DumpProcessor: Finished cleaning up");
 
     await populateES();
   }
