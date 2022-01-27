@@ -1,6 +1,6 @@
 name: Tests
 
-on: [push, pull_request]
+on: pull_request
 
 jobs:
   tests:
@@ -19,8 +19,6 @@ jobs:
         image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.0
         ports:
           - 9200:9200
-        env:
-          - discovery.type: single-node
     env:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
