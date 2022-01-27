@@ -6,6 +6,9 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    env:
+      TWILIO_ACCOUNT_SID: ACdc102938_this_is_a_fake_token
+      TWILIO_AUTH_TOKEN: password
     steps:
       - uses: actions/checkout@v2
       - name: install node v14.18
