@@ -50,7 +50,7 @@ class Main {
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {
-        macros.log("using cached class data - not rescraping");
+        macros.log("Using cached class data - not rescraping");
         return cached as ParsedTermSR;
       }
     }

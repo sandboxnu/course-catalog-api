@@ -124,8 +124,8 @@ class NeuEmployee {
           return;
         }
         if (index >= heads.length) {
-          macros.log(
-            "warning, table row is longer than head, ignoring content",
+          macros.warn(
+            "Table row is longer than head, ignoring content",
             index,
             heads,
             rows
@@ -184,7 +184,7 @@ class NeuEmployee {
   }
 
   // Given a list of things, will find the first one that is longer than 1 letter (a-z)
-  findName(list: string[]): string {
+  findName(list: string[], referenceName: string): string {
     for (let i = 0; i < list.length; i++) {
       const noSymbols = list[i].toLowerCase().replace(/[^0-9a-zA-Z]/gi, "");
 
@@ -203,7 +203,9 @@ class NeuEmployee {
     }
     this.couldNotFindNameList[logMatchString] = true;
 
-    macros.log("Could not find name from list:", list);
+    macros.warn(
+      `Could not find name from list: ${list}  (called by ${referenceName})`
+    );
     return null;
   }
 
@@ -219,17 +221,17 @@ class NeuEmployee {
     name = _.trim(name, ",");
 
     if (occurrences(name, ",", false) !== 1) {
-      macros.log("Name has != 1 commas", name);
+      macros.warn("Name has != 1 commas", name);
       return null;
     }
 
     const splitOnComma = name.split(",");
 
     const beforeCommaSplit = splitOnComma[1].trim().split(" ");
-    const firstName = this.findName(beforeCommaSplit);
+    const firstName = this.findName(beforeCommaSplit, name);
 
     const afterCommaSplit = splitOnComma[0].trim().split(" ").reverse();
-    const lastName = this.findName(afterCommaSplit);
+    const lastName = this.findName(afterCommaSplit, name);
 
     return { firstName, lastName };
   }
@@ -259,7 +261,12 @@ class NeuEmployee {
             const parsedTable = tableData.parsedTable;
             const rowCount = tableData.rowCount;
 
-            macros.log("Found", rowCount, " people on page ", lastNameStart);
+            macros.verbose(
+              "Found",
+              rowCount,
+              " people on page ",
+              lastNameStart
+            );
 
             for (let j = 0; j < rowCount; j++) {
               const person: Partial<Employee> = {};
@@ -268,7 +275,7 @@ class NeuEmployee {
                 .split("\n\n")[0];
 
               if (nameWithComma.includes("Do Not Use ")) {
-                macros.log("Skipping entry that says Do Not Use.");
+                macros.verbose("Skipping entry that says Do Not Use.");
                 continue;
               }
 
@@ -323,7 +330,7 @@ class NeuEmployee {
                 // Trim the id if it is too long. This is just a sanity check.
                 // 35 is just a arbitrary decided number.
                 if (id.length > 35) {
-                  macros.warn("person id over 35 chars?", id);
+                  macros.verbose("person id over 35 chars?", id);
                   id = id.slice(0, 35);
                 }
 
@@ -418,7 +425,7 @@ class NeuEmployee {
         "main",
         this.people
       );
-      macros.log(this.people.length, "employees saved to a file!");
+      macros.log(this.people.length, "NEU employees saved.");
     }
 
     return this.people;

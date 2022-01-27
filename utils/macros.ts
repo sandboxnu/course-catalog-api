@@ -12,6 +12,9 @@ import moment from "moment";
 import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
+import "colors";
+import { createLogger, format, transports } from "winston";
+import "winston-daily-rotate-file";
 
 dotenv.config();
 
@@ -75,7 +78,79 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 // {...} = the file
 let envVariables: EnvVars = null;
 
+enum LogLevel {
+  CRITICAL = -1,
+  ERROR = 0,
+  WARN = 1,
+  INFO = 2,
+  HTTP = 3,
+  VERBOSE = 4,
+}
+
+function getLogLevel(input: string): LogLevel {
+  input = input ? input : "";
+
+  switch (input.toUpperCase()) {
+    case "CRITICAL":
+      return LogLevel.CRITICAL;
+    case "ERROR":
+      return LogLevel.ERROR;
+    case "WARN":
+      return LogLevel.WARN;
+    case "INFO":
+      return LogLevel.INFO;
+    case "HTTP":
+      return LogLevel.HTTP;
+    case "VERBOSE":
+      return LogLevel.VERBOSE;
+    default:
+      return LogLevel.INFO;
+  }
+}
+
 class Macros extends commonMacros {
+  static logLevel = getLogLevel(process.env.LOG_LEVEL);
+
+  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
+
+  static logger = createLogger({
+    level: "info",
+    format: format.combine(
+      format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss",
+      }),
+      format.errors({ stack: true }),
+      format.splat(),
+      format.json()
+    ),
+    defaultMeta: { service: "course-catalog-api" },
+    transports: [
+      new transports.DailyRotateFile({
+        filename: "%DATE%-warn.log",
+        level: "warn",
+        dirname: Macros.dirname,
+        maxSize: "10m",
+        maxFiles: "180d",
+        zippedArchive: true,
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-info.log",
+        level: "info",
+        dirname: Macros.dirname,
+        maxSize: "10m",
+        maxFiles: "60d",
+        zippedArchive: true,
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-verbose.log",
+        level: "verbose",
+        dirname: Macros.dirname,
+        maxSize: "20m",
+        maxFiles: "15d",
+        zippedArchive: true,
+      }),
+    ],
+  });
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
@@ -218,9 +293,14 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static critical(...args: any): void {
+    Macros.logger.error(args);
+
     if (Macros.TEST) {
       console.error("macros.critical called");
-      console.error(...args);
+      console.error(
+        "Consider using the VERBOSE env flag for more info",
+        ...args
+      );
     } else {
       Macros.error(...args);
       process.exit(1);
@@ -233,7 +313,15 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static warn(...args: any): void {
-    super.warn(...args);
+    Macros.logger.warn(args);
+
+    if (LogLevel.WARN > Macros.logLevel) {
+      return;
+    }
+
+    super.warn(
+      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
+    );
 
     if (Macros.PROD) {
       this.logRollbarError(args, false);
@@ -247,7 +335,12 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static error(...args: any): void {
-    super.error(...args);
+    Macros.logger.error(args);
+
+    super.error(
+      "Consider using the LOG_LEVEL environment variable to see more\nValid options are VERBOSE, HTTP, and INFO (default)\n",
+      ...args
+    );
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
@@ -261,11 +354,33 @@ class Macros extends commonMacros {
     }
   }
 
+  static log(...args: any): void {
+    Macros.logger.info(args);
+
+    if (LogLevel.INFO > Macros.logLevel) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
+  static http(...args: any): void {
+    Macros.logger.http(args);
+
+    if (LogLevel.HTTP > Macros.logLevel) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
   // Use console.warn to log stuff during testing
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static verbose(...args: any): void {
-    if (!process.env.VERBOSE) {
+    Macros.logger.verbose(args);
+
+    if (LogLevel.VERBOSE > Macros.logLevel) {
       return;
     }
 
@@ -273,6 +388,13 @@ class Macros extends commonMacros {
   }
 }
 
-Macros.verbose("Starting in verbose mode.");
+Macros.log(
+  `**** Starting using log level: ${Macros.logLevel} (${
+    LogLevel[Macros.logLevel]
+  })`
+);
+Macros.log(
+  "**** Change the log level using the 'LOG_LEVEL' environment variable"
+);
 
 export default Macros;

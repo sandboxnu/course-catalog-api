@@ -70,10 +70,12 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
     const values: string[] = row.children
       .filter(validCell)
       .map((el) => $(el).text());
-    if (values.length >= heads.length) {
+    if (values.length > heads.length) {
       // TODO look into which classes trigger this
-      macros.log(
-        "warning, table row is longer than head, ignoring some content"
+      macros.warn(
+        "Table row is longer than head, ignoring some content",
+        heads,
+        values
       );
     }
 

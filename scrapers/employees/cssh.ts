@@ -71,7 +71,7 @@ class Cssh {
     if (image) {
       obj.image = image.trim();
     } else {
-      macros.log("Could not scrape image.", url);
+      macros.verbose("Could not scrape image.", url);
     }
 
     // Job Title
@@ -83,7 +83,7 @@ class Cssh {
       primaryRole = primaryRole.trim().split(";")[0];
       obj.primaryRole = primaryRole.replace(/\s+/gi, " ");
     } else {
-      macros.log("Could not scrape job title", url);
+      macros.verbose("Could not scrape job title", url);
     }
 
     // Parse out the email.
@@ -97,7 +97,7 @@ class Cssh {
 
       if (element.attribs.href.startsWith("mailto")) {
         if (emailElement) {
-          macros.log("Error, already saw a email element");
+          macros.warn("Error, already saw a email element");
         } else {
           emailElement = element;
         }
@@ -112,7 +112,7 @@ class Cssh {
 
     // If they are different, log a warning and skip this email.
     if ((mailto || email) && mailto !== email) {
-      macros.log(
+      macros.warn(
         "Warning; mailto !== email, skipping",
         mailto,
         email,
@@ -153,7 +153,7 @@ class Cssh {
           }
         } else if (category === "Contact:") {
           // The phone number is under the contact field
-          macros.log(element.data.trim(), "phone??");
+          macros.warn(element.data.trim(), "phone??");
         }
       } else if (element.type === "tag") {
         // Behaviors for hitting tags
@@ -164,14 +164,14 @@ class Cssh {
             element.children.length !== 1 ||
             element.children[0].type !== "text"
           ) {
-            macros.log("error finding category text", element.children);
+            macros.warn("error finding category text", element.children);
             continue;
           }
 
           // Ensure that its children is valid too.
           const h4Text = element.children[0].data.trim();
           if (h4Text.length < 0) {
-            macros.log("Found h4 with no text?", element.children);
+            macros.warn("Found h4 with no text?", element.children);
             continue;
           }
 
@@ -246,7 +246,7 @@ class Cssh {
         "main",
         people
       );
-      macros.log(people.length, "cssh people saved to a file!");
+      macros.log(people.length, "CSSH employees saved.");
     }
 
     return people;
