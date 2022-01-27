@@ -6,10 +6,10 @@ Object {
     "class": Object {
       "allOccurrences": Array [
         Object {
-          "termId": 201930,
+          "termId": "201930",
         },
         Object {
-          "termId": 201830,
+          "termId": "201830",
         },
       ],
       "name": "Fundamentals of Computer Science 1",
@@ -30,7 +30,7 @@ Object {
   "data": Object {
     "class": Object {
       "latestOccurrence": Object {
-        "termId": 201930,
+        "termId": "201930",
       },
       "name": "Fundamentals of Computer Science 1",
     },
@@ -51,7 +51,7 @@ Object {
     "class": Object {
       "name": "Fundamentals of Computer Science 1",
       "occurrence": Object {
-        "termId": 201930,
+        "termId": "201930",
       },
     },
   },
@@ -86,10 +86,10 @@ exports[`classByHash query gets class from class hash 1`] = `
 Object {
   "data": Object {
     "classByHash": Object {
-      "classId": 2500,
+      "classId": "2500",
       "name": "Fundamentals of Computer Science 1",
       "subject": "CS",
-      "termId": 201830,
+      "termId": "201830",
     },
   },
   "errors": undefined,

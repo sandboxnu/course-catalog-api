@@ -197,6 +197,11 @@ afterEach(async () => {
   jest.clearAllTimers();
 });
 
+afterAll(async () => {
+  jest.restoreAllMocks();
+  jest.useRealTimers();
+});
+
 function createSection(
   sec: SectionType,
   seatsRemaining: number,
@@ -227,7 +232,7 @@ function createSection(
       seatsRemaining,
       waitRemaining,
       info: "",
-      meetings: sec.meetings,
+      meetings: sec.meetings as any,
       profs: { set: sec.profs },
       course: { connect: { id: Keys.getClassHash(sec) } },
     },
@@ -635,7 +640,16 @@ describe("Updater", () => {
       const fundies2Section3Updated = fundies2SectionsUpdated.find(
         (section) => section.crn === FUNDIES_TWO_S3.crn
       );
-      expect(fundies2Section1Updated).toEqual(fundies2Section1); // no change
+      expect({
+        ...fundies2Section1Updated,
+        lastUpdateTime: "changed",
+      }).toEqual({
+        ...fundies2Section1,
+        lastUpdateTime: "changed",
+      }); // no change except for lastUpdateTime
+      expect(fundies2Section1Updated.lastUpdateTime).not.toBe(
+        fundies2Section1.lastUpdateTime
+      );
       expect(fundies2Section2Updated.seatsRemaining).toBe(0);
       expect(fundies2Section2Updated.waitRemaining).toBe(2);
       expect(fundies2Section3Updated.seatsRemaining).toBe(

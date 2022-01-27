@@ -50,7 +50,7 @@
         "@babel/preset-env",
         {
           "targets": {
-            "node": "12.16"
+            "node": "14.18.3"
           }
         }
       ],
@@ -118,7 +118,7 @@
     "identity-obj-proxy": "^3.0.0",
     "interweave": "^12.6.0",
     "is-mobile": "^2.0.0",
-    "jest": "^24.8.0",
+    "jest": "^26.6.3",
     "jest-environment-node": "^26.3.0",
     "json": "^9.0.6",
     "jsonwebtoken": "^8.5.1",
@@ -132,7 +132,7 @@
     "nodemon": "^2.0.6",
     "object-hash": "^1.1.7",
     "p-map": "^3.0.0",
-    "pg": "^7.12.1",
+    "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "prop-types": "^15.5.8",
     "randomstring": "^1.1.5",

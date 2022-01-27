@@ -36,8 +36,16 @@ class PrismaTestEnvironment extends NodeEnvironment {
     const client = new Client({
       connectionString: this.databaseUrl,
     });
-    await client.connect();
-    await client.query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`);
+    await client
+      .connect()
+      .then(() => console.log("connected"))
+      .catch((err) => console.log(err));
+    await client
+      .query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`)
+      .then(() => console.log("executed"))
+      .catch((err) => console.log(err))
+      .finally(() => client.end);
+
     await client.end();
   }
 }
