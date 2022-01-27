@@ -15,13 +15,14 @@ jobs:
           POSTGRES_PASSWORD:
         ports:
           - 5432:5432
-      es:
+      elasticsearch:
         image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.0
         ports:
           - 9200:9200
     env:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
+      elasticURL: "http://localhost:9200"
     steps:
       - uses: actions/checkout@v2
       - name: install node v14.18
