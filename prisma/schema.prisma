@@ -31,7 +31,7 @@ model Course {
   FollowedCourse  FollowedCourse[]
   sections        Section[]
 
-  @@unique([classId, termId, subject], map: "uniqueCourseProps")
+  @@unique([classId, termId, subject], name: "uniqueCourseProps", map: "uniqueCourseProps")
   @@map("courses")
 }
 
