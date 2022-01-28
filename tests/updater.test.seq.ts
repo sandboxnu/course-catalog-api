@@ -9,6 +9,7 @@ import prisma from "../services/prisma";
 import Keys from "../utils/keys";
 import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
+import elasticInstance from "../utils/elastic";
 
 const SEMS_TO_UPDATE = ["202210", "202160", "202154", "202150", "202140"];
 
@@ -612,7 +613,12 @@ describe("Updater", () => {
         FUNDIES_TWO_S3.seatsRemaining
       );
       expect(fundies2Section3.waitRemaining).toBe(FUNDIES_TWO_S3.waitRemaining);
+
+      jest.spyOn(elasticInstance, "bulkIndexFromMap").mockImplementation(() => {
+        return Promise.resolve();
+      });
       await UPDATER.update();
+      jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
 
       // updates in database
       const fundies1SectionsUpdated = await prisma.section.findMany({
