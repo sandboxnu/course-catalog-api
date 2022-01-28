@@ -170,7 +170,7 @@ class DumpProcessor {
 
     await Promise.all(
       _.chunk(Object.values(profDump), 2000).map(async (profs) => {
-        await prisma.$executeRaw(
+        await prisma.$executeRawUnsafe(
           this.bulkUpsert(
             "professors",
             profCols,
@@ -185,7 +185,7 @@ class DumpProcessor {
 
     await Promise.all(
       _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
-        await prisma.$executeRaw(
+        await prisma.$executeRawUnsafe(
           this.bulkUpsert(
             "courses",
             courseCols,
@@ -210,7 +210,7 @@ class DumpProcessor {
 
     await Promise.all(
       _.chunk(processedSections, 2000).map(async (sections) => {
-        await prisma.$executeRaw(
+        await prisma.$executeRawUnsafe(
           this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
         );
       })
