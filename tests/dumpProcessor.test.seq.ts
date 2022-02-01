@@ -32,7 +32,7 @@ it("does not create records if dump is empty", async () => {
     prisma.subject.count(),
   ]);
   await dumpProcessor.main({
-    termDump: { classes: [], sections: [], subjects: [] },
+    termDump: { classes: [], sections: [], subjects: {} },
   });
   expect(
     Promise.all([
@@ -89,7 +89,7 @@ describe("with professors", () => {
     };
 
     await dumpProcessor.main({
-      termDump: { classes: [], sections: [], subjects: [] },
+      termDump: { classes: [], sections: [], subjects: {} },
       profDump: profDump,
     });
     expect(await prisma.professor.count()).toEqual(3);
