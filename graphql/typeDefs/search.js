@@ -10,6 +10,7 @@ const typeDef = gql`
       campus: [String!]
       classType: [String!]
       classIdRange: IntRange
+      honors: String!
 
       """
       "
@@ -40,6 +41,7 @@ const typeDef = gql`
     subject: [FilterAgg!]
     classType: [FilterAgg!]
     campus: [FilterAgg!]
+    honors: [FilterAgg!]
   }
 
   type FilterAgg {

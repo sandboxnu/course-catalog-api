@@ -24,7 +24,7 @@ class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
   }
 
   finishSectionObj(section): ESSection {
-    return _.pick(section, ["profs", "classType", "crn", "campus"]);
+    return _.pick(section, ["profs", "classType", "crn", "campus", "honors"]);
   }
 }
 
