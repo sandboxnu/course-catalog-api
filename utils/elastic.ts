@@ -63,19 +63,19 @@ export class Elastic {
   // This method fetches the exact index name since they are now dynamically named green or blue
   async fetchIndexName(aliasName: string): Promise<void> {
     const { mapping } = this.indexes[aliasName];
-    const isBlue = await this.doesIndexExist(`${aliasName}_blue`);
-    const isGreen = await this.doesIndexExist(`${aliasName}_green`);
+    const indexNames = [`${aliasName}_blue`, `${aliasName}_green`];
+
+    for (const indexName of indexNames) {
+      if (await this.doesIndexExist(indexName)) {
+        this.indexes[aliasName].name = indexName;
+        return;
+      }
+    }
 
     // if neither index exists, create a new index
-    if (!isBlue && !isGreen) {
-      const indexName = `${aliasName}_blue`;
-      await this.createIndex(indexName, mapping);
-      await this.createAlias(indexName, aliasName);
-    } else if (isBlue) {
-      this.indexes[aliasName].name = `${aliasName}_blue`;
-    } else {
-      this.indexes[aliasName].name = `${aliasName}_green`;
-    }
+    const indexName = indexNames[0];
+    await this.createIndex(indexName, mapping);
+    await this.createAlias(indexName, aliasName);
   }
 
   async isConnected(): Promise<boolean> {
@@ -93,7 +93,7 @@ export class Elastic {
       await client.indices.create({ index: indexName, body: mapping });
       macros.log(`Created index ${indexName}`);
     } catch (e) {
-      macros.log(`Error creating index ${indexName}: ${e}`);
+      macros.error(`Error creating index ${indexName}: ${e}`);
       throw e;
     }
   }
@@ -104,7 +104,7 @@ export class Elastic {
       await client.indices.delete({ index: indexName });
       macros.log(`Deleted index ${indexName}`);
     } catch (e) {
-      macros.log(`Error deleting index ${indexName}: ${e}`);
+      macros.error(`Error deleting index ${indexName}: ${e}`);
       throw e;
     }
   }
@@ -115,7 +115,7 @@ export class Elastic {
       await client.indices.putAlias({ index: indexName, name: aliasName });
       macros.log(`Aliased index ${indexName} as ${aliasName}`);
     } catch (e) {
-      macros.log(`Error aliasing ${indexName} as ${aliasName}: ${e}`);
+      macros.error(`Error aliasing ${indexName} as ${aliasName}: ${e}`);
       throw e;
     }
   }
