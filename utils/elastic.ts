@@ -5,8 +5,8 @@
  */
 
 import { Client } from "@elastic/elasticsearch";
-import _, { map } from "lodash";
 import pMap from "p-map";
+import _ from "lodash";
 import macros from "./macros";
 import {
   EsBulkData,
@@ -89,42 +89,35 @@ export class Elastic {
 
   async createIndex(indexName: string, mapping): Promise<void> {
     macros.log(`Creating index ${indexName}`);
-    await client.indices
-      .create({
-        index: indexName,
-        body: mapping,
-      })
-      .then(() => {
-        macros.log(`Created index ${indexName}`);
-      })
-      .catch((e) => macros.log(`Error creating index ${indexName}: ${e}`));
+    try {
+      await client.indices.create({ index: indexName, body: mapping });
+      macros.log(`Created index ${indexName}`);
+    } catch (e) {
+      macros.log(`Error creating index ${indexName}: ${e}`);
+      throw e;
+    }
   }
 
   async deleteIndex(indexName: string): Promise<void> {
     macros.log(`Deleting index ${indexName}`);
-    await client.indices
-      .delete({
-        index: indexName,
-      })
-      .then(() => {
-        macros.log(`Deleted index ${indexName}`);
-      })
-      .catch((e) => macros.log(`Error deleting index ${indexName}: ${e}`));
+    try {
+      await client.indices.delete({ index: indexName });
+      macros.log(`Deleted index ${indexName}`);
+    } catch (e) {
+      macros.log(`Error deleting index ${indexName}: ${e}`);
+      throw e;
+    }
   }
 
   async createAlias(indexName: string, aliasName: string): Promise<void> {
     macros.log(`Aliasing index ${indexName} as ${aliasName}`);
-    await client.indices
-      .putAlias({
-        index: indexName,
-        name: aliasName,
-      })
-      .then(() => {
-        macros.log(`Aliased index ${indexName} as ${aliasName}`);
-      })
-      .catch((e) =>
-        macros.log(`Error aliasing ${indexName} as ${aliasName}: ${e}`)
-      );
+    try {
+      await client.indices.putAlias({ index: indexName, name: aliasName });
+      macros.log(`Aliased index ${indexName} as ${aliasName}`);
+    } catch (e) {
+      macros.log(`Error aliasing ${indexName} as ${aliasName}: ${e}`);
+      throw e;
+    }
   }
 
   // replace an index with a fresh one with a specified mapping
