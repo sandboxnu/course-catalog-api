@@ -50,7 +50,7 @@
         "@babel/preset-env",
         {
           "targets": {
-            "node": "14.18.3"
+            "node": "14.19"
           }
         }
       ],

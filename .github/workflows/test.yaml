@@ -27,10 +27,10 @@ jobs:
       elasticURL: "http://localhost:9200"
     steps:
       - uses: actions/checkout@v2
-      - name: install node v14.18
+      - name: install node v14.19
         uses: actions/setup-node@v2
         with:
-          node-version: "14.18"
+          node-version: "14.19"
       - uses: bahmutov/npm-install@v1
       - run: yarn test
       - run: yarn dbtest
