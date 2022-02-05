@@ -8,12 +8,11 @@ import {
   removeElement,
   getElementsByTagName,
   textContent,
-  isCDATA,
+  hasChildren,
 } from "domutils";
 import _ from "lodash";
 import cookie from "cookie";
 import he from "he";
-
 import { Response } from "request";
 import Request from "../request";
 import cache from "../cache";
@@ -253,7 +252,7 @@ class NeuEmployee {
 
           if (_.isEqual(element.attribs, goal)) {
             // Delete one of the elements that is before the header that would mess stuff up
-            if (isCDATA(element.children[1])) {
+            if (hasChildren(element.children[1])) {
               removeElement(element.children[1].children[1]);
             }
 
