@@ -40,7 +40,7 @@ jobs:
       - name: Checks Typescript types
         run: yarn tsc
   dependency_checks:
-    name: dependency_checks
+    name: Dependency Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
