@@ -51,5 +51,3 @@ jobs:
       - uses: bahmutov/npm-install@v1
       - name: Checks for duplicate definitions in the yarn lockfile
         run: yarn yarn-deduplicate --fail
-      - name: Checks for outdated dependencies
-        run: yarn outdated
