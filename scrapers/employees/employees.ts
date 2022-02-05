@@ -4,7 +4,12 @@
  */
 
 import { Parser, DomHandler } from "htmlparser2";
-import { removeElement, getElementsByTagName, textContent } from "domutils";
+import {
+  removeElement,
+  getElementsByTagName,
+  textContent,
+  isCDATA,
+} from "domutils";
 import _ from "lodash";
 import cookie from "cookie";
 import he from "he";
@@ -15,6 +20,7 @@ import cache from "../cache";
 import macros from "../../utils/macros";
 import { occurrences, standardizeEmail } from "./util";
 import { Employee } from "../../types/types";
+import { isTag } from "domutils";
 
 const request = new Request("Employees");
 
@@ -100,7 +106,7 @@ class NeuEmployee {
 
     //the headers
     rows[0].children.forEach((element) => {
-      if (element.type !== "tag" || ["th", "td"].indexOf(element.name) === -1) {
+      if (!isTag(element) || ["th", "td"].indexOf(element.name) === -1) {
         return;
       }
 
@@ -116,10 +122,7 @@ class NeuEmployee {
     rows.slice(1).forEach((row) => {
       let index = 0;
       row.children.forEach((element) => {
-        if (
-          element.type !== "tag" ||
-          ["th", "td"].indexOf(element.name) === -1
-        ) {
+        if (!isTag(element) || ["th", "td"].indexOf(element.name) === -1) {
           return;
         }
         if (index >= heads.length) {
@@ -250,7 +253,9 @@ class NeuEmployee {
 
           if (_.isEqual(element.attribs, goal)) {
             // Delete one of the elements that is before the header that would mess stuff up
-            removeElement(element.children[1].children[1]);
+            if (isCDATA(element.children[1])) {
+              removeElement(element.children[1].children[1]);
+            }
 
             const tableData: any = this.parseTable(element);
 
