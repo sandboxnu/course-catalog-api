@@ -32,8 +32,8 @@ jobs:
         with:
           node-version: "14.18"
       - uses: bahmutov/npm-install@v1
-      - run: yarn test
-      - run: yarn dbtest
+      - run: yarn test --coverage
+      - run: yarn dbtest --coverage
   finish:
     needs: tests
     runs-on: ubuntu-latest
