@@ -1,4 +1,4 @@
-name: Lint
+name: Linting & Static code checking
 
 on: pull_request
 
@@ -27,3 +27,26 @@ jobs:
           node-version: "14.18"
       - uses: bahmutov/npm-install@v1
       - run: yarn lint
+  tsc:
+    name: tsc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install node v14.18
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.18"
+      - uses: bahmutov/npm-install@v1
+      - run: yarn tsc
+  dependency_checks:
+    name: dependency_checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install node v14.18
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.18"
+      - uses: bahmutov/npm-install@v1
+      - run: yarn yarn-deduplicate --fail
+      - run: yarn outdated
