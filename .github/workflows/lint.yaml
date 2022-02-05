@@ -37,7 +37,8 @@ jobs:
         with:
           node-version: "14.18"
       - uses: bahmutov/npm-install@v1
-      - run: yarn tsc
+      - name: Checks Typescript types
+        run: yarn tsc
   dependency_checks:
     name: dependency_checks
     runs-on: ubuntu-latest
@@ -48,5 +49,7 @@ jobs:
         with:
           node-version: "14.18"
       - uses: bahmutov/npm-install@v1
-      - run: yarn yarn-deduplicate --fail
-      - run: yarn outdated
+      - name: Checks for duplicate definitions in the yarn lockfile
+        run: yarn yarn-deduplicate --fail
+      - name: Checks for outdated dependencies
+        run: yarn outdated

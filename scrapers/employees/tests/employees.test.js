@@ -15,7 +15,7 @@ it("findName should work", () => {
 });
 
 // Test to make sure parsing of an employees result page stays the same
-it("should be able to parse a page of be", async (done) => {
+it("should be able to parse a page of be", async () => {
   const body = await fs.readFile(
     path.join(
       __dirname,
@@ -35,6 +35,4 @@ it("should be able to parse a page of be", async (done) => {
   }
 
   expect(employees.people).toMatchSnapshot();
-
-  done();
 });

@@ -7,26 +7,20 @@ import Request from "../request";
 
 const request = new Request();
 
-it("get should work", async (done) => {
+it("get should work", async () => {
   const response = await request.get("https://google.com");
 
   expect(response.body).toBe("response for GET https://google.com");
-
-  done();
 });
 
-it("post should work", async (done) => {
+it("post should work", async () => {
   const response = await request.post("https://google.com");
 
   expect(response.body).toBe("response for POST https://google.com");
-
-  done();
 });
 
-it("head should work", async (done) => {
+it("head should work", async () => {
   const response = await request.head("https://google.com");
 
   expect(response.body).toBe("response for HEAD https://google.com");
-
-  done();
 });

@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import htmlparser from "htmlparser2";
-import domutils from "domutils";
+import { Parser, DomHandler } from "htmlparser2";
+import { removeElement, getElementsByTagName, textContent } from "domutils";
 import _ from "lodash";
 import cookie from "cookie";
 import he from "he";
@@ -72,10 +72,10 @@ class NeuEmployee {
     body: string,
     callback: (error: Error | null, dom: any[]) => void
   ): void {
-    const handler = new htmlparser.DomHandler(callback);
-    const parser = new htmlparser.Parser(handler);
+    const handler = new DomHandler(callback);
+    const parser = new Parser(handler);
     parser.write(body);
-    parser.done();
+    parser.end();
   }
 
   //returns a {colName:[values]} where colname is the first in the column
@@ -89,7 +89,7 @@ class NeuEmployee {
     }
 
     //includes both header rows and body rows
-    const rows = domutils.getElementsByTagName("tr", table);
+    const rows = getElementsByTagName("tr", table);
 
     if (rows.length === 0) {
       return null;
@@ -104,8 +104,7 @@ class NeuEmployee {
         return;
       }
 
-      const text = domutils
-        .getText(element)
+      const text = textContent(element)
         .trim()
         .toLowerCase()
         .replace(/\s/gi, "");
@@ -133,7 +132,7 @@ class NeuEmployee {
           return;
         }
 
-        retVal[heads[index]].push(domutils.getText(element).trim());
+        retVal[heads[index]].push(textContent(element).trim());
 
         //only count valid elements, not all row.children
         index++;
@@ -239,7 +238,8 @@ class NeuEmployee {
   parseLettersResponse(response, lastNameStart: string): Promise<void> {
     return new Promise((resolve, reject) => {
       this.handleRequestResponse(response.body, (err, dom) => {
-        const elements = domutils.getElementsByTagName("table", dom);
+        const elements = getElementsByTagName("table", dom);
+        // console.error(elements);
 
         for (let i = 0; i < elements.length; i++) {
           const element = elements[i];
@@ -250,7 +250,7 @@ class NeuEmployee {
 
           if (_.isEqual(element.attribs, goal)) {
             // Delete one of the elements that is before the header that would mess stuff up
-            domutils.removeElement(element.children[1].children[1]);
+            removeElement(element.children[1].children[1]);
 
             const tableData: any = this.parseTable(element);
 
