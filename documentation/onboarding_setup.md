@@ -104,4 +104,4 @@ You should now have a fully functional Search instance (at http://localhost:5000
 
 - at the end: we were running into a problem where cache was taking much longer than expected, and will continue to update on how this turns out.
   - The scrapers don\'t seem to be reading from the cache not sure why that\'s happening
-- recorded eddy\'s frontend setup to becca\'s zoom cloud
+- recorded Eddy\'s frontend setup to Becca\'s zoom cloud
