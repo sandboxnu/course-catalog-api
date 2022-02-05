@@ -61,6 +61,19 @@ To get around that, we use a course cache. You can get it from any of our curren
 - Unzip the `cache.zip` file, and move the contents to a directory named `cache` in the **root** of the repository
   - ie. `course-catalog-api/cache` (Make sure there isn\'t a `cache` directory in the `cache` directory - depending on how you unzip it, it might have created a nested directory.)
 
+```
+PROJECT
+  |
+  -- package.json
+  -- ...
+  -- cache
+      |
+      -- dev_data
+          |
+          -- v2
+      -- requests
+```
+
 #### Run
 
 The fun part - run these commands, one after the other.
