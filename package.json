@@ -5,7 +5,7 @@
   "scripts": {
     "-development-": "--------development--------",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
-    "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.js",
+    "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.ts",
     "dev:notifs": "ENABLE_NOTIFS=true yarn dev",
     "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
     "scrape:custom": "CUSTOM_SCRAPE=true yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
@@ -26,9 +26,9 @@
     "style": "yarn prettier --write .",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
-    "test": "npx jest --testPathIgnorePatterns='(seq|reg).[jt]s'",
+    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg).[jt]s'",
     "regtest": "jest --projects regtests",
-    "dbtest": "jest -i --projects tests/",
+    "dbtest": "jest -i --projects tests/ --verbose",
     "prodtest": "PROD=true jest reg.[jt]s",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
     "-building-": "--------building--------",
@@ -50,7 +50,7 @@
         "@babel/preset-env",
         {
           "targets": {
-            "node": "12.16"
+            "node": "14.19"
           }
         }
       ],
@@ -80,7 +80,7 @@
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
     "@elastic/elasticsearch": "^7.0.0-rc.2",
-    "@prisma/client": "^2.27.0",
+    "@prisma/client": "^3.0.0",
     "@typescript-eslint/typescript-estree": "^4.1.6",
     "amplitude": "^5.2.0",
     "apollo-server": "^2.9.5",
@@ -119,7 +119,7 @@
     "identity-obj-proxy": "^3.0.0",
     "interweave": "^12.6.0",
     "is-mobile": "^2.0.0",
-    "jest": "^24.8.0",
+    "jest": "^26.6.3",
     "jest-environment-node": "^26.3.0",
     "json": "^9.0.6",
     "jsonwebtoken": "^8.5.1",
@@ -133,7 +133,7 @@
     "nodemon": "^2.0.6",
     "object-hash": "^1.1.7",
     "p-map": "^3.0.0",
-    "pg": "^7.12.1",
+    "pg": "^8.5.1",
     "pg-hstore": "^2.3.3",
     "prop-types": "^15.5.8",
     "randomstring": "^1.1.5",
@@ -236,7 +236,7 @@
     "node-sass": "^4.9.2",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "prisma": "^2.27.0",
+    "prisma": "^3.0.0",
     "source-map-loader": "^0.2.4",
     "style-loader": "^1.0.0",
     "stylelint": "^10.0.1",

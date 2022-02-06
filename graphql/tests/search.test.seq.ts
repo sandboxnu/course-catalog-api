@@ -29,6 +29,8 @@ const FUNDIES: Course = {
   minCredits: 0,
   coreqs: EMPTY_REQ,
   prereqs: EMPTY_REQ,
+  feeAmount: 0,
+  feeDescription: "None",
 };
 
 const SECTION: Section = {
@@ -75,7 +77,7 @@ describe("search resolver", () => {
     const res = await query({
       query: gql`
         query search {
-          search(termId: 202030) {
+          search(termId: "202030") {
             totalCount
             pageInfo {
               hasNextPage
@@ -145,7 +147,7 @@ describe("search resolver", () => {
       query: gql`
         query search {
           search(
-            termId: 202030
+            termId: "202030"
             query: "hey"
             subject: ["CS"]
             nupath: ["bruh"]
@@ -185,7 +187,7 @@ describe("search resolver", () => {
     const res = await query({
       query: gql`
         query search {
-          search(termId: 202030) {
+          search(termId: "202030") {
             totalCount
             pageInfo {
               hasNextPage

@@ -21,23 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: install node v12
-        uses: actions/setup-node@v1
+      - name: install node v14.19
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: "14.19"
       - uses: bahmutov/npm-install@v1
       - run: yarn lint
-  test:
-    name: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: install node v12
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12
-      - uses: bahmutov/npm-install@v1
-      - run: yarn test
-        env:
-          TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
-          TWILIO_AUTH_TOKEN: 123

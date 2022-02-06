@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialActions"]
 }
 
 datasource db {
@@ -9,127 +8,127 @@ datasource db {
 }
 
 model Course {
-  classAttributes String[]  @map(name: "class_attributes")
-  classId         String?   @map(name: "class_id")
+  classAttributes String[]         @map("class_attributes")
+  classId         String?          @map("class_id")
   coreqs          Json?
   description     String?
-  feeAmount       Int?      @map(name: "fee_amount")
-  feeDescription  String?   @map(name: "fee_description")
+  feeAmount       Int?             @map("fee_amount")
+  feeDescription  String?          @map("fee_description")
   host            String?
-  id              String    @id
-  lastUpdateTime  DateTime? @default(now()) @map(name: "last_update_time")
-  maxCredits      Int?      @map(name: "max_credits")
-  minCredits      Int?      @map(name: "min_credits")
+  id              String           @id
+  lastUpdateTime  DateTime?        @default(now()) @map("last_update_time")
+  maxCredits      Int?             @map("max_credits")
+  minCredits      Int?             @map("min_credits")
   name            String?
   nupath          String[]
-  optPrereqsFor   Json?     @map(name: "opt_prereqs_for")
+  optPrereqsFor   Json?            @map("opt_prereqs_for")
   prereqs         Json?
-  prereqsFor      Json?     @map(name: "prereqs_for")
-  prettyUrl       String?   @map(name: "pretty_url")
+  prereqsFor      Json?            @map("prereqs_for")
+  prettyUrl       String?          @map("pretty_url")
   subject         String?
-  termId          String?   @map(name: "term_id")
+  termId          String?          @map("term_id")
   url             String?
+  FollowedCourse  FollowedCourse[]
   sections        Section[]
 
-  FollowedCourse FollowedCourse[]
-  @@unique([classId, termId, subject], name: "uniqueCourseProps")
-  @@map(name: "courses")
+  @@unique([classId, termId, subject], name: "uniqueCourseProps", map: "uniqueCourseProps")
+  @@map("courses")
 }
 
 model Major {
-  yearVersion  String @map(name: "year_version")
-  majorId      String @map(name: "major_id")
-  plansOfStudy Json   @map(name: "plans_of_study")
+  majorId      String @map("major_id")
+  plansOfStudy Json   @map("plans_of_study")
+  yearVersion  String @map("year_version")
   spec         Json
 
   @@id([yearVersion, majorId])
-  @@map(name: "majors")
+  @@map("majors")
 }
 
 model Professor {
-  bigPictureUrl     String?  @map(name: "big_picture_url")
+  bigPictureUrl     String?  @map("big_picture_url")
   email             String?
   emails            String[]
-  firstName         String?  @map(name: "first_name")
-  googleScholarId   String?  @map(name: "google_scholar_id")
+  firstName         String?  @map("first_name")
+  googleScholarId   String?  @map("google_scholar_id")
   id                String   @id
-  lastName          String?  @map(name: "last_name")
+  lastName          String?  @map("last_name")
   link              String?
   name              String?
-  officeRoom        String?  @map(name: "office_room")
-  personalSite      String?  @map(name: "personal_site")
+  officeRoom        String?  @map("office_room")
+  personalSite      String?  @map("personal_site")
   phone             String?
   pic               Json?
-  primaryDepartment String?  @map(name: "primary_department")
-  primaryRole       String?  @map(name: "primary_role")
-  streetAddress     String?  @map(name: "street_address")
+  primaryDepartment String?  @map("primary_department")
+  primaryRole       String?  @map("primary_role")
+  streetAddress     String?  @map("street_address")
   url               String?
 
-  @@map(name: "professors")
+  @@map("professors")
 }
 
 model Section {
-  classHash      String?   @map(name: "class_hash")
-  classType      String?   @map(name: "class_type")
-  crn            String?
-  honors         Boolean?
-  id             String    @id
-  info           String?
-  meetings       Json?
-  campus         String?
-  lastUpdateTime DateTime? @default(now()) @map(name: "last_update_time")
-  profs          String[]
-  seatsCapacity  Int?      @map(name: "seats_capacity")
-  seatsRemaining Int?      @map(name: "seats_remaining")
-  url            String?
-  waitCapacity   Int?      @map(name: "wait_capacity")
-  waitRemaining  Int?      @map(name: "wait_remaining")
-  course         Course?   @relation(fields: [classHash], references: [id], onDelete: Cascade)
-
+  classHash       String?           @map("class_hash")
+  classType       String?           @map("class_type")
+  crn             String?
+  honors          Boolean?
+  id              String            @id
+  info            String?
+  meetings        Json?
+  campus          String?
+  profs           String[]
+  seatsCapacity   Int?              @map("seats_capacity")
+  seatsRemaining  Int?              @map("seats_remaining")
+  url             String?
+  waitCapacity    Int?              @map("wait_capacity")
+  waitRemaining   Int?              @map("wait_remaining")
+  lastUpdateTime  DateTime?         @default(now()) @map("last_update_time")
+  course          Course?           @relation(fields: [classHash], references: [id], onDelete: Cascade)
   FollowedSection FollowedSection[]
-  @@map(name: "sections")
+
+  @@map("sections")
 }
 
 model Subject {
   abbreviation String @id
   description  String
 
-  @@map(name: "subjects")
+  @@map("subjects")
 }
 
 model FollowedCourse {
-  courseHash String @map(name: "course_hash")
+  courseHash String @map("course_hash")
+  userId     Int    @map("user_id")
   course     Course @relation(fields: [courseHash], references: [id], onDelete: Cascade)
-  userId     Int    @map(name: "user_id")
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, courseHash])
-  @@map(name: "followed_courses")
+  @@map("followed_courses")
 }
 
 model FollowedSection {
-  sectionHash String  @map(name: "section_hash")
+  sectionHash String  @map("section_hash")
+  userId      Int     @map("user_id")
   section     Section @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
-  userId      Int     @map(name: "user_id")
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, sectionHash])
-  @@map(name: "followed_sections")
+  @@map("followed_sections")
 }
 
 model User {
   id               Int               @id @default(autoincrement())
-  phoneNumber      String            @unique @map(name: "phone_number")
+  phoneNumber      String            @unique(map: "users.phone_number_unique") @map("phone_number")
+  FollowedCourse   FollowedCourse[]
   followedSections FollowedSection[]
 
-  FollowedCourse FollowedCourse[]
-  @@map(name: "users")
+  @@map("users")
 }
 
 model TermInfo {
-  termId     String @unique @map(name: "term_id")
-  subCollege String @map(name: "sub_college")
+  termId     String @unique(map: "term_ids.term_id_unique") @map("term_id")
+  subCollege String @map("sub_college")
   text       String
 
-  @@map(name: "term_ids")
+  @@map("term_ids")
 }

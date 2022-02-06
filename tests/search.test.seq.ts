@@ -2,7 +2,7 @@ import searcher from "../services/searcher";
 import prisma from "../services/prisma";
 
 beforeAll(async () => {
-  searcher.subjects = [];
+  searcher.subjects = {};
 });
 
 describe("searcher", () => {
@@ -26,13 +26,13 @@ describe("searcher", () => {
   describe("generateQuery", () => {
     it("generates match_all when no query", () => {
       expect(
-        searcher.generateQuery("", "202030", [], 0, 10).query.bool.must
+        searcher.generateQuery("", "202030", {}, 0, 10).query["bool"]["must"]
       ).toEqual({ match_all: {} });
     });
 
     it("generates a query without filters", () => {
       expect(
-        searcher.generateQuery("fundies", "202030", [], 0, 10, "nupath")
+        searcher.generateQuery("fundies", "202030", {}, 0, 10, "nupath")
       ).toMatchSnapshot();
     });
   });
