@@ -22,7 +22,7 @@ Throughout this, we link to other sites for installation instructions. Those sit
 
 To work on this project, you\'ll need a UNIX-based terminal. Mac/Linux users already have this - Windows users should install WSL, the Windows Subsystem for Linux.
 
-[WSL installation instructions](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (If this link doesn\'t work, just use the most current instructions provided by Microsoft).
+[WSL installation instructions](https://docs.microsoft.com/en-us/windows/wsl/install-win10) (If this link doesn\'t work, just use the most current instructions provided by Microsoft). Also make sure to [upgrade to version 2](https://docs.microsoft.com/en-us/windows/wsl/install#upgrade-version-from-wsl-1-to-wsl-2).
 
 We also recommend installing [Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/install) - this provides a much more pleasant experience than the Command Prompt.
 
