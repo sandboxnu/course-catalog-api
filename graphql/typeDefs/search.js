@@ -10,7 +10,7 @@ const typeDef = gql`
       campus: [String!]
       classType: [String!]
       classIdRange: IntRange
-      honors: String!
+      honors: Boolean
 
       """
       "

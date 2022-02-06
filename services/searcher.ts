@@ -70,6 +70,10 @@ class Searcher {
       return typeof arg === "string";
     };
 
+    const isBoolean = (arg: unknown): arg is boolean => {
+      return typeof arg === "boolean";
+    };
+
     const isStringArray = (arg: unknown): arg is string[] => {
       return Array.isArray(arg) && arg.every((elem) => isString(elem));
     };
@@ -126,7 +130,7 @@ class Searcher {
       return { terms: { "sections.campus.keyword": selectedCampuses } };
     };
 
-    const getHonorsFilter = (selectedHonors: string): TermsQuery => {
+    const getHonorsFilter = (selectedHonors: boolean): TermsQuery => {
       return { terms: { "sections.honors": selectedHonors } };
     };
 
@@ -159,7 +163,7 @@ class Searcher {
         agg: "sections.campus.keyword",
       },
       honors: {
-        validate: isString,
+        validate: isBoolean,
         create: getHonorsFilter,
         agg: "sections.honors",
       },
@@ -318,6 +322,7 @@ class Searcher {
         this.generateQuery(query, termId, everyOtherFilter, 0, 0, fKey)
       );
     }
+    console.log(JSON.stringify(queries));
     return queries;
   }
 
