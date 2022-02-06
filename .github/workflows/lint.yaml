@@ -1,7 +1,13 @@
 name: Linting & Static code checking
 
-on: ["push", "pull_request"]
-
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+      
 jobs:
   prettier:
     name: prettier
