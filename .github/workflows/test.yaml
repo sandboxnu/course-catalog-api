@@ -30,6 +30,7 @@ jobs:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
       elasticURL: "http://localhost:9200"
+      NODE_COVERALLS_DEBUG: 1
     steps:
       - uses: actions/checkout@v2
       - name: install node v14.19
@@ -56,3 +57,4 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
+          verbose: true
