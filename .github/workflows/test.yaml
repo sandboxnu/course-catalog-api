@@ -38,8 +38,21 @@ jobs:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
       - run: yarn test --coverage
-      - run: yarn dbtest --coverage
-      - name: Coveralls
+      - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: General tests
+          parallel: true
+      - run: yarn dbtest --coverage
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: Database tests
+          parallel: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
