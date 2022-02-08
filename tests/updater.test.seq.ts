@@ -240,12 +240,10 @@ describe("Updater", () => {
   it("scrapes the right terms to update", async () => {
     const mockTermParser = jest.fn(async () => []);
     jest.spyOn(termParser, "parseSections").mockImplementation(mockTermParser);
-    jest
-      .spyOn(UPDATER, "getNotificationInfo")
-      .mockImplementation(async () => ({
-        updatedCourses: [],
-        updatedSections: [],
-      }));
+    jest.spyOn(UPDATER, "getNotificationInfo").mockImplementation(async () => ({
+      updatedCourses: [],
+      updatedSections: [],
+    }));
 
     await UPDATER.update();
     expect(mockTermParser.mock.calls.length).toBe(SEMS_TO_UPDATE.length);
