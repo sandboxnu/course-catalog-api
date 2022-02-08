@@ -4,9 +4,9 @@
  */
 
 import _ from "lodash";
+import { Section as PrismaSection } from "@prisma/client";
 import prisma from "../services/prisma";
 import { Course, Section } from "../types/types";
-import { Section as PrismaSection } from "@prisma/client";
 import {
   PrismaCourseWithSections,
   SerializedCourse,
@@ -25,9 +25,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     instances: PrismaCourseWithSections[],
     all = false
   ): Promise<Record<string, SerializedCourse<C, S>>> {
-    const courses = instances.map((course) => {
-      return this.serializeCourse(course);
-    });
+    const courses = instances.map((course) => this.serializeCourse(course));
 
     let sections: PrismaSection[] | undefined;
 
@@ -47,12 +45,12 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
 
     return _(courses)
       .keyBy(this.getClassHash)
-      .mapValues((course) => {
-        return this.bulkSerializeCourse(
+      .mapValues((course) =>
+        this.bulkSerializeCourse(
           course,
           classToSections[this.getClassHash(course)] || []
-        );
-      })
+        )
+      )
       .value();
   }
 
@@ -76,12 +74,11 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     if (sections.length === 0) return [];
 
     return sections
-      .map((section) => {
-        return this.serializeSection(section);
-      })
-      .map((section) => {
-        return { ...section, ..._.pick(parentCourse, this.courseProps()) };
-      });
+      .map((section) => this.serializeSection(section))
+      .map((section) => ({
+        ...section,
+        ..._.pick(parentCourse, this.courseProps()),
+      }));
   }
 
   serializeCourse(course: PrismaCourseWithSections): C {

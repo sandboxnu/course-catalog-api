@@ -4,7 +4,7 @@
  */
 import _ from "lodash";
 import { Course, Section } from "@prisma/client";
-import prisma from "../services/prisma";
+import prisma from "./prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
 import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
@@ -66,65 +66,54 @@ class Searcher {
 
   static generateFilters(): FilterPrelude {
     // type validating functions
-    const isString = (arg: unknown): arg is string => {
-      return typeof arg === "string";
-    };
+    const isString = (arg: unknown): arg is string => typeof arg === "string";
 
-    const isStringArray = (arg: unknown): arg is string[] => {
-      return Array.isArray(arg) && arg.every((elem) => isString(elem));
-    };
+    const isStringArray = (arg: unknown): arg is string[] =>
+      Array.isArray(arg) && arg.every((elem) => isString(elem));
 
-    const isTrue = (arg: unknown): arg is true => {
-      return typeof arg === "boolean" && arg;
-    };
+    const isTrue = (arg: unknown): arg is true =>
+      typeof arg === "boolean" && arg;
 
-    const isNum = (arg: unknown): arg is number => {
-      return typeof arg === "number";
-    };
+    const isNum = (arg: unknown): arg is number => typeof arg === "number";
 
-    const isRange = (arg: any): arg is Range => {
-      return (
-        _.difference(Object.keys(arg), ["min", "max"]).length === 0 &&
-        isNum(arg.min) &&
-        isNum(arg.max)
-      );
-    };
+    const isRange = (arg: any): arg is Range =>
+      _.difference(Object.keys(arg), ["min", "max"]).length === 0 &&
+      isNum(arg.min) &&
+      isNum(arg.max);
 
     // filter-generating functions
-    const getSectionsAvailableFilter = (): ExistsQuery => {
-      return { exists: { field: "sections" } };
-    };
+    const getSectionsAvailableFilter = (): ExistsQuery => ({
+      exists: { field: "sections" },
+    });
 
-    const getNUpathFilter = (selectedNUpaths: string[]): TermsQuery => {
-      return { terms: { "class.nupath.keyword": selectedNUpaths } };
-    };
+    const getNUpathFilter = (selectedNUpaths: string[]): TermsQuery => ({
+      terms: { "class.nupath.keyword": selectedNUpaths },
+    });
 
-    const getSubjectFilter = (selectedSubjects: string[]): TermsQuery => {
-      return { terms: { "class.subject.keyword": selectedSubjects } };
-    };
+    const getSubjectFilter = (selectedSubjects: string[]): TermsQuery => ({
+      terms: { "class.subject.keyword": selectedSubjects },
+    });
 
-    const getClassTypeFilter = (selectedClassTypes: string[]): TermsQuery => {
-      return { terms: { "sections.classType.keyword": selectedClassTypes } };
-    };
+    const getClassTypeFilter = (selectedClassTypes: string[]): TermsQuery => ({
+      terms: { "sections.classType.keyword": selectedClassTypes },
+    });
 
-    const getTermIdFilter = (selectedTermId: string): TermQuery => {
-      return { term: { "class.termId": selectedTermId } };
-    };
+    const getTermIdFilter = (selectedTermId: string): TermQuery => ({
+      term: { "class.termId": selectedTermId },
+    });
 
-    const getRangeFilter = (selectedRange: Range): RangeQuery => {
-      return {
-        range: {
-          "class.classId.numeric": {
-            gte: selectedRange.min,
-            lte: selectedRange.max,
-          },
+    const getRangeFilter = (selectedRange: Range): RangeQuery => ({
+      range: {
+        "class.classId.numeric": {
+          gte: selectedRange.min,
+          lte: selectedRange.max,
         },
-      };
-    };
+      },
+    });
 
-    const getCampusFilter = (selectedCampuses: string[]): TermsQuery => {
-      return { terms: { "sections.campus.keyword": selectedCampuses } };
-    };
+    const getCampusFilter = (selectedCampuses: string[]): TermsQuery => ({
+      terms: { "sections.campus.keyword": selectedCampuses },
+    });
 
     return {
       nupath: {
@@ -230,9 +219,9 @@ class Searcher {
       query.length > 0
         ? {
             multi_match: {
-              query: query,
+              query,
               type: "most_fields", // More fields match => higher score
-              fields: fields,
+              fields,
             },
           }
         : MATCH_ALL_QUERY;
@@ -246,7 +235,7 @@ class Searcher {
     const isEmployee: LeafQuery = { term: { type: "employee" } };
     const areFiltersApplied: boolean = Object.keys(userFilters).length > 0;
     const requiredFilters: FilterInput = {
-      termId: termId,
+      termId,
       sectionsAvailable: true,
     };
     const filters: FilterInput = { ...requiredFilters, ...userFilters };
@@ -336,14 +325,12 @@ class Searcher {
       resultCount: results[0].hits.total.value,
       took: results[0].took,
       aggregations: _.fromPairs(
-        filters.map((filter, idx) => {
-          return [
-            filter,
-            results[idx + 1].aggregations[filter].buckets.map((aggVal) => {
-              return this.generateAgg(filter, aggVal.key, aggVal.doc_count);
-            }),
-          ];
-        })
+        filters.map((filter, idx) => [
+          filter,
+          results[idx + 1].aggregations[filter].buckets.map((aggVal) =>
+            this.generateAgg(filter, aggVal.key, aggVal.doc_count)
+          ),
+        ])
       ),
     };
   }
@@ -392,9 +379,7 @@ class Searcher {
 
   getSingleResultAggs(result: CourseWithSections): AggResults {
     return {
-      nupath: result.nupath.map((val) => {
-        return { value: val, count: 1 };
-      }),
+      nupath: result.nupath.map((val) => ({ value: val, count: 1 })),
       subject: [this.generateAgg("subject", result.subject, 1)],
       classType: [{ value: result.sections[0].classType, count: 1 }],
       campus: [{ value: result.sections[0].campus, count: 1 }],

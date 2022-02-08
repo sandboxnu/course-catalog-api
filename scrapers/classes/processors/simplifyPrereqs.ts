@@ -10,9 +10,9 @@ import {
   isBooleanReq,
 } from "../../../types/types";
 
-//this is given the output of formatRequirements, where data.type and data.values exist
+// this is given the output of formatRequirements, where data.type and data.values exist
 // if there is an or embedded in another or, merge them (and and's too)
-//and if there is a subvalue of only 1 len, merge that too
+// and if there is a subvalue of only 1 len, merge that too
 function simplifyRequirementsBase(data: Requisite): Requisite {
   if (typeof data === "string") {
     return data;
@@ -33,7 +33,7 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
     subData = simplifyRequirementsBase(subData);
 
     if (isBooleanReq(subData)) {
-      //if same type, merge
+      // if same type, merge
       if (subData.type === data.type) {
         retVal.values = retVal.values.concat(subData.values);
         return;
@@ -47,7 +47,7 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
       }
     }
 
-    //just add the subdata
+    // just add the subdata
     retVal.values.push(subData);
   });
 

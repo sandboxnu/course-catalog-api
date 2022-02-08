@@ -40,7 +40,7 @@ class Camd {
   }
 
   parseDetailPage(url: string, body: string | Buffer): Employee {
-    const obj: Partial<Employee> = { url: url };
+    const obj: Partial<Employee> = { url };
 
     const $ = cheerio.load(body);
 
@@ -188,9 +188,9 @@ class Camd {
 
     profileUrls.forEach((url) => {
       promises.push(
-        request.get(url).then((response) => {
-          return this.parseDetailPage(url, response.body);
-        })
+        request
+          .get(url)
+          .then((response) => this.parseDetailPage(url, response.body))
       );
     });
 

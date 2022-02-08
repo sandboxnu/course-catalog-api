@@ -2,13 +2,13 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import prisma from "../services/prisma";
-import HydrateCourseSerializer from "./hydrateCourseSerializer";
-import HydrateProfSerializer from "./hydrateProfSerializer";
 import {
   Course as PrismaCourse,
   Professor as PrismaProfessor,
 } from "@prisma/client";
+import prisma from "../services/prisma";
+import HydrateCourseSerializer from "./hydrateCourseSerializer";
+import HydrateProfSerializer from "./hydrateProfSerializer";
 import {
   CourseSearchResult,
   ProfessorSearchResult,
@@ -17,6 +17,7 @@ import {
 
 class HydrateSerializer {
   courseSerializer: HydrateCourseSerializer;
+
   profSerializer: HydrateProfSerializer;
 
   constructor() {
@@ -25,13 +26,13 @@ class HydrateSerializer {
   }
 
   async bulkSerialize(instances: any[]): Promise<SearchResult[]> {
-    const profs = instances.filter((instance) => {
-      return instance._source.type === "employee";
-    });
+    const profs = instances.filter(
+      (instance) => instance._source.type === "employee"
+    );
 
-    const courses = instances.filter((instance) => {
-      return instance._source.type === "class";
-    });
+    const courses = instances.filter(
+      (instance) => instance._source.type === "class"
+    );
 
     const profData: PrismaProfessor[] = await prisma.professor.findMany({
       where: {

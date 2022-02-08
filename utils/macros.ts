@@ -9,11 +9,11 @@ import Amplitude from "amplitude";
 import dotenv from "dotenv";
 
 import moment from "moment";
-import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
+import { createLogger, format, transports } from "winston";
+import commonMacros from "./abstractMacros";
 import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
-import { createLogger, format, transports } from "winston";
 import "winston-daily-rotate-file";
 
 dotenv.config();
@@ -37,7 +37,7 @@ while (oldcwd !== process.cwd()) {
     fs.statSync("package.json");
   } catch (e) {
     oldcwd = process.cwd();
-    //cd .. until in the same dir as package.json, the root of the project
+    // cd .. until in the same dir as package.json, the root of the project
     process.chdir("..");
 
     // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
@@ -88,7 +88,7 @@ enum LogLevel {
 }
 
 function getLogLevel(input: string): LogLevel {
-  input = input ? input : "";
+  input = input || "";
 
   switch (input.toUpperCase()) {
     case "CRITICAL":
@@ -111,7 +111,7 @@ function getLogLevel(input: string): LogLevel {
 class Macros extends commonMacros {
   static logLevel = getLogLevel(process.env.LOG_LEVEL);
 
-  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
+  static dirname = `logs/${Macros.PROD ? "prod" : "dev"}`;
 
   static logger = createLogger({
     level: "info",
@@ -151,6 +151,7 @@ class Macros extends commonMacros {
       }),
     ],
   });
+
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.

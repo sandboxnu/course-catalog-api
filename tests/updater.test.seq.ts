@@ -167,17 +167,13 @@ const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
 const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
 
 const UPDATER: Updater = new Updater(SEMS_TO_UPDATE);
-const mockSendNotification = jest.fn(() => {
-  return Promise.resolve();
-});
+const mockSendNotification = jest.fn(() => Promise.resolve());
 
 beforeEach(async () => {
   jest.clearAllMocks();
   jest.restoreAllMocks();
   jest.useFakeTimers();
-  jest.spyOn(dumpProcessor, "main").mockImplementation(() => {
-    return Promise.resolve();
-  });
+  jest.spyOn(dumpProcessor, "main").mockImplementation(() => Promise.resolve());
 
   // jest.mock("../services/notifyer.ts", () => ({
   //   __esModule: true,
@@ -242,13 +238,14 @@ function createSection(
 
 describe("Updater", () => {
   it("scrapes the right terms to update", async () => {
-    const mockTermParser = jest.fn(async () => {
-      return [];
-    });
+    const mockTermParser = jest.fn(async () => []);
     jest.spyOn(termParser, "parseSections").mockImplementation(mockTermParser);
-    jest.spyOn(UPDATER, "getNotificationInfo").mockImplementation(async () => {
-      return { updatedCourses: [], updatedSections: [] };
-    });
+    jest
+      .spyOn(UPDATER, "getNotificationInfo")
+      .mockImplementation(async () => ({
+        updatedCourses: [],
+        updatedSections: [],
+      }));
 
     await UPDATER.update();
     expect(mockTermParser.mock.calls.length).toBe(SEMS_TO_UPDATE.length);
@@ -614,9 +611,9 @@ describe("Updater", () => {
       );
       expect(fundies2Section3.waitRemaining).toBe(FUNDIES_TWO_S3.waitRemaining);
 
-      jest.spyOn(elasticInstance, "bulkIndexFromMap").mockImplementation(() => {
-        return Promise.resolve();
-      });
+      jest
+        .spyOn(elasticInstance, "bulkIndexFromMap")
+        .mockImplementation(() => Promise.resolve());
       await UPDATER.update();
       jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
 

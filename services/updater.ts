@@ -30,7 +30,9 @@ type ModelName = "course" | "section";
 
 class Updater {
   COURSE_MODEL: ModelName;
+
   SECTION_MODEL: ModelName;
+
   SEMS_TO_UPDATE: string[];
 
   // produce a new Updater instance
@@ -84,9 +86,9 @@ class Updater {
 
     // scrape everything
     const sections: ScrapedSection[] = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return termParser.parseSections(termId);
-      })
+      await pMap(this.SEMS_TO_UPDATE, (termId) =>
+        termParser.parseSections(termId)
+      )
     ).reduce((acc, val) => acc.concat(val), []);
 
     macros.log(`scraped ${sections.length} sections`);
@@ -199,12 +201,12 @@ class Updater {
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
     const watchedCourses = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.followedCourse.findMany({
+      await pMap(this.SEMS_TO_UPDATE, (termId) =>
+        prisma.followedCourse.findMany({
           include: { course: true },
           where: { course: { termId } },
-        });
-      })
+        })
+      )
     ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedCourseLookup: Record<string, Course> = {};
@@ -213,12 +215,12 @@ class Updater {
     }
 
     const watchedSections = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.followedSection.findMany({
+      await pMap(this.SEMS_TO_UPDATE, (termId) =>
+        prisma.followedSection.findMany({
           include: { section: { include: { course: true } } },
           where: { section: { course: { termId } } },
-        });
-      })
+        })
+      )
     ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedSectionLookup: Record<string, Section> = {};
@@ -227,11 +229,11 @@ class Updater {
     }
 
     const oldSections: Section[] = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.section.findMany({
+      await pMap(this.SEMS_TO_UPDATE, (termId) =>
+        prisma.section.findMany({
           where: { course: { termId } },
-        });
-      })
+        })
+      )
     ).reduce((acc, val) => acc.concat(val), []);
 
     const oldSectionsByClass: Record<string, string[]> = {};
@@ -253,9 +255,11 @@ class Updater {
     const campusIdentifier = term[5];
     if (campusIdentifier === "0") {
       return "NEU";
-    } else if (campusIdentifier === "2" || campusIdentifier === "8") {
+    }
+    if (campusIdentifier === "2" || campusIdentifier === "8") {
       return "LAW";
-    } else if (campusIdentifier === "4" || campusIdentifier === "5") {
+    }
+    if (campusIdentifier === "4" || campusIdentifier === "5") {
       return "CPS";
     }
   }

@@ -1,8 +1,8 @@
 import $ from "cheerio";
 import _ from "lodash";
+import req from "request";
 import Request from "../../request";
 import macros from "../../../utils/macros";
-import req from "request";
 
 const requestObj = new Request("util");
 
@@ -42,14 +42,14 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
     return [];
   }
 
-  //includes both header rows and body rows
+  // includes both header rows and body rows
   const rows: cheerio.TagElement[] = $("tr", table).get();
   if (rows.length === 0) {
     macros.error("zero rows???");
     return [];
   }
 
-  //the headers
+  // the headers
   const heads: string[] = rows[0].children
     .filter(validCell)
     .reduce((acc: string[], element) => {
@@ -114,6 +114,6 @@ async function getCookiesForSearch(termId: string): Promise<req.CookieJar> {
 }
 
 export default {
-  parseTable: parseTable,
-  getCookiesForSearch: getCookiesForSearch,
+  parseTable,
+  getCookiesForSearch,
 };

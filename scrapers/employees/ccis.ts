@@ -214,7 +214,6 @@ class NeuCCISFaculty {
       promises.push(
         request.get(obj.url).then((personResponse) => {
           output.push(this.parseDetailPage(personResponse, obj));
-          return;
         })
       );
     });

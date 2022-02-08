@@ -11,9 +11,9 @@ class ProfSerializer<T extends Partial<PrismaProfessor>> {
     instances: PrismaProfessor[]
   ): Promise<Record<string, SerializedProfessor<T>>> {
     return _.keyBy(
-      instances.map((instance) => {
-        return this._bulkSerializeProf(this._serializeProf(instance));
-      }),
+      instances.map((instance) =>
+        this._bulkSerializeProf(this._serializeProf(instance))
+      ),
       (res) => res.employee.id
     );
   }

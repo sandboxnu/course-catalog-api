@@ -47,12 +47,10 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
 function createDescriptionTable(
   subjects: SubjectDescription[]
 ): Record<string, string> {
-  const mappedSubjects = subjects.map((subject) => {
-    return {
-      subjectCode: subject.code,
-      description: he.decode(subject.description),
-    };
-  });
+  const mappedSubjects = subjects.map((subject) => ({
+    subjectCode: subject.code,
+    description: he.decode(subject.description),
+  }));
 
   const mappedByDesc = _.keyBy(mappedSubjects, "description");
   return _.mapValues(mappedByDesc, "subjectCode");
@@ -61,12 +59,10 @@ function createDescriptionTable(
 function createAbbrTable(
   subjects: SubjectDescription[]
 ): Record<string, string> {
-  const mappedSubjects = subjects.map((subject) => {
-    return {
-      description: he.decode(subject.description) as string,
-      subjectCode: subject.code,
-    };
-  });
+  const mappedSubjects = subjects.map((subject) => ({
+    description: he.decode(subject.description) as string,
+    subjectCode: subject.code,
+  }));
 
   const mappedByCode = _.keyBy(mappedSubjects, "subjectCode");
   return _.mapValues(mappedByCode, "description");

@@ -65,9 +65,7 @@ export class Bannerv9Parser {
     const termList = TermListParser.serializeTermsList(bannerTerms.body);
 
     // Sort by descending order (to get the most recent term IDs first)
-    return termList.sort((a, b) => {
-      return Number(b.termId) - Number(a.termId);
-    });
+    return termList.sort((a, b) => Number(b.termId) - Number(a.termId));
   }
 
   /**
@@ -95,21 +93,20 @@ export class Bannerv9Parser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async scrapeTerms(termIds: string[]): Promise<ParsedTermSR> {
-    const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p);
-    });
+    const termData: ParsedTermSR[] = await pMap(termIds, (p) =>
+      TermParser.parseTerm(p)
+    );
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each
     return termData.reduce(
-      (acc, cur) => {
+      (acc, cur) =>
         // Merge the two objects by keys
-        return _.mergeWith(acc, cur, (a, b) => {
+        _.mergeWith(acc, cur, (a, b) => {
           if (Array.isArray(a)) {
             return a.concat(b);
           }
           return { ...a, ...b };
-        });
-      },
+        }),
       { classes: [], sections: [], subjects: {} }
     );
   }

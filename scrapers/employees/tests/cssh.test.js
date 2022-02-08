@@ -16,7 +16,7 @@ it("should be able to parse a detail apge", async () => {
 
   const output = cssh.parseDetailPage(
     "https://www.northeastern.edu/cssh/faculty/max-abrahms",
-    { body: body }
+    { body }
   );
 
   expect(output).toMatchSnapshot();

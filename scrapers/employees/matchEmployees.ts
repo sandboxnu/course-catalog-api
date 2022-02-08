@@ -401,11 +401,12 @@ class CombineCCISandEmployees {
       "p.kothamali@northeastern.edu",
     ];
     const beforeModifyCount = mergedEmployees.length;
-    mergedEmployees = mergedEmployees.filter((person) => {
-      return !(
-        person.emails && _.intersection(person.emails, hiddenProfs).length > 0
-      );
-    });
+    mergedEmployees = mergedEmployees.filter(
+      (person) =>
+        !(
+          person.emails && _.intersection(person.emails, hiddenProfs).length > 0
+        )
+    );
 
     // Remove data from individual entries
     for (let i = 0; i < mergedEmployees.length; i++) {

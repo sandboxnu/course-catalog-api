@@ -136,9 +136,9 @@ describe("search", () => {
 
   it("returns search results of same subject if course code query", async () => {
     const results = await prodSearch("cs", "202110", 0, 10);
-    results.data.results.map((result) => {
-      return expect(result.class.subject).toBe("CS");
-    });
+    results.data.results.map((result) =>
+      expect(result.class.subject).toBe("CS")
+    );
   });
 
   it("autocorrects typos", async () => {
@@ -248,12 +248,10 @@ describe("search", () => {
       unfilteredAggregations = (await prodSearch("", "202110", 0, 1)).data
         .filterOptions;
       unfilteredAggCounts = unfilteredAggregations.nupath.reduce(
-        (pathToCount, { value, count }) => {
-          return {
-            ...pathToCount,
-            [value]: count,
-          };
-        },
+        (pathToCount, { value, count }) => ({
+          ...pathToCount,
+          [value]: count,
+        }),
         {}
       );
     });

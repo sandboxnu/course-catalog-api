@@ -1,5 +1,5 @@
-import dumpProcessor from "../services/dumpProcessor";
 import he from "he";
+import dumpProcessor from "../services/dumpProcessor";
 
 describe("Entity decoding", () => {
   it("should handle empty string", () => {

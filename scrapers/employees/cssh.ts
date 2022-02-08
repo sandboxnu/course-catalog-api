@@ -231,9 +231,7 @@ class Cssh {
 
     profileUrls.forEach((url) => {
       promises.push(
-        request.get(url).then((response) => {
-          return this.parseDetailPage(url, response);
-        })
+        request.get(url).then((response) => this.parseDetailPage(url, response))
       );
     });
 

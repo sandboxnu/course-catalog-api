@@ -226,8 +226,8 @@ class DumpProcessor {
     macros.log("DumpProcessor: finished updating times");
 
     await Promise.all(
-      Object.entries(termDump.subjects).map(([key, value]) => {
-        return prisma.subject.upsert({
+      Object.entries(termDump.subjects).map(([key, value]) =>
+        prisma.subject.upsert({
           where: {
             abbreviation: key,
           },
@@ -238,8 +238,8 @@ class DumpProcessor {
           update: {
             description: value,
           },
-        });
-      })
+        })
+      )
     );
 
     macros.log("DumpProcessor: finished with subjects");
@@ -314,13 +314,14 @@ class DumpProcessor {
   ): string {
     let query = `INSERT INTO ${tableName} (${columnNames.join(",")}) VALUES `;
     query += vals
-      .map((val) => {
-        return `(${columnNames
-          .map((c) =>
-            valTransforms[c](val[this.toCamelCase(c)], c, valTransforms)
-          )
-          .join(",")})`;
-      })
+      .map(
+        (val) =>
+          `(${columnNames
+            .map((c) =>
+              valTransforms[c](val[this.toCamelCase(c)], c, valTransforms)
+            )
+            .join(",")})`
+      )
       .join(",");
 
     query += ` ON CONFLICT (id) DO UPDATE SET ${columnNames
@@ -486,7 +487,7 @@ async function fromFile(termFilePath, empFilePath): Promise<void | null> {
 
   const termDump = await fs.readJson(termFilePath);
   const profDump = await fs.readJson(empFilePath);
-  await instance.main({ termDump: termDump, profDump: profDump });
+  await instance.main({ termDump, profDump });
 }
 
 if (require.main === module) {

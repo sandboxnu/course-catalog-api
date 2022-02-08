@@ -154,11 +154,11 @@ class AddPreRequisiteFor extends BaseProcessor {
 
       if (firstId < secondId) {
         return -1;
-      } else if (firstId > secondId) {
-        return 1;
-      } else {
-        return 0;
       }
+      if (firstId > secondId) {
+        return 1;
+      }
+      return 0;
     });
   }
 

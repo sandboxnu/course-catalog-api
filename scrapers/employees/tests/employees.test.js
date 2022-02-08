@@ -26,7 +26,7 @@ it("should be able to parse a page of be", async () => {
     "utf8"
   );
 
-  employees.parseLettersResponse({ body: body }, "be");
+  employees.parseLettersResponse({ body }, "be");
 
   // As documented in the employees.ts file, the decoded string should be 16 bytes.
   // Idk what those bytes mean, but we can check the length

@@ -32,9 +32,7 @@ class SectionParser {
     });
 
     if (req.body.success) {
-      return req.body.data.map((sr) => {
-        return this.parseSectionFromSearchResult(sr);
-      });
+      return req.body.data.map((sr) => this.parseSectionFromSearchResult(sr));
     }
     return false;
   }
@@ -57,9 +55,7 @@ class SectionParser {
       lastUpdateTime: Date.now(),
       classType: SR.scheduleTypeDescription,
       campus: SR.campusDescription,
-      honors: SR.sectionAttributes.some((a) => {
-        return a.description === "Honors";
-      }),
+      honors: SR.sectionAttributes.some((a) => a.description === "Honors"),
       url:
         "https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched" +
         `?term_in=${SR.term}&crn_in=${SR.courseReferenceNumber}`,

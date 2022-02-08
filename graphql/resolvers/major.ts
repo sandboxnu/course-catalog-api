@@ -1,6 +1,6 @@
 import { UserInputError } from "apollo-server";
-import prisma from "../../services/prisma";
 import { Major as PrismaMajor } from "@prisma/client";
+import prisma from "../../services/prisma";
 
 const noResultsError = (recordType): never => {
   throw new UserInputError(`${recordType} not found!`);
@@ -10,7 +10,7 @@ const getLatestMajorOccurrence = async (
   majorId: string
 ): Promise<PrismaMajor> => {
   const majors: PrismaMajor[] = await prisma.major.findMany({
-    where: { majorId: majorId },
+    where: { majorId },
     orderBy: { yearVersion: "desc" },
     take: 1,
   });
@@ -20,9 +20,7 @@ const getLatestMajorOccurrence = async (
 
 const resolvers = {
   Query: {
-    major: (parent, args) => {
-      return getLatestMajorOccurrence(args.majorId);
-    },
+    major: (parent, args) => getLatestMajorOccurrence(args.majorId),
   },
   Major: {
     occurrence: async (major, args) => {
@@ -33,9 +31,7 @@ const resolvers = {
 
       return majors[0] || noResultsError("occurrence");
     },
-    latestOccurrence: (major) => {
-      return getLatestMajorOccurrence(major.majorId);
-    },
+    latestOccurrence: (major) => getLatestMajorOccurrence(major.majorId),
   },
 };
 

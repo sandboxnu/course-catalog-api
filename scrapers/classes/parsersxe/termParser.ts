@@ -48,8 +48,8 @@ class TermParser {
     }
 
     sections.forEach((section) => {
-      const subject = section.subject;
-      const classId = section.classId;
+      const { subject } = section;
+      const { classId } = section;
       courseIdentifiers[
         keys.getClassHash({
           host: "neu.edu",
@@ -62,9 +62,8 @@ class TermParser {
 
     const unfilteredClasses = await pMap(
       Object.values(courseIdentifiers),
-      ({ subject, classId }) => {
-        return ClassParser.parseClass(termId, subject, classId);
-      },
+      ({ subject, classId }) =>
+        ClassParser.parseClass(termId, subject, classId),
       { concurrency: 500 }
     );
 
@@ -123,9 +122,9 @@ class TermParser {
   async parseSections(termId: string): Promise<Section[]> {
     const searchResults = await this.requestsSectionsForTerm(termId);
 
-    return searchResults.map((a) => {
-      return SectionParser.parseSectionFromSearchResult(a);
-    });
+    return searchResults.map((a) =>
+      SectionParser.parseSectionFromSearchResult(a)
+    );
   }
 
   /**

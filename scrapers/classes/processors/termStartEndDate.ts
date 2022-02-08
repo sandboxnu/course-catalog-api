@@ -15,6 +15,7 @@ import { ParsedTermSR } from "../../../types/scraperTypes";
 
 class TermStartEndDate extends BaseProcessor {
   TermStartEndDate: typeof TermStartEndDate;
+
   go(
     termDump: ParsedTermSR & { terms: unknown[] }
   ): ParsedTermSR & { terms: unknown[] } {
@@ -76,9 +77,9 @@ class TermStartEndDate extends BaseProcessor {
     let finalStartDate;
     let finalEndDate;
 
-    const startDateKeys = _.keys(startDates).sort((a, b) => {
-      return parseInt(a, 10) - parseInt(b, 10);
-    });
+    const startDateKeys = _.keys(startDates).sort(
+      (a, b) => parseInt(a, 10) - parseInt(b, 10)
+    );
 
     for (let i = 0; i < startDateKeys.length; i++) {
       const date = startDateKeys[i];
@@ -99,10 +100,11 @@ class TermStartEndDate extends BaseProcessor {
     }
 
     // Now for the end dates
-    const endDateKeys = _.keys(endDates).sort((a, b) => {
-      // sort in reverse order
-      return parseInt(b, 10) - parseInt(a, 10);
-    });
+    const endDateKeys = _.keys(endDates).sort(
+      (a, b) =>
+        // sort in reverse order
+        parseInt(b, 10) - parseInt(a, 10)
+    );
 
     for (let i = 0; i < endDateKeys.length; i++) {
       const date = endDateKeys[i];

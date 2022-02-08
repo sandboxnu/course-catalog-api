@@ -97,7 +97,7 @@ class ClassParser {
     // The type we have is basically an expanded Course
     const classDetails: ParsedCourseSR = {
       host: "neu.edu",
-      termId: termId,
+      termId,
       subject: subjectCode,
       classId: courseNumber,
       classAttributes: attributes,
@@ -223,8 +223,8 @@ class ClassParser {
       return { amount: null, description: "" };
     }
 
-    let amount = rows[0].amount;
-    const description = rows[0].description;
+    let { amount } = rows[0];
+    const { description } = rows[0];
     // Chop the "$" off the front and the ".00" off the end, remove ","s
     amount = amount.substring(1);
     amount = amount.substring(0, amount.indexOf("."));
@@ -258,7 +258,7 @@ class ClassParser {
      * if the request fails because termId and/or crn are invalid,
      * request will retry 35 attempts before crashing.
      */
-    return await request.post({
+    return request.post({
       url: `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/${endpoint}`,
       form: {
         term: termId,
@@ -270,7 +270,7 @@ class ClassParser {
   }
 
   getAllCourseRefs(course: ParsedCourseSR): Record<string, CourseRef> {
-    const termId = course.termId;
+    const { termId } = course;
     const prereqRefs = this.getRefsFromJson(course.prereqs, termId);
     const coreqRefs = this.getRefsFromJson(course.coreqs, termId);
     const prereqForRefs = this.getRefsFromJson(course.prereqsFor, termId);

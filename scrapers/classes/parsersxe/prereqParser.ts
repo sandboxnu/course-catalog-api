@@ -95,7 +95,7 @@ class PrereqParser {
         }
 
         if (row.subject && !subjectAbbreviation) {
-          //TODO rollbar this and other scrape issues
+          // TODO rollbar this and other scrape issues
           macros.warn(`Prereqs: can't find abbreviation for "${subject}"`);
         }
         const curr = row.test
@@ -110,7 +110,7 @@ class PrereqParser {
           // recur, but then also stick current into the array result of the recur
           const recur = parsePrereqs();
           if (isContentPresent) {
-            recur.values.unshift(curr); //push to front
+            recur.values.unshift(curr); // push to front
           }
           parsed.push(recur);
         } else if (isContentPresent) {

@@ -119,7 +119,7 @@ function parseMeetings(
   facultyMeetingTimes: { meetingTime: FacultyMeetingTime }[]
 ): BackendMeeting[] {
   return facultyMeetingTimes.map((m): BackendMeeting => {
-    const meetingTime = m.meetingTime;
+    const { meetingTime } = m;
     return {
       startDate: mmddyyyyToDaysSinceEpoch(meetingTime.startDate),
       endDate: mmddyyyyToDaysSinceEpoch(meetingTime.endDate),
@@ -132,6 +132,6 @@ function parseMeetings(
   });
 }
 
-export default { parseMeetings: parseMeetings, profName: profName };
+export default { parseMeetings, profName };
 
 export const forTesting = { hhmmToSeconds, mmddyyyyToDaysSinceEpoch };

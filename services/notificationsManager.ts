@@ -9,7 +9,6 @@ class NotificationsManager {
       update: {},
       where: { phoneNumber },
     });
-    return;
   }
 
   async getUserSubscriptions(phoneNumber: string): Promise<UserInfo> {
@@ -53,7 +52,6 @@ class NotificationsManager {
     });
 
     await Promise.all([sectionInserts, courseInserts]);
-    return;
   }
 
   async deleteUserSubscriptions(
@@ -68,7 +66,7 @@ class NotificationsManager {
     promises.push(
       prisma.followedSection.deleteMany({
         where: {
-          userId: userId,
+          userId,
           sectionHash: { in: sectionIds },
         },
       })
@@ -77,14 +75,13 @@ class NotificationsManager {
     promises.push(
       prisma.followedCourse.deleteMany({
         where: {
-          userId: userId,
+          userId,
           courseHash: { in: courseIds },
         },
       })
     );
 
     await Promise.all(promises);
-    return;
   }
 
   async deleteAllUserSubscriptions(phoneNumber: string): Promise<void> {
@@ -96,7 +93,6 @@ class NotificationsManager {
       where: { userId },
     });
     macros.log(`deleted all user subscriptions for ${phoneNumber}`);
-    return;
   }
 }
 

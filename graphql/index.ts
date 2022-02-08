@@ -68,7 +68,6 @@ if (require.main === module) {
     .listen()
     .then(({ url }) => {
       macros.log(`ready at ${url}`);
-      return;
     })
     .catch((err) => {
       macros.error(`error starting graphql server: ${JSON.stringify(err)}`);

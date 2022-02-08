@@ -8,12 +8,10 @@ describe("termParser", () => {
   describe("concatPagination", () => {
     const mockReq = jest.fn();
     // Mock implementation just returns slices of the range [0,4]
-    mockReq.mockImplementation((offset, pageSize) => {
-      return {
-        items: _.range(offset, Math.min(5, offset + pageSize)),
-        totalCount: 5,
-      };
-    });
+    mockReq.mockImplementation((offset, pageSize) => ({
+      items: _.range(offset, Math.min(5, offset + pageSize)),
+      totalCount: 5,
+    }));
     afterEach(() => {
       mockReq.mockClear();
     });

@@ -9,6 +9,7 @@ import {
   getElementsByTagName,
   textContent,
   hasChildren,
+  isTag,
 } from "domutils";
 import _ from "lodash";
 import cookie from "cookie";
@@ -19,7 +20,6 @@ import cache from "../cache";
 import macros from "../../utils/macros";
 import { occurrences, standardizeEmail } from "./util";
 import { Employee } from "../../types/types";
-import { isTag } from "domutils";
 
 const request = new Request("Employees");
 
@@ -64,7 +64,9 @@ const request = new Request("Employees");
 
 class NeuEmployee {
   people: Employee[];
+
   couldNotFindNameList: Record<string, boolean>;
+
   cookiePromise: null | string;
 
   constructor() {
@@ -83,8 +85,8 @@ class NeuEmployee {
     parser.end();
   }
 
-  //returns a {colName:[values]} where colname is the first in the column
-  //regardless if its part of the header or the first row of the body
+  // returns a {colName:[values]} where colname is the first in the column
+  // regardless if its part of the header or the first row of the body
   parseTable(
     table: any
   ): null | { rowCount: number; parsedTable: Record<string, unknown> } {
@@ -93,7 +95,7 @@ class NeuEmployee {
       return null;
     }
 
-    //includes both header rows and body rows
+    // includes both header rows and body rows
     const rows = getElementsByTagName("tr", table);
 
     if (rows.length === 0) {
@@ -103,7 +105,7 @@ class NeuEmployee {
     const retVal = {};
     const heads = [];
 
-    //the headers
+    // the headers
     rows[0].children.forEach((element) => {
       if (!isTag(element) || ["th", "td"].indexOf(element.name) === -1) {
         return;
@@ -117,7 +119,7 @@ class NeuEmployee {
       heads.push(text);
     });
 
-    //add the other rows
+    // add the other rows
     rows.slice(1).forEach((row) => {
       let index = 0;
       row.children.forEach((element) => {
@@ -136,11 +138,11 @@ class NeuEmployee {
 
         retVal[heads[index]].push(textContent(element).trim());
 
-        //only count valid elements, not all row.children
+        // only count valid elements, not all row.children
         index++;
       });
 
-      //add empty strings until reached heads length
+      // add empty strings until reached heads length
       for (; index < heads.length; index++) {
         retVal[heads[index]].push("");
       }
@@ -262,8 +264,8 @@ class NeuEmployee {
               return resolve();
             }
 
-            const parsedTable = tableData.parsedTable;
-            const rowCount = tableData.rowCount;
+            const { parsedTable } = tableData;
+            const { rowCount } = tableData;
 
             macros.verbose(
               "Found",

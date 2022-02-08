@@ -1,11 +1,9 @@
+import { User } from "@prisma/client";
 import { NotificationInfo } from "../types/notifTypes";
 import { sendNotifications } from "../services/notifyer";
 import twilioNotifyer from "../twilio/notifs";
-import { User } from "@prisma/client";
 
-const mockSendNotificationText = jest.fn(() => {
-  return Promise.resolve();
-});
+const mockSendNotificationText = jest.fn(() => Promise.resolve());
 
 beforeEach(() => {
   jest.clearAllMocks();

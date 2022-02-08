@@ -32,11 +32,15 @@ type ElasticIndex = {
 
 export class Elastic {
   public CLASS_ALIAS: string;
+
   public EMPLOYEE_ALIAS: string;
 
   private classIndex: ElasticIndex;
+
   private employeeIndex: ElasticIndex;
+
   private indexes: ElasticIndex[];
+
   private initializing: Promise<void>;
 
   constructor() {
@@ -130,9 +134,9 @@ export class Elastic {
       let nextIndexName = "";
       const [indexName, color] = name.split("_");
       if (color === "blue") {
-        nextIndexName = indexName + "_green";
+        nextIndexName = `${indexName}_green`;
       } else {
-        nextIndexName = indexName + "_blue";
+        nextIndexName = `${indexName}_blue`;
       }
 
       macros.log(`Creating index ${nextIndexName}`);
@@ -164,8 +168,8 @@ export class Elastic {
       // response to time out when waiting on the data to transfer. So instead of waiting, we
       // take the task id and periodically check whether the reindexing task is done before proceeding.
       while (
-        !(await client.tasks.get({ task_id: reindexResponse.body["task"] }))
-          .body["completed"]
+        !(await client.tasks.get({ task_id: reindexResponse.body.task })).body
+          .completed
       ) {
         // if the task is incomplete, meaning we enter the while, we sleep the program for 5 seconds
         macros.log(`Checking reindexing status of ${nextIndexName}`);
@@ -255,10 +259,10 @@ export class Elastic {
     body: EsQuery
   ): Promise<EsResult> {
     return client.search({
-      index: index,
-      from: from,
-      size: size,
-      body: body,
+      index,
+      from,
+      size,
+      body,
     });
   }
 

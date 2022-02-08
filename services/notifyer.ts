@@ -27,9 +27,8 @@ function generateCourseMessage(course: CourseNotificationInfo): string {
 function generateSectionMessage(section: SectionNotificationInfo): string {
   if (section.seatsRemaining > 0) {
     return `A seat opened up in ${section.subject} ${section.courseId} (CRN: ${section.crn}). Check it out at https://searchneu.com/${section.campus}/${section.termId}/search/${section.subject}${section.courseId} !`;
-  } else {
-    return `A waitlist seat has opened up in ${section.subject} ${section.courseId} (CRN: ${section.crn}). Check it out at https://searchneu.com/${section.campus}/${section.termId}/search/${section.subject}${section.courseId} !`;
   }
+  return `A waitlist seat has opened up in ${section.subject} ${section.courseId} (CRN: ${section.crn}). Check it out at https://searchneu.com/${section.campus}/${section.termId}/search/${section.subject}${section.courseId} !`;
 }
 
 export async function sendNotifications(
@@ -42,17 +41,13 @@ export async function sendNotifications(
     notificationInfo.updatedSections.length === 0
   ) {
     macros.log("no notifications to send!");
-    return;
   } else {
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
       .map((course) => {
         const courseMessage = generateCourseMessage(course);
-        return courseHashToUsers[course.courseHash].map((user) => {
-          return twilioNotifyer.sendNotificationText(
-            user.phoneNumber,
-            courseMessage
-          );
-        });
+        return courseHashToUsers[course.courseHash].map((user) =>
+          twilioNotifyer.sendNotificationText(user.phoneNumber, courseMessage)
+        );
       })
       .reduce((acc, val) => acc.concat(val), []);
 
@@ -60,19 +55,18 @@ export async function sendNotifications(
       notificationInfo.updatedSections
         .map((section) => {
           const sectionMessage = generateSectionMessage(section);
-          return sectionHashToUsers[section.sectionHash].map((user) => {
-            return twilioNotifyer.sendNotificationText(
+          return sectionHashToUsers[section.sectionHash].map((user) =>
+            twilioNotifyer.sendNotificationText(
               user.phoneNumber,
               sectionMessage
-            );
-          });
+            )
+          );
         })
         .reduce((acc, val) => acc.concat(val), []);
 
     await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
       () => {
         macros.log("Notifications sent from notifyer!");
-        return;
       }
     );
   }
