@@ -20,7 +20,7 @@ class FindMissingLabs extends BaseProcessor {
       for (const key of Object.keys(keyToRow)) {
         const aClass = keyToRow[key];
 
-        const name = aClass.name;
+        const { name } = aClass;
 
         const match = name.match(
           /\s+for\s+([A-Z\d]+|[A-Z\d&]{2,})\s+([A-Z\d&]+)/g

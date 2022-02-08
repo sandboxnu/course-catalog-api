@@ -90,7 +90,7 @@ describe("with professors", () => {
 
     await dumpProcessor.main({
       termDump: { classes: [], sections: [], subjects: {} },
-      profDump: profDump,
+      profDump,
     });
     expect(await prisma.professor.count()).toEqual(3);
   });
@@ -147,7 +147,7 @@ describe("with classes", () => {
       subjects: [],
     };
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.course.count()).toEqual(3);
   });
 });
@@ -214,7 +214,7 @@ describe("with sections", () => {
       subjects: [],
     };
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.section.count()).toEqual(3);
   });
 });
@@ -230,7 +230,7 @@ describe("with subjects", () => {
         PHYS: "Physics",
       },
     };
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.subject.count()).toEqual(3);
   });
 });
@@ -289,7 +289,7 @@ describe("with updates", () => {
       subjects: [],
     };
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
@@ -314,7 +314,7 @@ describe("with updates", () => {
       (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
         .description
     ).toEqual("Computer Science");
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);

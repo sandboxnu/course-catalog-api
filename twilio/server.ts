@@ -27,7 +27,7 @@ app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
 
 app.post("/sms/signup", (req, res) => {
   // twilio needs the phone number in E.164 format see https://www.twilio.com/docs/verify/api/verification
-  const phoneNumber = req.body.phoneNumber;
+  const { phoneNumber } = req.body;
   if (!phoneNumber) {
     res.status(400).send("Missing phone number.");
   }
@@ -35,7 +35,6 @@ app.post("/sms/signup", (req, res) => {
     .sendVerificationCode(phoneNumber)
     .then((response) => {
       res.status(response.statusCode).send(response.message);
-      return;
     })
     .catch(() =>
       res.status(500).send("Error trying to send verification code")
@@ -43,8 +42,8 @@ app.post("/sms/signup", (req, res) => {
 });
 
 app.post("/sms/verify", (req, res) => {
-  const phoneNumber = req.body.phoneNumber;
-  const verificationCode = req.body.verificationCode;
+  const { phoneNumber } = req.body;
+  const { verificationCode } = req.body;
   if (!phoneNumber || !verificationCode) {
     return res.status(400).send("Missing phone number or verification code.");
   }
@@ -58,10 +57,8 @@ app.post("/sms/verify", (req, res) => {
         res
           .status(response.statusCode)
           .send({ message: response.message, token });
-        return;
       } else {
         res.status(response.statusCode).send(response.message);
-        return;
       }
     })
     .catch((e) => {
@@ -76,12 +73,11 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
       req.params.jwt,
       process.env.JWT_SECRET
     ) as any;
-    const phoneNumber = decodedToken.phoneNumber;
+    const { phoneNumber } = decodedToken;
     notificationsManager
       .getUserSubscriptions(phoneNumber)
       .then((userSubscriptions) => {
         res.status(200).send(userSubscriptions);
-        return;
       })
       .catch((error) => {
         macros.error(error);
@@ -97,12 +93,11 @@ app.put("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
-    const phoneNumber = decodedToken.phoneNumber;
+    const { phoneNumber } = decodedToken;
     notificationsManager
       .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {
         res.status(200).send();
-        return;
       })
       .catch((error) => {
         macros.error(error);
@@ -117,12 +112,11 @@ app.delete("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
-    const phoneNumber = decodedToken.phoneNumber;
+    const { phoneNumber } = decodedToken;
     notificationsManager
       .deleteUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {
         res.status(200).send();
-        return;
       })
       .catch((error) => {
         macros.error(error);
@@ -152,7 +146,7 @@ app.post("/feedback", async (req, res) => {
   };
   const parsed_data = JSON.stringify(data);
 
-  return await request
+  return request
     .post({ url: process.env.SLACK_WEBHOOK_URL, body: parsed_data })
     .then((_) => res.status(200).send())
     .catch((error) => {

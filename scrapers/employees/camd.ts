@@ -40,7 +40,7 @@ class Camd {
   }
 
   parseDetailPage(url: string, body: string | Buffer): Employee {
-    const obj: Partial<Employee> = { url: url };
+    const obj: Partial<Employee> = { url };
 
     const $ = cheerio.load(body);
 

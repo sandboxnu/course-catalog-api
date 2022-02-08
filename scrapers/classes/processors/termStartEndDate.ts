@@ -15,6 +15,7 @@ import { ParsedTermSR } from "../../../types/scraperTypes";
 
 class TermStartEndDate extends BaseProcessor {
   TermStartEndDate: typeof TermStartEndDate;
+
   go(
     termDump: ParsedTermSR & { terms: unknown[] }
   ): ParsedTermSR & { terms: unknown[] } {

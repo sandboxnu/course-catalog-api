@@ -5,10 +5,10 @@
 
 import { Employee, Course, Section } from "./types";
 
-/****************** UTILS ******************/
+/** **************** UTILS ***************** */
 type OneOrMany<T> = T | T[];
 
-/***************** QUERIES *****************/
+/** *************** QUERIES **************** */
 export interface EsQuery {
   from: number;
   size: number;
@@ -144,7 +144,7 @@ export type EsAggFilterStruct = AggFilterStruct<EsValue>;
 
 export type AggFilterPrelude = Record<string, EsAggFilterStruct>;
 
-/*************** ES RESULTS ****************/
+/** ************* ES RESULTS *************** */
 // TODO blocked a bit by new ORM, trying to avoid duplication
 export type EsResult = any;
 
@@ -170,7 +170,7 @@ export interface EsAggResults {
   };
 }
 
-/************* SEARCH RESULTS **************/
+/** *********** SEARCH RESULTS ************* */
 export interface SearchResults {
   searchContent: SearchResult[];
   resultCount: number;
@@ -216,7 +216,7 @@ export type ProfessorSearchResult = { type: "employee"; employee: Employee };
 
 export type SearchResult = CourseSearchResult | ProfessorSearchResult;
 
-/**************** ES UTILS *****************/
+/** ************** ES UTILS **************** */
 export type EsMapping = Record<string, any>;
 
 // TODO value is a Document--something we insert into ES

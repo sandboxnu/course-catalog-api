@@ -30,7 +30,9 @@ type ModelName = "course" | "section";
 
 class Updater {
   COURSE_MODEL: ModelName;
+
   SECTION_MODEL: ModelName;
+
   SEMS_TO_UPDATE: string[];
 
   // produce a new Updater instance
@@ -253,9 +255,11 @@ class Updater {
     const campusIdentifier = term[5];
     if (campusIdentifier === "0") {
       return "NEU";
-    } else if (campusIdentifier === "2" || campusIdentifier === "8") {
+    }
+    if (campusIdentifier === "2" || campusIdentifier === "8") {
       return "LAW";
-    } else if (campusIdentifier === "4" || campusIdentifier === "5") {
+    }
+    if (campusIdentifier === "4" || campusIdentifier === "5") {
       return "CPS";
     }
   }

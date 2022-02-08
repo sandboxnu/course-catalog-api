@@ -55,7 +55,7 @@ class Main {
       }
     }
 
-    ////////// Not in use right now ///////////////////
+    /// /////// Not in use right now ///////////////////
     // Originally intended for SearchNEU to branch out to other colleges, that thread's been inactive since ~2017
 
     // const bannerv8Urls = this.getUrlsFromCollegeAbbrs(
@@ -67,7 +67,7 @@ class Main {
     //   return null;
     // }
 
-    ///////////// Ditto, see above /////////////////////
+    /// ////////// Ditto, see above /////////////////////
     // const bannerv9Urls = this.getUrlsFromCollegeAbbrs(
     //   collegeAbbrs,
     //   bannerv9CollegeUrls

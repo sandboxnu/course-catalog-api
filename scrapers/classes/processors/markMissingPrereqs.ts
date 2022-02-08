@@ -36,8 +36,8 @@ export class MarkMissingPrereqs extends BaseProcessor {
 
       if (isCourseReq(prereqEntry)) {
         const hash = keys.getClassHash({
-          host: host,
-          termId: termId,
+          host,
+          termId,
           subject: prereqEntry.subject,
           classId: prereqEntry.classId,
         });

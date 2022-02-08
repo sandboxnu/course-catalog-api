@@ -4,7 +4,7 @@
  */
 import _ from "lodash";
 import { Course, Section } from "@prisma/client";
-import prisma from "../services/prisma";
+import prisma from "./prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
 import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
@@ -230,9 +230,9 @@ class Searcher {
       query.length > 0
         ? {
             multi_match: {
-              query: query,
+              query,
               type: "most_fields", // More fields match => higher score
-              fields: fields,
+              fields,
             },
           }
         : MATCH_ALL_QUERY;
@@ -246,7 +246,7 @@ class Searcher {
     const isEmployee: LeafQuery = { term: { type: "employee" } };
     const areFiltersApplied: boolean = Object.keys(userFilters).length > 0;
     const requiredFilters: FilterInput = {
-      termId: termId,
+      termId,
       sectionsAvailable: true,
     };
     const filters: FilterInput = { ...requiredFilters, ...userFilters };

@@ -22,8 +22,8 @@ class TermListParser {
       return {
         host: "neu.edu",
         termId: term.code,
-        text: text,
-        subCollege: subCollege,
+        text,
+        subCollege,
       };
     });
   }
@@ -39,11 +39,11 @@ class TermListParser {
   determineSubCollegeName(termDesc: string): string {
     if (termDesc.includes("CPS")) {
       return "CPS";
-    } else if (termDesc.includes("Law")) {
-      return "LAW";
-    } else {
-      return "NEU";
     }
+    if (termDesc.includes("Law")) {
+      return "LAW";
+    }
+    return "NEU";
   }
 }
 

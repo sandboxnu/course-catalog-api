@@ -48,8 +48,8 @@ class TermParser {
     }
 
     sections.forEach((section) => {
-      const subject = section.subject;
-      const classId = section.classId;
+      const { subject } = section;
+      const { classId } = section;
       courseIdentifiers[
         keys.getClassHash({
           host: "neu.edu",

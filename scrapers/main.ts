@@ -35,10 +35,10 @@ class Main {
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
-      termDump: termDump,
+      termDump,
       profDump: mergedEmployees,
       destroy: true,
-      currentTermInfos: currentTermInfos,
+      currentTermInfos,
     });
 
     macros.log("Done scraping".green.underline);

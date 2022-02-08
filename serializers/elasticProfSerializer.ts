@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import ProfSerializer from "./profSerializer";
 import { Professor as PrismaProfessor } from "@prisma/client";
+import ProfSerializer from "./profSerializer";
 import { ESProfessor } from "../types/serializerTypes";
 
 class ElasticProfSerializer extends ProfSerializer<ESProfessor> {

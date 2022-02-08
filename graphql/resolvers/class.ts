@@ -2,13 +2,13 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import prisma from "../../services/prisma";
-import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
-import keys from "../../utils/keys";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
 } from "@prisma/client";
+import prisma from "../../services/prisma";
+import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
+import keys from "../../utils/keys";
 import { Course, Section } from "../../types/types";
 
 const serializer = new HydrateCourseSerializer();

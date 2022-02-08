@@ -4,9 +4,9 @@
  */
 
 import _ from "lodash";
+import { Section as PrismaSection } from "@prisma/client";
 import prisma from "../services/prisma";
 import { Course, Section } from "../types/types";
-import { Section as PrismaSection } from "@prisma/client";
 import {
   PrismaCourseWithSections,
   SerializedCourse,

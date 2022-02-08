@@ -3,7 +3,7 @@ import express from "express";
 import macros from "../utils/macros";
 import notificationsManager from "../services/notificationsManager";
 
-const MessagingResponse = twilio.twiml.MessagingResponse;
+const { MessagingResponse } = twilio.twiml;
 
 export interface TwilioResponse {
   statusCode: number;
@@ -12,10 +12,15 @@ export interface TwilioResponse {
 
 class TwilioNotifyer {
   TWILIO_NUMBER: string;
+
   TWILIO_VERIFY_SERVICE_SID: string;
+
   TWILIO_REPLIES: Record<string, string>;
+
   TWILIO_ERRORS: Record<string, number>;
+
   TWILIO_VERIF_CHECK_APPROVED: string;
+
   twilioClient: Twilio;
 
   constructor() {
@@ -47,7 +52,6 @@ class TwilioNotifyer {
       .create({ body: message, from: this.TWILIO_NUMBER, to: recipientNumber })
       .then(() => {
         macros.log(`Sent notification text to ${recipientNumber}`);
-        return;
       })
       .catch(async (err) => {
         switch (err.code) {
@@ -110,16 +114,15 @@ class TwilioNotifyer {
   ): Promise<TwilioResponse> {
     return this.twilioClient.verify
       .services(this.TWILIO_VERIFY_SERVICE_SID)
-      .verificationChecks.create({ to: recipientNumber, code: code })
+      .verificationChecks.create({ to: recipientNumber, code })
       .then((verification_check) => {
         if (verification_check.status === this.TWILIO_VERIF_CHECK_APPROVED) {
           return { statusCode: 200, message: "Successfully verified!" };
-        } else {
-          return {
-            statusCode: 400,
-            message: "Please try again or request a new verification code.",
-          };
         }
+        return {
+          statusCode: 400,
+          message: "Please try again or request a new verification code.",
+        };
       })
       .catch((err) => {
         switch (err.code) {

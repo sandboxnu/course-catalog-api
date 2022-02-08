@@ -35,7 +35,7 @@ class TermDump {
         };
       }
 
-      termMapDump[termHash]["classMap"][hash] = aClass;
+      termMapDump[termHash].classMap[hash] = aClass;
     }
 
     for (const section of termDump.sections) {
@@ -57,7 +57,7 @@ class TermDump {
         };
       }
 
-      termMapDump[termHash]["sectionMap"][hash] = section;
+      termMapDump[termHash].sectionMap[hash] = section;
     }
 
     const promises = [];
@@ -74,12 +74,12 @@ class TermDump {
       const folderPath = path.join(
         macros.PUBLIC_DIR,
         "getTermDump",
-        value["host"] as string
+        value.host as string
       );
       promises.push(
         fs.ensureDir(folderPath).then(() => {
           return fs.writeFile(
-            path.join(folderPath, `${value["termId"]}.json`),
+            path.join(folderPath, `${value.termId}.json`),
             JSON.stringify(value)
           );
         })

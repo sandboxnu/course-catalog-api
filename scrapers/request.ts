@@ -15,9 +15,11 @@ import moment from "moment";
 import _ from "lodash";
 import dnsCache from "dnscache";
 
+import { Cookie, CookieJar, Response } from "request";
+import { IncomingMessage } from "http";
+import { Socket } from "net";
 import cache from "./cache";
 import macros from "../utils/macros";
-import { Cookie, CookieJar, Response } from "request";
 import {
   NativeRequestConfig,
   RequestAnalytics,
@@ -27,8 +29,6 @@ import {
   AmplitudeEvent,
   AgentAnalytics,
 } from "../types/requestTypes";
-import { IncomingMessage } from "http";
-import { Socket } from "net";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
@@ -139,8 +139,11 @@ const LAUNCH_TIME = moment();
 
 class Request {
   openRequests: number;
+
   analytics: RequestAnalytics;
+
   activeHostnames: Record<string, boolean>;
+
   timer: null | NodeJS.Timeout;
 
   constructor() {
@@ -305,10 +308,10 @@ class Request {
     defaultConfig.headers["User-Agent"] =
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:24.0) Gecko/20100101 Firefox/24.0";
 
-    //trololololol
-    //Needed on some old sites that will redirect/block requests when this is not set
-    //when a user is requesting a page that is not the entry page of the site
-    //temple, etc
+    // trololololol
+    // Needed on some old sites that will redirect/block requests when this is not set
+    // when a user is requesting a page that is not the entry page of the site
+    // temple, etc
     defaultConfig.headers.Referer = config.url;
 
     // Merge the default config and the input config
@@ -545,6 +548,7 @@ const instance = new Request();
 
 class RequestInput {
   cacheName: string;
+
   config: Partial<CustomRequestConfig>;
 
   constructor(cacheName, config = {}) {
@@ -573,7 +577,7 @@ class RequestInput {
   ): CustomRequestConfig {
     if (typeof config === "string") {
       config = {
-        method: method,
+        method,
         url: config,
       };
     }

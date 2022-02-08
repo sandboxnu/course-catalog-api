@@ -486,7 +486,7 @@ async function fromFile(termFilePath, empFilePath): Promise<void | null> {
 
   const termDump = await fs.readJson(termFilePath);
   const profDump = await fs.readJson(empFilePath);
-  await instance.main({ termDump: termDump, profDump: profDump });
+  await instance.main({ termDump, profDump });
 }
 
 if (require.main === module) {
