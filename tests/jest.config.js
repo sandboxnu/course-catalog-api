@@ -9,6 +9,5 @@ module.exports = {
     "<rootDir>/node_modules",
     "<rootDir>/dist/",
   ],
-  setupFilesAfterEnv: ["<rootDir>/services/teardown.ts"],
   testEnvironment: "<rootDir>/tests/db_test_env.ts",
 };

@@ -8,7 +8,7 @@ import path from "path";
 
 import ccis from "../ccis";
 
-it("should parse all people", async (done) => {
+it("should parse all people", async () => {
   const data = await fs.readFile(
     path.join(__dirname, "data", "ccis", "view_all_people.json")
   );
@@ -17,10 +17,9 @@ it("should parse all people", async (done) => {
   const output = ccis.parsePeopleList(resp);
 
   expect(output).toMatchSnapshot();
-  done();
 });
 
-it("parseDetailpage", async (done) => {
+it("parseDetailpage", async () => {
   const data = await fs.readFile(
     path.join(__dirname, "data", "ccis", "person.json")
   );
@@ -29,5 +28,4 @@ it("parseDetailpage", async (done) => {
   const output = ccis.parseDetailPage(resp);
 
   expect(output).toMatchSnapshot();
-  done();
 });

@@ -1,7 +1,10 @@
 name: Tests
 
-on: pull_request
-
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 jobs:
   tests:
     name: Tests
@@ -25,6 +28,7 @@ jobs:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
       elasticURL: "http://localhost:9200"
+      NODE_COVERALLS_DEBUG: 1
     steps:
       - uses: actions/checkout@v2
       - name: install node v14.19
@@ -32,5 +36,23 @@ jobs:
         with:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
-      - run: yarn test
-      - run: yarn dbtest
+      - run: yarn test --coverage
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: General tests
+          parallel: true
+      - run: yarn dbtest --coverage
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: Database tests
+          parallel: true
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          verbose: true

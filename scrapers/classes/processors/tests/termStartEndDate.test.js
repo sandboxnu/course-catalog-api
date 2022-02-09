@@ -6,12 +6,11 @@
 import testData from "./testData";
 import termStartEndDate from "../termStartEndDate";
 
-it("works", async (done) => {
+it("works", async () => {
   const termDump = await testData.loadTermDump();
 
   termStartEndDate.go(termDump);
   expect(termDump.terms.length).toBe(1);
   expect(termDump.terms[0].startDate).toBe("16819");
   expect(termDump.terms[0].endDate).toBe("16935");
-  done();
 });

@@ -8,7 +8,7 @@ import path from "path";
 
 import camd from "../camd";
 
-it("should work for profile page", async (done) => {
+it("should work for profile page", async () => {
   const body = await fs.readFile(
     path.join(__dirname, "data", "camd", "profile.html")
   );
@@ -18,6 +18,4 @@ it("should work for profile page", async (done) => {
   const output = camd.parseDetailPage(url, body);
 
   expect(output).toMatchSnapshot();
-
-  done();
 });

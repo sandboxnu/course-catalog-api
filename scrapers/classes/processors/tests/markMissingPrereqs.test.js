@@ -76,7 +76,7 @@ it("can insert a missing if cant find in db", () => {
   });
 });
 
-it("go should work", async (done) => {
+it("go should work", async () => {
   const termDump = await testData.loadTermDump();
 
   markMissingPrereqs.go(termDump);
@@ -93,10 +93,9 @@ it("go should work", async (done) => {
   }
 
   expect(matchCount).toBe(1);
-  done();
 });
 
-it("can swap coreqs", async (done) => {
+it("can swap coreqs", async () => {
   const termDump = {
     classes: [
       {
@@ -153,11 +152,9 @@ it("can swap coreqs", async (done) => {
 
   markMissingPrereqs.go(termDump);
   expect(termDump.classes[0].coreqs.values[0].classId).toBe("016");
-
-  done();
 });
 
-it("can simplify", async (done) => {
+it("can simplify", async () => {
   const termDump = await testData.loadTermDump();
 
   markMissingPrereqs.go(termDump);
@@ -177,5 +174,4 @@ it("can simplify", async (done) => {
   }
 
   expect(matchCount).toBe(1);
-  done();
 });
