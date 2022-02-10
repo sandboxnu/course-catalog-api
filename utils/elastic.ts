@@ -5,8 +5,8 @@
  */
 
 import { Client } from "@elastic/elasticsearch";
-import _ from "lodash";
 import pMap from "p-map";
+import _ from "lodash";
 import macros from "./macros";
 import {
   EsBulkData,
@@ -27,46 +27,55 @@ const BULKSIZE = 5000;
 type ElasticIndex = {
   name: string;
   mapping: any;
-  alias: string;
 };
 
 export class Elastic {
   public CLASS_ALIAS: string;
   public EMPLOYEE_ALIAS: string;
 
-  private classIndex: ElasticIndex;
-  private employeeIndex: ElasticIndex;
-  private indexes: ElasticIndex[];
-  private initializing: Promise<void>;
+  private indexes: Record<string, ElasticIndex>;
 
   constructor() {
     // Because we export an instance of this class, put the constants on the instance.
     this.CLASS_ALIAS = "classes";
     this.EMPLOYEE_ALIAS = "employees";
 
-    this.classIndex = {
+    const classIndex = {
       name: "",
       mapping: classMap,
-      alias: this.CLASS_ALIAS,
     };
-    this.employeeIndex = {
+    const employeeIndex = {
       name: "",
       mapping: employeeMap,
-      alias: this.EMPLOYEE_ALIAS,
     };
-    this.indexes = [this.classIndex, this.employeeIndex];
+    this.indexes = {};
+    this.indexes[this.CLASS_ALIAS] = classIndex;
+    this.indexes[this.EMPLOYEE_ALIAS] = employeeIndex;
+  }
+
+  async fetchIndexNames(): Promise<void> {
+    const aliases = Object.keys(this.indexes);
+    await Promise.all(
+      aliases.map(async (alias) => await this.fetchIndexName(alias))
+    );
   }
 
   // This method fetches the exact index name since they are now dynamically named green or blue
-  async fetchIndexNames() {
-    const isClassesBlue = await this.doesIndexExist("classes_blue");
-    const employeesBlue = await this.doesIndexExist("employees_blue");
+  async fetchIndexName(aliasName: string): Promise<void> {
+    const { mapping } = this.indexes[aliasName];
+    const indexNames = [`${aliasName}_blue`, `${aliasName}_green`];
 
-    const classesName = isClassesBlue ? "classes_blue" : "classes_green";
-    const employeesName = employeesBlue ? "employees_blue" : "employees_green";
+    for (const indexName of indexNames) {
+      if (await this.doesIndexExist(indexName)) {
+        this.indexes[aliasName].name = indexName;
+        return;
+      }
+    }
 
-    this.classIndex.name = classesName;
-    this.employeeIndex.name = employeesName;
+    // if neither index exists, create a new index
+    const indexName = indexNames[0];
+    await this.createIndex(indexName, mapping);
+    await this.createAlias(indexName, aliasName);
   }
 
   async isConnected(): Promise<boolean> {
@@ -78,35 +87,57 @@ export class Elastic {
     return true;
   }
 
+  async createIndex(indexName: string, mapping): Promise<void> {
+    macros.log(`Creating index ${indexName}`);
+    try {
+      await client.indices.create({ index: indexName, body: mapping });
+      macros.log(`Created index ${indexName}`);
+    } catch (e) {
+      macros.error(`Error creating index ${indexName}: ${e}`);
+      throw e;
+    }
+  }
+
+  async deleteIndex(indexName: string): Promise<void> {
+    macros.log(`Deleting index ${indexName}`);
+    try {
+      await client.indices.delete({ index: indexName });
+      macros.log(`Deleted index ${indexName}`);
+    } catch (e) {
+      macros.error(`Error deleting index ${indexName}: ${e}`);
+      throw e;
+    }
+  }
+
+  async createAlias(indexName: string, aliasName: string): Promise<void> {
+    macros.log(`Aliasing index ${indexName} as ${aliasName}`);
+    try {
+      await client.indices.putAlias({ index: indexName, name: aliasName });
+      macros.log(`Aliased index ${indexName} as ${aliasName}`);
+    } catch (e) {
+      macros.error(`Error aliasing ${indexName} as ${aliasName}: ${e}`);
+      throw e;
+    }
+  }
+
   // replace an index with a fresh one with a specified mapping
   async resetIndex(): Promise<void> {
     await this.fetchIndexNames();
 
-    for (const index of this.indexes) {
-      const { name, mapping, alias } = index;
+    const aliases = Object.keys(this.indexes);
+    for (const alias of aliases) {
+      const { name, mapping } = this.indexes[alias];
 
       const exists = await this.doesIndexExist(name);
       if (exists) {
         // Clear out the index.
-        macros.log(`Deleting index ${name}`);
-        await client.indices.delete({ index: name });
-        macros.log(`Deleted mapping for index ${name}`);
+        await this.deleteIndex(name);
       }
-      // Put in the new classes mapping (elasticsearch doesn't let you change mapping of existing index)
-      macros.log(`Creating index ${name}`);
-      await client.indices.create({
-        index: name,
-        body: mapping,
-      });
-      macros.log(`Created index ${name}`);
+      // Put in the new mapping (elasticsearch doesn't let you change mapping of existing index)
+      await this.createIndex(name, mapping);
 
       // Once we create a new index, we need to alias it
-      macros.log(`Aliasing index ${name} as ${alias}`);
-      await client.indices.putAlias({
-        index: name,
-        name: alias,
-      });
-      macros.log(`Aliased index ${name} as ${alias}`);
+      await this.createAlias(name, alias);
     }
   }
 
@@ -114,8 +145,10 @@ export class Elastic {
   async resetIndexWithoutLoss(): Promise<void> {
     await this.fetchIndexNames();
 
-    for (const index of this.indexes) {
-      const { name, mapping, alias } = index;
+    const aliases = Object.keys(this.indexes);
+    for (const alias of aliases) {
+      const { name, mapping } = this.indexes[alias];
+
       const exists = await this.doesIndexExist(name);
 
       // If the index doesn't exist, we can't reindex without loss of data
@@ -135,12 +168,7 @@ export class Elastic {
         nextIndexName = indexName + "_blue";
       }
 
-      macros.log(`Creating index ${nextIndexName}`);
-      await client.indices.create({
-        index: nextIndexName,
-        body: mapping,
-      });
-      macros.log(`Created index ${nextIndexName}`);
+      this.createIndex(nextIndexName, mapping);
 
       // Reindex data from the old (current) into the newly made index
       // If the mappings between the two indexes are drastically different,
@@ -175,20 +203,13 @@ export class Elastic {
       macros.log(`Reindexed data from index ${name} to ${nextIndexName}`);
 
       // Change the alias to point to our new index
-      macros.log(`Aliasing index ${nextIndexName} as ${alias}`);
-      await client.indices.putAlias({
-        index: nextIndexName,
-        name: alias,
-      });
-      macros.log(`Aliased index ${nextIndexName} as ${alias}`);
+      await this.createAlias(nextIndexName, alias);
 
       // Delete the old index
-      macros.log(`Deleting index ${name}`);
-      await client.indices.delete({ index: name });
-      macros.log(`Deleted mapping for index ${name}`);
+      await this.deleteIndex(name);
 
       // Update index name on the class instance
-      index.name = nextIndexName;
+      this.indexes[alias].name = nextIndexName;
     }
   }
 
@@ -199,9 +220,10 @@ export class Elastic {
   }
 
   private getIndexNameFromAlias(indexAlias: string): string {
-    for (const index of this.indexes) {
-      if (index.alias === indexAlias) {
-        return index.name;
+    const aliases = Object.keys(this.indexes);
+    for (const alias of aliases) {
+      if (alias === indexAlias) {
+        return this.indexes[alias].name;
       }
     }
 
@@ -212,7 +234,7 @@ export class Elastic {
   // Note that this creates the index if it doesn't exist too
   // https://www.elastic.co/guide/en/elasticsearch/reference/7.16/docs-bulk.html
   async bulkIndexFromMap(indexAlias: string, map: EsBulkData): Promise<any> {
-    await this.fetchIndexNames();
+    await this.fetchIndexName(indexAlias);
 
     const indexName = this.getIndexNameFromAlias(indexAlias);
     const indexExisted = await this.doesIndexExist(indexName);
@@ -238,12 +260,7 @@ export class Elastic {
     // If the index didn't exist, then we need to realias it.
     // If it did exist, it is already associated with an alias
     if (!indexExisted) {
-      macros.log(`Aliasing index ${indexName} as ${indexAlias}`);
-      await client.indices.putAlias({
-        index: indexName,
-        name: indexAlias,
-      });
-      macros.log(`Aliased index ${indexName} as ${indexAlias}`);
+      await this.createAlias(indexName, indexAlias);
     }
   }
 
