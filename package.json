@@ -74,7 +74,7 @@
     "@babel/plugin-transform-arrow-functions": "^7.2.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
-    "@elastic/elasticsearch": "^7.0.0-rc.2",
+    "@elastic/elasticsearch": "7.13.0",
     "@prisma/client": "^3.0.0",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
