@@ -1,6 +1,6 @@
 import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
-import { mocked } from "ts-jest/utils";
+import { mocked } from "jest-mock";
 import searcher from "../../services/searcher";
 import server from "../index";
 import { Course, Requisite, Section } from "../../types/types";

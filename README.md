@@ -2,43 +2,7 @@
 
 ## Installation
 
-1. If you don't have these on your machine, install:
-
-- git
-- node
-- yarn
-- Docker Desktop
-
-2. Launch Docker Desktop by clicking on the app
-3. Clone the repo by running `git clone https://github.com/sandboxnu/course-catalog-api.git` in your terminal
-4. In your terminal, navigate to this project and run the following commands:
-
-- `yarn install`
-- `yarn dev:docker`
-- `yarn db:migrate`
-- `yarn db:refresh`
-- Optional step: if you have a cache zip/folder, unzip it, make sure it's named `cache` and place it in the root level of the project so your project directory looks something like this:
-
-```
-PROJECT
-  |
-  -- package.json
-  -- ...
-  -- cache
-      |
-      -- dev_data
-          |
-          -- v2
-      -- requests
-```
-
-This step allows you to quickly insert the course catalog data into your database by using a cache with all the information instead of having to run the full scrapers.
-
-- `yarn scrape`
-- `yarn dev`
-
-5. At this point, you should be able to use the GraphQL API by visiting `localhost:4000`
-
+Read `documentation/onboarding_setup`
 ## Custom Scraping
 
 Scraping course data for multiple terms can take quite a bit of time. Caching scrapes is fantastic for quickly initializing local databases, but for scraper-related work we might need to run real scrapes often. In order to speed up scraper-related dev work we can specify custom scraping filters so that we only fetch data for a subset of the total courses for the given terms. Filters are specified in `scrapers/filters.ts` in the following format:

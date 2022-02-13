@@ -27,16 +27,18 @@ class Main {
       allTermInfos
     );
 
-    const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
-      classes.main(["neu"], allTermInfos),
-      matchEmployees.main(),
-    ];
+    // const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
+    //   classes.main(["neu"], allTermInfos),
+    //   matchEmployees.main(),
+    // ];
 
-    const [termDump, mergedEmployees] = await Promise.all(promises);
+    // const [termDump, mergedEmployees] = await Promise.all(promises);
+
+    const termDump = await classes.main(["neu"], allTermInfos);
 
     await dumpProcessor.main({
       termDump: termDump,
-      profDump: mergedEmployees,
+      // profDump: mergedEmployees,
       destroy: true,
       currentTermInfos: currentTermInfos,
     });

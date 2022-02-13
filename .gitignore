@@ -11,3 +11,4 @@ data/*
 cache.zip
 .idea/*
 logs/
+coverage/
