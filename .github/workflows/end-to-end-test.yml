@@ -42,8 +42,7 @@ jobs:
       # our `services` (a section in the start of this file) matches the new docker-compose setup
       #   Go through it to make sure it's consistent.
       #   Then, update the commit hash below to match the latest one.
-      - run: ls
-      - run: pwd
+      - run: git log -n 1 --pretty=format:%H -- ./infrastructure/dev/docker-compose.yml
       - run: >
           git log -n 1 --pretty=format:%H -- ./infrastructure/dev/docker-compose.yml |
           grep -q bc224f1dae56f02654de3aa2201d304afe38bf89
