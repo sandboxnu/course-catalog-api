@@ -210,7 +210,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn pretty-quick --staged && yarn lint"
+      "pre-commit": "yarn pretty-quick --staged && yarn lint --fix"
     }
   }
 }
