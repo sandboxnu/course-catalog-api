@@ -42,7 +42,7 @@ jobs:
       # our `services` (a section in the start of this file) matches the new docker-compose setup
       #   Go through it to make sure it's consistent.
       #   Then, update the commit hash below to match the latest one.
-      - run: git log -n 1 --pretty=format:%H -- ./infrastructure/dev/docker-compose.yml | grep -q bc224f1dae56f02654de3aa2201d304afe38bf89
+      - run: git log -n 1 --pretty=format:%H -- ./infrastructure/dev/docker-compose.yml | grep -q 2c954a559ed8d0893ca1de7a70130e4594980b2e
       - run: yarn install unzip
       - run: unzip -d cache ./data/cache_2022_summer.zip
       - run: cd ./cache && ls
