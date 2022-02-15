@@ -44,7 +44,7 @@ jobs:
       #   Then, update the commit hash below to match the latest one.
       - run: >
           git log -n 1 --pretty=format:%H -- infrastructure/dev/docker-compose.yml | \
-            grep -q bc224f1dae56f02654de3aa2201d304afe38bf89
+          grep -q bc224f1dae56f02654de3aa2201d304afe38bf89
       - run: ls
       - run: pwd
 
