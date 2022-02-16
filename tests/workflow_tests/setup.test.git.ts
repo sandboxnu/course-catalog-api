@@ -35,26 +35,19 @@ describe("TermID setup", () => {
         }
       }
     `);
-    const rawGqlTermInfos = res.data?.termInfos;
-    const gqlTermInfos = rawGqlTermInfos
-      .map((t) => {
-        return { ...t };
-      })
-      .sort((t) => Number.parseInt(t.termId));
+    const gqlTermInfos = res.data?.termInfos.map((t) => ({ ...t }));
 
-    const dbTermInfos = (
-      await prisma.termInfo.findMany({
-        select: {
-          termId: true,
-          subCollege: true,
-          text: true,
-        },
-      })
-    ).sort((t) => Number.parseInt(t.termId));
+    const dbTermInfos = await prisma.termInfo.findMany({
+      select: {
+        termId: true,
+        subCollege: true,
+        text: true,
+      },
+    });
 
     console.log(dbTermInfos.sort());
     console.log(gqlTermInfos.sort());
-    expect(dbTermInfos).toEqual(gqlTermInfos);
+    expect(dbTermInfos.sort()).toEqual(gqlTermInfos.sort());
   });
 });
 
