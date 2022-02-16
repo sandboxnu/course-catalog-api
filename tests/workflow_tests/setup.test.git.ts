@@ -40,18 +40,17 @@ describe("TermID setup", () => {
         }
       }
     `);
-    const gqlTermInfos = res.data?.termInfos.map((t) => ({ ...t }));
+    const gqlTermInfos = res.data?.termInfos.map((t) => t.termId);
 
-    const dbTermInfos = await prisma.termInfo.findMany({
-      select: {
-        termId: true,
-        subCollege: true,
-        text: true,
-      },
-    });
-
-    dbTermInfos.sort((t) => Number.parseInt(t.termId));
-    gqlTermInfos.sort((t) => Number.parseInt(t.termId));
+    const dbTermInfos = (
+      await prisma.termInfo.findMany({
+        select: {
+          termId: true,
+          subCollege: true,
+          text: true,
+        },
+      })
+    ).map((t) => t.termId);
 
     console.log(dbTermInfos);
     console.log(gqlTermInfos);
