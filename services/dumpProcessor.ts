@@ -246,7 +246,7 @@ class DumpProcessor {
 
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
-    if (currentTermInfos !== null) {
+    if (currentTermInfos) {
       const termInfos = currentTermInfos;
       // This deletes any termID which doesn't have associated course data
       //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
@@ -272,7 +272,8 @@ class DumpProcessor {
         });
       }
 
-      macros.log("DumpProcessor: finished with term IDs");
+      const termsStr = termInfos.map((t) => t.termId).join(", ");
+      macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
     if (destroy) {
