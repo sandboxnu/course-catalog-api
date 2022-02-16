@@ -26,7 +26,7 @@
     "style": "yarn prettier --write .",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
-    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg).[jt]s'",
+    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s'",
     "regtest": "jest --projects regtests",
     "dbtest": "jest -i --projects tests/ --verbose",
     "prodtest": "PROD=true jest reg.[jt]s",
