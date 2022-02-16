@@ -4,8 +4,13 @@ import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
 
-const query = async (q: DocumentNode): Promise<GraphQLResponse> =>
-  await server.executeOperation({ query: q });
+async function query(q: DocumentNode): Promise<GraphQLResponse> {
+  return await server.executeOperation({ query: q });
+}
+
+// async function deepEqual(key: string): Promise<unknown[]> {
+
+// }
 
 describe("TermID setup", () => {
   test("term IDs are in the database", async () => {
@@ -45,14 +50,20 @@ describe("TermID setup", () => {
       },
     });
 
-    console.log(dbTermInfos.sort());
-    console.log(gqlTermInfos.sort());
-    expect(dbTermInfos.sort()).toEqual(gqlTermInfos.sort());
+    dbTermInfos.sort((t) => Number.parseInt(t.termId));
+    gqlTermInfos.sort((t) => Number.parseInt(t.termId));
+
+    console.log(dbTermInfos);
+    console.log(gqlTermInfos);
+    expect(dbTermInfos).toEqual(gqlTermInfos);
   });
 });
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
+    // 824 - summer 1
+    // 1658 - summer full
+    // 516 - summer 2
     console.log(await prisma.course.count());
     console.log(await prisma.section.count());
     expect(await prisma.course.count()).toBe(3);
