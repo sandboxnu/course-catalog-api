@@ -7,7 +7,7 @@ import { GraphQLResponse } from "apollo-server-core";
 const query = async (q: DocumentNode): Promise<GraphQLResponse> =>
   await server.executeOperation({ query: q });
 
-describe("Ensure termIDs have been populated", () => {
+describe("TermID setup", () => {
   test("term IDs are in the database", async () => {
     expect(await prisma.termInfo.count()).toBe(3);
   });
@@ -35,25 +35,31 @@ describe("Ensure termIDs have been populated", () => {
         }
       }
     `);
-    const gqlTermInfos = res.data?.termInfos;
+    const rawGqlTermInfos = res.data?.termInfos;
+    const gqlTermInfos = rawGqlTermInfos
+      .map((t) => {
+        return { ...t };
+      })
+      .sort((t) => Number.parseInt(t.termId));
 
-    const dbTermInfos = await prisma.termInfo.findMany({
-      select: {
-        termId: true,
-        subCollege: true,
-        text: true,
-      },
-    });
+    const dbTermInfos = (
+      await prisma.termInfo.findMany({
+        select: {
+          termId: true,
+          subCollege: true,
+          text: true,
+        },
+      })
+    ).sort((t) => Number.parseInt(t.termId));
 
-    console.log(dbTermInfos.sort((t) => Number.parseInt(t.termId)));
-    console.log(gqlTermInfos.sort((t) => Number.parseInt(t.termId)));
-    expect(dbTermInfos.sort((t) => Number.parseInt(t.termId))).toEqual(
-      gqlTermInfos.sort((t) => Number.parseInt(t.termId))
-    );
+    console.log(dbTermInfos);
+    console.log(gqlTermInfos);
+    expect(dbTermInfos).toEqual(gqlTermInfos);
   });
-  //   # psql -U postgres -d searchneu_dev -c 'SELECT * FROM term_ids'
+});
 
-  //   # - run: 'curl ''http://localhost:4000/'' -X POST -H ''content-type: application/json'' --data ''{"query": "{ termInfos(subCollege: \"NEU\") { text termId subCollege } }"}'''
+describe("Course setup", () => {
+  test;
 });
 
 // Check that there are courses in the cache
