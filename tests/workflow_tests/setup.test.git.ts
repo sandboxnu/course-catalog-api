@@ -2,8 +2,9 @@ import { gql } from "apollo-server";
 import prisma from "../../services/prisma";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
+import { GraphQLResponse } from "apollo-server-core";
 
-const query = async (q: DocumentNode) =>
+const query = async (q: DocumentNode): Promise<GraphQLResponse> =>
   await server.executeOperation({ query: q });
 
 describe("Ensure termIDs have been populated", () => {
@@ -44,9 +45,11 @@ describe("Ensure termIDs have been populated", () => {
       },
     });
 
-    console.log(dbTermInfos);
-    console.log(gqlTermInfos);
-    expect(dbTermInfos).toEqual(gqlTermInfos);
+    console.log(dbTermInfos.sort((t) => Number.parseInt(t.termId)));
+    console.log(gqlTermInfos.sort((t) => Number.parseInt(t.termId)));
+    expect(dbTermInfos.sort((t) => Number.parseInt(t.termId))).toEqual(
+      gqlTermInfos.sort((t) => Number.parseInt(t.termId))
+    );
   });
   //   # psql -U postgres -d searchneu_dev -c 'SELECT * FROM term_ids'
 
