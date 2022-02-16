@@ -40,7 +40,7 @@ describe("TermID setup", () => {
         }
       }
     `);
-    const gqlTermInfos = res.data?.termInfos.map((t) => t.termId);
+    const gqlTermInfos = res.data?.termInfos.map((t) => t.termId).sort();
 
     const dbTermInfos = (
       await prisma.termInfo.findMany({
@@ -50,7 +50,9 @@ describe("TermID setup", () => {
           text: true,
         },
       })
-    ).map((t) => t.termId);
+    )
+      .map((t) => t.termId)
+      .sort();
 
     console.log(dbTermInfos);
     console.log(gqlTermInfos);
@@ -60,12 +62,13 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
+    console.log(await prisma.course.count());
+    console.log(await prisma.section.count());
     // 824 - summer 1
     // 1658 - summer full
     // 516 - summer 2
-    console.log(await prisma.course.count());
-    console.log(await prisma.section.count());
-    expect(await prisma.course.count()).toBe(3);
+    // 2998
+    expect(await prisma.course.count()).toBe(1307);
   });
 });
 
