@@ -47,9 +47,6 @@ class Main {
     }
 
     const cacheKey = collegeAbbrs.join(",");
-    console.log(macros.DEV);
-    console.log(!process.env.CUSTOM_SCRAPE);
-    console.log(macros.DEV_DATA_DIR);
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(macros.DEV_DATA_DIR, "classes", cacheKey);
       if (cached) {

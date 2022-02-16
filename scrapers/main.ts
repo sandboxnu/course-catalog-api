@@ -27,12 +27,8 @@ class Main {
       allTermInfos
     );
 
-    const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
-      classes.main(["neu"], allTermInfos),
-      matchEmployees.main(),
-    ];
-
-    const [termDump, mergedEmployees] = await Promise.all(promises);
+    const termDump: ParsedTermSR = await classes.main(["neu"], allTermInfos);
+    const mergedEmployees: EmployeeWithId[] = await matchEmployees.main();
 
     await dumpProcessor.main({
       termDump: termDump,
