@@ -234,7 +234,7 @@ export class Elastic {
   // Note that this creates the index if it doesn't exist too
   // https://www.elastic.co/guide/en/elasticsearch/reference/7.16/docs-bulk.html
   async bulkIndexFromMap(indexAlias: string, map: EsBulkData): Promise<any> {
-    console.log("ALIAS NAME " + indexAlias);
+    console.log(`Alias: ${indexAlias}`);
     await this.fetchIndexName(indexAlias);
 
     const indexName = this.getIndexNameFromAlias(indexAlias);
