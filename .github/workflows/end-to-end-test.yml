@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
-      - run: yarn install unzip
+      - run: yarn add unzip
       - run: unzip -d cache ./data/cache_2022_summer.zip
       - run: cd ./cache && ls
       # - run: yarn db:migrate
