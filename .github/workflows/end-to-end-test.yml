@@ -43,7 +43,7 @@ jobs:
       - run: yarn db:migrate
       - run: yarn db:refresh
       - run: yarn scrape
-      # - run: yarn scrape
+      - run: yarn scrape
       - run: yarn dev &
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200

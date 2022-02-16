@@ -272,8 +272,7 @@ class DumpProcessor {
         });
       }
 
-      const termsStr = currentTermInfos.map((t) => t.termId).join(",");
-      macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
+      macros.log("DumpProcessor: finished with term IDs");
     }
 
     if (destroy) {
