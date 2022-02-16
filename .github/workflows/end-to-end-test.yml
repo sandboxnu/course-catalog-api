@@ -39,8 +39,8 @@ jobs:
       - run: yarn add unzip
       - run: unzip -d cache ./data/cache_2022_summer.zip
       - run: cd ./cache && ls
-      # - run: yarn db:migrate
-      # - run: yarn db:refresh
-      # # - run: yarn scrape
-      # - run: yarn scrape
-      # - run: yarn dev
+      - run: yarn db:migrate
+      - run: yarn db:refresh
+      - run: yarn scrape
+      - run: yarn scrape
+      - run: yarn dev
