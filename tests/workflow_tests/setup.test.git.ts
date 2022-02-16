@@ -52,15 +52,19 @@ describe("TermID setup", () => {
       })
     ).sort((t) => Number.parseInt(t.termId));
 
-    console.log(dbTermInfos);
-    console.log(gqlTermInfos);
+    console.log(dbTermInfos.sort());
+    console.log(gqlTermInfos.sort());
     expect(dbTermInfos).toEqual(gqlTermInfos);
   });
 });
 
-// describe("Course setup", () => {
-//   test;
-// });
+describe("Course and section setup", () => {
+  test("courses/sections are in the database", async () => {
+    console.log(await prisma.course.count());
+    console.log(await prisma.section.count());
+    expect(await prisma.course.count()).toBe(3);
+  });
+});
 
 // Check that there are courses in the cache
 // Check that the number of courses is consistent - Banner, maybe?
