@@ -36,7 +36,7 @@ describe("Ensure termIDs have been populated", () => {
     `);
     const gqlTermInfos = res.data?.termInfos;
 
-    const dbTermInfos = prisma.termInfo.findMany({
+    const dbTermInfos = await prisma.termInfo.findMany({
       select: {
         termId: true,
         subCollege: true,
@@ -46,6 +46,7 @@ describe("Ensure termIDs have been populated", () => {
 
     console.log(dbTermInfos);
     console.log(gqlTermInfos);
+    expect(dbTermInfos).toEqual(gqlTermInfos);
   });
   //   # psql -U postgres -d searchneu_dev -c 'SELECT * FROM term_ids'
 
