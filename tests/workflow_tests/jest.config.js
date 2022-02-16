@@ -1,10 +1,10 @@
 module.exports = {
   name: "workflow",
   displayName: "Tests for GitHub Workflows",
-  rootDir: "../",
+  rootDir: "./",
   testEnvironment: "node",
   moduleFileExtensions: ["js", "json", "node", "ts"],
-  testMatch: ["**/*.(spec|test).git.[jt]s?"],
+  testMatch: ["**/*.(spec|test).git.[jt]s?(x)"],
   testPathIgnorePatterns: [
     "<rootDir>/tests/workflow_tests/jest.config.js",
     "<rootDir>/node_modules",
