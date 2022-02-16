@@ -29,12 +29,12 @@ class Main {
 
     const termDump: ParsedTermSR = await classes.main(["neu"], allTermInfos);
     macros.log("Done scraping courses".underline);
-    const mergedEmployees: EmployeeWithId[] = await matchEmployees.main();
-    macros.log("Done scraping employees".underline);
+    // const mergedEmployees: EmployeeWithId[] = await matchEmployees.main();
+    // macros.log("Done scraping employees".underline);
 
     await dumpProcessor.main({
       termDump: termDump,
-      profDump: mergedEmployees,
+      // profDump: mergedEmployees,
       destroy: true,
       currentTermInfos: currentTermInfos,
     });
