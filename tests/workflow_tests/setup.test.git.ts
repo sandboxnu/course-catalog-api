@@ -58,9 +58,9 @@ describe("TermID setup", () => {
   });
 });
 
-describe("Course setup", () => {
-  test;
-});
+// describe("Course setup", () => {
+//   test;
+// });
 
 // Check that there are courses in the cache
 // Check that the number of courses is consistent - Banner, maybe?
