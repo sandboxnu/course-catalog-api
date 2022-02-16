@@ -82,7 +82,9 @@ if (
   process.env.PROD ||
   process.env.NODE_ENV === "production" ||
   process.env.NODE_ENV === "prod" ||
-  (process.env.CI && process.env.NODE_ENV !== "test")
+  (process.env.CI &&
+    process.env.NODE_ENV !== "test" &&
+    process.env.NODE_ENV === "dev")
 ) {
   Macros.PROD = true;
   console.log("Running in prod mode."); // eslint-disable-line no-console
