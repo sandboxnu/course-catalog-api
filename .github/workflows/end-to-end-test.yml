@@ -30,6 +30,7 @@ jobs:
       elasticURL: "http://localhost:9200"
       NODE_COVERALLS_DEBUG: 1
       NODE_ENV: dev
+      DEV: true
     steps:
       - uses: actions/checkout@v2
       - name: install node v14.19
