@@ -22,7 +22,6 @@ describe("Searching for courses", () => {
               }
           `);
 
-      console.log(q);
       expect(res.data?.search.totalCount).toBe(1);
     }
   });
@@ -43,7 +42,7 @@ describe("Searching for courses", () => {
       }
     `);
 
-    console.log(res.data.search.nodes);
-    // Fundamentals of Computer Science
+    const name = res.data.search.nodes[0].name;
+    expect(name).toMatch(/Fundamentals of Computer Science.*/);
   });
 });
