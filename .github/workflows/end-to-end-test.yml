@@ -43,7 +43,7 @@ jobs:
       - run: yarn db:migrate
       - run: yarn db:refresh
       - run: yarn scrape
-      - run: psql -U postgres -d searchneu_dev -c 'SELECT count(*) from sections'
+      - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'
       - run: yarn scrape
       - run: yarn dev &
       - name: Checks that 'yarn dev' actually starts the API server
