@@ -43,7 +43,7 @@ jobs:
       - run: yarn db:migrate
       - run: yarn db:refresh
       - run: yarn scrape
-      - run: 'curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: "202250", query: "fundies") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
+      - run: 'yarn dev && curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: "202250", query: "fundies") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
       - run: yarn scrape
       - run: yarn dev &
       - name: Checks that 'yarn dev' actually starts the API server
