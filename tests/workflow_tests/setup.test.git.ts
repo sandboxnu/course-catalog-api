@@ -8,7 +8,7 @@ import elastic from "../../utils/elastic";
 const NUM_TERMIDS = 3;
 const NUMS_COURSES = {
   "202240": 646,
-  "202250": 428,
+  "202250": 519,
   "202260": 353,
 };
 const NUMS_SECTIONS = {
