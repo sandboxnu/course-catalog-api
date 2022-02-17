@@ -22,6 +22,7 @@ describe("Searching for courses", () => {
               }
           `);
 
+      console.log(q);
       expect(res.data?.search.totalCount).toBe(1);
     }
   });
