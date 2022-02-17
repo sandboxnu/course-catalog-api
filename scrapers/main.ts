@@ -27,11 +27,13 @@ class Main {
       allTermInfos
     );
 
-    const termDump: ParsedTermSR = await classes.main(["neu"], allTermInfos);
-    macros.log("Done scraping courses".underline);
-    // When the employees are fixed, resolve these in parallel: await Promise.all(promises)
-    // const mergedEmployees: EmployeeWithId[] = await matchEmployees.main();
-    // macros.log("Done scraping employees".underline);
+    const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
+      classes.main(["neu"], allTermInfos),
+      // matchEmployees.main(), TODO: uncomment to turn on employee scraping and add employees to dumpProcessor
+      Promise.resolve([]),
+    ];
+
+    const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
       termDump: termDump,
