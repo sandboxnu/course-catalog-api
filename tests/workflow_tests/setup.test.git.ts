@@ -7,7 +7,13 @@ import elastic from "../../utils/elastic";
 
 const NUM_TERMIDS = 3;
 const NUM_COURSES = 1658;
-const NUMS_SECTIONS = {};
+const NUMS_SECTIONS = {
+  "202240": 839,
+};
+const TOTAL_NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce(
+  (a, b) => a + b,
+  0
+);
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -15,7 +21,7 @@ async function query(q: DocumentNode): Promise<GraphQLResponse> {
 
 describe("TermID setup", () => {
   test("term IDs are in the database", async () => {
-    expect(await prisma.termInfo.count()).toBe(3);
+    expect(await prisma.termInfo.count()).toBe(NUM_TERMIDS);
   });
 
   test("termIDs are accessible through GraphQL", async () => {
@@ -28,7 +34,7 @@ describe("TermID setup", () => {
         }
       }
     `);
-    expect(res.data?.termInfos.length).toBe(3);
+    expect(res.data?.termInfos.length).toBe(NUM_TERMIDS);
   });
 
   test("The termIDs in the database match those in GraphQL", async () => {
@@ -64,35 +70,31 @@ describe("Course and section setup", () => {
     // 1658 - summer full
     // 516 - summer 2
     // 2988 total
-    expect(await prisma.course.count()).toBe(1658);
-    expect(
-      await prisma.section.count({
-        where: {
-          course: {
-            termId: "202240",
+    console.log(await prisma.course.count());
+    // expect(await prisma.course.count()).toBe(NUM_COURSES);
+
+    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
+      console.log(
+        await prisma.section.count({
+          where: {
+            course: {
+              termId: termId,
+            },
           },
-        },
-      })
-    ).toBe(839);
-    expect(
-      await prisma.section.count({
-        where: {
-          course: {
-            termId: "202250",
-          },
-        },
-      })
-    ).toBe(1658);
-    expect(
-      await prisma.section.count({
-        where: {
-          course: {
-            termId: "202260",
-          },
-        },
-      })
-    ).toBe(516);
-    expect(await prisma.section.count()).toBe(2988);
+        })
+      );
+      // expect(
+      //   await prisma.section.count({
+      //     where: {
+      //       course: {
+      //         termId: termId,
+      //       },
+      //     },
+      //   })
+      // ).toBe(count);
+    }
+
+    expect(await prisma.section.count()).toBe(TOTAL_NUM_SECTIONS);
   });
 
   // test("Courses/sections are in GraphQL", async () => {
