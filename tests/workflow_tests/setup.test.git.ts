@@ -64,7 +64,34 @@ describe("Course and section setup", () => {
     // 516 - summer 2
     // 2998
     expect(await prisma.course.count()).toBe(1307);
-    expect(await prisma.section.count()).toBe(2998);
+    expect(
+      await prisma.section.count({
+        where: {
+          course: {
+            termId: "202240",
+          },
+        },
+      })
+    ).toBe(824);
+    expect(
+      await prisma.section.count({
+        where: {
+          course: {
+            termId: "202250",
+          },
+        },
+      })
+    ).toBe(1658);
+    expect(
+      await prisma.section.count({
+        where: {
+          course: {
+            termId: "202260",
+          },
+        },
+      })
+    ).toBe(516);
+    expect(await prisma.section.count()).toBe(2988);
   });
 });
 
