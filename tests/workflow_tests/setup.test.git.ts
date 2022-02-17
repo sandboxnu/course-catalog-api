@@ -5,6 +5,10 @@ import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
 import elastic from "../../utils/elastic";
 
+const NUM_TERMIDS = 3;
+const NUM_COURSES = 1658;
+const NUMS_SECTIONS = {};
+
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
 }
@@ -57,7 +61,6 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    // 824 - summer 1
     // 1658 - summer full
     // 516 - summer 2
     // 2988 total
@@ -70,7 +73,7 @@ describe("Course and section setup", () => {
           },
         },
       })
-    ).toBe(824);
+    ).toBe(839);
     expect(
       await prisma.section.count({
         where: {
@@ -91,6 +94,19 @@ describe("Course and section setup", () => {
     ).toBe(516);
     expect(await prisma.section.count()).toBe(2988);
   });
+
+  // test("Courses/sections are in GraphQL", async () => {
+  //   const res = await query(gql`
+  //     query {
+  //       termInfos(subCollege: "NEU") {
+  //         text
+  //         termId
+  //         subCollege
+  //       }
+  //     }
+  //   `);
+  //   const gqlTermInfos = res.data?.termInfos.map((t) => t.termId).sort();
+  // })
 });
 
 // Check that there are courses in the cache
