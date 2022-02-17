@@ -6,16 +6,18 @@ import { GraphQLResponse } from "apollo-server-core";
 import elastic from "../../utils/elastic";
 
 const NUM_TERMIDS = 3;
-const NUM_COURSES = 1658;
+const NUMS_COURSES = {
+  "202240": 526,
+  "202250": 1634,
+  "202260": 515,
+};
 const NUMS_SECTIONS = {
   "202240": 839,
   "202250": 1634,
   "202260": 515,
 };
-const TOTAL_NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce(
-  (a, b) => a + b,
-  0
-);
+const NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce((a, b) => a + b, 0);
+const NUM_COURSES = Object.values(NUMS_COURSES).reduce((a, b) => a + b, 0);
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -69,6 +71,16 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
+    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
+      expect(
+        await prisma.course.count({
+          where: {
+            termId: termId,
+          },
+        })
+      ).toBe(count);
+    }
+
     expect(await prisma.course.count()).toBe(NUM_COURSES);
 
     for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
@@ -83,11 +95,11 @@ describe("Course and section setup", () => {
       ).toBe(count);
     }
 
-    expect(await prisma.section.count()).toBe(TOTAL_NUM_SECTIONS);
+    expect(await prisma.section.count()).toBe(NUM_SECTIONS);
   });
 
   test("Courses/sections are in GraphQL", async () => {
-    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
+    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
       const res = await query(gql`
         query {
           search(termId: "${termId}", query: "") {
