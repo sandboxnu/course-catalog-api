@@ -57,13 +57,11 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    console.log(await prisma.course.count());
-    console.log(await prisma.section.count());
     // 824 - summer 1
     // 1658 - summer full
     // 516 - summer 2
-    // 2998
-    expect(await prisma.course.count()).toBe(1307);
+    // 2988 total
+    expect(await prisma.course.count()).toBe(1658);
     expect(
       await prisma.section.count({
         where: {
