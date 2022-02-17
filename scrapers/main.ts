@@ -29,6 +29,7 @@ class Main {
 
     const termDump: ParsedTermSR = await classes.main(["neu"], allTermInfos);
     macros.log("Done scraping courses".underline);
+    // When the employees are fixed, resolve these in parallel: await Promise.all(promises)
     // const mergedEmployees: EmployeeWithId[] = await matchEmployees.main();
     // macros.log("Done scraping employees".underline);
 
