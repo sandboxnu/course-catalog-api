@@ -9,7 +9,7 @@ const NUM_TERMIDS = 3;
 const NUMS_COURSES = {
   "202240": 646,
   "202250": 519,
-  "202260": 353,
+  "202260": 493,
 };
 const NUMS_SECTIONS = {
   "202240": 839,
