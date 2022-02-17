@@ -3,14 +3,11 @@ import prisma from "../../services/prisma";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
+import elastic from "../../utils/elastic";
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
 }
-
-// async function deepEqual(key: string): Promise<unknown[]> {
-
-// }
 
 describe("TermID setup", () => {
   test("term IDs are in the database", async () => {
@@ -54,8 +51,6 @@ describe("TermID setup", () => {
       .map((t) => t.termId)
       .sort();
 
-    console.log(dbTermInfos);
-    console.log(gqlTermInfos);
     expect(dbTermInfos).toEqual(gqlTermInfos);
   });
 });
@@ -69,6 +64,7 @@ describe("Course and section setup", () => {
     // 516 - summer 2
     // 2998
     expect(await prisma.course.count()).toBe(1307);
+    expect(await prisma.section.count()).toBe(2998);
   });
 });
 
