@@ -204,7 +204,7 @@ class DumpProcessor {
         (elem) => elem.id
       )
     );
-    const processedSections = Object.values(termDump.sections)
+    const processedSections = termDump.sections
       .map((section) => this.constituteSection(section))
       .filter((s) => courseIds.has(s.classHash));
 
@@ -217,6 +217,7 @@ class DumpProcessor {
     );
 
     console.log(processedSections.length);
+    console.log(processedSections[0]);
     macros.log("DumpProcessor: finished with sections");
 
     await prisma.course.updateMany({
