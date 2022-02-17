@@ -216,7 +216,7 @@ class DumpProcessor {
       })
     );
 
-    console.log(sections);
+    console.log(processedSections);
     macros.log("DumpProcessor: finished with sections");
 
     await prisma.course.updateMany({

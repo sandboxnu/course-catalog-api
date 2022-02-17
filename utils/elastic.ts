@@ -76,6 +76,7 @@ export class Elastic {
     const indexName = indexNames[0];
     await this.createIndex(indexName, mapping);
     await this.createAlias(indexName, aliasName);
+    this.indexes[aliasName].name = indexName;
   }
 
   async isConnected(): Promise<boolean> {
@@ -235,8 +236,8 @@ export class Elastic {
   // https://www.elastic.co/guide/en/elasticsearch/reference/7.16/docs-bulk.html
   async bulkIndexFromMap(indexAlias: string, map: EsBulkData): Promise<any> {
     console.log(`Alias: ${indexAlias}`);
-    console.log(await this.fetchIndexName(indexAlias));
     await this.fetchIndexName(indexAlias);
+    console.log(await this.getIndexNameFromAlias(indexAlias));
 
     const indexName = this.getIndexNameFromAlias(indexAlias);
     const indexExisted = await this.doesIndexExist(indexName);
