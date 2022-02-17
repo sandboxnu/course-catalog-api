@@ -16,7 +16,7 @@ describe("Searching for courses", () => {
     for (const q of queries) {
       const res = await query(gql`
             query {
-                search(termId: "202250", query: "${q}") {
+                search(termId: "202240", query: "${q}") {
                   totalCount
                 }
               }
@@ -31,7 +31,7 @@ describe("Searching for courses", () => {
   test("Course mappings work", async () => {
     const res = await query(gql`
       query {
-        search(termId: "202250", query: "fundies") {
+        search(termId: "202240", query: "fundies") {
           nodes {
             ... on ClassOccurrence {
               name
