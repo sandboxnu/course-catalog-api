@@ -9,6 +9,8 @@ const NUM_TERMIDS = 3;
 const NUM_COURSES = 1658;
 const NUMS_SECTIONS = {
   "202240": 839,
+  "202250": 0,
+  "202260": 0,
 };
 const TOTAL_NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce(
   (a, b) => a + b,
@@ -71,7 +73,7 @@ describe("Course and section setup", () => {
     // 516 - summer 2
     // 2988 total
     console.log(await prisma.course.count());
-    // expect(await prisma.course.count()).toBe(NUM_COURSES);
+    expect(await prisma.course.count()).toBe(NUM_COURSES);
 
     for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
       console.log(
