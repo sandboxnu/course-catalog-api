@@ -5,7 +5,7 @@ public
 *.log
 .DS_Store
 data/*
-!data/major.json
+!data/*
 *.terraform.lock.hcl
 .env
 cache.zip

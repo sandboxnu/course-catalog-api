@@ -91,7 +91,8 @@ class DumpProcessor {
       fee_description: this.strTransform,
       host: this.strTransform,
       id: this.strTransform,
-      last_update_time: this.dateTransform,
+      // lastUpdateTime should be updated every time this course is inserted
+      last_update_time: () => "now()",
       max_credits: this.intTransform,
       min_credits: this.intTransform,
       name: this.strTransform,
@@ -136,7 +137,7 @@ class DumpProcessor {
       honors: this.boolTransform,
       id: this.strTransform,
       info: this.strTransform,
-      last_update_time: this.dateTransform,
+      last_update_time: () => "now()",
       meetings: this.jsonTransform,
       campus: this.strTransform,
       profs: this.arrayTransform,
@@ -204,7 +205,7 @@ class DumpProcessor {
         (elem) => elem.id
       )
     );
-    const processedSections = Object.values(termDump.sections)
+    const processedSections = termDump.sections
       .map((section) => this.constituteSection(section))
       .filter((s) => courseIds.has(s.classHash));
 
@@ -246,7 +247,7 @@ class DumpProcessor {
 
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
-    if (currentTermInfos !== null) {
+    if (currentTermInfos) {
       const termInfos = currentTermInfos;
       // This deletes any termID which doesn't have associated course data
       //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
@@ -272,7 +273,8 @@ class DumpProcessor {
         });
       }
 
-      macros.log("DumpProcessor: finished with term IDs");
+      const termsStr = termInfos.map((t) => t.termId).join(", ");
+      macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
     if (destroy) {
@@ -359,10 +361,6 @@ class DumpProcessor {
 
   jsonTransform(val: Maybe<unknown>): string {
     return val ? `'${JSON.stringify(val)}'` : "'{}'";
-  }
-
-  dateTransform(val: Maybe<number>): string {
-    return val ? `to_timestamp(${val / 1000})` : "now()";
   }
 
   boolTransform(val: Maybe<boolean>): string {

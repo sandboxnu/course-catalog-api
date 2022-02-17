@@ -26,8 +26,8 @@
     "style": "yarn prettier --write .",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
-    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg).[jt]s'",
-    "regtest": "jest --projects regtests",
+    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s'",
+    "regtest": "jest --projects tests/reg_tests",
     "dbtest": "jest -i --projects tests/ --verbose",
     "prodtest": "PROD=true jest reg.[jt]s",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
@@ -74,7 +74,7 @@
     "@babel/plugin-transform-arrow-functions": "^7.2.0",
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
-    "@elastic/elasticsearch": "^7.0.0-rc.2",
+    "@elastic/elasticsearch": "7.13.0",
     "@prisma/client": "^3.0.0",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
@@ -210,7 +210,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn pretty-quick --staged && yarn lint"
+      "__comment_1": "Runs prettier, and lint, only on the staged files",
+      "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
   }
 }

@@ -29,14 +29,15 @@ class Main {
 
     const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
       classes.main(["neu"], allTermInfos),
-      matchEmployees.main(),
+      // matchEmployees.main(), TODO: uncomment to turn on employee scraping and add employees to dumpProcessor
+      Promise.resolve([]),
     ];
 
     const [termDump, mergedEmployees] = await Promise.all(promises);
 
     await dumpProcessor.main({
       termDump: termDump,
-      profDump: mergedEmployees,
+      // profDump: mergedEmployees,
       destroy: true,
       currentTermInfos: currentTermInfos,
     });
