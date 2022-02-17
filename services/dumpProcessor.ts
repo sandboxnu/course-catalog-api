@@ -91,7 +91,8 @@ class DumpProcessor {
       fee_description: this.strTransform,
       host: this.strTransform,
       id: this.strTransform,
-      last_update_time: this.dateTransform,
+      // lastUpdateTime should be updated every time this course is inserted
+      last_update_time: () => "now()",
       max_credits: this.intTransform,
       min_credits: this.intTransform,
       name: this.strTransform,
@@ -136,7 +137,7 @@ class DumpProcessor {
       honors: this.boolTransform,
       id: this.strTransform,
       info: this.strTransform,
-      last_update_time: this.dateTransform,
+      last_update_time: () => "now()",
       meetings: this.jsonTransform,
       campus: this.strTransform,
       profs: this.arrayTransform,
@@ -364,10 +365,6 @@ class DumpProcessor {
 
   jsonTransform(val: Maybe<unknown>): string {
     return val ? `'${JSON.stringify(val)}'` : "'{}'";
-  }
-
-  dateTransform(val: Maybe<number>): string {
-    return val ? `to_timestamp(${val / 1000})` : "now()";
   }
 
   boolTransform(val: Maybe<boolean>): string {
