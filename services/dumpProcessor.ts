@@ -285,6 +285,8 @@ class DumpProcessor {
       macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
+    console.log(`SECTION COUNT BEFORE: ${await prisma.section.count()}`);
+
     if (destroy) {
       macros.log("DumpProcessor: destroying old courses and sections");
 
