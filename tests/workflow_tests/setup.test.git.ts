@@ -9,8 +9,8 @@ const NUM_TERMIDS = 3;
 const NUM_COURSES = 1658;
 const NUMS_SECTIONS = {
   "202240": 839,
-  "202250": 0,
-  "202260": 0,
+  "202250": 1634,
+  "202260": 515,
 };
 const TOTAL_NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce(
   (a, b) => a + b,
@@ -69,14 +69,10 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    // 1658 - summer full
-    // 516 - summer 2
-    // 2988 total
-    console.log(await prisma.course.count());
     expect(await prisma.course.count()).toBe(NUM_COURSES);
 
     for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
-      console.log(
+      expect(
         await prisma.section.count({
           where: {
             course: {
@@ -84,33 +80,24 @@ describe("Course and section setup", () => {
             },
           },
         })
-      );
-      // expect(
-      //   await prisma.section.count({
-      //     where: {
-      //       course: {
-      //         termId: termId,
-      //       },
-      //     },
-      //   })
-      // ).toBe(count);
+      ).toBe(count);
     }
 
     expect(await prisma.section.count()).toBe(TOTAL_NUM_SECTIONS);
   });
 
-  // test("Courses/sections are in GraphQL", async () => {
-  //   const res = await query(gql`
-  //     query {
-  //       termInfos(subCollege: "NEU") {
-  //         text
-  //         termId
-  //         subCollege
-  //       }
-  //     }
-  //   `);
-  //   const gqlTermInfos = res.data?.termInfos.map((t) => t.termId).sort();
-  // })
+  test("Courses/sections are in GraphQL", async () => {
+    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
+      const res = await query(gql`
+        query {
+          search(termId: "${termId}", query: "") {
+            totalCount
+          }
+        }
+      `);
+      expect(res.data?.search.totalCount).toBe(count);
+    }
+  });
 });
 
 // Check that there are courses in the cache
