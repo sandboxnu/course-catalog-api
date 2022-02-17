@@ -98,18 +98,18 @@ describe("Course and section setup", () => {
     expect(await prisma.section.count()).toBe(NUM_SECTIONS);
   });
 
-  test("Courses/sections are in GraphQL", async () => {
-    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
-      const res = await query(gql`
-        query {
-          search(termId: "${termId}", query: "") {
-            totalCount
-          }
-        }
-      `);
-      expect(res.data?.search.totalCount).toBe(count);
-    }
-  });
+  // test("Courses/sections are in GraphQL", async () => {
+  //   for (const [termId, count] of Object.entries(NUMS_COURSES)) {
+  //     const res = await query(gql`
+  //       query {
+  //         search(termId: "${termId}", query: "") {
+  //           totalCount
+  //         }
+  //       }
+  //     `);
+  //     expect(res.data?.search.totalCount).toBe(count);
+  //   }
+  // });
 });
 
 // Check that there are courses in the cache
