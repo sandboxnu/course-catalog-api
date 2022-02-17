@@ -210,8 +210,15 @@ class DumpProcessor {
 
     await Promise.all(
       _.chunk(processedSections, 2000).map(async (sections) => {
-        await prisma.$executeRawUnsafe(
-          this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
+        console.log(
+          await prisma.$executeRawUnsafe(
+            this.bulkUpsert(
+              "sections",
+              sectionCols,
+              sectionTransforms,
+              sections
+            )
+          )
         );
       })
     );
