@@ -210,21 +210,12 @@ class DumpProcessor {
 
     await Promise.all(
       _.chunk(processedSections, 2000).map(async (sections) => {
-        console.log(
-          await prisma.$executeRawUnsafe(
-            this.bulkUpsert(
-              "sections",
-              sectionCols,
-              sectionTransforms,
-              sections
-            )
-          )
+        await prisma.$executeRawUnsafe(
+          this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
         );
       })
     );
 
-    console.log(processedSections.length);
-    console.log(processedSections[0]);
     macros.log("DumpProcessor: finished with sections");
 
     await prisma.course.updateMany({
@@ -286,6 +277,7 @@ class DumpProcessor {
     }
 
     console.log(`SECTION COUNT BEFORE: ${await prisma.section.count()}`);
+    console.log(await prisma.section.findFirst());
 
     if (destroy) {
       macros.log("DumpProcessor: destroying old courses and sections");
@@ -313,6 +305,7 @@ class DumpProcessor {
       });
     }
 
+    console.log(`SECTION COUNT AFTER: ${await prisma.section.count()}`);
     macros.log("DumpProcessor: Finished cleaning up");
 
     await populateES();
