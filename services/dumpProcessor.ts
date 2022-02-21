@@ -278,7 +278,11 @@ class DumpProcessor {
     }
 
     if (destroy) {
-      macros.log("DumpProcessor: destroying old courses and sections");
+      macros.log(
+        `DumpProcessor: destroying old courses and sections for terms (${Array.from(
+          coveredTerms
+        ).join(" ,")}`
+      );
 
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
