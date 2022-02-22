@@ -46,3 +46,43 @@ describe("Searching for courses", () => {
     expect(name).toMatch(/Fundamentals of Computer Science.*/);
   });
 });
+
+describe("Searching for professors", () => {
+  test("searching by professor name", async () => {
+    const res = await query(gql`
+      query {
+        search(termId: "202240", query: "jason hemann") {
+          nodes {
+            ... on Employee {
+              name
+              firstName
+              lastName
+              emails
+            }
+          }
+        }
+      }
+    `);
+
+    const obj = res.data.search.nodes[0];
+    expect(obj.firstName).toBe("Jason");
+    expect(obj.lastName).toBe("Hemann");
+
+    const res2 = await query(gql`
+      query {
+        search(termId: "202240", query: "") {
+          nodes {
+            ... on Employee {
+              name
+              firstName
+              lastName
+              emails
+            }
+          }
+        }
+      }
+    `);
+
+    console.log(res2.data.search.nodes);
+  });
+});
