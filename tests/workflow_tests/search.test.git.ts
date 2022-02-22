@@ -45,44 +45,44 @@ describe("Searching for courses", () => {
   });
 });
 
-describe("Searching for professors", () => {
-  test("searching by professor name", async () => {
-    const res = await query(gql`
-      query {
-        search(termId: "202240", query: "jason hemann") {
-          nodes {
-            ... on Employee {
-              name
-              firstName
-              lastName
-              emails
-            }
-          }
-        }
-      }
-    `);
+// describe("Searching for professors", () => {
+//   test("searching by professor name", async () => {
+//     const res = await query(gql`
+//       query {
+//         search(termId: "202240", query: "jason hemann") {
+//           nodes {
+//             ... on Employee {
+//               name
+//               firstName
+//               lastName
+//               emails
+//             }
+//           }
+//         }
+//       }
+//     `);
 
-    const obj = res.data.search.nodes[0];
-    console.log(JSON.stringify(obj));
-    // expect(obj.firstName).toBe("Jason");
-    // expect(obj.lastName).toBe("Hemann");
+//     const obj = res.data.search.nodes[0];
+//     console.log(JSON.stringify(obj));
+//     // expect(obj.firstName).toBe("Jason");
+//     // expect(obj.lastName).toBe("Hemann");
 
-    const res2 = await query(gql`
-      query {
-        search(termId: "202240", query: "") {
-          nodes {
-            ... on Employee {
-              name
-              firstName
-              lastName
-              emails
-            }
-          }
-        }
-      }
-    `);
+//     const res2 = await query(gql`
+//       query {
+//         search(termId: "202240", query: "") {
+//           nodes {
+//             ... on Employee {
+//               name
+//               firstName
+//               lastName
+//               emails
+//             }
+//           }
+//         }
+//       }
+//     `);
 
-    console.log(res2.data.search.nodes);
-    console.log(JSON.stringify(res2.data.search.nodes));
-  });
-});
+//     console.log(res2.data.search.nodes);
+//     console.log(JSON.stringify(res2.data.search.nodes));
+//   });
+// });
