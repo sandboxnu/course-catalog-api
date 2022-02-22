@@ -1,9 +1,7 @@
 import { gql } from "apollo-server";
-import prisma from "../../services/prisma";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
-import elastic from "../../utils/elastic";
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -65,6 +63,7 @@ describe("Searching for professors", () => {
     `);
 
     const obj = res.data.search.nodes[0];
+    console.log(JSON.stringify(obj));
     // expect(obj.firstName).toBe("Jason");
     // expect(obj.lastName).toBe("Hemann");
 
@@ -84,5 +83,6 @@ describe("Searching for professors", () => {
     `);
 
     console.log(res2.data.search.nodes);
+    console.log(JSON.stringify(res2.data.search.nodes));
   });
 });
