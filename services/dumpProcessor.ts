@@ -273,12 +273,18 @@ class DumpProcessor {
         });
       }
 
-      const termsStr = termInfos.map((t) => t.termId).join(", ");
+      const termsStr = termInfos
+        .map((t) => t.termId)
+        .sort()
+        .join(", ");
       macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
     if (destroy) {
-      macros.log("DumpProcessor: destroying old courses and sections");
+      const termsStr = Array.from(coveredTerms).sort().join(", ");
+      macros.log(
+        `DumpProcessor: destroying old courses and sections for terms (${termsStr})`
+      );
 
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
