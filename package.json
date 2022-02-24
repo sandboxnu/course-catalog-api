@@ -19,15 +19,15 @@
     "dev:docker:del": "docker-compose -f infrastructure/dev/docker-compose.yml down -v",
     "dev:docker:server": "docker-compose -f infrastructure/dev/docker-compose-server.yml up -d",
     "dev:docker:server:del": "docker-compose -f infrastructure/dev/docker-compose-server.yml down -v",
-    "db:migrate": "npx prisma migrate dev --preview-feature",
+    "db:migrate": "npx prisma migrate dev",
     "db:refresh": "npx prisma generate",
     "-linting-": "--------linting--------",
     "lint": "yarn eslint --ignore-path .gitignore --ext .js,.ts .",
     "style": "yarn prettier --write .",
     "tsc": "tsc",
     "-testing-": "--------testing--------",
-    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg).[jt]s'",
-    "regtest": "jest --projects regtests",
+    "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s'",
+    "regtest": "jest --projects tests/reg_tests",
     "dbtest": "jest -i --projects tests/ --verbose",
     "prodtest": "PROD=true jest reg.[jt]s",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
@@ -75,7 +75,7 @@
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
     "@elastic/elasticsearch": "7.13.0",
-    "@prisma/client": "^3.0.0",
+    "@prisma/client": "^3.9.1",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
     "apollo-server": "^3.6.2",
@@ -172,7 +172,7 @@
     "jest-environment-node": "^27.0.0",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "prisma": "^3.0.0",
+    "prisma": "^3.9.1",
     "ts-jest": "^27.0.0",
     "typescript": "^4.5.5",
     "yarn-deduplicate": "^3.1.0"
@@ -210,7 +210,8 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn pretty-quick --staged && yarn lint"
+      "__comment_1": "Runs prettier, and lint, only on the staged files",
+      "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
   }
 }

@@ -76,6 +76,7 @@ export class Elastic {
     const indexName = indexNames[0];
     await this.createIndex(indexName, mapping);
     await this.createAlias(indexName, aliasName);
+    this.indexes[aliasName].name = indexName;
   }
 
   async isConnected(): Promise<boolean> {

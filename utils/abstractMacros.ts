@@ -72,8 +72,10 @@ class Macros {
   }
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-  static isNumeric(n: any): boolean {
-    return !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(n);
+  static isNumeric(n: string): boolean {
+    return (
+      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
+    );
   }
 }
 
@@ -82,7 +84,9 @@ if (
   process.env.PROD ||
   process.env.NODE_ENV === "production" ||
   process.env.NODE_ENV === "prod" ||
-  (process.env.CI && process.env.NODE_ENV !== "test")
+  (process.env.CI &&
+    process.env.NODE_ENV !== "test" &&
+    process.env.NODE_ENV !== "dev")
 ) {
   Macros.PROD = true;
   console.log("Running in prod mode."); // eslint-disable-line no-console
