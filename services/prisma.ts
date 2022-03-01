@@ -4,7 +4,7 @@ import macros from "../utils/macros";
 let prisma: PrismaClient;
 try {
   prisma = new PrismaClient({
-    log: ["query", "info", "warn", "error"],
+    log: ["info", "warn", "error"],
   });
   macros.log("** Created new Prisma client");
 } catch (e) {
