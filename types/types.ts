@@ -57,6 +57,20 @@ export const LAW_COLLEGE = "LAW";
 
 export type CollegeNames = "NEU" | "CPS" | "LAW";
 
+export interface EmployeeRequestResponse {
+  RecordNumber: string;
+  LastName: string;
+  FirstName: string;
+  PositionTitle: string;
+  Department: string;
+  PhoneNumber: string;
+  CampusAddress: string;
+  Email: string;
+  SecondaryDivision: string;
+  SecondaryDepartment: string;
+  PreferredFirstName: string;
+}
+
 export interface Employee {
   name: string;
   firstName: string;
