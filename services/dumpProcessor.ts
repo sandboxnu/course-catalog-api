@@ -40,47 +40,6 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
-    const profTransforms = {
-      big_picture_url: this.strTransform,
-      email: this.strTransform,
-      emails: this.arrayTransform,
-      emails_contents: this.arrayStrTransform,
-      first_name: this.strTransform,
-      name: this.strTransform,
-      google_scholar_id: this.strTransform,
-      id: this.strTransform,
-      last_name: this.strTransform,
-      link: this.strTransform,
-      office_room: this.strTransform,
-      personal_site: this.strTransform,
-      phone: this.strTransform,
-      pic: this.jsonTransform,
-      primary_department: this.strTransform,
-      primary_role: this.strTransform,
-      street_address: this.strTransform,
-      url: this.strTransform,
-    };
-
-    const profCols = [
-      "big_picture_url",
-      "email",
-      "emails",
-      "first_name",
-      "google_scholar_id",
-      "id",
-      "last_name",
-      "link",
-      "name",
-      "office_room",
-      "personal_site",
-      "phone",
-      "pic",
-      "primary_department",
-      "primary_role",
-      "street_address",
-      "url",
-    ];
-
     const courseTransforms = {
       class_attributes: this.arrayTransform,
       class_attributes_contents: this.arrayStrTransform,
@@ -169,18 +128,12 @@ class DumpProcessor {
 
     const coveredTerms: Set<string> = new Set();
 
-    await Promise.all(
-      _.chunk(Object.values(profDump), 2000).map(async (profs) => {
-        await prisma.$executeRawUnsafe(
-          this.bulkUpsert(
-            "professors",
-            profCols,
-            profTransforms,
-            profs.map((prof) => this.constituteProf(prof))
-          )
-        );
-      })
-    );
+    // We delete all of the professors, and insert anew
+    // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
+    await prisma.professor.deleteMany({});
+    await prisma.professor.createMany({
+      data: profDump.map((prof) => this.constituteProf(prof)),
+    });
 
     macros.log("DumpProcessor: finished with profs");
 

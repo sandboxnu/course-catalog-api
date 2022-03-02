@@ -6,7 +6,12 @@
 import Request from "../request";
 import cache from "../cache";
 import macros from "../../utils/macros";
-import { Employee, EmployeeRequestResponse } from "../../types/types";
+import {
+  Employee,
+  EmployeeRequestResponse,
+  EmployeeWithId,
+} from "../../types/types";
+import { v4 as uuidv4 } from "uuid";
 
 const request = new Request("Employees");
 
@@ -47,7 +52,7 @@ function employeeQuery(query: string): unknown {
 // "primarydepartment": "DMSB Co-op"
 
 class NeuEmployee {
-  people: Employee[];
+  people: EmployeeWithId[];
   couldNotFindNameList: Record<string, boolean>;
   csrfToken: null | string;
 
@@ -89,9 +94,12 @@ class NeuEmployee {
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
   }
 
-  parseLettersResponse(response: EmployeeRequestResponse[]): Employee[] {
-    console.log(response);
+  parseLettersResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
     this.people = response.map((employee) => {
+      const id =
+        !employee.Email || employee.Email === "Not Available"
+          ? uuidv4()
+          : employee.Email;
       return {
         name: `${employee.FirstName} ${employee.LastName}`,
         firstName: employee.FirstName,
@@ -103,8 +111,8 @@ class NeuEmployee {
         email: employee.Email,
         officeRoom: employee.CampusAddress,
         office: employee.CampusAddress,
-        id: employee.Email, // Emails are unique, so we can use them as an ID
-      } as Employee;
+        id: id, // Emails are unique, so we can use them as an ID
+      };
     });
 
     return this.people;
