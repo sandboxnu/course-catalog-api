@@ -141,6 +141,7 @@ class NeuEmployee {
       );
       if (devData) {
         return (devData as Employee[]).map((employee) => {
+          console.log(employee);
           return { ...employee, id: this.generateEmployeeId(employee) };
         });
       }
