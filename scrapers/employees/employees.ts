@@ -94,13 +94,15 @@ class NeuEmployee {
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
   }
 
+  generateEmployeeId(employee: Employee): string {
+    const email =
+      employee.email || employee.emails.length > 0 ? employee.emails[0] : null;
+    return !email || email === "Not Available" ? uuidv4() : email;
+  }
+
   parseLettersResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
     this.people = response.map((employee) => {
-      const id =
-        !employee.Email || employee.Email === "Not Available"
-          ? uuidv4()
-          : employee.Email;
-      return {
+      const employee_obj = {
         name: `${employee.FirstName} ${employee.LastName}`,
         firstName: employee.FirstName,
         lastName: employee.LastName,
@@ -111,14 +113,15 @@ class NeuEmployee {
         email: employee.Email,
         officeRoom: employee.CampusAddress,
         office: employee.CampusAddress,
-        id: id, // Emails are unique, so we can use them as an ID
       };
+
+      return { ...employee_obj, id: this.generateEmployeeId(employee_obj) };
     });
 
     return this.people;
   }
 
-  async get(lastNameStart: string): Promise<Employee[]> {
+  async get(lastNameStart: string): Promise<EmployeeWithId[]> {
     const xcsrfToken = await this.getCsrfToken();
 
     macros.verbose("neu employee got x-csrf token", xcsrfToken);
@@ -137,7 +140,9 @@ class NeuEmployee {
         "main"
       );
       if (devData) {
-        return devData as Employee[];
+        return (devData as Employee[]).map((employee) => {
+          return { ...employee, id: this.generateEmployeeId(employee) };
+        });
       }
     }
 
