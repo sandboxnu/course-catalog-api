@@ -9,11 +9,6 @@ import atob from "atob";
 
 import employees from "../employees";
 
-it("findName should work", () => {
-  const output = employees.findName(["a", "b", "sr", "bob"]);
-  expect(output).toBe("bob");
-});
-
 // Test to make sure parsing of an employees result page stays the same
 it("should be able to parse a page of be", async () => {
   const body = await fs.readFile(

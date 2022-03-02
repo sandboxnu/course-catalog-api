@@ -89,33 +89,8 @@ class NeuEmployee {
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
   }
 
-  // Given a list of things, will find the first one that is longer than 1 letter (a-z)
-  findName(list: string[], referenceName: string): string {
-    for (let i = 0; i < list.length; i++) {
-      const noSymbols = list[i].toLowerCase().replace(/[^0-9a-zA-Z]/gi, "");
-
-      if (
-        noSymbols.length > 1 &&
-        !["ii", "iii", "jr", "sr", "dr"].includes(noSymbols)
-      ) {
-        return list[i];
-      }
-    }
-
-    // Only log each warning once, just to not spam the macros. This method is called a lot.
-    const logMatchString = list.join("");
-    if (this.couldNotFindNameList[logMatchString]) {
-      return null;
-    }
-    this.couldNotFindNameList[logMatchString] = true;
-
-    macros.warn(
-      `Could not find name from list: ${list}  (called by ${referenceName})`
-    );
-    return null;
-  }
-
   parseLettersResponse(response: EmployeeRequestResponse[]): Employee[] {
+    console.log(response);
     this.people = response.map((employee) => {
       return {
         name: `${employee.FirstName} ${employee.LastName}`,
