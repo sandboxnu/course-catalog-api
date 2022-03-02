@@ -95,8 +95,12 @@ class NeuEmployee {
   }
 
   generateEmployeeId(employee: Employee): string {
-    const email =
-      employee.email || employee.emails.length > 0 ? employee.emails[0] : null;
+    let email;
+    if (employee.email) {
+      email = employee.email;
+    } else if (employee.emails && employee.emails.length > 0) {
+      email = employee.emails[0];
+    }
     return !email || email === "Not Available" ? uuidv4() : email;
   }
 
@@ -141,7 +145,6 @@ class NeuEmployee {
       );
       if (devData) {
         return (devData as Employee[]).map((employee) => {
-          console.log(employee);
           return { ...employee, id: this.generateEmployeeId(employee) };
         });
       }

@@ -132,7 +132,7 @@ class DumpProcessor {
     // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
     await prisma.professor.deleteMany({});
     await prisma.professor.createMany({
-      data: profDump.map((prof) => this.constituteProf(prof)),
+      data: profDump.map((prof) => this.processProf(prof)),
     });
 
     macros.log("DumpProcessor: finished with profs");
@@ -413,10 +413,6 @@ class DumpProcessor {
       "subject",
       "host",
     ]) as unknown as Prisma.SectionCreateInput & { classHash: string };
-  }
-
-  constituteProf(professor: EmployeeWithId): Prisma.ProfessorCreateInput {
-    return professor;
   }
 
   toCamelCase(str: string): string {
