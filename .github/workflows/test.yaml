@@ -94,6 +94,12 @@ jobs:
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
       - run: yarn jest -i --projects tests/workflow_tests --verbose --coverage
+      - name: Coveralls Parallel
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: End to end tests
+          parallel: true
 
       #### Some useful CLI queries to help troubleshoot
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'

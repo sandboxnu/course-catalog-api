@@ -14,7 +14,6 @@ import { populateES } from "../scripts/populateES";
 import {
   BulkUpsertInput,
   Dump,
-  EmployeeWithId,
   Section,
   TransformFunction,
 } from "../types/types";
