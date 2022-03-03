@@ -100,6 +100,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: End to end tests
           parallel: true
+      - run: cd ./tests/workflow_tests && ls -lA
 
       #### Some useful CLI queries to help troubleshoot
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'
@@ -111,3 +112,4 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
           verbose: true
+          path-to-lcov: "./tests/workflow_tests/coverage/lcov.info"
