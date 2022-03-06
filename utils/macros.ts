@@ -347,6 +347,7 @@ class Macros extends commonMacros {
       // If running on Travis, just exit 1 and travis will send off an email.
       if (process.env.CI) {
         process.exit(1);
+
         // If running on AWS, tell rollbar about the error so rollbar sends off an email.
       } else {
         const err_string = JSON.stringify(args);
