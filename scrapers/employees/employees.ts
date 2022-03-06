@@ -54,7 +54,7 @@ function employeeQuery(query: string): unknown {
 class NeuEmployee {
   people: EmployeeWithId[];
   couldNotFindNameList: Record<string, boolean>;
-  csrfToken: null | string;
+  csrfToken: string;
 
   constructor() {
     this.people = [];
@@ -63,32 +63,23 @@ class NeuEmployee {
   }
 
   async getCsrfToken(): Promise<string> {
-    if (this.csrfToken) {
-      return this.csrfToken;
-    }
-
     macros.verbose("NEU Employees - getting X-CSRF token");
 
-    this.csrfToken = await request
+    return await request
       .get({
         url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
       })
       .then((resp) => resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1]);
-
-    return this.csrfToken;
   }
 
-  hitWithLetters(
-    lastNameStart: string,
-    csrfToken: string
-  ): Promise<EmployeeRequestResponse[]> {
+  hitWithLetters(lastNameStart: string): Promise<EmployeeRequestResponse[]> {
     return request
       .post({
         url: "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
         body: employeeQuery(lastNameStart),
         json: true,
         headers: {
-          "X-CSRFToken": csrfToken,
+          "X-CSRFToken": this.csrfToken,
         },
       })
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
@@ -126,12 +117,7 @@ class NeuEmployee {
   }
 
   async get(lastNameStart: string): Promise<EmployeeWithId[]> {
-    const xcsrfToken = await this.getCsrfToken();
-
-    macros.verbose("neu employee got x-csrf token", xcsrfToken);
-
-    const response = await this.hitWithLetters(lastNameStart, xcsrfToken);
-
+    const response = await this.hitWithLetters(lastNameStart);
     return this.parseLettersResponse(response);
   }
 
@@ -154,7 +140,7 @@ class NeuEmployee {
 
     const alphabetArray = macros.ALPHABET.split("");
 
-    await this.getCsrfToken(); // Cache the CSRF token
+    this.csrfToken = await this.getCsrfToken(); // Cache the CSRF token
     // We have to cache it first, otherwise all the queries try to get it anyways
 
     for (const firstLetter of alphabetArray) {

@@ -14,6 +14,7 @@ import { populateES } from "../scripts/populateES";
 import {
   BulkUpsertInput,
   Dump,
+  EmployeeWithId,
   Section,
   TransformFunction,
 } from "../types/types";
@@ -325,7 +326,7 @@ class DumpProcessor {
     return val ? "TRUE" : "FALSE";
   }
 
-  processProf(profInfo: any): Prisma.ProfessorCreateInput {
+  processProf(profInfo: EmployeeWithId): Prisma.ProfessorCreateInput {
     const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
     return _.omit(correctedQuery, [
       "title",
