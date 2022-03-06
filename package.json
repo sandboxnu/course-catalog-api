@@ -214,5 +214,8 @@
       "__comment_1": "Runs prettier, and lint, only on the staged files",
       "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
+  },
+  "engines": {
+    "node": ">=14.18.3"
   }
 }

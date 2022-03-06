@@ -16,6 +16,9 @@ import { v4 as uuidv4 } from "uuid";
 const request = new Request("Employees");
 
 function employeeQuery(query: string): unknown {
+  // These values are taken from the API exposed here: https://nu.outsystemsenterprise.com/FSD/
+  // The purpose of these values is unknown, as the API is undocumented. If requests start failing, please
+  // inspect the API response at the above link & update accordingly
   return {
     versionInfo: {
       moduleVersion: "HkL1qOMsAyyecvGQd_lOfQ",
