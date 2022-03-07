@@ -1,16 +1,32 @@
 import { PrismaClient } from "@prisma/client";
+import macros from "../utils/macros";
 
-console.log("** Creating Prisma client");
 let prisma: PrismaClient;
 try {
   prisma = new PrismaClient({
     log: ["info", "warn", "error"],
   });
+  macros.log("** Created Prisma client");
 } catch (e) {
-  // See github pull #91 for more info
-  // Basically, we need to be able to kill Prisma in our Macros class
-  // So, we can't use Macros in this file, since this file is a dependency for Macros, and that creates a circular dependency
-  console.error(e);
+  macros.error(e);
 }
+
+// TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
+// Temp fix to address Prisma connection pool issues
+// https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
+const intervalTime = 12 * 60 * 60 * 1000; // Every 12 hours
+
+setInterval(async () => {
+  const startTime = Date.now();
+  await prisma.$disconnect();
+  macros.log("Disconnected Prisma");
+  await prisma.$connect();
+  const totalTime = Date.now() - startTime;
+  macros.log(
+    `Reconnected Prisma - downtime of ${totalTime} ms (${
+      totalTime / 60_000
+    } mins)`
+  );
+}, intervalTime);
 
 export default prisma;

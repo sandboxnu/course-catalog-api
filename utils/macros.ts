@@ -15,7 +15,6 @@ import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
 import { createLogger, format, transports } from "winston";
 import "winston-daily-rotate-file";
-import prisma from "../services/prisma";
 
 dotenv.config();
 
@@ -350,17 +349,6 @@ class Macros extends commonMacros {
 
         // If running on AWS, tell rollbar about the error so rollbar sends off an email.
       } else {
-        // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
-        // Temp fix to address Prisma connection pool issues
-        // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
-        const err_string = JSON.stringify(args);
-        Macros.log(err_string);
-        if (err_string.includes("Timed out fetching a new connection")) {
-          prisma
-            .$disconnect()
-            .then(() => Macros.log("Disconnected from Prisma pool"))
-            .catch((e) => Macros.error(e));
-        }
         this.logRollbarError(args, false);
       }
     }
