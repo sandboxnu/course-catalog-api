@@ -1,29 +1,16 @@
-import { Prisma, PrismaClient } from "@prisma/client";
-import macros from "../utils/macros";
+import { PrismaClient } from "@prisma/client";
 
-macros.log("** Creating Prisma client");
+console.log("** Creating Prisma client");
 let prisma: PrismaClient;
 try {
   prisma = new PrismaClient({
-    log: ["info", { level: "error", emit: "event" }, "warn", "error"],
-  });
-  // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
-  // Temp fix to address Prisma connection pool issues
-  // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
-  // @ts-expect-error - since we define the type before providing the options, the PrismaClient type is incompelete here
-  prisma.$on("error", (e: Prisma.LogEvent) => {
-    macros.error(e);
-    macros.log("Prisma - handling error");
-    macros.log(e.message);
-    if (e.message.includes("Timed out fetching a new connection")) {
-      prisma
-        .$disconnect()
-        .then(() => macros.log("Disconnected from Prisma pool"))
-        .catch((e) => macros.error(e));
-    }
+    log: ["info", "warn", "error"],
   });
 } catch (e) {
-  macros.error(e);
+  // See github pull #91 for more info
+  // Basically, we need to be able to kill Prisma in our Macros class
+  // So, we can't use Macros in this file, since this file is a dependency for Macros, and that creates a circular dependency
+  console.error(e);
 }
 
-export default prisma as PrismaClient;
+export default prisma;
