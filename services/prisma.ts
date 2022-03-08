@@ -14,7 +14,7 @@ try {
 // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
 // Temp fix to address Prisma connection pool issues
 // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
-const intervalTime = 12 * 60 * 60 * 1000; // Every 12 hours
+const intervalTime = 6 * 60 * 60_000; // Every 6 hours
 
 setInterval(async () => {
   const startTime = Date.now();
