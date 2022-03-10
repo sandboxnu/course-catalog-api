@@ -1,29 +1,31 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import macros from "../utils/macros";
 
-macros.log("** Creating Prisma client");
 let prisma: PrismaClient;
 try {
   prisma = new PrismaClient({
-    log: ["info", { level: "error", emit: "event" }, "warn", "error"],
+    log: ["info", "warn", "error"],
   });
+  macros.log("** Created Prisma client");
+
   // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
   // Temp fix to address Prisma connection pool issues
   // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
-  // @ts-expect-error - since we define the type before providing the options, the PrismaClient type is incompelete here
-  prisma.$on("error", (e: Prisma.LogEvent) => {
-    macros.error(e);
-    macros.log("Prisma - handling error");
-    macros.log(e.message);
-    if (e.message.includes("Timed out fetching a new connection")) {
-      prisma
-        .$disconnect()
-        .then(() => macros.log("Disconnected from Prisma pool"))
-        .catch((e) => macros.error(e));
-    }
-  });
+  const intervalTime = 6 * 60 * 60_000; // Every 6 hours
+  setInterval(async () => {
+    const startTime = Date.now();
+    await prisma.$disconnect();
+    macros.log("Disconnected Prisma");
+    await prisma.$connect();
+    const totalTime = Date.now() - startTime;
+    macros.log(
+      `Reconnected Prisma - downtime of ${totalTime} ms (${
+        totalTime / 60_000
+      } mins)`
+    );
+  }, intervalTime);
 } catch (e) {
   macros.error(e);
 }
 
-export default prisma as PrismaClient;
+export default prisma;
