@@ -34,7 +34,8 @@ export type LeafQuery =
   | ExistsQuery
   | MultiMatchQuery
   | RangeQuery
-  | MatchAllQuery;
+  | MatchAllQuery
+  | BoolQuery;
 
 export interface TermQuery {
   term: FieldQuery;
@@ -61,6 +62,11 @@ export interface RangeQuery {
       lt?: number;
     };
   };
+}
+
+export interface QueryWithType {
+  query: string;
+  type: "phrase" | "most_fields";
 }
 
 export const MATCH_ALL_QUERY = { match_all: {} };
@@ -92,6 +98,7 @@ export interface MustQuery {
 
 export interface ShouldQuery {
   should: OneOrMany<QueryNode>;
+  minimum_should_match?: number;
 }
 
 export interface FilterQuery {

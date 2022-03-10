@@ -34,6 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
+  QueryWithType,
 } from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
@@ -214,6 +215,49 @@ class Searcher {
   }
 
   /**
+   * Given a string, creates a list of queries that are either phrase queries or
+   * most_field queries. Phrases are between quotes, and use phrase matching.
+   * Most_field queries are everything else, and search the terms on all fields.
+   * else.
+   * @param query the string that is parsed into a list
+   * @returns a list of queries
+   */
+  parseQuery(query: string): QueryWithType[] {
+    const ret = [];
+    let curString = "";
+    let isPhrase: boolean = false;
+
+    for (let i = 0; i < query.length; i++) {
+      //if we find a quote, we want to make the correct query and push it onto the return list
+      if (query[i] === '"') {
+        if (curString.trim() !== "") {
+          //add the query with the current string, with the correct type
+          ret.push({
+            query: curString,
+            type: isPhrase ? "phrase" : "most_fields",
+          });
+        }
+        //change the toggle everytime you see a quote
+        isPhrase = !isPhrase;
+        //reset the current string
+        curString = "";
+      } else {
+        //otherwise add to the current string.
+        curString += query[i];
+      }
+    }
+    //if the current string is not empty, add whatever we have left.
+    if (curString !== "") {
+      ret.push({
+        query: curString,
+        type: isPhrase ? "phrase" : "most_fields",
+      });
+    }
+
+    return ret;
+  }
+
+  /**
    * Get elasticsearch query
    */
   generateQuery(
@@ -225,17 +269,55 @@ class Searcher {
     aggregation = ""
   ): EsQuery {
     const fields: string[] = this.getFields();
-    // text query from the main search box
-    const matchTextQuery: LeafQuery =
-      query.length > 0
-        ? {
-            multi_match: {
-              query: query,
-              type: "most_fields", // More fields match => higher score
-              fields: fields,
-            },
-          }
-        : MATCH_ALL_QUERY;
+
+    const queryArr: QueryWithType[] = this.parseQuery(query);
+
+    //a list of all phrase queries
+    const matchQueries: LeafQuery[] = [];
+
+    //a most_field query, containing all non-phrase terms combined.
+    let fieldQuery: LeafQuery;
+
+    //are there any field Queries?
+    let fieldQExists: boolean = false;
+
+    //the current fields string, we want to build a single query with all
+    //the terms that are not phrases.
+    let fieldStr: string = "";
+    for (let i = 0; i < queryArr.length; ++i) {
+      //if the type is phrase, add a phrase query with the term
+      if (queryArr[i].type === "phrase") {
+        matchQueries.push({
+          multi_match: {
+            query: queryArr[i].query,
+            type: "phrase",
+            fields: fields,
+          },
+        });
+      }
+      //add the query to the current string
+      else {
+        fieldStr += queryArr[i].query + " ";
+      }
+    }
+
+    //if the fields string is not empty, create a field query with this string
+    if (fieldStr !== "") {
+      fieldQuery = {
+        multi_match: {
+          query: fieldStr,
+          type: "most_fields",
+          fields: fields,
+        },
+      };
+
+      fieldQExists = true;
+    }
+
+    //if there was an empty search, match_all
+    if (matchQueries.length === 0 && fieldQExists) {
+      matchQueries.push(MATCH_ALL_QUERY);
+    }
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {
@@ -275,7 +357,7 @@ class Searcher {
       sort: ["_score", sortByClassId],
       query: {
         bool: {
-          must: matchTextQuery,
+          must: matchQueries, //must match all the phrases
           filter: {
             bool: {
               should: [
@@ -284,6 +366,8 @@ class Searcher {
               ],
             },
           },
+          should: fieldQuery, //should match any remaining terms
+          minimum_should_match: 0,
         },
       },
       aggregations: aggQuery,
@@ -302,7 +386,7 @@ class Searcher {
     const queries: EsQuery[] = [
       this.generateQuery(query, termId, validFilters, min, max),
     ];
-
+    console.log(JSON.stringify(queries[0]));
     for (const fKey of Object.keys(this.aggFilters)) {
       const everyOtherFilter: FilterInput = _.omit(filters, fKey);
       queries.push(
