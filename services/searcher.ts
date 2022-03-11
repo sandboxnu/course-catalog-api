@@ -225,7 +225,7 @@ class Searcher {
   parseQuery(query: string): QueryWithType[] {
     const ret = [];
     let curString = "";
-    let isPhrase: boolean = false;
+    let isPhrase = false;
 
     for (let i = 0; i < query.length; i++) {
       //if we find a quote, we want to make the correct query and push it onto the return list
@@ -279,11 +279,11 @@ class Searcher {
     let fieldQuery: LeafQuery;
 
     //are there any field Queries?
-    let fieldQExists: boolean = false;
+    let fieldQExists = false;
 
     //the current fields string, we want to build a single query with all
     //the terms that are not phrases.
-    let fieldStr: string = "";
+    let fieldStr = "";
     for (let i = 0; i < queryArr.length; ++i) {
       //if the type is phrase, add a phrase query with the term
       if (queryArr[i].type === "phrase") {
