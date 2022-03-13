@@ -1,6 +1,7 @@
 import { ApolloServer, gql } from "apollo-server";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import macros from "../utils/macros";
+import prisma from "../services/prisma";
 
 import employeeTypeDef from "./typeDefs/employee";
 
@@ -73,6 +74,26 @@ if (require.main === module) {
     .catch((err) => {
       macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
     });
+
+  // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
+  // Temp fix to address Prisma connection pool issues
+  // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
+  const intervalTime = 6 * 60 * 60_000; // Every 6 hours
+
+  if (!macros.TEST) {
+    setInterval(async () => {
+      const startTime = Date.now();
+      await prisma.$disconnect();
+      macros.log("Disconnected Prisma");
+      await prisma.$connect();
+      const totalTime = Date.now() - startTime;
+      macros.log(
+        `Reconnected Prisma - downtime of ${totalTime} ms (${
+          totalTime / 60_000
+        } mins)`
+      );
+    }, intervalTime);
+  }
 }
 
 export default server;
