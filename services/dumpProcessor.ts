@@ -332,6 +332,7 @@ class DumpProcessor {
       "title",
       "interests",
       "officeStreetAddress",
+      "office",
     ]) as Prisma.ProfessorCreateInput;
   }
 
