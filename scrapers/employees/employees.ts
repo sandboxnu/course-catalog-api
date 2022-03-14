@@ -21,7 +21,7 @@ function employeeQuery(query: string): unknown {
   // inspect the API response at the above link & update accordingly
   return {
     versionInfo: {
-      moduleVersion: "HkL1qOMsAyyecvGQd_lOfQ",
+      moduleVersion: "mWWAP+YL9U4e9B2D7spGFQ",
       apiVersion: "ad_141F5PYcK3c+D5K8O+g",
     },
     viewName: "MainFlow.FacultyAndStaffDirectory",
