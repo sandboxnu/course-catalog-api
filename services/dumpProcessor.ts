@@ -130,10 +130,12 @@ class DumpProcessor {
 
     // We delete all of the professors, and insert anew
     // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
-    await prisma.professor.deleteMany({});
-    await prisma.professor.createMany({
-      data: profDump.map((prof) => this.processProf(prof)),
-    });
+    if (profDump.length > 1) {
+      await prisma.professor.deleteMany({});
+      await prisma.professor.createMany({
+        data: profDump.map((prof) => this.processProf(prof)),
+      });
+    }
 
     macros.log("DumpProcessor: finished with profs");
 
@@ -332,6 +334,7 @@ class DumpProcessor {
       "title",
       "interests",
       "officeStreetAddress",
+      "office",
     ]) as Prisma.ProfessorCreateInput;
   }
 
