@@ -71,7 +71,10 @@ class NeuEmployee {
       .get({
         url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
       })
-      .then((resp) => resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1]);
+      .then((resp) => {
+        console.log(resp);
+        return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
+      });
 
     const moduleVersion = await request
       .get({
