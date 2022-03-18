@@ -13,8 +13,6 @@ describe("static data", () => {
   it("should be able to parse API responses", async () => {
     const employeeList = employees.parseApiResponse(employeeData);
 
-    // As documented in the employees.ts file, the decoded string should be 16 bytes.
-    // Idk what those bytes mean, but we can check the length
     for (const employee of employeeList) {
       // https://stackoverflow.com/questions/46155/whats-the-best-way-to-validate-an-email-address-in-javascript
       const validId =
