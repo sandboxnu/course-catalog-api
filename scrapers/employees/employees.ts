@@ -71,7 +71,6 @@ class NeuEmployee {
         url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
       })
       .then((resp) => {
-        console.log(resp);
         return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
       });
 
