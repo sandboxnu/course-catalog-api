@@ -19,6 +19,14 @@ describe("static data", () => {
         employee.id.match(/\S+@\S+\.\S+/) || validate(employee.id);
       expect(validId).toBeTruthy();
       expect(employee.name.toLowerCase().includes("do not use")).toBeFalsy();
+
+      // The employees API returns 'Not Avaiable' for some fields instead of making them null
+      // This makes sure we filter them all out
+      const matchesNotAvailable = (obj) =>
+        JSON.stringify(obj).match(/Not Available/);
+
+      expect(matchesNotAvailable({ key: "Not Available" })).toBeTruthy(); // Sanity-check the regex
+      expect(matchesNotAvailable(employee)).toBeFalsy();
     }
 
     expect(employeeList).toMatchSnapshot();

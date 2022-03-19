@@ -22,29 +22,28 @@ class NeuEmployee {
     this.people = [];
   }
 
-  generateEmployeeId(email?: string): string {
-    if (email && email !== "Not Available") {
-      return email;
-    }
-    return uuidv4();
+  parseParameter(parameter: string): string {
+    // The NEU API returns 'Not Avaiable' for some fields instead of making them null
+    return parameter.toLowerCase() !== "not available" ? parameter : null;
   }
 
   parseApiResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
     return (
       response
         .map((employee) => {
+          const email = this.parseParameter(employee.Email);
+
           return {
-            id: this.generateEmployeeId(employee.Email),
+            id: email ? email : uuidv4(),
             name: `${employee.FirstName} ${employee.LastName}`,
             firstName: employee.FirstName,
             lastName: employee.LastName,
             primaryDepartment: employee.Department,
-            primaryRole: employee.PositionTitle,
-            phone: employee.PhoneNumber,
-            emails: [employee.Email],
-            email: employee.Email,
-            officeRoom: employee.CampusAddress,
-            office: employee.CampusAddress,
+            primaryRole: this.parseParameter(employee.PositionTitle),
+            phone: this.parseParameter(employee.PhoneNumber),
+            emails: email ? [email] : [],
+            email: email,
+            officeRoom: this.parseParameter(employee.CampusAddress),
           };
         })
         // Northeastern likes testing in prod (don't we all)
@@ -119,7 +118,8 @@ class NeuEmployee {
       );
       if (devData) {
         return (devData as Employee[]).map((employee) => {
-          return { ...employee, id: this.generateEmployeeId(employee?.email) };
+          const id = employee?.email ?? uuidv4();
+          return { ...employee, id };
         });
       }
     }
