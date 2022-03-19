@@ -22,7 +22,7 @@ describe("static data", () => {
 
       // The employees API returns 'Not Avaiable' for some fields instead of making them null
       // This makes sure we filter them all out
-      const matchesNotAvailable = (obj) =>
+      const matchesNotAvailable = (obj: any): boolean =>
         JSON.stringify(obj).match(/Not Available/);
 
       expect(matchesNotAvailable({ key: "Not Available" })).toBeTruthy(); // Sanity-check the regex
