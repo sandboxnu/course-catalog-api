@@ -25,7 +25,13 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 - CPS: spring (semester & quarter), summer (semester & quarter)
 - Law: spring (semester & quarter), summer (semester & quarter)
 */
-export const NUMBER_OF_TERMS_TO_UPDATE = 12;
+function getNumberOfTerms(): number | null {
+  const terms = process.env.NUMBER_OF_TERMS;
+  const num_terms = Number.parseInt(terms);
+  return isNaN(num_terms) ? null : num_terms;
+}
+
+export const NUMBER_OF_TERMS = getNumberOfTerms() || 12;
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -34,7 +40,7 @@ export class Bannerv9Parser {
   async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
     const termIds: string[] = termInfos
       .map((t) => t.termId)
-      .slice(0, NUMBER_OF_TERMS_TO_UPDATE);
+      .slice(0, NUMBER_OF_TERMS);
 
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 

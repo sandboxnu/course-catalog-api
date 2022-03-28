@@ -117,6 +117,7 @@ class CombineCCISandEmployees {
   }
 
   async main(): Promise<EmployeeWithId[]> {
+    macros.log("Scraping employees...".blue.underline);
     const peopleLists = await Promise.all([
       neuEmployees.main(),
       ccisFaculty.main(),
@@ -436,7 +437,7 @@ class CombineCCISandEmployees {
       JSON.stringify(employeeDump)
     );
 
-    macros.log("Done scraping employees!".green.underline);
+    macros.log("Done scraping employees!\n\n".green.underline);
     return mergedEmployees as EmployeeWithId[];
   }
 }
