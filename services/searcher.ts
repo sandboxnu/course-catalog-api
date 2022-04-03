@@ -235,7 +235,7 @@ class Searcher {
     const re = new RegExp(matches.join("|"), "gi");
     const non_matches = query.replace(re, "").replace('"', "");
 
-    let phraseQueries = [];
+    const phraseQueries = [];
 
     // go through the phrases, and make phrase queries with them.
     for (let i = 0; i < matches.length; ++i) {
@@ -251,7 +251,7 @@ class Searcher {
     queries.push(phraseQueries);
 
     //make the field query and add it to the list.
-    let fieldQuery = [];
+    const fieldQuery = [];
     if (non_matches.trim() !== "") {
       fieldQuery.push({
         multi_match: {
@@ -284,7 +284,7 @@ class Searcher {
 
     const phraseQueries: LeafQuery[] = matchQueries[0];
     let fieldQuery: LeafQuery;
-    let fieldQExists: boolean = false;
+    let fieldQExists = false;
 
     if (matchQueries[1].length !== 0) {
       fieldQExists = true;
