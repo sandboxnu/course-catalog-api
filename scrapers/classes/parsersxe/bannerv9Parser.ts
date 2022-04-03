@@ -15,6 +15,7 @@ import filters from "../../filters";
 import prisma from "../../../services/prisma";
 import { Section, TermInfo } from "../../../types/types";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", { cache: false });
@@ -101,8 +102,20 @@ export class Bannerv9Parser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async scrapeTerms(termIds: string[]): Promise<ParsedTermSR> {
+    // const termsProgressBar = new cliProgress.MultiBar({
+    //   format: '{bar} | {percentage}% || {value}/{total} courses || Term: {termId}',
+    //   forceRedraw: true,
+    //   stopOnComplete: true,
+    // }, cliProgress.Presets.shades_grey);
+
+    const termsProgressBar = new MultiProgressBars({
+      initMessage: " $ Scraping courses and sections $ ",
+      anchor: "bottom",
+      border: true,
+    });
+
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p);
+      return TermParser.parseTerm(p, termsProgressBar);
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each

@@ -472,14 +472,19 @@ class Request {
 
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
+            macros.log(JSON.stringify(err));
+            macros.log(err.statusCode);
+            macros.log("*****9*****");
             macros.error(
-              `Try#: ${tryCount} Code: ${
+              `Try#: ${tryCount} Code: 
+              ${
                 err.statusCode ||
                 err.RequestError ||
                 err.Error ||
                 err.message ||
                 err
-              } Open request count: ${this.openRequests} Url: ${config.url}`
+              } 
+              Open request count: ${this.openRequests} Url: ${config.url}`
             );
           }
 
