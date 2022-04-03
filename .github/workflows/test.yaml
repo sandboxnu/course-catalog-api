@@ -54,7 +54,6 @@ jobs:
   end_to_end:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    needs: tests
     services:
       postgres:
         image: postgres:11.5
@@ -91,17 +90,16 @@ jobs:
       - run: yarn dev &
       - run: yarn scrape
       - run: yarn scrape
+
       ### Test removing outdated classes
       - run: rm ./cache/dev_data/classes.cache.json
       - run: cp ./data/single_class.cache.json ./cache/dev_data/classes.cache.json
       ## Since we replaced the cache with one that doesn't contain this class, the last_update_time won't be updated
       - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "UPDATE sections SET last_update_time='1999-04-03 18:34:35.882' WHERE class_hash='neu.edu/202240/CS/2501'"
-
       - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "SELECT last_update_time FROM sections WHERE class_hash='neu.edu/202240/CS/2501'"
       - run: UPDATE_ONLY_ONCE=true yarn updater
       - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "SELECT last_update_time FROM sections WHERE class_hash='neu.edu/202240/CS/2501'"
 
-      ## Done
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
       - run: yarn jest -i --projects tests/workflow_tests --verbose --coverage
@@ -118,6 +116,11 @@ jobs:
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'
       # - run: 'curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: \"202250\", query: \"fundies\") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
 
+  submit_coverage:
+    name: Submit coverage
+    runs-on: ubuntu-latest
+    needs: [end_to_end, tests]
+    steps:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@master
         with:
