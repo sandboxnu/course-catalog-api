@@ -33,7 +33,7 @@ class TermParser {
    */
   async parseTerm(
     termId: string,
-    multiBar: MultiProgressBars
+    multiBar?: MultiProgressBars
   ): Promise<ParsedTermSR> {
     const subjectTable = await getSubjectDescriptions(termId);
     let sections: Section[] = await this.parseSections(termId);
@@ -65,13 +65,13 @@ class TermParser {
 
     const numCourses = Object.keys(courseIdentifiers).length;
     const incrementPercentage = (1 / numCourses) * 100;
-    multiBar.addTask(termId, { type: "percentage" });
+    multiBar?.addTask(termId, { type: "percentage" });
 
     const unfilteredClasses = await pMap(
       Object.values(courseIdentifiers),
       async ({ subject, classId }) => {
         const result = await ClassParser.parseClass(termId, subject, classId);
-        multiBar.incrementTask(termId, { percentage: incrementPercentage });
+        multiBar?.incrementTask(termId, { percentage: incrementPercentage });
         return result;
       },
       { concurrency: 500 }
@@ -91,7 +91,7 @@ class TermParser {
       `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
     );
 
-    multiBar.done(termId, {
+    multiBar?.done(termId, {
       message: `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
     });
     return { classes, sections, subjects: subjectTable };
