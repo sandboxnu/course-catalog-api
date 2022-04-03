@@ -220,41 +220,50 @@ class Searcher {
    * Most_field queries are everything else, and search the terms on all fields.
    * else.
    * @param query the string that is parsed into a list
-   * @returns a list of queries
+   * @returns a list containing the list of phrase queries and list of containing the most field query.
    */
-  parseQuery(query: string): QueryWithType[] {
-    const ret = [];
-    let curString = "";
-    let isPhrase = false;
+  parseQuery(query: string): LeafQuery[][] {
+    const queries = [];
 
-    for (let i = 0; i < query.length; i++) {
-      //if we find a quote, we want to make the correct query and push it onto the return list
-      if (query[i] === '"') {
-        if (curString.trim() !== "") {
-          //add the query with the current string, with the correct type
-          ret.push({
-            query: curString,
-            type: isPhrase ? "phrase" : "most_fields",
-          });
-        }
-        //change the toggle everytime you see a quote
-        isPhrase = !isPhrase;
-        //reset the current string
-        curString = "";
-      } else {
-        //otherwise add to the current string.
-        curString += query[i];
-      }
+    let matches = query.match(/"(.*?)"/gi);
+
+    //if there are no phrases, then make matches an empty list instead of being null
+    if (matches === null) {
+      matches = [];
     }
-    //if the current string is not empty, add whatever we have left.
-    if (curString !== "") {
-      ret.push({
-        query: curString,
-        type: isPhrase ? "phrase" : "most_fields",
+
+    const re = new RegExp(matches.join("|"), "gi");
+    const non_matches = query.replace(re, "").replace('"', "");
+
+    let phraseQueries = [];
+
+    // go through the phrases, and make phrase queries with them.
+    for (let i = 0; i < matches.length; ++i) {
+      phraseQueries.push({
+        multi_match: {
+          query: matches[i],
+          type: "phrase",
+          fields: this.getFields(),
+        },
       });
     }
 
-    return ret;
+    queries.push(phraseQueries);
+
+    //make the field query and add it to the list.
+    let fieldQuery = [];
+    if (non_matches.trim() !== "") {
+      fieldQuery.push({
+        multi_match: {
+          query: non_matches,
+          type: "most_fields",
+          fields: this.getFields(),
+        },
+      });
+    }
+
+    queries.push(fieldQuery);
+    return queries;
   }
 
   /**
@@ -270,53 +279,22 @@ class Searcher {
   ): EsQuery {
     const fields: string[] = this.getFields();
 
-    const queryArr: QueryWithType[] = this.parseQuery(query);
+    //a list of all queries
+    const matchQueries: LeafQuery[][] = this.parseQuery(query);
 
-    //a list of all phrase queries
-    const matchQueries: LeafQuery[] = [];
-
-    //a most_field query, containing all non-phrase terms combined.
+    const phraseQueries: LeafQuery[] = matchQueries[0];
     let fieldQuery: LeafQuery;
+    let fieldQExists: boolean = false;
 
-    //are there any field Queries?
-    let fieldQExists = false;
-
-    //the current fields string, we want to build a single query with all
-    //the terms that are not phrases.
-    let fieldStr = "";
-    for (let i = 0; i < queryArr.length; ++i) {
-      //if the type is phrase, add a phrase query with the term
-      if (queryArr[i].type === "phrase") {
-        matchQueries.push({
-          multi_match: {
-            query: queryArr[i].query,
-            type: "phrase",
-            fields: fields,
-          },
-        });
-      }
-      //add the query to the current string
-      else {
-        fieldStr += queryArr[i].query + " ";
-      }
-    }
-
-    //if the fields string is not empty, create a field query with this string
-    if (fieldStr !== "") {
-      fieldQuery = {
-        multi_match: {
-          query: fieldStr,
-          type: "most_fields",
-          fields: fields,
-        },
-      };
-
+    if (matchQueries[1].length !== 0) {
       fieldQExists = true;
+      //theres only one field query, so we can just grab the first element of the sublist.
+      fieldQuery = matchQueries[1][0];
     }
 
     //if there was an empty search, match_all
-    if (matchQueries.length === 0 && fieldQExists) {
-      matchQueries.push(MATCH_ALL_QUERY);
+    if (phraseQueries.length === 0 && !fieldQExists) {
+      phraseQueries.push(MATCH_ALL_QUERY);
     }
 
     // use lower classId has tiebreaker after relevance
@@ -357,7 +335,7 @@ class Searcher {
       sort: ["_score", sortByClassId],
       query: {
         bool: {
-          must: matchQueries, //must match all the phrases
+          must: phraseQueries, //must match all the phrases
           filter: {
             bool: {
               should: [
@@ -386,7 +364,7 @@ class Searcher {
     const queries: EsQuery[] = [
       this.generateQuery(query, termId, validFilters, min, max),
     ];
-    console.log(JSON.stringify(queries[0]));
+
     for (const fKey of Object.keys(this.aggFilters)) {
       const everyOtherFilter: FilterInput = _.omit(filters, fKey);
       queries.push(
