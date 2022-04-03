@@ -15,11 +15,17 @@ describe("Searching for courses", () => {
     const res = await query(gql`
       query {
         search(termId: "202240", query: "CS2501") {
-          totalCount
+          nodes {
+            ... on ClassOccurrence {
+              name
+              subject
+              classId
+            }
+          }
         }
       }
     `);
 
-    expect(res.data?.search.totalCount).toBe(0);
+    expect(res.data?.search.nodes.length).toBe(0);
   });
 });
