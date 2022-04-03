@@ -17,9 +17,9 @@ describe("Searching for courses", () => {
         search(termId: "202240", query: "CS2501") {
           nodes {
             ... on ClassOccurrence {
-              name
-              subject
-              classId
+              sections {
+                termId
+              }
             }
           }
         }
@@ -28,6 +28,6 @@ describe("Searching for courses", () => {
 
     console.log(res.data?.search.nodes);
     console.log(res.data?.search.nodes[0]);
-    expect(res.data?.search.nodes.length).toBe(3);
+    expect(res.data?.search.nodes[0].sections.length).toBe(3);
   });
 });
