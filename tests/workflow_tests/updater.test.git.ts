@@ -9,8 +9,8 @@ async function query(q: DocumentNode): Promise<GraphQLResponse> {
 
 describe("Searching for courses", () => {
   //https://trello.com/c/fs503gwU/241-process-for-deleting-non-existent-sections-courses
-  // In our setup, all instances of "202240/CS/2501" classes have had their `last_update_time` set to the 20th century
-  // As such - they're outdated, and the updater should have removed them
+  // In our setup, one instance of "202240/CS/2501" had its `last_update_time` set to the 20th century
+  // As such - it's outdated, and the updater should have removed it
   test("outdated courses are removed by the updater", async () => {
     const res = await query(gql`
       query {
@@ -26,6 +26,6 @@ describe("Searching for courses", () => {
       }
     `);
 
-    expect(res.data?.search.nodes.length).toBe(0);
+    expect(res.data?.search.nodes.length).toBe(3);
   });
 });
