@@ -4,7 +4,7 @@ describe("scraping employees", () => {
   it("should be able to query the API", async () => {
     await employees.queryEmployeesApi();
 
-    // It's a safe bet that there are at least 1000 employees
+    console.log(employees.people.length);
     expect(employees.people.length).toBeGreaterThan(1_000);
 
     for (const employee of employees.people) {

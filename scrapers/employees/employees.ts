@@ -87,6 +87,8 @@ class NeuEmployee {
       },
       viewName: "MainFlow.FacultyAndStaffDirectory",
       // Their frontend requires non-null queries, but the backend doesn't :)
+      // If this changes at any point, we used to do a cartesian product of the alphabet
+      // ('aa', 'ab', etc.). See https://github.com/sandboxnu/course-catalog-api/pull/97/files for more
       inputParameters: {
         Input_Name1: "",
         Input_Name2: "",
