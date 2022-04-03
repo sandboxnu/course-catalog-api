@@ -92,8 +92,8 @@ jobs:
       - run: yarn scrape
 
       ### Test removing outdated classes
-      - run: rm ./cache/dev_data/classes.cache.json
-      - run: cp ./data/single_class.cache.json ./cache/dev_data/classes.cache.json
+      - run: rm ./cache/dev_data/v2/classes.cache.json
+      - run: cp ./data/single_class.cache.json ./cache/dev_data/v2/classes.cache.json
       ## Since we replaced the cache with one that doesn't contain this class, the last_update_time won't be updated
       - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "UPDATE sections SET last_update_time='1999-04-03 18:34:35.882' WHERE class_hash='neu.edu/202240/CS/2501'"
       - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "SELECT last_update_time FROM sections WHERE class_hash='neu.edu/202240/CS/2501'"
