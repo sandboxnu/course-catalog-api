@@ -118,6 +118,7 @@ class Camd {
         if (text.startsWith("Office: ")) {
           text = text.slice("Office: ".length);
         }
+
         if (obj.officeRoom) {
           macros.verbose(
             "Two matches for office, keeping the longer one",
