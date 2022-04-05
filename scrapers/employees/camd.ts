@@ -126,7 +126,7 @@ class Camd {
           );
 
           // Only update the office if the new office is longer.
-          // This rarely happens, but the longer the string is the
+          // This rarely happens, but the longer the string is the more likely it is to be an office location.
           // In all of CAMD, there are only 2 instance where this helps
           if (obj.officeRoom.length < text.length) {
             obj.officeRoom = text;
