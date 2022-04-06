@@ -18,7 +18,7 @@ describe("Searching for courses", () => {
           nodes {
             ... on ClassOccurrence {
               sections {
-                termId
+                crn
               }
             }
           }
@@ -26,6 +26,8 @@ describe("Searching for courses", () => {
       }
     `);
 
-    expect(res.data?.search.nodes[0].sections.length).toBe(3);
+    const crns = res.data?.search.nodes[0].sections.map((s) => s.crn);
+    expect(crns.includes("123456789")).toBeTruthy();
+    expect(crns.includes("987654321")).toBeFalsy();
   });
 });
