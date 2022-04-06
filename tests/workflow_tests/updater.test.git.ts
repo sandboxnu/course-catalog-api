@@ -19,13 +19,14 @@ describe("Searching for courses", () => {
             ... on ClassOccurrence {
               sections {
                 termId
+                crn
               }
             }
           }
         }
       }
     `);
-    console.log(res.data?.search.nodes);
+    console.log(JSON.stringify(res.data?.search.nodes));
     const crns = res.data?.search.nodes[0].sections.map((s) => s.crn);
     expect(crns.includes("123456789")).toBeTruthy();
     expect(crns.includes("987654321")).toBeFalsy();
