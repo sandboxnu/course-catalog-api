@@ -8,6 +8,11 @@ import employeeData from "./data/employees/employee_results_BE.json";
 import employees from "../employees";
 import { validate } from "uuid";
 
+// This should not be top-level, but we needed a workaround.
+// https://github.com/facebook/jest/issues/11543
+jest.unmock("request-promise-native");
+jest.setTimeout(20_000);
+
 describe("static data", () => {
   // Test to make sure parsing of an employees result page stays the same
   it("should be able to parse API responses", async () => {
@@ -30,5 +35,21 @@ describe("static data", () => {
     }
 
     expect(employeeList).toMatchSnapshot();
+  });
+});
+
+describe("scraping employees", () => {
+  it("should be able to query the API", async () => {
+    await employees.queryEmployeesApi();
+
+    // Don't use a precise number - this hits the live API, so we don't know how many there are
+    expect(employees.people.length).toBeGreaterThan(1_000);
+
+    for (const employee of employees.people) {
+      // Ensure that the fields we expect to be required actually are
+      expect(employee.name).toBeTruthy();
+      expect(employee.firstName).toBeTruthy();
+      expect(employee.lastName).toBeTruthy();
+    }
   });
 });
