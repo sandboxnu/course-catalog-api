@@ -18,7 +18,7 @@ describe("Searching for courses", () => {
           nodes {
             ... on ClassOccurrence {
               sections {
-                crn
+                termId
               }
             }
           }
