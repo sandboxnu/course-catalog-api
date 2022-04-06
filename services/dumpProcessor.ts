@@ -135,9 +135,8 @@ class DumpProcessor {
       await prisma.professor.createMany({
         data: profDump.map((prof) => this.processProf(prof)),
       });
+      macros.log("DumpProcessor: finished with profs");
     }
-
-    macros.log("DumpProcessor: finished with profs");
 
     await Promise.all(
       _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {

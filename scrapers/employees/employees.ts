@@ -15,113 +15,98 @@ import { v4 as uuidv4 } from "uuid";
 
 const request = new Request("Employees");
 
-function employeeQuery(query: string): unknown {
-  // These values are taken from the API exposed here: https://nu.outsystemsenterprise.com/FSD/
-  // The purpose of these values is unknown, as the API is undocumented. If requests start failing, please
-  // inspect the API response at the above link & update accordingly
-  return {
-    versionInfo: {
-      moduleVersion: "mWWAP+YL9U4e9B2D7spGFQ",
-      apiVersion: "ad_141F5PYcK3c+D5K8O+g",
-    },
-    viewName: "MainFlow.FacultyAndStaffDirectory",
-    inputParameters: {
-      Input_Name1: query,
-      Input_Name2: "",
-    },
-  };
-}
-
-// TODO:
-// Some of the phone numbers are not 10 digits. Might be able to guess area code, but it is not allways 215 just because some people have offices outside of Boston.
-
-// Currently:
-// Name is always scraped. This can vary slightly between different data sources.
-// Also, multiple people have the same name so this can not be used as a primary key
-// "name": "Hauck, Heather",
-
-// Phone number. Some people had them posted and others did not. Sometimes present, sometimes not.
-// The same phone number can be listed as one person's phone number on this data source and a different person on a different data source.
-// Don't have a great idea on how to handle that.
-// "phone": "6173737821",
-
-// Email. Sometimes present, sometimes not.
-// "email": "h.hauck@northeastern.edu",
-
-// Sometimes present, sometimes not. Often heavily abbreviated. (like this example)
-// "primaryappointment": "Asst Dir &amp; Assoc Coop Coord",
-
-// Always scraped.
-// "primarydepartment": "DMSB Co-op"
-
 class NeuEmployee {
   people: EmployeeWithId[];
-  couldNotFindNameList: Record<string, boolean>;
-  csrfToken: string;
 
   constructor() {
     this.people = [];
-    this.couldNotFindNameList = {};
-    this.csrfToken = null;
   }
 
-  async getCsrfToken(): Promise<string> {
-    macros.verbose("NEU Employees - getting X-CSRF token");
+  parseParameter(parameter: string): string {
+    // The NEU API returns 'Not Avaiable' for some fields instead of making them null
+    return parameter.toLowerCase() !== "not available" ? parameter : null;
+  }
 
-    return await request
+  parseApiResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
+    return (
+      response
+        .map((employee) => {
+          const email = this.parseParameter(employee.Email);
+
+          return {
+            id: email ? email : uuidv4(),
+            name: `${employee.FirstName} ${employee.LastName}`,
+            firstName: employee.FirstName,
+            lastName: employee.LastName,
+            primaryDepartment: employee.Department,
+            primaryRole: this.parseParameter(employee.PositionTitle),
+            phone: this.parseParameter(employee.PhoneNumber),
+            emails: email ? [email] : [],
+            email: email,
+            officeRoom: this.parseParameter(employee.CampusAddress),
+          };
+        })
+        // Northeastern likes testing in prod (don't we all)
+        // As of 2022-03, they have 4 employees whose names are variations of "do not use"
+        //    Do Not Use, Ed
+        //    Do Not Use Hrm See 000499418, Do Not Use
+        //    DO NOT USE, DO NOT USE
+        .filter(
+          (employee) => !employee.name.toLowerCase().includes("do not use")
+        )
+    );
+  }
+
+  /**
+   * Queries the Northeastern employees API.
+   */
+  async queryEmployeesApi(): Promise<void> {
+    // These values are taken from the API exposed here: https://nu.outsystemsenterprise.com/FSD/
+    // The purpose of these values is unknown, as the API is undocumented. If requests start failing, please
+    // inspect the API response at the above link & update accordingly
+
+    // Scrapes the source code to get the X-CSRF token.
+    const csrfToken = await request
       .get({
         url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
       })
-      .then((resp) => resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1]);
-  }
+      .then((resp) => {
+        return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
+      });
 
-  hitWithLetters(lastNameStart: string): Promise<EmployeeRequestResponse[]> {
-    return request
+    const moduleVersion = await request
+      .get({
+        url: "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo",
+      })
+      .then((resp) => resp.body["versionToken"]);
+
+    const employeeQuery = {
+      versionInfo: {
+        moduleVersion,
+        apiVersion: "ad_141F5PYcK3c+D5K8O+g",
+      },
+      viewName: "MainFlow.FacultyAndStaffDirectory",
+      // Their frontend requires non-null queries, but the backend doesn't :)
+      // If this changes at any point, we used to do a cartesian product of the alphabet
+      // ('aa', 'ab', etc.). See https://github.com/sandboxnu/course-catalog-api/pull/97/files for more
+      inputParameters: {
+        Input_Name1: "",
+        Input_Name2: "",
+      },
+    };
+
+    const response: EmployeeRequestResponse[] = await request
       .post({
         url: "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
-        body: employeeQuery(lastNameStart),
+        body: employeeQuery,
         json: true,
         headers: {
-          "X-CSRFToken": this.csrfToken,
+          "X-CSRFToken": csrfToken,
         },
       })
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
-  }
 
-  generateEmployeeId(employee: Employee): string {
-    let email;
-    if (employee.email) {
-      email = employee.email;
-    } else if (employee.emails && employee.emails.length > 0) {
-      email = employee.emails[0];
-    }
-    return !email || email === "Not Available" ? uuidv4() : email;
-  }
-
-  parseLettersResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
-    this.people = response.map((employee) => {
-      const employee_obj = {
-        name: `${employee.FirstName} ${employee.LastName}`,
-        firstName: employee.FirstName,
-        lastName: employee.LastName,
-        primaryDepartment: employee.Department,
-        primaryRole: employee.PositionTitle,
-        phone: employee.PhoneNumber,
-        emails: [employee.Email],
-        email: employee.Email,
-        officeRoom: employee.CampusAddress,
-        office: employee.CampusAddress,
-      };
-
-      return { ...employee_obj, id: this.generateEmployeeId(employee_obj) };
-    });
-
-    return this.people;
-  }
-
-  async get(lastNameStart: string): Promise<EmployeeWithId[]> {
-    const response = await this.hitWithLetters(lastNameStart);
-    return this.parseLettersResponse(response);
+    this.people = this.parseApiResponse(response);
   }
 
   async main(): Promise<Employee[]> {
@@ -134,25 +119,13 @@ class NeuEmployee {
       );
       if (devData) {
         return (devData as Employee[]).map((employee) => {
-          return { ...employee, id: this.generateEmployeeId(employee) };
+          const id = employee?.email ?? uuidv4();
+          return { ...employee, id };
         });
       }
     }
 
-    const promises = [];
-
-    const alphabetArray = macros.ALPHABET.split("");
-
-    this.csrfToken = await this.getCsrfToken(); // Cache the CSRF token
-    // We have to cache it first, otherwise all the queries try to get it anyways
-
-    for (const firstLetter of alphabetArray) {
-      for (const secondLetter of alphabetArray) {
-        promises.push(this.get(firstLetter + secondLetter));
-      }
-    }
-
-    await Promise.all(promises);
+    await this.queryEmployeesApi();
 
     macros.verbose("Done all employee requests");
 

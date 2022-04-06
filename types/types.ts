@@ -89,7 +89,6 @@ export interface Employee {
   pic?: string;
   link?: string;
   officeRoom?: string;
-  office?: string;
   id?: string;
   image?: string;
   interests?: string;
