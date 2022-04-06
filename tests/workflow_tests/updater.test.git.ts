@@ -25,7 +25,7 @@ describe("Searching for courses", () => {
         }
       }
     `);
-
+    console.log(res.data?.search.nodes);
     const crns = res.data?.search.nodes[0].sections.map((s) => s.crn);
     expect(crns.includes("123456789")).toBeTruthy();
     expect(crns.includes("987654321")).toBeFalsy();
