@@ -120,6 +120,12 @@ class Camd {
         }
 
         if (obj.officeRoom) {
+          macros.verbose(
+            "Two matches for office, keeping the longer one",
+            obj.officeRoom,
+            text
+          );
+
           // Only update the office if the new office is longer.
           // This rarely happens, but the longer the string is the more likely it is to be an office location.
           // In all of CAMD, there are only 2 instance where this helps
