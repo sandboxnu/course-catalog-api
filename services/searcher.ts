@@ -292,11 +292,6 @@ class Searcher {
       fieldQuery = matchQueries[1][0];
     }
 
-    //if there was an empty search, match_all
-    if (phraseQueries.length === 0 && !fieldQExists) {
-      phraseQueries.push(MATCH_ALL_QUERY);
-    }
-
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {
       "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
@@ -335,7 +330,10 @@ class Searcher {
       sort: ["_score", sortByClassId],
       query: {
         bool: {
-          must: phraseQueries, //must match all the phrases
+          must:
+            phraseQueries.length === 0 && !fieldQExists
+              ? MATCH_ALL_QUERY
+              : phraseQueries,
           filter: {
             bool: {
               should: [
