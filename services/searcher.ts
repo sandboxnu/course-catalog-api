@@ -223,8 +223,6 @@ class Searcher {
    * @returns an object containing a list of phrase_queries, and a field query.
    */
   parseQuery(query: string): ParsedQuery {
-    const queries = {};
-
     let matches = query.match(/"(.*?)"/gi);
     //if there are no phrases, then make matches an empty list instead of being null
     if (matches === null) {
@@ -281,15 +279,13 @@ class Searcher {
     max: number,
     aggregation = ""
   ): EsQuery {
-    const fields: string[] = this.getFields();
-
     //a list of all queries
     const matchQueries: ParsedQuery = this.parseQuery(query);
 
     const phraseQueries: LeafQuery[] = matchQueries.phraseQ;
 
     const fieldQuery: LeafQuery = matchQueries.fieldQ;
-    let fieldQExists = fieldQuery !== null;
+    const fieldQExists = fieldQuery !== null;
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {

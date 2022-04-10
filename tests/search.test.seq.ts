@@ -1,6 +1,6 @@
 import searcher from "../services/searcher";
 import prisma from "../services/prisma";
-import { LeafQuery, MultiMatchQuery, ParsedQuery } from "../types/searchTypes";
+import { LeafQuery, ParsedQuery } from "../types/searchTypes";
 
 beforeAll(async () => {
   searcher.subjects = {};
@@ -26,12 +26,12 @@ describe("searcher", () => {
   //Unit tests for the parseQuery function
   describe("parseQuery", () => {
     it("query with no phrases", () => {
-      let retQueries: ParsedQuery = searcher.parseQuery(
+      const retQueries: ParsedQuery = searcher.parseQuery(
         "this is a query with no phrases"
       );
       expect(retQueries.phraseQ.length).toEqual(0); //no phrase queries
       expect(retQueries.fieldQ).not.toEqual(null);
-      let fieldQuery: LeafQuery = retQueries.fieldQ;
+      const fieldQuery: LeafQuery = retQueries.fieldQ;
 
       expect(fieldQuery).toEqual({
         multi_match: {
@@ -43,12 +43,12 @@ describe("searcher", () => {
     });
 
     it("query with just a phrase", () => {
-      let retQueries: ParsedQuery = searcher.parseQuery('"this is a phrase"');
+      const retQueries: ParsedQuery = searcher.parseQuery('"this is a phrase"');
 
       expect(retQueries.phraseQ.length).toEqual(1);
       expect(retQueries.fieldQ).toEqual(null);
 
-      let phraseQuery: LeafQuery = retQueries.phraseQ[0];
+      const phraseQuery: LeafQuery = retQueries.phraseQ[0];
 
       expect(phraseQuery).toEqual({
         multi_match: {
@@ -60,12 +60,12 @@ describe("searcher", () => {
     });
 
     it("query with a phrase and other text", () => {
-      let retQueries: ParsedQuery = searcher.parseQuery('text "phrase" text');
+      const retQueries: ParsedQuery = searcher.parseQuery('text "phrase" text');
       expect(retQueries.phraseQ.length).toEqual(1);
       expect(retQueries.fieldQ).not.toEqual(null);
 
-      let phraseQuery: LeafQuery = retQueries.phraseQ[0];
-      let fieldQuery: LeafQuery = retQueries.fieldQ;
+      const phraseQuery: LeafQuery = retQueries.phraseQ[0];
+      const fieldQuery: LeafQuery = retQueries.fieldQ;
 
       expect(phraseQuery).toEqual({
         multi_match: {
