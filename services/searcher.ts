@@ -34,7 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
-  QueryWithType,
+  ParsedQuery,
 } from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
@@ -220,50 +220,54 @@ class Searcher {
    * Most_field queries are everything else, and search the terms on all fields.
    * else.
    * @param query the string that is parsed into a list
-   * @returns a list containing the list of phrase queries and list of containing the most field query.
+   * @returns an object containing a list of phrase_queries, and a field query.
    */
-  parseQuery(query: string): LeafQuery[][] {
-    const queries = [];
+  parseQuery(query: string): ParsedQuery {
+    const queries = {};
 
     let matches = query.match(/"(.*?)"/gi);
-
     //if there are no phrases, then make matches an empty list instead of being null
     if (matches === null) {
       matches = [];
     }
 
     const re = new RegExp(matches.join("|"), "gi");
-    const non_matches = query.replace(re, "").replace('"', "");
 
+    //make sure theres no extra white space after removing the phrases.
+    const non_matches = query
+      .replace(re, "")
+      .replace('"', "")
+      .replace(/\s+/g, " ")
+      .trim();
     const phraseQueries = [];
 
     // go through the phrases, and make phrase queries with them.
     for (let i = 0; i < matches.length; ++i) {
       phraseQueries.push({
         multi_match: {
-          query: matches[i],
+          query: matches[i].substring(1, matches[i].length - 1),
           type: "phrase",
           fields: this.getFields(),
         },
       });
     }
 
-    queries.push(phraseQueries);
-
     //make the field query and add it to the list.
-    const fieldQuery = [];
+    let fieldQuery: LeafQuery = null;
     if (non_matches.trim() !== "") {
-      fieldQuery.push({
+      fieldQuery = {
         multi_match: {
           query: non_matches,
           type: "most_fields",
           fields: this.getFields(),
         },
-      });
+      };
     }
 
-    queries.push(fieldQuery);
-    return queries;
+    return {
+      phraseQ: phraseQueries,
+      fieldQ: fieldQuery,
+    };
   }
 
   /**
@@ -280,17 +284,12 @@ class Searcher {
     const fields: string[] = this.getFields();
 
     //a list of all queries
-    const matchQueries: LeafQuery[][] = this.parseQuery(query);
+    const matchQueries: ParsedQuery = this.parseQuery(query);
 
-    const phraseQueries: LeafQuery[] = matchQueries[0];
-    let fieldQuery: LeafQuery;
-    let fieldQExists = false;
+    const phraseQueries: LeafQuery[] = matchQueries.phraseQ;
 
-    if (matchQueries[1].length !== 0) {
-      fieldQExists = true;
-      //theres only one field query, so we can just grab the first element of the sublist.
-      fieldQuery = matchQueries[1][0];
-    }
+    const fieldQuery: LeafQuery = matchQueries.fieldQ;
+    let fieldQExists = fieldQuery !== null;
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {

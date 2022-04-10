@@ -64,9 +64,9 @@ export interface RangeQuery {
   };
 }
 
-export interface QueryWithType {
-  query: string;
-  type: "phrase" | "most_fields";
+export interface ParsedQuery {
+  phraseQ: LeafQuery[];
+  fieldQ: LeafQuery;
 }
 
 export const MATCH_ALL_QUERY = { match_all: {} };
