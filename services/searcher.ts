@@ -130,8 +130,8 @@ class Searcher {
       return { terms: { "sections.campus.keyword": selectedCampuses } };
     };
 
-    const getHonorsFilter = (selectedHonors: boolean): TermsQuery => {
-      return { terms: { "sections.honors": selectedHonors } };
+    const getHonorsFilter = (selectedHonors: boolean): TermQuery => {
+      return { term: { "sections.honors": selectedHonors } };
     };
 
     return {
@@ -464,6 +464,7 @@ class Searcher {
         searchResults.output
       );
       hydrateDuration = Date.now() - startHydrate;
+      console.log("Almost at return");
     }
     return {
       searchContent: results,
