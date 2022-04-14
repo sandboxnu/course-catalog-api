@@ -1,9 +1,7 @@
 import { gql } from "apollo-server";
-import prisma from "../../services/prisma";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
-import elastic from "../../utils/elastic";
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -44,5 +42,47 @@ describe("Searching for courses", () => {
 
     const name = res.data.search.nodes[0].name;
     expect(name).toMatch(/Fundamentals of Computer Science.*/);
+  });
+});
+
+describe("Searching for professors", () => {
+  test("searching by professor name", async () => {
+    const res = await query(gql`
+      query {
+        search(termId: "202240", query: "jason hemann") {
+          nodes {
+            ... on Employee {
+              name
+              firstName
+              lastName
+              emails
+            }
+          }
+        }
+      }
+    `);
+
+    const obj = res.data.search.nodes[0];
+    expect(obj.firstName).toBe("Jason");
+    expect(obj.lastName).toBe("Hemann");
+    expect(obj.name).toBe("Jason Hemann");
+
+    const res2 = await query(gql`
+      query {
+        search(termId: "202240", query: "Jeff Burds") {
+          nodes {
+            ... on Employee {
+              name
+              firstName
+              lastName
+              emails
+            }
+          }
+        }
+      }
+    `);
+
+    const obj2 = res2.data.search.nodes[0];
+    expect(obj2.name).toBe("Jeff Burds");
   });
 });

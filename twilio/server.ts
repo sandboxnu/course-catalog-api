@@ -21,7 +21,7 @@ server.listen(port, () => {
   console.log("Running twilio notification server on port %s", port);
 });
 
-app.get("/knockknock", (req, res) => res.send("Who's there?"));
+app.get("/knockknock", (req, res) => res.status(200).send("Who's there?"));
 
 app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
 
