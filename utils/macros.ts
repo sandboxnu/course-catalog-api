@@ -338,7 +338,7 @@ class Macros extends commonMacros {
     Macros.logger.error(args);
 
     super.error(
-      "Consider using the LOG_LEVEL environment variable to see more\nValid options are VERBOSE, HTTP, and INFO (default)\n",
+      "Consider using the LOG_LEVEL environment variable to see more - valid options are VERBOSE, HTTP, and INFO (default)",
       ...args
     );
 

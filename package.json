@@ -75,7 +75,7 @@
     "@babel/register": "^7.0.0",
     "@babel/runtime": "^7.0.0",
     "@elastic/elasticsearch": "7.13.0",
-    "@prisma/client": "^3.9.1",
+    "@prisma/client": "^3.9.2",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
     "apollo-server": "^3.6.2",
@@ -103,7 +103,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.4",
-    "moment": "^2.19.3",
+    "moment": "^2.29.2",
     "msgpack5": "^5.3.2",
     "nodemon": "^2.0.6",
     "object-hash": "^2.2.0",
@@ -114,7 +114,7 @@
     "request-promise-native": "^1.0.9",
     "rollbar": "^2.19.4",
     "twilio": "^3.66.0",
-    "urijs": "^1.18.8",
+    "urijs": "^1.19.11",
     "uuid": "^8.3.0",
     "winston": "^3.3.3",
     "winston-daily-rotate-file": "^4.5.5"
@@ -153,6 +153,7 @@
     "@types/request": "^2.48.7",
     "@types/request-promise-native": "^1.0.18",
     "@types/urijs": "^1.19.17",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.3.1",
     "@typescript-eslint/parser": "^5.3.1",
     "babel-eslint": "^10.0.1",
@@ -172,7 +173,7 @@
     "jest-environment-node": "^27.0.0",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "prisma": "^3.9.1",
+    "prisma": "^3.9.2",
     "ts-jest": "^27.0.0",
     "typescript": "^4.5.5",
     "yarn-deduplicate": "^3.1.0"
@@ -213,5 +214,8 @@
       "__comment_1": "Runs prettier, and lint, only on the staged files",
       "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
+  },
+  "engines": {
+    "node": ">=14.18.3"
   }
 }

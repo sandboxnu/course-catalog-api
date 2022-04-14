@@ -40,47 +40,6 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
-    const profTransforms = {
-      big_picture_url: this.strTransform,
-      email: this.strTransform,
-      emails: this.arrayTransform,
-      emails_contents: this.arrayStrTransform,
-      first_name: this.strTransform,
-      name: this.strTransform,
-      google_scholar_id: this.strTransform,
-      id: this.strTransform,
-      last_name: this.strTransform,
-      link: this.strTransform,
-      office_room: this.strTransform,
-      personal_site: this.strTransform,
-      phone: this.strTransform,
-      pic: this.jsonTransform,
-      primary_department: this.strTransform,
-      primary_role: this.strTransform,
-      street_address: this.strTransform,
-      url: this.strTransform,
-    };
-
-    const profCols = [
-      "big_picture_url",
-      "email",
-      "emails",
-      "first_name",
-      "google_scholar_id",
-      "id",
-      "last_name",
-      "link",
-      "name",
-      "office_room",
-      "personal_site",
-      "phone",
-      "pic",
-      "primary_department",
-      "primary_role",
-      "street_address",
-      "url",
-    ];
-
     const courseTransforms = {
       class_attributes: this.arrayTransform,
       class_attributes_contents: this.arrayStrTransform,
@@ -169,20 +128,15 @@ class DumpProcessor {
 
     const coveredTerms: Set<string> = new Set();
 
-    await Promise.all(
-      _.chunk(Object.values(profDump), 2000).map(async (profs) => {
-        await prisma.$executeRawUnsafe(
-          this.bulkUpsert(
-            "professors",
-            profCols,
-            profTransforms,
-            profs.map((prof) => this.constituteProf(prof))
-          )
-        );
-      })
-    );
-
-    macros.log("DumpProcessor: finished with profs");
+    // We delete all of the professors, and insert anew
+    // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
+    if (profDump.length > 1) {
+      await prisma.professor.deleteMany({});
+      await prisma.professor.createMany({
+        data: profDump.map((prof) => this.processProf(prof)),
+      });
+      macros.log("DumpProcessor: finished with profs");
+    }
 
     await Promise.all(
       _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
@@ -273,15 +227,17 @@ class DumpProcessor {
         });
       }
 
-      const termsStr = termInfos.map((t) => t.termId).join(", ");
+      const termsStr = termInfos
+        .map((t) => t.termId)
+        .sort()
+        .join(", ");
       macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
     if (destroy) {
+      const termsStr = Array.from(coveredTerms).sort().join(", ");
       macros.log(
-        `DumpProcessor: destroying old courses and sections for terms (${Array.from(
-          coveredTerms
-        ).join(" ,")}`
+        `DumpProcessor: destroying old courses and sections for terms (${termsStr})`
       );
 
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
@@ -371,12 +327,13 @@ class DumpProcessor {
     return val ? "TRUE" : "FALSE";
   }
 
-  processProf(profInfo: any): Prisma.ProfessorCreateInput {
+  processProf(profInfo: EmployeeWithId): Prisma.ProfessorCreateInput {
     const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
     return _.omit(correctedQuery, [
       "title",
       "interests",
       "officeStreetAddress",
+      "office",
     ]) as Prisma.ProfessorCreateInput;
   }
 
@@ -458,10 +415,6 @@ class DumpProcessor {
       "subject",
       "host",
     ]) as unknown as Prisma.SectionCreateInput & { classHash: string };
-  }
-
-  constituteProf(professor: EmployeeWithId): Prisma.ProfessorCreateInput {
-    return professor;
   }
 
   toCamelCase(str: string): string {

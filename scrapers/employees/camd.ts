@@ -122,7 +122,7 @@ class Camd {
         if (obj.officeRoom) {
           macros.verbose(
             "Two matches for office, keeping the longer one",
-            obj.office,
+            obj.officeRoom,
             text
           );
 
