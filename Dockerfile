@@ -1,24 +1,29 @@
-# build environment
+# build environment container -------------------------------------------------- #
+
 FROM node:14.19.0-alpine as build
 WORKDIR /app
 # Install deps
-COPY package.json /app/package.json
-COPY yarn.lock /app/yarn.lock
+COPY package.json yarn.lock .
 RUN yarn install --frozen-lockfile
 # Copy source
-COPY graphql /app/graphql
-COPY prisma /app/prisma
-COPY scrapers /app/scrapers
-COPY scripts /app/scripts
-COPY serializers /app/serializers
-COPY services /app/services
-COPY twilio /app/twilio
-COPY types /app/types
-COPY utils /app/utils
-COPY infrastructure/prod /app
+COPY . .
 
 RUN yarn build
-RUN rm -rf node_modules
+
+# prod. deps container -------------------------------------------------- #
+
+FROM node:14.19.0-alpine as deps
+WORKDIR /app
+# Install deps
+COPY package.json yarn.lock .
+RUN yarn install --frozen-lockfile --production
+
+# final container -------------------------------------------------- #
+
+FROM node:14.19.0-alpine
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
 
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
