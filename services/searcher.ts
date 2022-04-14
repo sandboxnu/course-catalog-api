@@ -322,7 +322,6 @@ class Searcher {
         this.generateQuery(query, termId, everyOtherFilter, 0, 0, fKey)
       );
     }
-    console.log(JSON.stringify(queries));
     return queries;
   }
 
@@ -464,7 +463,6 @@ class Searcher {
         searchResults.output
       );
       hydrateDuration = Date.now() - startHydrate;
-      console.log("Almost at return");
     }
     return {
       searchContent: results,

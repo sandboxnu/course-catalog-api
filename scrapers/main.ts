@@ -33,8 +33,6 @@ class Main {
       Promise.resolve([]),
     ];
 
-    // const [termDump, mergedEmployees] = await Promise.all(promises);
-
     const termDump = await classes.main(["neu"], allTermInfos);
 
     await dumpProcessor.main({
