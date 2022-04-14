@@ -32,7 +32,8 @@ ENV dbCertPath /app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+RUN yarn prod:db:migrate
+RUN yarn db:refresh
 
 EXPOSE 4000 8080
 CMD ["yarn", "prod"]
