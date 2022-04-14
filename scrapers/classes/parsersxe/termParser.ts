@@ -64,14 +64,16 @@ class TermParser {
     });
 
     const numCourses = Object.keys(courseIdentifiers).length;
-    const incrementPercentage = (1 / numCourses) * 100;
-    multiBar?.addTask(termId, { type: "percentage" });
+    const incrementPercentage = 1 / numCourses;
+
+    const barName = `Courses for ${termId}`;
+    multiBar?.addTask(barName, { type: "percentage" });
 
     const unfilteredClasses = await pMap(
       Object.values(courseIdentifiers),
       async ({ subject, classId }) => {
         const result = await ClassParser.parseClass(termId, subject, classId);
-        multiBar?.incrementTask(termId, { percentage: incrementPercentage });
+        multiBar?.incrementTask(barName, { percentage: incrementPercentage });
         return result;
       },
       { concurrency: 500 }
@@ -88,10 +90,10 @@ class TermParser {
     }
 
     macros.log(
-      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
+      `Term ${termId}: scraped ${classes.length} classes and ${sections.length} sections`
     );
 
-    multiBar?.done(termId, {
+    multiBar?.done(barName, {
       message: `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
     });
     return { classes, sections, subjects: subjectTable };
@@ -132,8 +134,11 @@ class TermParser {
     return classes;
   }
 
-  async parseSections(termId: string): Promise<Section[]> {
-    const searchResults = await this.requestsSectionsForTerm(termId);
+  async parseSections(
+    termId: string,
+    multiBar?: MultiProgressBars
+  ): Promise<Section[]> {
+    const searchResults = await this.requestsSectionsForTerm(termId, multiBar);
 
     return searchResults.map((a) => {
       return SectionParser.parseSectionFromSearchResult(a);
@@ -176,7 +181,10 @@ class TermParser {
    * @param termId
    * @return {Promise<Array>}
    */
-  async requestsSectionsForTerm(termId: string): Promise<SectionSR[]> {
+  async requestsSectionsForTerm(
+    termId: string,
+    multiBar?: MultiProgressBars
+  ): Promise<SectionSR[]> {
     const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {

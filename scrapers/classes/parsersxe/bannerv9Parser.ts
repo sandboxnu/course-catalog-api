@@ -46,12 +46,14 @@ export class Bannerv9Parser {
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
-    if (process.env.CUSTOM_SCRAPE && filters.truncate) {
-      macros.log("Truncating courses and sections tables");
-      const clearCourses = prisma.course.deleteMany({});
-      const clearSections = prisma.section.deleteMany({});
-      await prisma.$transaction([clearCourses, clearSections]);
-      macros.log("Truncating elasticsearch classes index");
+    if (process.env.CUSTOM_SCRAPE) {
+      macros.log(`Custom filters: ${JSON.stringify(filters, null, 2)}`);
+      if (filters.truncate) {
+        macros.log("Truncating courses and sections tables");
+        const clearCourses = prisma.course.deleteMany({});
+        const clearSections = prisma.section.deleteMany({});
+        await prisma.$transaction([clearSections, clearCourses]);
+      }
     }
     return this.scrapeTerms(termIds);
   }
@@ -102,17 +104,12 @@ export class Bannerv9Parser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async scrapeTerms(termIds: string[]): Promise<ParsedTermSR> {
-    // const termsProgressBar = new cliProgress.MultiBar({
-    //   format: '{bar} | {percentage}% || {value}/{total} courses || Term: {termId}',
-    //   forceRedraw: true,
-    //   stopOnComplete: true,
-    // }, cliProgress.Presets.shades_grey);
-
     const termsProgressBar = new MultiProgressBars({
       initMessage: " $ Scraping courses and sections $ ",
       anchor: "bottom",
       border: true,
     });
+    macros.log("Scraping terms...");
 
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
       return TermParser.parseTerm(p, termsProgressBar);
