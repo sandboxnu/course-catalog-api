@@ -24,6 +24,8 @@ FROM node:14.19.0-alpine
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
+COPY package.json .
+COPY infrastructure/prod /app
 
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
@@ -32,8 +34,7 @@ ENV dbCertPath /app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
 
-RUN yarn prod:db:migrate
-RUN yarn db:refresh
+ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 4000 8080
 CMD ["yarn", "prod"]
