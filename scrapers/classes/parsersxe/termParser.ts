@@ -90,7 +90,7 @@ class TermParser {
     }
 
     macros.log(
-      `Term ${termId}: scraped ${classes.length} classes and ${sections.length} sections`
+      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
     );
 
     multiBar?.done(barName, {
@@ -134,11 +134,8 @@ class TermParser {
     return classes;
   }
 
-  async parseSections(
-    termId: string,
-    multiBar?: MultiProgressBars
-  ): Promise<Section[]> {
-    const searchResults = await this.requestsSectionsForTerm(termId, multiBar);
+  async parseSections(termId: string): Promise<Section[]> {
+    const searchResults = await this.requestsSectionsForTerm(termId);
 
     return searchResults.map((a) => {
       return SectionParser.parseSectionFromSearchResult(a);
@@ -181,10 +178,7 @@ class TermParser {
    * @param termId
    * @return {Promise<Array>}
    */
-  async requestsSectionsForTerm(
-    termId: string,
-    multiBar?: MultiProgressBars
-  ): Promise<SectionSR[]> {
+  async requestsSectionsForTerm(termId: string): Promise<SectionSR[]> {
     const cookiejar = await util.getCookiesForSearch(termId);
     // second, get the total number of sections in this semester
     try {

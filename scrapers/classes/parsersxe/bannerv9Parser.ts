@@ -5,6 +5,7 @@
 
 import _ from "lodash";
 import pMap from "p-map";
+import moment from "moment";
 import Request from "../../request";
 import macros from "../../../utils/macros";
 import TermListParser from "./termListParser";
@@ -25,6 +26,8 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 - Undergrad: Spring, summer (Full, I, and II)
 - CPS: spring (semester & quarter), summer (semester & quarter)
 - Law: spring (semester & quarter), summer (semester & quarter)
+
+However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
 function getNumberOfTerms(): number | null {
   const terms = process.env.NUMBER_OF_TERMS;
@@ -32,7 +35,7 @@ function getNumberOfTerms(): number | null {
   return isNaN(num_terms) ? null : num_terms;
 }
 
-export const NUMBER_OF_TERMS = getNumberOfTerms() || 12;
+export const NUMBER_OF_TERMS_TO_UPDATE = getNumberOfTerms() || 12;
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -41,7 +44,7 @@ export class Bannerv9Parser {
   async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
     const termIds: string[] = termInfos
       .map((t) => t.termId)
-      .slice(0, NUMBER_OF_TERMS);
+      .slice(0, NUMBER_OF_TERMS_TO_UPDATE);
 
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
@@ -109,7 +112,32 @@ export class Bannerv9Parser {
       anchor: "bottom",
       border: true,
     });
-    macros.log("Scraping terms...");
+    macros.log("Scraping tips & reminders".green.underline.bold);
+    macros.log(
+      `- Use the ${"NUWave".bold} wifi - otherwise, Banner ${
+        "rate-limits".underline
+      } you!`
+    );
+    macros.log(
+      "\t- You can access it via VPN - see instructions here: https://help.coe.neu.edu/coehelp/index.php/VPN"
+    );
+    const currentLogName = `${macros.dirname}/${moment().format(
+      "YYYY-MM-DD"
+    )}-verbose.log`;
+    macros.log(
+      `Verbose logs of this scrape are being written here: >>> ${currentLogName} <<<`
+    );
+    macros.log("\t- This is useful to check HTTP logs");
+    macros.log(
+      "\t- If the scraper seems stuck - this is a good place to look!"
+    );
+    macros.log(
+      `${
+        "Be patient at first!".underline.bold
+      } It takes a while to get going, but since it is async, all of the courses will start resolving around the same time.`
+    );
+    macros.log(`Scraping ${"does not progress linerarly!!".underline.green}`);
+    macros.log("\n\n");
 
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
       return TermParser.parseTerm(p, termsProgressBar);
