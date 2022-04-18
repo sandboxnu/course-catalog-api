@@ -25,8 +25,9 @@ class Main {
       allTermInfos
     );
 
-    // We ~COULD~ resolve both promises simultaneously, but:
-    //  * Employee scraping takes SO MUCH less time (which is why we run it first)
+    // Scraping should NOT be resolved simultaneously (eg. via p-map):
+    //  *Employee scraping takes SO MUCH less time (which is why we run it first)
+    //    * So, not running scraping in parallel doesn't hurt us
     //  * It would make logging a mess (are the logs from employee scraping, or from class scraping?)
     const mergedEmployees = await matchEmployees.main();
     const termDump = await classes.main(["neu"], allTermInfos);

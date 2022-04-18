@@ -86,6 +86,10 @@ class TermParser {
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
     if (!process.env.CUSTOM_SCRAPE) {
+      multiBar?.incrementTask(barName, {
+        percentage: 0,
+        message: "Finalizing course cross-references",
+      });
       classes = await this.addCourseRefs(classes, courseIdentifiers, termId);
     }
 
