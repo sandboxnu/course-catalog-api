@@ -33,10 +33,6 @@
 # Checklist
 
 - [x] Filled out PR template :wink:
-- [ ] Approved by designers
-- [ ] Is passing linting checks
-- [ ] Is passing tsc
-- [ ] Is passing existing tests
 - [ ] Has documentation and comments in code
 - [ ] Has test coverage for code
 - [ ] Will have clear squash commit message
