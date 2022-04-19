@@ -10,8 +10,6 @@ import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
 import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
 import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
-import { ParsedTermSR } from "../types/scraperTypes";
-import { EmployeeWithId } from "../types/types";
 import "colors";
 
 // Main file for scraping
@@ -27,12 +25,12 @@ class Main {
       allTermInfos
     );
 
-    const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
-      classes.main(["neu"], allTermInfos),
-      matchEmployees.main(),
-    ];
-
-    const [termDump, mergedEmployees] = await Promise.all(promises);
+    // Scraping should NOT be resolved simultaneously (eg. via p-map):
+    //  *Employee scraping takes SO MUCH less time (which is why we run it first)
+    //    * So, not running scraping in parallel doesn't hurt us
+    //  * It would make logging a mess (are the logs from employee scraping, or from class scraping?)
+    const mergedEmployees = await matchEmployees.main();
+    const termDump = await classes.main(["neu"], allTermInfos);
 
     await dumpProcessor.main({
       termDump: termDump,
@@ -41,7 +39,7 @@ class Main {
       currentTermInfos: currentTermInfos,
     });
 
-    macros.log("Done scraping".green.underline);
+    macros.log("Done scraping\n\n".green.underline);
   }
 }
 

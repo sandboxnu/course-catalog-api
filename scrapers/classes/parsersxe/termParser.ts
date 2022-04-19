@@ -21,6 +21,7 @@ import {
 } from "../../../types/scraperTypes";
 import { CourseRef, Section } from "../../../types/types";
 import { DoRequestReturn } from "../../../types/requestTypes";
+import { MultiProgressBars } from "multi-progress-bars";
 
 const request = new Request("termParser");
 
@@ -30,8 +31,10 @@ class TermParser {
    * @param termId id of term to get
    * @returns Object {classes, sections} where classes is a list of class data
    */
-  async parseTerm(termId: string): Promise<ParsedTermSR> {
-    macros.log(`Parsing term ${termId}`);
+  async parseTerm(
+    termId: string,
+    multiBar?: MultiProgressBars
+  ): Promise<ParsedTermSR> {
     const subjectTable = await getSubjectDescriptions(termId);
     let sections: Section[] = await this.parseSections(termId);
 
@@ -60,10 +63,18 @@ class TermParser {
       ] = { termId, subject, classId } as CourseRef;
     });
 
+    const numCourses = Object.keys(courseIdentifiers).length;
+    const incrementPercentage = 1 / numCourses;
+
+    const barName = `Courses for ${termId}`;
+    multiBar?.addTask(barName, { type: "percentage" });
+
     const unfilteredClasses = await pMap(
       Object.values(courseIdentifiers),
-      ({ subject, classId }) => {
-        return ClassParser.parseClass(termId, subject, classId);
+      async ({ subject, classId }) => {
+        const result = await ClassParser.parseClass(termId, subject, classId);
+        multiBar?.incrementTask(barName, { percentage: incrementPercentage });
+        return result;
       },
       { concurrency: 500 }
     );
@@ -75,6 +86,10 @@ class TermParser {
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
     if (!process.env.CUSTOM_SCRAPE) {
+      multiBar?.incrementTask(barName, {
+        percentage: 0,
+        message: "Finalizing course cross-references",
+      });
       classes = await this.addCourseRefs(classes, courseIdentifiers, termId);
     }
 
@@ -82,6 +97,9 @@ class TermParser {
       `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
     );
 
+    multiBar?.done(barName, {
+      message: `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
+    });
     return { classes, sections, subjects: subjectTable };
   }
 

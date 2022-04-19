@@ -5,6 +5,7 @@
 
 import _ from "lodash";
 import pMap from "p-map";
+import moment from "moment";
 import Request from "../../request";
 import macros from "../../../utils/macros";
 import TermListParser from "./termListParser";
@@ -15,6 +16,7 @@ import filters from "../../filters";
 import prisma from "../../../services/prisma";
 import { Section, TermInfo } from "../../../types/types";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", { cache: false });
@@ -24,8 +26,16 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 - Undergrad: Spring, summer (Full, I, and II)
 - CPS: spring (semester & quarter), summer (semester & quarter)
 - Law: spring (semester & quarter), summer (semester & quarter)
+
+However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
-export const NUMBER_OF_TERMS_TO_UPDATE = 12;
+function getNumberOfTerms(): number | null {
+  const terms = process.env.NUMBER_OF_TERMS;
+  const num_terms = Number.parseInt(terms);
+  return isNaN(num_terms) ? null : num_terms;
+}
+
+export const NUMBER_OF_TERMS_TO_UPDATE = getNumberOfTerms() || 12;
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -39,12 +49,14 @@ export class Bannerv9Parser {
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
-    if (process.env.CUSTOM_SCRAPE && filters.truncate) {
-      macros.log("Truncating courses and sections tables");
-      const clearCourses = prisma.course.deleteMany({});
-      const clearSections = prisma.section.deleteMany({});
-      await prisma.$transaction([clearCourses, clearSections]);
-      macros.log("Truncating elasticsearch classes index");
+    if (process.env.CUSTOM_SCRAPE) {
+      macros.log(`Custom filters: ${JSON.stringify(filters, null, 2)}`);
+      if (filters.truncate) {
+        macros.log("Truncating courses and sections tables");
+        const clearCourses = prisma.course.deleteMany({});
+        const clearSections = prisma.section.deleteMany({});
+        await prisma.$transaction([clearSections, clearCourses]);
+      }
     }
     return this.scrapeTerms(termIds);
   }
@@ -95,8 +107,40 @@ export class Bannerv9Parser {
    * @returns Object {classes, sections} where classes is a list of class data
    */
   async scrapeTerms(termIds: string[]): Promise<ParsedTermSR> {
+    const termsProgressBar = new MultiProgressBars({
+      initMessage: " $ Scraping courses and sections $ ",
+      anchor: "bottom",
+      border: true,
+    });
+    macros.log("Scraping tips & reminders".green.underline.bold);
+    macros.log(
+      `- Use the ${"NUWave".bold} wifi - otherwise, Banner ${
+        "rate-limits".underline
+      } you!`
+    );
+    macros.log(
+      "\t- You can access it via VPN - see instructions here: https://help.coe.neu.edu/coehelp/index.php/VPN"
+    );
+    const currentLogName = `${macros.dirname}/${moment().format(
+      "YYYY-MM-DD"
+    )}-verbose.log`;
+    macros.log(
+      `Verbose logs of this scrape are being written here: >>> ${currentLogName} <<<`
+    );
+    macros.log("\t- This is useful to check HTTP logs");
+    macros.log(
+      "\t- If the scraper seems stuck - this is a good place to look!"
+    );
+    macros.log(
+      `${
+        "Be patient at first!".underline.bold
+      } It takes a while to get going, but since it is async, all of the courses will start resolving around the same time.`
+    );
+    macros.log(`Scraping ${"does not progress linerarly!!".underline.green}`);
+    macros.log("\n\n");
+
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p);
+      return TermParser.parseTerm(p, termsProgressBar);
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each
