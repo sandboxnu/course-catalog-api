@@ -29,7 +29,7 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 
 However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
-const DEFAULT_NUM_TERMS = 12;
+export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 function getTermsIds(termIds: string[]): string[] {
   const termsStr = process.env.TERMS_TO_SCRAPE;
@@ -47,7 +47,7 @@ function getTermsIds(termIds: string[]): string[] {
   }
 
   const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
-  const numTerms = isNaN(rawNumTerms) ? DEFAULT_NUM_TERMS : rawNumTerms;
+  const numTerms = isNaN(rawNumTerms) ? NUMBER_OF_TERMS_TO_UPDATE : rawNumTerms;
 
   return termIds.slice(0, numTerms);
 }
@@ -126,34 +126,22 @@ export class Bannerv9Parser {
     });
     macros.log("Scraping tips & reminders".green.underline.bold);
     macros.log(
-      `- Use the ${
-        "NUWave".bold
-      } wifi - otherwise, Banner rate-limits you! You can access NUWave via VPN - https://help.coe.neu.edu/coehelp/index.php/VPN\n`
+      "Use the NUWave wifi - otherwise, Banner rate-limits! You can access NUWave via VPN - https://help.coe.neu.edu/coehelp/index.php/VPN\n"
     );
 
     const date = moment().format("YYYY-MM-DD");
     const currentLogName = `${macros.dirname}/${date}-verbose.log`;
+    macros.log(`View verbose scrape logs here: ${currentLogName}\n`);
+
     macros.log(
-      `- View verbose logs of this scrape here: ${currentLogName.underline.bold}\n`
+      "Be patient at first! It takes a while to get going, and doesn't progress linearly!\n"
     );
 
     macros.log(
-      `- ${
-        "Be patient at first!".underline.bold
-      } It takes a while to get going, and doesn't progress linearly!\n`
+      "By default, we scrape the 12 newest terms. This can be overridden by using env variables.\n" +
+        "\t NUMBER_OF_TERMS=<int> -- Sets the number of terms to scrape (eg. 3)\n" +
+        "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n"
     );
-
-    macros.log(
-      "- By default, we scrape the 12 newest terms. Override using env variables!"
-    );
-    macros.log(
-      "\t NUMBER_OF_TERMS=<int> -- Sets the number of terms to scrape (eg. 3)"
-    );
-    macros.log(
-      "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')"
-    );
-
-    macros.log("\n\n");
 
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
       return TermParser.parseTerm(p, termsProgressBar);
