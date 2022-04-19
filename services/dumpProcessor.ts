@@ -338,27 +338,6 @@ class DumpProcessor {
     ]) as Prisma.ProfessorCreateInput;
   }
 
-  processCourse(classInfo: any): Prisma.CourseCreateInput {
-    const additionalProps = {
-      id: `${keys.getClassHash(classInfo)}`,
-      description: classInfo.desc,
-      minCredits: Math.floor(classInfo.minCredits),
-      maxCredits: Math.floor(classInfo.maxCredits),
-      lastUpdateTime: new Date(classInfo.lastUpdateTime),
-    };
-
-    const correctedQuery = {
-      ...classInfo,
-      ...additionalProps,
-      classAttributes: { set: classInfo.classAttributes || [] },
-      nupath: { set: classInfo.nupath || [] },
-    };
-
-    const { desc, ...finalCourse } = correctedQuery;
-
-    return finalCourse;
-  }
-
   constituteCourse(
     classInfo: any,
     coveredTerms: Set<string>

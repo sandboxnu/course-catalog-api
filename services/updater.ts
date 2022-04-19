@@ -61,7 +61,7 @@ class Updater {
     const intervalTime = macros.PROD ? 300000 : 30000;
 
     // Flag only used for testing, since we only need the updater to run once
-    if (!process.env.UPDATE_ONLY_ONCE) {
+    if (!macros.TEST) {
       setInterval(async () => {
         // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
         // Temp fix to address Prisma connection pool issues
