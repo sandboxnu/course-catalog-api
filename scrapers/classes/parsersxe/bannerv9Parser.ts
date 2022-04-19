@@ -29,22 +29,34 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 
 However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
-function getNumberOfTerms(): number | null {
-  const terms = process.env.NUMBER_OF_TERMS;
-  const num_terms = Number.parseInt(terms);
-  return isNaN(num_terms) ? null : num_terms;
+const DEFAULT_NUM_TERMS = 12;
+
+function getTermsIds(termIds: string[]): string[] {
+  const termsStr = process.env.TERMS_TO_SCRAPE;
+
+  if (termsStr) {
+    const terms = termsStr.split(",").filter((termId) => {
+      if (!termIds.includes(termId) && termId) {
+        macros.warn(`${termId} not in list of term IDs from Banner! Skipping`);
+      }
+      return termIds.includes(termId);
+    });
+
+    macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
+    return terms;
+  }
+
+  const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
+  const numTerms = isNaN(rawNumTerms) ? DEFAULT_NUM_TERMS : rawNumTerms;
+
+  return termIds.slice(0, numTerms);
 }
-
-export const NUMBER_OF_TERMS_TO_UPDATE = getNumberOfTerms() || 12;
-
 /**
  * Top level parser. Exposes nice interface to rest of app.
  */
 export class Bannerv9Parser {
   async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
-    const termIds: string[] = termInfos
-      .map((t) => t.termId)
-      .slice(0, NUMBER_OF_TERMS_TO_UPDATE);
+    const termIds = getTermsIds(termInfos.map((t) => t.termId));
 
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
@@ -114,29 +126,33 @@ export class Bannerv9Parser {
     });
     macros.log("Scraping tips & reminders".green.underline.bold);
     macros.log(
-      `- Use the ${"NUWave".bold} wifi - otherwise, Banner ${
-        "rate-limits".underline
-      } you!`
+      `- Use the ${
+        "NUWave".bold
+      } wifi - otherwise, Banner rate-limits you! You can access NUWave via VPN - https://help.coe.neu.edu/coehelp/index.php/VPN\n`
     );
+
+    const date = moment().format("YYYY-MM-DD");
+    const currentLogName = `${macros.dirname}/${date}-verbose.log`;
     macros.log(
-      "\t- You can access it via VPN - see instructions here: https://help.coe.neu.edu/coehelp/index.php/VPN"
+      `- View verbose logs of this scrape here: ${currentLogName.underline.bold}\n`
     );
-    const currentLogName = `${macros.dirname}/${moment().format(
-      "YYYY-MM-DD"
-    )}-verbose.log`;
+
     macros.log(
-      `Verbose logs of this scrape are being written here: >>> ${currentLogName} <<<`
-    );
-    macros.log("\t- This is useful to check HTTP logs");
-    macros.log(
-      "\t- If the scraper seems stuck - this is a good place to look!"
-    );
-    macros.log(
-      `${
+      `- ${
         "Be patient at first!".underline.bold
-      } It takes a while to get going, but since it is async, all of the courses will start resolving around the same time.`
+      } It takes a while to get going, and doesn't progress linearly!\n`
     );
-    macros.log(`Scraping ${"does not progress linerarly!!".underline.green}`);
+
+    macros.log(
+      "- By default, we scrape the 12 newest terms. Override using env variables!"
+    );
+    macros.log(
+      "\t NUMBER_OF_TERMS=<int> -- Sets the number of terms to scrape (eg. 3)"
+    );
+    macros.log(
+      "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')"
+    );
+
     macros.log("\n\n");
 
     const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
