@@ -205,7 +205,11 @@ class TermParser {
     } catch (error) {
       macros.error(`Could not get section data for ${termId}`);
     }
-    return Promise.reject();
+    // TEMPORARY FIX:
+    // Banner is responding to requests for some sections/terms with success as false. This
+    // is a temporary fix so that the majority of functioning updating terms can still update
+    return [];
+    // return Promise.reject();
   }
 
   /**
