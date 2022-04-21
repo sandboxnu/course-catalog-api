@@ -1,0 +1,15 @@
+name: Docker
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  tests:
+    name: Docker tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker build -t cca-test:latest .
+      - run: docker images
