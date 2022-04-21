@@ -6,10 +6,32 @@ import {
   Requisite,
 } from "../types/types";
 import prisma from "../services/prisma";
+import { Prisma } from "prisma";
 import Keys from "../utils/keys";
 import dumpProcessor from "../services/dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import elasticInstance from "../utils/elastic";
+
+function processCourse(classInfo: any): Prisma.CourseCreateInput {
+  const additionalProps = {
+    id: `${Keys.getClassHash(classInfo)}`,
+    description: classInfo.desc,
+    minCredits: Math.floor(classInfo.minCredits),
+    maxCredits: Math.floor(classInfo.maxCredits),
+    lastUpdateTime: new Date(classInfo.lastUpdateTime),
+  };
+
+  const correctedQuery = {
+    ...classInfo,
+    ...additionalProps,
+    classAttributes: { set: classInfo.classAttributes || [] },
+    nupath: { set: classInfo.nupath || [] },
+  };
+
+  const { desc, ...finalCourse } = correctedQuery;
+
+  return finalCourse;
+}
 
 const SEMS_TO_UPDATE = ["202210", "202160", "202154", "202150", "202140"];
 
@@ -261,8 +283,8 @@ describe("Updater", () => {
     let FUNDIES_ONE_COURSE;
     let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
-      FUNDIES_ONE_COURSE = dumpProcessor.processCourse(FUNDIES_ONE);
-      FUNDIES_TWO_COURSE = dumpProcessor.processCourse(FUNDIES_TWO);
+      FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
+      FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
       await prisma.course.create({
         data: FUNDIES_ONE_COURSE,
       });
@@ -460,8 +482,8 @@ describe("Updater", () => {
     let FUNDIES_ONE_COURSE;
     let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
-      FUNDIES_ONE_COURSE = dumpProcessor.processCourse(FUNDIES_ONE);
-      FUNDIES_TWO_COURSE = dumpProcessor.processCourse(FUNDIES_TWO);
+      FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
+      FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
       await prisma.course.create({
         data: FUNDIES_ONE_COURSE,
       });

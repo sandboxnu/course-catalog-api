@@ -160,7 +160,7 @@ class DumpProcessor {
       )
     );
     const processedSections = termDump.sections
-      .map((section) => this.constituteSection(section))
+      .map((section) => this.constituteSection(section, coveredTerms))
       .filter((s) => courseIds.has(s.classHash));
 
     await Promise.all(
@@ -337,35 +337,9 @@ class DumpProcessor {
     ]) as Prisma.ProfessorCreateInput;
   }
 
-  processCourse(
-    classInfo: any,
-    coveredTerms: Set<string> = new Set()
-  ): Prisma.CourseCreateInput {
-    coveredTerms.add(classInfo.termId);
-
-    const additionalProps = {
-      id: `${keys.getClassHash(classInfo)}`,
-      description: classInfo.desc,
-      minCredits: Math.floor(classInfo.minCredits),
-      maxCredits: Math.floor(classInfo.maxCredits),
-      lastUpdateTime: new Date(classInfo.lastUpdateTime),
-    };
-
-    const correctedQuery = {
-      ...classInfo,
-      ...additionalProps,
-      classAttributes: { set: classInfo.classAttributes || [] },
-      nupath: { set: classInfo.nupath || [] },
-    };
-
-    const { desc, ...finalCourse } = correctedQuery;
-
-    return finalCourse;
-  }
-
   constituteCourse(
     classInfo: any,
-    coveredTerms: Set<string> = new Set()
+    coveredTerms: Set<string>
   ): Prisma.CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
@@ -403,8 +377,10 @@ class DumpProcessor {
   }
 
   constituteSection(
-    secInfo: Section
+    secInfo: Section,
+    coveredTerms: Set<string>
   ): Prisma.SectionCreateInput & { classHash: string } {
+    coveredTerms.add(secInfo.termId);
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),

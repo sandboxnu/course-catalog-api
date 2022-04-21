@@ -4,6 +4,7 @@
  */
 import _ from "lodash";
 import URI from "urijs";
+import "colors";
 
 import cache from "../cache";
 import macros from "../../utils/macros";
@@ -77,9 +78,9 @@ class Main {
     //   return null;
     // }
 
-    macros.warn("BOUT TO SCRAPE");
+    macros.log("Scraping classes...".blue.underline);
     const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
-    macros.warn("SCRAPEd");
+    macros.log("Done scraping classes\n\n".green.underline);
 
     const dump = this.runProcessors(bannerv9ParserOutput);
 
