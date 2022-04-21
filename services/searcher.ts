@@ -218,44 +218,41 @@ class Searcher {
    * Given a string, creates a list of queries that are either phrase queries or
    * most_field queries. Phrases are between quotes, and use phrase matching.
    * Most_field queries are everything else, and search the terms on all fields.
-   * else.
    * @param query the string that is parsed into a list
    * @returns an object containing a list of phrase_queries, and a field query.
    */
   parseQuery(query: string): ParsedQuery {
-    let matches = query.match(/"(.*?)"/gi);
-    //if there are no phrases, then make matches an empty list instead of being null
-    if (matches === null) {
-      matches = [];
-    }
+    const matches = [...query.matchAll(/"(.*?)"/gi)];
+    const matchedPhrases = matches.map((match) => {
+      return match[0];
+    });
 
-    const re = new RegExp(matches.join("|"), "gi");
+    const matchesRegExp = new RegExp(matchedPhrases.join("|"), "gi");
 
     //make sure theres no extra white space after removing the phrases.
-    const non_matches = query
-      .replace(re, "")
+    const nonMatches = query
+      .replace(matchesRegExp, "")
       .replace('"', "")
       .replace(/\s+/g, " ")
       .trim();
-    const phraseQueries = [];
 
     // go through the phrases, and make phrase queries with them.
-    for (let i = 0; i < matches.length; ++i) {
-      phraseQueries.push({
+    const phraseQueries = matches.map((match) => {
+      return {
         multi_match: {
-          query: matches[i].substring(1, matches[i].length - 1),
+          query: match[1],
           type: "phrase",
           fields: this.getFields(),
         },
-      });
-    }
+      };
+    });
 
     //make the field query and add it to the list.
     let fieldQuery: LeafQuery = null;
-    if (non_matches.trim() !== "") {
+    if (nonMatches.trim() !== "") {
       fieldQuery = {
         multi_match: {
-          query: non_matches,
+          query: nonMatches,
           type: "most_fields",
           fields: this.getFields(),
         },
@@ -285,7 +282,7 @@ class Searcher {
     const phraseQueries: LeafQuery[] = matchQueries.phraseQ;
 
     const fieldQuery: LeafQuery = matchQueries.fieldQ;
-    const fieldQExists = fieldQuery !== null;
+    const fieldQueryExists = fieldQuery !== null;
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {
@@ -326,7 +323,7 @@ class Searcher {
       query: {
         bool: {
           must:
-            phraseQueries.length === 0 && !fieldQExists
+            phraseQueries.length === 0 && !fieldQueryExists
               ? MATCH_ALL_QUERY
               : phraseQueries,
           filter: {
