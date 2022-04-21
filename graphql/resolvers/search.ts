@@ -23,7 +23,7 @@ interface SearchArgs {
   classType?: string[];
   classIdRange?: { min: number; max: number };
   honors?: boolean;
-
+  // Pagination parameters
   offset: number;
   first: number;
 }
