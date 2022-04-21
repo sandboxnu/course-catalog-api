@@ -33,6 +33,7 @@ jobs:
       - run: docker build -t cca-test:latest .
       - run: docker images # Debug step, just to make sure the image is being built
       - run: docker run --network=host -p 4000:8080 --name test cca-test:latest
-      - run: curl locahlost:4000
+      - run: docker logs test
+      - run: curl localhost:4000
       - run: curl http://localhost:4000
       - run: curl 0.0.0.0:4000
