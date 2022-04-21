@@ -32,6 +32,7 @@ class Main {
       matchEmployees.main(),
     ];
 
+    const mergedEmployees = await matchEmployees.main();
     const termDump = await classes.main(["neu"], allTermInfos);
 
     await dumpProcessor.main({
