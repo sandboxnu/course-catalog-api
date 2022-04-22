@@ -26,7 +26,7 @@ flowchart TD
   E -.-> cache["If running locally, the results will be cached to speed up development"]
   E --> dump[Courses, sections, and employees are inserted into our database]
   dump --> DONE
-  DONE["Done!"]
+  DONE["Inserts the courses into Elasticsearch, which allows for easy & efficient searching"]
 ```
 
 More in-depth
@@ -70,11 +70,13 @@ flowchart TD
     DMP_K[Courses, sections, and employees are inserted into our Prisma database]
   end
   
-  termIds -->|Term agnostic| employees
-  termIds -->|For a single term| courses
+  termIds -->|Runs once, doesn't care about specific terms| employees
+  termIds -->|Runs for each term in the terms list| courses
 
     employees --> dumpProcessor
     courses --> dumpProcessor
+    dumpProcessor --> ES["Elasticsearch indexes the data, which allows for easy searching"]
+    ES --> DONE["When users search on the website, the searching is handled by Elasticsearch"]
 ```
 
 ### Custom Scraping
