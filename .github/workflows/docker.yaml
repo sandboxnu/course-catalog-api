@@ -77,13 +77,13 @@ jobs:
 
       - name: Check that Amit Shesh is a professor
         run: |-
-          curl 'https://api.searchneu.com' \
+          curl 'http://localhost:4000' \
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }'
 
       - name: Check that Amit Shesh is a professor
         run: |-
-          curl 'https://api.searchneu.com' \
+          curl 'http://localhost:4000' \
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }' \
             -v --silent --stderr - | grep "Amit Shesh"
