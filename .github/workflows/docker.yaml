@@ -89,7 +89,7 @@ jobs:
                 }
               }
             }
-          }' | grep "Amit Shesh"
+          }' -v --silent --stderr - | grep "Amit Shesh"
 
       - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
         run: |-
@@ -104,7 +104,7 @@ jobs:
                 }
               }
             }
-          }' | grep "Object-Oriented Design"
+          }' -v --silent --stderr - | grep "Object-Oriented Design"
 
       - name: Check that Amit Shesh is a professor
         run: |-
@@ -117,4 +117,4 @@ jobs:
                 }
               }
             }
-          }' | grep "Amit Shesh"
+          }' -v --silent --stderr - | grep "Amit Shesh"
