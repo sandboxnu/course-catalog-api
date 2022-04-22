@@ -59,45 +59,42 @@ jobs:
 
       - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
-            search(termId: "202140", query:"CS3500") {
-              totalCount
-              nodes {
-                ... on ClassOccurrence {
-                  name
-                  sections {
-                    profs
-                  }
-                }
-              }
-            }
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
+            search(termId: "202140", query:"CS3500") { \
+              nodes { \
+                ... on ClassOccurrence { \
+                  name \
+                  sections { \
+                    profs \
+                  } \
+                } \
+              } \
+            } \
           }' | grep "Amit Shesh"
 
       - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
-            search(termId: "202140", query:"Object-Oriented Design") {
-              totalCount
-              nodes {
-                ... on ClassOccurrence {
-                  name
-                  sections {
-                    profs
-                  }
-                }
-              }
-            }
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
+            search(termId: "202140", query:"Object-Oriented Design") { \
+              nodes { \
+                ... on ClassOccurrence { \
+                  name \
+                  sections { \
+                    profs \
+                  } \
+                } \
+              } \
+            } \
           }' | grep "Object-Oriented Design"
 
       - name: Check that Amit Shesh is a professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
-            search(termId: "202140", query:"Amit Shesh") {
-              totalCount
-              nodes {
-                ... on Employee {
-                  name
-                }
-              }
-            }
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
+            search(termId: "202140", query:"Amit Shesh") { \
+              nodes { \
+                ... on Employee { \
+                  name \
+                } \
+              } \
+            } \
           }' | grep "Amit Shesh"
