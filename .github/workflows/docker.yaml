@@ -81,23 +81,22 @@ jobs:
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } ... on ClassOccurrence { name sections { profs } } } } }" }'
 
-      - name: Check that Amit Shesh is a professor
-        run: |-
-          curl 'http://localhost:4000' \
-            -X POST -H 'content-type: application/json' \
-            --data '{ "query": "query { search(termId: \"202140\", query:\"shesh\") { nodes { ... on Employee { name } } } }" }'
+      - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT name from professors'
 
-      - name: Check that Amit Shesh is a professor
-        run: |-
-          curl 'http://localhost:4000' \
+      - run: |-
+          curl 'http://localhost:9200/employees/_search' \
             -X POST -H 'content-type: application/json' \
-            --data '{ "query": "query { search(termId: \"202140\", query:\"amit shesh\") { nodes { ... on Employee { name } } } }" }'
+          --data '{ "query": { "match_all": {} } }'
 
-      - name: Check that Amit Shesh is a professor
-        run: |-
-          curl 'http://localhost:4000' \
+      - run: |-
+          curl 'http://localhost:9200/employees/_search' \
             -X POST -H 'content-type: application/json' \
-            --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }'
+            --data '{ "query": {  "multi_match": { "query": "amit shesh", "fields": [ "employee.name", "name", "employee.emails", "employee.phone" ] } } }'
+
+      - run: |-
+          curl 'http://localhost:9200/employees/_search' \
+            -X POST -H 'content-type: application/json' \
+            --data '{ "query": {  "multi_match": { "query": "amit shesh", "fields": [ "class.name^2", "class.name.autocomplete", "class.subject^4", "class.classId^3", "sections.profs", "sections.crn", "employee.name^2", "employee.emails", "employee.phone" ] } } }'
 
       - name: Check that Amit Shesh is a professor
         run: |-
