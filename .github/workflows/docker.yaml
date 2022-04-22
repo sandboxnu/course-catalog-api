@@ -34,9 +34,10 @@ jobs:
       - run: |-
           docker run -e TWILIO_ACCOUNT_SID=AC_dummy_value_so_tests_dont_error_out -e TWILIO_AUTH_TOKEN=123 \
             --network=host -p 4000:4000 -d --name test cca-test:latest
-      - run: docker logs test | grep "ready at http://localhost:4000/"; READY=$?
-      - run: docker inspect -f '{{.State.Status}}' test | grep running; RUNNING=$?
-      - run: while [ RUNNING ] && [ ! READY ]; do sleep 2; done
+      - run: |-
+          while docker inspect -f '{{.State.Status}}' test | grep running && ! docker logs test | grep "ready at http://localhost:4000/"; \
+          do sleep 2; \
+          done
       - run: docker inspect -f '{{.State.Status}}' test | grep running
       - run: docker logs test | grep "ready at http://localhost:4000/"
       - run: docker ps -a
