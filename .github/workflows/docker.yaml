@@ -57,44 +57,64 @@ jobs:
       - name: Run a custom scrape (shouldn't take more than 5 minutes)
         run: docker exec test sh -c "CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape"
 
+      #### If these start failing, it might not be our fault
+      ## Since this test uses live data, there is a chance it could change
+      # EG. NEU could remove the data for old semesters
+      # In that case, feel free to update these tests to a new semester/prof/course
       - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
         run: |-
           curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
             search(termId: "202140", query:"CS3500") { \
-              nodes { \
-                ... on ClassOccurrence { \
-                  name \
-                  sections { \
-                    profs \
-                  } \
-                } \
-              } \
-            } \
+              nodes {
+                ... on ClassOccurrence {
+                  name
+                  sections {
+                    profs
+                  }
+                }
+              }
+            }
+          }'
+
+      - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
+        run: |-
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
+            search(termId: "202140", query:"CS3500") { \
+              nodes {
+                ... on ClassOccurrence {
+                  name
+                  sections {
+                    profs
+                  }
+                }
+              }
+            }
           }' | grep "Amit Shesh"
 
       - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
-            search(termId: "202140", query:"Object-Oriented Design") { \
-              nodes { \
-                ... on ClassOccurrence { \
-                  name \
-                  sections { \
-                    profs \
-                  } \
-                } \
-              } \
-            } \
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
+            search(termId: "202140", query:"Object-Oriented Design") {
+              nodes {
+                ... on ClassOccurrence {
+                  name
+                  sections {
+                    profs
+                  }
+                }
+              }
+            }
           }' | grep "Object-Oriented Design"
 
       - name: Check that Amit Shesh is a professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
-            search(termId: "202140", query:"Amit Shesh") { \
-              nodes { \
-                ... on Employee { \
-                  name \
-                } \
-              } \
-            } \
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
+            search(termId: "202140", query:"Amit Shesh") {
+              totalCount
+              nodes {
+                ... on Employee {
+                  name
+                }
+              }
+            }
           }' | grep "Amit Shesh"
