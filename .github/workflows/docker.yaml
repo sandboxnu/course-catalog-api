@@ -56,3 +56,19 @@ jobs:
 
       - name: Run a custom scrape (shouldn't take more than 5 minutes)
         run: CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape
+
+      - name: Check that CS3500 was populated, and that Amit is its professor
+        run: |-
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
+            search(termId: "202140", query:"CS3500") {
+              totalCount
+              nodes {
+                ... on ClassOccurrence {
+                  name
+                  sections {
+                    profs
+                  }
+                }
+              }
+            }
+          }'
