@@ -30,17 +30,29 @@ jobs:
       elasticURL: "http://localhost:9200"
     steps:
       - uses: actions/checkout@v2
-      - run: docker build -t cca-test:latest .
-      - run: |-
+
+      - name: Build the Docker container
+        run: docker build -t cca-test:latest .
+
+      - name: Run the newly-built Docker container
+        run: |-
           docker run -e TWILIO_ACCOUNT_SID=AC_dummy_value_so_tests_dont_error_out -e TWILIO_AUTH_TOKEN=123 \
             --network=host -p 4000:4000 -d --name test cca-test:latest
-      - run: |-
+
+      - name: Wait until the GraphQL server is ready
+        run: |-
           while docker inspect -f '{{.State.Status}}' test | grep running && ! docker logs test | grep "ready at http://localhost:4000/"; \
           do sleep 2; \
           done
-      - run: docker inspect -f '{{.State.Status}}' test | grep running
-      - run: docker logs test | grep "ready at http://localhost:4000/"
-      - run: docker ps -a
-      - run: curl localhost:4000
-      - run: curl http://localhost:4000
-      - run: curl 0.0.0.0:4000
+
+      - name: Check that the Docker container is still running
+        run: docker inspect -f '{{.State.Status}}' test | grep running
+
+      - name: Ensure the GQL server is ready
+        run: docker logs test | grep "ready at http://localhost:4000/"
+
+      - name: Check the GraphQL server healthcheck to test network
+        run: curl localhost:4000/.well-known/apollo/server-health
+
+      - name: Run a custom scrape (shouldn't take more than 5 minutes)
+        run: CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape
