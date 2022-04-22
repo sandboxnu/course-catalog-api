@@ -36,14 +36,10 @@ jobs:
             --network=host -p 4000:4000 -d --name test cca-test:latest
       - run: docker logs test | grep "ready at http://localhost:4000/"; READY=$?
       - run: docker inspect -f '{{.State.Status}}' test | grep running; RUNNING=$?
-      - run: |-
-          while [ RUNNING ] && [ ! READY ]; do sleep 2; done
-      - run: docker inspect -f '{{.State.Status}}' test | grep running 
+      - run: while [ RUNNING ] && [ ! READY ]; do sleep 2; done
+      - run: docker inspect -f '{{.State.Status}}' test | grep running
       - run: docker logs test | grep "ready at http://localhost:4000/"
       - run: docker ps -a
       - run: curl localhost:4000
       - run: curl http://localhost:4000
       - run: curl 0.0.0.0:4000
-
-
-docker inspect -f '{{.State.Status}}' test | grep running
