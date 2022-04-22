@@ -75,7 +75,7 @@ flowchart TD
 
     employees --> dumpProcessor
     courses --> dumpProcessor
-    dumpProcessor --> ES["Elasticsearch indexes the data, which allows for easy searching"]
+    dumpProcessor --> ES["Index data from Postgres into Elasticsearch, which allows for easy searching"]
     ES --> DONE["When users search on the website, the searching is handled by Elasticsearch"]
 ```
 
