@@ -54,7 +54,7 @@ jobs:
       - name: Check the GraphQL server healthcheck to test network
         run: curl localhost:4000/.well-known/apollo/server-health
 
-      - name: Run a custom scrape (shouldn't take more than 5 minutes)
+      - name: Run a custom scrape (shouldn't take more than ~5 minutes)
         run: docker exec test sh -c "CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape"
 
       #### If these start failing, it might not be our fault
@@ -63,8 +63,8 @@ jobs:
       # In that case, feel free to update these tests to a new semester/prof/course
       - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
-            search(termId: "202140", query:"CS3500") { \
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data '{ "query": "query { \
+            search(termId: \"202140\", query:\"CS3500\") { \
               nodes {
                 ... on ClassOccurrence {
                   name
@@ -74,12 +74,12 @@ jobs:
                 }
               }
             }
-          }'
+          }" }'
 
       - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query { \
-            search(termId: "202140", query:"CS3500") { \
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data '{ "query": "query { \
+            search(termId: \"202140\", query:\"CS3500\") { \
               nodes {
                 ... on ClassOccurrence {
                   name
@@ -89,12 +89,12 @@ jobs:
                 }
               }
             }
-          }' -v --silent --stderr - | grep "Amit Shesh"
+          }" }' -v --silent --stderr - | grep "Amit Shesh"
 
       - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
-            search(termId: "202140", query:"Object-Oriented Design") {
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data '{ "query": "query {
+            search(termId: \"202140\", query:\"Object-Oriented Design\") {
               nodes {
                 ... on ClassOccurrence {
                   name
@@ -104,12 +104,12 @@ jobs:
                 }
               }
             }
-          }' -v --silent --stderr - | grep "Object-Oriented Design"
+          }" }' -v --silent --stderr - | grep "Object-Oriented Design"
 
       - name: Check that Amit Shesh is a professor
         run: |-
-          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data 'query {
-            search(termId: "202140", query:"Amit Shesh") {
+          curl 'http://localhost:4000' -X POST -H 'content-type: application/json' --data '{ "query": "query {
+            search(termId: \"202140\", query:\"Amit Shesh\") {
               totalCount
               nodes {
                 ... on Employee {
@@ -117,4 +117,4 @@ jobs:
                 }
               }
             }
-          }' -v --silent --stderr - | grep "Amit Shesh"
+          }" }' -v --silent --stderr - | grep "Amit Shesh"
