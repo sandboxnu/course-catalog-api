@@ -31,7 +31,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: docker build -t cca-test:latest .
-      - run: docker run --network=host -p 4000:8080 --name test cca-test:latest
+      - run: |-
+          docker run -e TWILIO_ACCOUNT_SID=AC_dummy_value_so_tests_dont_error_out -e TWILIO_AUTH_TOKEN=123 \
+            --network=host -p 4000:4000 --name test cca-test:latest
       - run: docker logs test
       - run: docker ps -a
       - run: curl localhost:4000
