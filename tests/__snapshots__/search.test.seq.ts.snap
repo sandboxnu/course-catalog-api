@@ -37,7 +37,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -109,7 +111,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -181,7 +185,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -253,7 +259,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -322,7 +330,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -389,7 +399,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -458,7 +470,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -527,7 +541,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -596,7 +612,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -665,7 +683,9 @@ Array [
             ],
           },
         },
-        "must": Object {
+        "minimum_should_match": 0,
+        "must": Array [],
+        "should": Object {
           "multi_match": Object {
             "fields": Array [
               "class.name^2",
@@ -738,7 +758,9 @@ Object {
           ],
         },
       },
-      "must": Object {
+      "minimum_should_match": 0,
+      "must": Array [],
+      "should": Object {
         "multi_match": Object {
           "fields": Array [
             "class.name^2",

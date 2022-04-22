@@ -34,6 +34,7 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
+  ParsedQuery,
 } from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
@@ -214,6 +215,57 @@ class Searcher {
   }
 
   /**
+   * Given a string, creates a list of queries that are either phrase queries or
+   * most_field queries. Phrases are between quotes, and use phrase matching.
+   * Most_field queries are everything else, and search the terms on all fields.
+   * @param query the string that is parsed into a list
+   * @returns an object containing a list of phrase_queries, and a field query.
+   */
+  parseQuery(query: string): ParsedQuery {
+    const matches = [...query.matchAll(/"(.*?)"/gi)];
+    const matchedPhrases = matches.map((match) => {
+      return match[0];
+    });
+
+    const matchesRegExp = new RegExp(matchedPhrases.join("|"), "gi");
+
+    //make sure theres no extra white space after removing the phrases.
+    const nonMatches = query
+      .replace(matchesRegExp, "")
+      .replace('"', "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // go through the phrases, and make phrase queries with them.
+    const phraseQueries = matches.map((match) => {
+      return {
+        multi_match: {
+          query: match[1],
+          type: "phrase",
+          fields: this.getFields(),
+        },
+      };
+    });
+
+    //make the field query and add it to the list.
+    let fieldQuery: LeafQuery = null;
+    if (nonMatches.trim() !== "") {
+      fieldQuery = {
+        multi_match: {
+          query: nonMatches,
+          type: "most_fields",
+          fields: this.getFields(),
+        },
+      };
+    }
+
+    return {
+      phraseQ: phraseQueries,
+      fieldQ: fieldQuery,
+    };
+  }
+
+  /**
    * Get elasticsearch query
    */
   generateQuery(
@@ -224,18 +276,13 @@ class Searcher {
     max: number,
     aggregation = ""
   ): EsQuery {
-    const fields: string[] = this.getFields();
-    // text query from the main search box
-    const matchTextQuery: LeafQuery =
-      query.length > 0
-        ? {
-            multi_match: {
-              query: query,
-              type: "most_fields", // More fields match => higher score
-              fields: fields,
-            },
-          }
-        : MATCH_ALL_QUERY;
+    //a list of all queries
+    const matchQueries: ParsedQuery = this.parseQuery(query);
+
+    const phraseQueries: LeafQuery[] = matchQueries.phraseQ;
+
+    const fieldQuery: LeafQuery = matchQueries.fieldQ;
+    const fieldQueryExists = fieldQuery !== null;
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {
@@ -275,7 +322,10 @@ class Searcher {
       sort: ["_score", sortByClassId],
       query: {
         bool: {
-          must: matchTextQuery,
+          must:
+            phraseQueries.length === 0 && !fieldQueryExists
+              ? MATCH_ALL_QUERY
+              : phraseQueries,
           filter: {
             bool: {
               should: [
@@ -284,6 +334,8 @@ class Searcher {
               ],
             },
           },
+          should: fieldQuery, //should match any remaining terms
+          minimum_should_match: 0,
         },
       },
       aggregations: aggQuery,
