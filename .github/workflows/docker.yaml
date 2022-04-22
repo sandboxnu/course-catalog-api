@@ -55,7 +55,7 @@ jobs:
         run: curl localhost:4000/.well-known/apollo/server-health
 
       - name: Run a custom scrape (shouldn't take more than 5 minutes)
-        run: docker exec test CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape
+        run: docker exec test sh -c "CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape"
 
       - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
         run: |-
