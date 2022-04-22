@@ -81,6 +81,14 @@ jobs:
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }'
 
+      - run: docker exec test sh -c "LOG_LEVEL=VERBOSE yarn populateES"
+
+      - name: Check that Amit Shesh is a professor
+        run: |-
+          curl 'http://localhost:4000' \
+            -X POST -H 'content-type: application/json' \
+            --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }'
+
       - name: Check that Amit Shesh is a professor
         run: |-
           curl 'http://localhost:4000' \
