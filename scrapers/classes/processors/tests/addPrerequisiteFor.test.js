@@ -103,11 +103,6 @@ describe("addPreRequisiteFor tests", () => {
     sections: [],
   };
 
-  it("should load in termDump", () => {
-    addPreRequisiteFor.termDump = termDump;
-    expect(addPreRequisiteFor.termDump).toBe(termDump);
-  });
-
   describe("parseClass tests", () => {
     const outputPreReqClass = cs2500;
     outputPreReqClass.prereqsFor = [];
@@ -115,18 +110,12 @@ describe("addPreRequisiteFor tests", () => {
   });
 
   it("should sort some optPrereqsFor", () => {
-    addPreRequisiteFor.termDump = termDump;
-
     addPreRequisiteFor.sortPreReqs(fakeClass1);
-
     expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
   });
 
   it("should sort some prereqsFor", () => {
-    addPreRequisiteFor.termDump = termDump;
-
     addPreRequisiteFor.sortPreReqs(fakeClass2);
-
     expect(fakeClass2.prereqsFor).toMatchSnapshot();
   });
 });
