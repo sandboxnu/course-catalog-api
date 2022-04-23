@@ -30,7 +30,6 @@ class Main {
   runProcessors(dump: ParsedTermSR): ParsedTermSR {
     // Run the processors, sequentially
     markMissingPrereqs.go(dump);
-    // termStartEndDate.go(dump); DEPRECATED
 
     // Add new processors here.
     addPreRequisiteFor.go(dump);

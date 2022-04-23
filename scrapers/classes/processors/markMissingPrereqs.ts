@@ -4,7 +4,6 @@
  */
 
 import macros from "../../../utils/macros";
-import { BaseProcessor, instance as baseProcessor } from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
@@ -18,7 +17,7 @@ import {
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
-export class MarkMissingPrereqs extends BaseProcessor {
+export class MarkMissingPrereqs {
   updatePrereqs(
     prereqs: Requisite,
     host: string,
@@ -59,7 +58,7 @@ export class MarkMissingPrereqs extends BaseProcessor {
   // at minimum it will be a host
   // or if just one class {host, termId, subject, classId}
   go(termDump: ParsedTermSR): ParsedCourseSR[] {
-    const keyToRows = baseProcessor.getClassHash(termDump);
+    const keyToRows = this.getClassHash(termDump);
 
     const updatedClasses: ParsedCourseSR[] = [];
 
@@ -96,6 +95,31 @@ export class MarkMissingPrereqs extends BaseProcessor {
       }
     }
     return updatedClasses;
+  }
+
+  getClassHash(termDump: ParsedTermSR): Record<string, ParsedCourseSR> {
+    // Make obj to find results here quickly.
+    const keyToRows: Record<string, ParsedCourseSR> = {};
+
+    termDump.classes.forEach((aClass) => {
+      if (
+        !aClass.host ||
+        !aClass.termId ||
+        !aClass.subject ||
+        !aClass.classId
+      ) {
+        macros.error("ERROR class doesn't have required fields??", aClass);
+        return;
+      }
+
+      // multiple classes could have same key
+      const hash = keys.getClassHash(aClass);
+
+      // only need to keep subject and classId
+      keyToRows[hash] = aClass;
+    });
+
+    return keyToRows;
   }
 }
 
