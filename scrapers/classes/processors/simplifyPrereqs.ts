@@ -14,11 +14,7 @@ import {
 // if there is an or embedded in another or, merge them (and and's too)
 //and if there is a subvalue of only 1 len, merge that too
 function simplifyRequirementsBase(data: Requisite): Requisite {
-  if (typeof data === "string") {
-    return data;
-  }
-
-  if (isCourseReq(data)) {
+  if (typeof data === "string" || isCourseReq(data)) {
     return data;
   }
 
@@ -29,27 +25,25 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
   };
 
   // Simplify all children
-  data.values.forEach((subData) => {
-    subData = simplifyRequirementsBase(subData);
+  for (const rawSubData of data.values) {
+    const subData = simplifyRequirementsBase(rawSubData);
 
     if (isBooleanReq(subData)) {
       //if same type, merge
       if (subData.type === data.type) {
         retVal.values = retVal.values.concat(subData.values);
-        return;
-
-        // If only contains 1 value, merge
+        continue;
       }
 
       if (subData.values.length === 1) {
         retVal.values.push(subData.values[0]);
-        return;
+        continue;
       }
     }
 
     //just add the subdata
     retVal.values.push(subData);
-  });
+  }
 
   // Simplify this node
   if (retVal.values.length === 1) {

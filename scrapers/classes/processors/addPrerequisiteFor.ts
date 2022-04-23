@@ -20,7 +20,7 @@ import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
  *  - CS2500 is a prerequisite for CS2510
  */
 class AddPrerequisiteFor {
-  private classMap = {};
+  private classMap: Record<string, ParsedCourseSR> = {};
 
   /**
    * Creates a class hashmap based on the term dump, then links the course data
