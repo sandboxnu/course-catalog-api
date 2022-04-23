@@ -25,12 +25,8 @@ it("can substitute one line", () => {
     ],
   };
 
-  const output = markMissingPrereqs.updatePrereqs(
-    prereqs,
-    "neu.edu",
-    "201770",
-    keyToRows
-  );
+  markMissingPrereqs.classMap = keyToRows;
+  const output = markMissingPrereqs.updatePrereqs(prereqs, "neu.edu", "201770");
 
   expect(output).toEqual({
     type: "or",
@@ -57,12 +53,8 @@ it("can insert a missing if cant find in db", () => {
     ],
   };
 
-  const output = markMissingPrereqs.updatePrereqs(
-    prereqs,
-    "neu.edu",
-    "201770",
-    keyToRows
-  );
+  markMissingPrereqs.classMap = keyToRows;
+  const output = markMissingPrereqs.updatePrereqs(prereqs, "neu.edu", "201770");
 
   expect(output).toEqual({
     type: "or",
@@ -76,10 +68,10 @@ it("can insert a missing if cant find in db", () => {
   });
 });
 
-it("go should work", async () => {
+it("main should work", async () => {
   const termDump = await testData.loadTermDump();
 
-  markMissingPrereqs.go(termDump);
+  markMissingPrereqs.main(termDump);
 
   // Find the class that we are checking
   let matchCount = 0;
@@ -150,14 +142,14 @@ it("can swap coreqs", async () => {
     sections: [],
   };
 
-  markMissingPrereqs.go(termDump);
+  markMissingPrereqs.main(termDump);
   expect(termDump.classes[0].coreqs.values[0].classId).toBe("016");
 });
 
 it("can simplify", async () => {
   const termDump = await testData.loadTermDump();
 
-  markMissingPrereqs.go(termDump);
+  markMissingPrereqs.main(termDump);
 
   // Find the class that we are checking
   let matchCount = 0;
