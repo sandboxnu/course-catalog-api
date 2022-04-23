@@ -40,7 +40,6 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
         continue;
       }
     }
-
     //just add the subdata
     retVal.values.push(subData);
   }

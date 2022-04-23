@@ -7,12 +7,7 @@ import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
-import {
-  CourseReq,
-  isBooleanReq,
-  isCourseReq,
-  Requisite,
-} from "../../../types/types";
+import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
