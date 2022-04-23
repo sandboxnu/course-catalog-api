@@ -1,0 +1,87 @@
+name: Docker
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  tests:
+    name: Docker tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11.5
+        env:
+          POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD:
+        ports:
+          - 5432:5432
+      elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.0
+        env:
+          discovery.type: single-node
+        ports:
+          - 9200:9200
+    env:
+      TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
+      TWILIO_AUTH_TOKEN: 123
+      elasticURL: "http://localhost:9200"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build the Docker container
+        run: docker build -t cca-test:latest .
+
+      - name: Run the newly-built Docker container
+        run: |-
+          docker run -e TWILIO_ACCOUNT_SID=AC_dummy_value_so_tests_dont_error_out -e TWILIO_AUTH_TOKEN=123 \
+            --network=host -p 4000:4000 -d --name test cca-test:latest
+
+      - name: Wait until the GraphQL server is ready
+        run: |-
+          while docker inspect -f '{{.State.Status}}' test | grep running && ! docker logs test | grep "ready at http://localhost:4000/"; \
+          do sleep 2; \
+          done
+
+      - name: Check that the Docker container is still running
+        run: docker inspect -f '{{.State.Status}}' test | grep running
+
+      - name: Ensure the GQL server is ready
+        run: docker logs test | grep "ready at http://localhost:4000/"
+
+      - name: Check the GraphQL server healthcheck to test network
+        run: curl localhost:4000/.well-known/apollo/server-health
+
+      - name: Run a custom scrape (shouldn't take more than ~5 minutes)
+        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape"
+
+      #### If these start failing, it might not be our fault
+      ## Since this test uses live data, there is a chance it could change
+      # EG. NEU could remove the data for old semesters
+      # In that case, feel free to update these tests to a new semester/prof/course
+      - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
+        run: |-
+          curl 'http://localhost:4000' \
+            -X POST -H 'content-type: application/json' \
+            --data '{"query":"query { search(termId: \"202140\", query:\"CS3500\") { nodes { ... on ClassOccurrence { name sections { profs } } } } }"}' \
+            -v --silent --stderr - | grep "Amit Shesh"
+
+      - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
+        run: |-
+          curl 'http://localhost:4000' \
+            -X POST -H 'content-type: application/json' \
+            --data '{ "query": "query { search(termId: \"202140\", query:\"Object-Oriented Design\") { nodes { ... on ClassOccurrence { name sections { profs } } } } }" }' \
+            -v --silent --stderr - | grep "Object-Oriented Design"
+
+      # The employees need a few seconds to populate, otherwise, the below query fails
+      - name: sleep for a few seconds to allow the Employees to populate
+        run: sleep 10
+
+      - name: Check that Amit Shesh is a professor
+        run: |-
+          curl 'http://localhost:4000' \
+            -X POST -H 'content-type: application/json' \
+            --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }' \
+            -v --silent --stderr - | grep "Amit Shesh"

@@ -79,28 +79,45 @@ jobs:
       DEV: true
     steps:
       - uses: actions/checkout@v2
+
       - name: install node v14.19
         uses: actions/setup-node@v2
         with:
           node-version: "14.19"
+
       - uses: bahmutov/npm-install@v1
+
       - run: yarn add unzip
+
       - run: unzip ./data/cache_2022_summer.zip
+
       - run: yarn db:migrate
+
       - run: yarn db:refresh
+
       - run: yarn dev &
+
+      # We have to run yarn scrape twice, in order to populate the termInfos table
       - run: yarn scrape
       - run: yarn scrape
 
       ### Test removing outdated classes
       # Add two sections - one which shouldn't be removed, one which should
-      - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "INSERT INTO sections (class_hash, id, crn) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/123456789', '123456789');"
-      - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c "INSERT INTO sections (class_hash, id, crn, last_update_time) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/987654321', '987654321', '1999-04-03 18:34:35.882');"
+      - run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+            "INSERT INTO sections (class_hash, id, crn) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/123456789', '123456789');"
+
+      - run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+            "INSERT INTO sections (class_hash, id, crn, last_update_time) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/987654321', '987654321', '1999-04-03 18:34:35.882');"
+
       - run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater
 
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
+
       - run: yarn jest -i --projects tests/workflow_tests --verbose --coverage
+
       - name: Coveralls Parallel
         uses: coverallsapp/github-action@master
         with:
