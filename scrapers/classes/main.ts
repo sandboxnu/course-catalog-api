@@ -28,12 +28,8 @@ class Main {
   // The input of this function should be the output of restructureData, above.
   // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
   runProcessors(dump: ParsedTermSR): ParsedTermSR {
-    // Run the processors, sequentially
     markMissingPrereqs.main(dump);
-
-    // Add new processors here.
     addPreRequisiteFor.main(dump);
-
     return dump;
   }
 

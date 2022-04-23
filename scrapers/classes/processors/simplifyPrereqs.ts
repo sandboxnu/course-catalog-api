@@ -33,9 +33,7 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
       if (subData.type === data.type) {
         retVal.values = retVal.values.concat(subData.values);
         continue;
-      }
-
-      if (subData.values.length === 1) {
+      } else if (subData.values.length === 1) {
         retVal.values.push(subData.values[0]);
         continue;
       }
