@@ -11,7 +11,7 @@ import macros from "../../utils/macros";
 
 // Processors
 import { instance as markMissingPrereqs } from "./processors/markMissingPrereqs";
-import addPreRequisiteFor from "./processors/addPreRequisiteFor";
+import addPreRequisiteFor from "./processors/addPrerequisiteFor";
 
 // Parsers
 import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
@@ -32,7 +32,7 @@ class Main {
     markMissingPrereqs.go(dump);
 
     // Add new processors here.
-    addPreRequisiteFor.go(dump);
+    addPreRequisiteFor.main(dump);
 
     return dump;
   }

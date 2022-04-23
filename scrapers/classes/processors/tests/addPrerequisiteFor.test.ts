@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import addPreRequisiteFor from "../addPreRequisiteFor";
+import addPreRequisiteFor from "../addPrerequisiteFor";
 
 describe("addPreRequisiteFor tests", () => {
   const cs2500 = {
