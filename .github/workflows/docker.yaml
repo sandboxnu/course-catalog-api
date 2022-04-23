@@ -81,12 +81,12 @@ jobs:
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } ... on ClassOccurrence { name sections { profs } } } } }" }'
 
-      - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT name from professors'
+      # - run: psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT name from professors'
 
-      - run: |-
-          curl 'http://localhost:9200/employees/_search' \
-            -X POST -H 'content-type: application/json' \
-          --data '{ "query": { "match_all": {} } }'
+      # - run: |-
+      #     curl 'http://localhost:9200/employees/_search' \
+      #       -X POST -H 'content-type: application/json' \
+      #     --data '{ "query": { "match_all": {} } }'
 
       - run: |-
           curl 'http://localhost:9200/employees/_search' \
