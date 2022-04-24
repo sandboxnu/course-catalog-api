@@ -13,7 +13,7 @@ jobs:
       postgres:
         image: postgres:11.5
         env:
-          POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
+          POSTGRES_MULTIPLE_DATABASES: searchneu_dev
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD:
         ports:
