@@ -5,7 +5,7 @@
 
 import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
-import { simplifyRequirements } from "./utils";
+import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import {
   CourseReq,
