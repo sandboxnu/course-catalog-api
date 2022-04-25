@@ -2,6 +2,7 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
+
 import {
   Requisite,
   isCourseReq,
@@ -58,7 +59,7 @@ function simplifyRequirementsBase(data: Requisite): Requisite {
   return retVal;
 }
 
-export function simplifyRequirements(data: Requisite): BooleanReq {
+export default function simplifyRequirements(data: Requisite): BooleanReq {
   data = simplifyRequirementsBase(data);
   if (!isBooleanReq(data)) {
     return {
