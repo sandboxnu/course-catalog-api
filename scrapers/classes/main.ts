@@ -10,8 +10,8 @@ import cache from "../cache";
 import macros from "../../utils/macros";
 
 // Processors
-import { instance as markMissingPrereqs } from "./processors/markMissingPrereqs";
-import addPreRequisiteFor from "./processors/addPreRequisiteFor";
+import { instance as markMissingRequisites } from "./processors/markMissingRequisites";
+import addPrerequisiteFor from "./processors/addPrerequisiteFor";
 
 // Parsers
 import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
@@ -29,11 +29,11 @@ class Main {
   // The updater.js calls into this function to run the processors over the data scraped as part of the processors.
   runProcessors(dump: ParsedTermSR): ParsedTermSR {
     // Run the processors, sequentially
-    markMissingPrereqs.go(dump);
+    markMissingRequisites.go(dump);
     // termStartEndDate.go(dump); DEPRECATED
 
     // Add new processors here.
-    addPreRequisiteFor.go(dump);
+    addPrerequisiteFor.go(dump);
 
     return dump;
   }

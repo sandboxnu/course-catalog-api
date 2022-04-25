@@ -18,7 +18,7 @@ import {
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
-export class MarkMissingPrereqs extends BaseProcessor {
+export class MarkMissingRequisites extends BaseProcessor {
   updatePrereqs(
     prereqs: Requisite,
     host: string,
@@ -99,7 +99,7 @@ export class MarkMissingPrereqs extends BaseProcessor {
   }
 }
 
-export const instance = new MarkMissingPrereqs();
+export const instance = new MarkMissingRequisites();
 
 if (require.main === module) {
   instance.go({
