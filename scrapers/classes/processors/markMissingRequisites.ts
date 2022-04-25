@@ -4,9 +4,8 @@
  */
 
 import macros from "../../../utils/macros";
-import { BaseProcessor, instance as baseProcessor } from "./baseProcessor";
 import keys from "../../../utils/keys";
-import simplifyRequirements from "./simplifyPrereqs";
+import { simplifyRequirements } from "./utils";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import {
   CourseReq,
@@ -18,7 +17,7 @@ import {
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
-export class MarkMissingRequisites extends BaseProcessor {
+export class MarkMissingRequisites {
   updatePrereqs(
     prereqs: Requisite,
     host: string,

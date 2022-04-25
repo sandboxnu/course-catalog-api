@@ -1,4 +1,4 @@
-import simplifyRequirements from "../simplifyPrereqs";
+import { simplifyRequirements } from "../utils";
 import { CourseReq } from "../../../../types/types";
 
 function C(s: string): CourseReq {
