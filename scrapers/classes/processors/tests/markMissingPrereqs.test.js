@@ -4,7 +4,7 @@
  */
 
 import testData from "./testData";
-import { instance as markMissingRequisites } from "../markMissingRequisites";
+import markMissingRequisites from "../markMissingRequisites";
 
 it("can substitute one line", () => {
   const keyToRows = {
@@ -25,12 +25,8 @@ it("can substitute one line", () => {
     ],
   };
 
-  const output = markMissingRequisites.updatePrereqs(
-    prereqs,
-    "neu.edu",
-    "201770",
-    keyToRows
-  );
+  markMissingRequisites.classMap = keyToRows;
+  const output = markMissingRequisites.updatePrereqs(prereqs, "neu.edu", "201770");
 
   expect(output).toEqual({
     type: "or",
@@ -57,12 +53,8 @@ it("can insert a missing if cant find in db", () => {
     ],
   };
 
-  const output = markMissingRequisites.updatePrereqs(
-    prereqs,
-    "neu.edu",
-    "201770",
-    keyToRows
-  );
+  markMissingRequisites.classMap = keyToRows;
+  const output = markMissingRequisites.updatePrereqs(prereqs, "neu.edu", "201770");
 
   expect(output).toEqual({
     type: "or",
