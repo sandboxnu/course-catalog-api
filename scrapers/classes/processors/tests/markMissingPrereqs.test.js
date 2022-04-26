@@ -26,7 +26,11 @@ it("can substitute one line", () => {
   };
 
   markMissingRequisites.classMap = keyToRows;
-  const output = markMissingRequisites.updatePrereqs(prereqs, "neu.edu", "201770");
+  const output = markMissingRequisites.updatePrereqs(
+    prereqs,
+    "neu.edu",
+    "201770"
+  );
 
   expect(output).toEqual({
     type: "or",
@@ -54,7 +58,11 @@ it("can insert a missing if cant find in db", () => {
   };
 
   markMissingRequisites.classMap = keyToRows;
-  const output = markMissingRequisites.updatePrereqs(prereqs, "neu.edu", "201770");
+  const output = markMissingRequisites.updatePrereqs(
+    prereqs,
+    "neu.edu",
+    "201770"
+  );
 
   expect(output).toEqual({
     type: "or",
