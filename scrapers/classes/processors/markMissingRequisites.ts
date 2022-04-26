@@ -69,7 +69,7 @@ export class MarkMissingRequisites {
           aClass.host,
           aClass.termId
         );
-        
+
         aClass.coreqs = simplifyRequirements(coreqs);
       }
 
