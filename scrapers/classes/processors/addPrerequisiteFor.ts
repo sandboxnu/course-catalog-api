@@ -23,6 +23,8 @@ class AddPrerequisiteFor {
 
   /**
    * Creates a class hashmap based on the term dump, then links the course data
+   *
+   * @param termDump the termDump of the semester.
    */
   go(termDump: ParsedTermSR): void {
     // Maps the class objects first
@@ -51,27 +53,34 @@ class AddPrerequisiteFor {
 
   /**
    * Recursively traverse the prerequisite structure.
-   * If the course has a prereq, we add this class to the prereq's optPrereqFor field.
+   *
+   * @param mainClass - the class for which we're checking the prereqs. If it has a prereq,we add this class to the
+   *    prereq's optPrereqFor field.
+   * @param req - a prerequisite of mainClass
+   * @param isRequired - whether or not the prerequisite is required.
+   * @example
+   * parsePreReqs({... "subject":"CS","classId":"3500" ...},
+   *              {"type":"or","values":[{"classId":"2510","subject":"CS"},
+   *                                     {"classId":"1500","subject":"CS","missing":true},
+   *                                     {"classId":"2560","subject":"EECE"}],
+   *              true})
    */
   parsePrereqs(
     mainClass: ParsedCourseSR,
-    requisite: Requisite,
+    req: Requisite,
     isRequired: boolean
   ): void {
-    if (
-      typeof requisite === "string" ||
-      (isCourseReq(requisite) && requisite.missing)
-    ) {
+    if (typeof req === "string" || (isCourseReq(req) && req.missing)) {
       return;
     }
 
     // Get the class we wish to refer to
-    if (isCourseReq(requisite)) {
+    if (isCourseReq(req)) {
       const hash = keys.getClassHash(mainClass);
       const nodeRef = this.classMap[hash];
 
       if (!nodeRef) {
-        macros.error("Unable to find ref for", hash, requisite, mainClass);
+        macros.error("Unable to find ref for", hash, req, mainClass);
         return;
       }
 
@@ -86,10 +95,10 @@ class AddPrerequisiteFor {
         nodeRef.optPrereqsFor.values.unshift(classData);
       }
     } else {
-      const classType = requisite.type;
+      const classType = req.type;
 
-      if (requisite.values !== undefined) {
-        requisite.values.map((course) => {
+      if (req.values !== undefined) {
+        req.values.map((course) => {
           // A required course becomes effectively optional when we encounter an 'or' in our tree.
           const reqType = classType === "and" ? isRequired : false;
           return this.parsePrereqs(mainClass, course, reqType);
@@ -121,8 +130,8 @@ class AddPrerequisiteFor {
         }
       }
 
-      const firstId = Number.parseInt(a.classId);
-      const secondId = Number.parseInt(b.classId);
+      const firstId = parseInt(a.classId, 10);
+      const secondId = parseInt(b.classId, 10);
 
       if (firstId < secondId) {
         return -1;
