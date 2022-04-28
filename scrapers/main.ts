@@ -25,11 +25,6 @@ class Main {
       allTermInfos
     );
 
-    const promises: [Promise<ParsedTermSR>, Promise<EmployeeWithId[]>] = [
-      classes.main(["neu"], allTermInfos),
-      matchEmployees.main(),
-    ];
-
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
     //  *Employee scraping takes SO MUCH less time (which is why we run it first)
     //    * So, not running scraping in parallel doesn't hurt us
