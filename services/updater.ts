@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
@@ -56,14 +55,22 @@ class Updater {
   }
 
   // TODO must call this in server
-  async start(): Promise<void> {
+  start(): void {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300000 : 30000;
 
-    setInterval(() => {
-      this.updateOrExit();
-    }, intervalTime);
+    // Flag only used for testing, since we only need the updater to run once
+    if (!process.env.UPDATE_ONLY_ONCE) {
+      setInterval(async () => {
+        // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
+        // Temp fix to address Prisma connection pool issues
+        // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
+        await this.updateOrExit();
+        await prisma.$disconnect();
+        macros.log("Disconnected Prisma");
+      }, intervalTime);
+    }
 
     this.updateOrExit();
   }
@@ -79,7 +86,7 @@ class Updater {
 
   // Update classes and sections users and notify users if seats have opened up
   async update(): Promise<void> {
-    macros.log(`updating terms ${JSON.stringify(this.SEMS_TO_UPDATE)}`);
+    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
 
     const startTime = Date.now();
 
@@ -88,7 +95,8 @@ class Updater {
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
         return termParser.parseSections(termId);
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
+
     macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
@@ -99,10 +107,10 @@ class Updater {
     );
 
     const dumpProcessorStartTime = Date.now();
-    macros.log("running dump processor");
+    macros.log("Running dump processor");
 
     await dumpProcessor.main({
-      termDump: { sections, classes: {}, subjects: {} },
+      termDump: { sections, classes: [], subjects: {} },
       destroy: true,
     });
 
@@ -120,9 +128,11 @@ class Updater {
     );
 
     macros.log(
-      `Done running updater onInterval. It took ${totalTime} ms (${
-        totalTime / 60000
-      } minutes). Updated ${sections.length} sections.`
+      `${
+        "Done running updater onInterval".underline.green
+      }. It took ${totalTime} ms (${(totalTime / 60000).toFixed(
+        2
+      )} minutes). Updated ${sections.length} sections.`
     );
   }
 
@@ -203,7 +213,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedCourseLookup: Record<string, Course> = {};
     for (const s of watchedCourses) {
@@ -217,7 +227,7 @@ class Updater {
           where: { section: { course: { termId } } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const watchedSectionLookup: Record<string, Section> = {};
     for (const s of watchedSections) {
@@ -230,7 +240,7 @@ class Updater {
           where: { course: { termId } },
         });
       })
-    ).flat();
+    ).reduce((acc, val) => acc.concat(val), []);
 
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {
@@ -262,7 +272,7 @@ class Updater {
   async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
-    const dbResults = await prisma.$queryRaw(
+    const dbResults = await prisma.$queryRawUnsafe(
       `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
     );
 

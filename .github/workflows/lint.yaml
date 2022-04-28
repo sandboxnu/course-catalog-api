@@ -1,6 +1,10 @@
-name: Lint
+name: Linting & Static code checking
 
-on: pull_request
+on:
+  pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   prettier:
@@ -17,13 +21,28 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   lint:
-    name: lint
+    name: Lint & Type checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: install node v12
-        uses: actions/setup-node@v1
+      - name: install node v14.19
+        uses: actions/setup-node@v2
         with:
-          node-version: 12
+          node-version: "14.19"
       - uses: bahmutov/npm-install@v1
-      - run: yarn lint
+      - name: Linting
+        run: yarn lint
+      - name: Checks Typescript types
+        run: yarn tsc
+  dependency_checks:
+    name: Dependency Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: install node v14.18
+        uses: actions/setup-node@v2
+        with:
+          node-version: "14.18"
+      - uses: bahmutov/npm-install@v1
+      - name: Checks for duplicate definitions in the yarn lockfile
+        run: yarn yarn-deduplicate --fail

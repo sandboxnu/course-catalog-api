@@ -1,5 +1,5 @@
 # build environment
-FROM node:12.16-alpine as build
+FROM node:14.19.0-alpine as build
 WORKDIR /app
 # Install deps
 COPY package.json /app/package.json

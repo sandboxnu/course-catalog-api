@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
+import request from "request-promise-native";
 import twilioNotifyer from "./notifs";
 import notificationsManager from "../services/notificationsManager";
 import macros from "../utils/macros";
@@ -20,7 +21,7 @@ server.listen(port, () => {
   console.log("Running twilio notification server on port %s", port);
 });
 
-app.get("/knockknock", (req, res) => res.send("Who's there?"));
+app.get("/knockknock", (req, res) => res.status(200).send("Who's there?"));
 
 app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
 
@@ -70,9 +71,11 @@ app.post("/sms/verify", (req, res) => {
 });
 
 app.get("/user/subscriptions/:jwt", (req, res) => {
-  const token = req.params.jwt;
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const decodedToken = jwt.verify(
+      req.params.jwt,
+      process.env.JWT_SECRET
+    ) as any;
     const phoneNumber = decodedToken.phoneNumber;
     notificationsManager
       .getUserSubscriptions(phoneNumber)
@@ -128,4 +131,37 @@ app.delete("/user/subscriptions", (req, res) => {
   } catch (error) {
     res.status(401).send();
   }
+});
+
+app.post("/feedback", async (req, res) => {
+  const { message, contact } = req.body;
+
+  const parsed_contact = contact === "" ? "No email provided" : contact;
+
+  const data = {
+    text: "Someone submitted some feedback",
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `Someone submitted some feedback:\n> *Contact*: \`${parsed_contact}\` \n> *Message*: ${message}`,
+        },
+      },
+    ],
+  };
+  const parsed_data = JSON.stringify(data);
+
+  return await request
+    .post({ url: process.env.SLACK_WEBHOOK_URL, body: parsed_data })
+    .then((_) => res.status(200).send())
+    .catch((error) => {
+      macros.error(error);
+
+      if (error.response) {
+        res.status(error.response.status).send(error.response.statusText);
+      } else {
+        res.status(500).send();
+      }
+    });
 });

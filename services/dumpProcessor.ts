@@ -6,17 +6,18 @@ import fs from "fs-extra";
 import _ from "lodash";
 import he from "he";
 import path from "path";
-import {
-  ProfessorCreateInput,
-  CourseCreateInput,
-  SectionCreateInput,
-} from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import pMap from "p-map";
-import { TermInfo } from "../types/types";
+import {
+  BulkUpsertInput,
+  Dump,
+  EmployeeWithId,
+  Section,
+  TransformFunction,
+} from "../types/types";
 
 type Maybe<T> = T | null | undefined;
 
@@ -28,57 +29,17 @@ class DumpProcessor {
   }
 
   /**
-   * @param {Object} termDump object containing all class and section data, normally acquired from scrapers
-   * @param {Object} profDump object containing all professor data, normally acquired from scrapers
-   * @param {boolean} destroy determines if courses that haven't been updated for the last two days will be removed from the database
+   * @param termDump object containing all class and section data, normally acquired from scrapers
+   * @param profDump object containing all professor data, normally acquired from scrapers
+   * @param destroy determines if courses that haven't been updated for the last two days will be removed from the database
+   * @param currentTermInfos the term infos for which we have data
    */
   async main({
-    termDump = { classes: {}, sections: {}, subjects: {} },
-    profDump = {},
+    termDump = { classes: [], sections: [], subjects: {} },
+    profDump = [],
     destroy = false,
     currentTermInfos = null,
-  }): Promise<void> {
-    const profTransforms = {
-      big_picture_url: this.strTransform,
-      email: this.strTransform,
-      emails: this.arrayTransform,
-      emails_contents: this.arrayStrTransform,
-      first_name: this.strTransform,
-      name: this.strTransform,
-      google_scholar_id: this.strTransform,
-      id: this.strTransform,
-      last_name: this.strTransform,
-      link: this.strTransform,
-      office_room: this.strTransform,
-      personal_site: this.strTransform,
-      phone: this.strTransform,
-      pic: this.jsonTransform,
-      primary_department: this.strTransform,
-      primary_role: this.strTransform,
-      street_address: this.strTransform,
-      url: this.strTransform,
-    };
-
-    const profCols = [
-      "big_picture_url",
-      "email",
-      "emails",
-      "first_name",
-      "google_scholar_id",
-      "id",
-      "last_name",
-      "link",
-      "name",
-      "office_room",
-      "personal_site",
-      "phone",
-      "pic",
-      "primary_department",
-      "primary_role",
-      "street_address",
-      "url",
-    ];
-
+  }: Dump): Promise<void> {
     const courseTransforms = {
       class_attributes: this.arrayTransform,
       class_attributes_contents: this.arrayStrTransform,
@@ -89,7 +50,8 @@ class DumpProcessor {
       fee_description: this.strTransform,
       host: this.strTransform,
       id: this.strTransform,
-      last_update_time: this.dateTransform,
+      // lastUpdateTime should be updated every time this course is inserted
+      last_update_time: () => "now()",
       max_credits: this.intTransform,
       min_credits: this.intTransform,
       name: this.strTransform,
@@ -134,7 +96,7 @@ class DumpProcessor {
       honors: this.boolTransform,
       id: this.strTransform,
       info: this.strTransform,
-      last_update_time: this.dateTransform,
+      last_update_time: () => "now()",
       meetings: this.jsonTransform,
       campus: this.strTransform,
       profs: this.arrayTransform,
@@ -168,19 +130,19 @@ class DumpProcessor {
 
     const coveredTerms: Set<string> = new Set();
 
-    await Promise.all(
-      _.chunk(Object.values(profDump), 2000).map(async (profs) => {
-        await prisma.$executeRaw(
-          this.bulkUpsert("professors", profCols, profTransforms, profs)
-        );
-      })
-    );
-
-    macros.log("finished with profs");
+    // We delete all of the professors, and insert anew
+    // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
+    if (profDump.length > 1) {
+      await prisma.professor.deleteMany({});
+      await prisma.professor.createMany({
+        data: profDump.map((prof) => this.processProf(prof)),
+      });
+      macros.log("DumpProcessor: finished with profs");
+    }
 
     await Promise.all(
       _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
-        await prisma.$executeRaw(
+        await prisma.$executeRawUnsafe(
           this.bulkUpsert(
             "courses",
             courseCols,
@@ -191,47 +153,34 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with courses");
+    macros.log("DumpProcessor: finished with courses");
 
     // FIXME this is a bad hack that will work
-    const courseIds = new Set(
+    const courseIds: Set<string> = new Set(
       (await prisma.course.findMany({ select: { id: true } })).map(
         (elem) => elem.id
       )
     );
-    const processedSections = Object.values(termDump.sections)
-      .map((section) => this.constituteSection(section))
+    const processedSections = termDump.sections
+      .map((section) => this.constituteSection(section, coveredTerms))
       .filter((s) => courseIds.has(s.classHash));
 
     await Promise.all(
       _.chunk(processedSections, 2000).map(async (sections) => {
-        await prisma.$executeRaw(
+        await prisma.$executeRawUnsafe(
           this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
         );
       })
     );
 
-    macros.log("finished with sections");
+    macros.log("DumpProcessor: finished with sections");
 
-    const courseUpdateTimes: Record<string, Date> = processedSections.reduce(
-      (acc: Record<string, Date>, section) => {
-        return { ...acc, [section.classHash]: new Date() };
-      },
-      {}
-    );
+    await prisma.course.updateMany({
+      where: { id: { in: processedSections.map((s) => s.classHash) } },
+      data: { lastUpdateTime: new Date() },
+    });
 
-    await pMap(
-      Object.entries(courseUpdateTimes),
-      async ([id, updateTime]) => {
-        await prisma.course.update({
-          where: { id },
-          data: { lastUpdateTime: updateTime },
-        });
-      },
-      { concurrency: 10 }
-    );
-
-    macros.log("finished updating times");
+    macros.log("DumpProcessor: finished updating times");
 
     await Promise.all(
       Object.entries(termDump.subjects).map(([key, value]) => {
@@ -250,12 +199,12 @@ class DumpProcessor {
       })
     );
 
-    macros.log("finished with subjects");
+    macros.log("DumpProcessor: finished with subjects");
 
     // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
     // (only run if the term infos are non-null)
-    if (currentTermInfos !== null) {
-      const termInfos = currentTermInfos as TermInfo[];
+    if (currentTermInfos) {
+      const termInfos = currentTermInfos;
       // This deletes any termID which doesn't have associated course data
       //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
       await prisma.termInfo.deleteMany({
@@ -280,11 +229,18 @@ class DumpProcessor {
         });
       }
 
-      macros.log("finished with term IDs");
+      const termsStr = termInfos
+        .map((t) => t.termId)
+        .sort()
+        .join(", ");
+      macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
     }
 
     if (destroy) {
-      console.log("destroying old courses and sections");
+      const termsStr = Array.from(coveredTerms).sort().join(", ");
+      macros.log(
+        `DumpProcessor: destroying old courses and sections for terms (${termsStr})`
+      );
 
       // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
       // Two days ago (in milliseconds)
@@ -309,7 +265,7 @@ class DumpProcessor {
       });
     }
 
-    macros.log("finished cleaning up");
+    macros.log("DumpProcessor: Finished cleaning up");
 
     await populateES();
   }
@@ -317,9 +273,9 @@ class DumpProcessor {
   bulkUpsert(
     tableName: string,
     columnNames: string[],
-    valTransforms: Record<string, Function>,
-    vals: any[]
-  ): any {
+    valTransforms: Record<string, TransformFunction>,
+    vals: BulkUpsertInput[]
+  ): string {
     let query = `INSERT INTO ${tableName} (${columnNames.join(",")}) VALUES `;
     query += vals
       .map((val) => {
@@ -334,6 +290,7 @@ class DumpProcessor {
     query += ` ON CONFLICT (id) DO UPDATE SET ${columnNames
       .map((c) => `${c} = excluded.${c}`)
       .join(",")} WHERE ${tableName}.id = excluded.id;`;
+
     return query;
   }
 
@@ -351,9 +308,9 @@ class DumpProcessor {
   }
 
   arrayTransform(
-    val: Maybe<any[]>,
+    val: Maybe<unknown[]>,
     kind: string,
-    transforms: Record<string, Function>
+    transforms: Record<string, TransformFunction>
   ): string {
     return val && val.length !== 0
       ? `'{${val
@@ -364,57 +321,28 @@ class DumpProcessor {
       : "array[]::text[]";
   }
 
-  jsonTransform(val: Maybe<any>): string {
+  jsonTransform(val: Maybe<unknown>): string {
     return val ? `'${JSON.stringify(val)}'` : "'{}'";
   }
 
-  dateTransform(val: Maybe<any>): string {
-    return val ? `to_timestamp(${val / 1000})` : "now()";
-  }
-
-  boolTransform(val: Maybe<any>): string {
+  boolTransform(val: Maybe<boolean>): string {
     return val ? "TRUE" : "FALSE";
   }
 
-  processProf(profInfo: any): ProfessorCreateInput {
+  processProf(profInfo: EmployeeWithId): Prisma.ProfessorCreateInput {
     const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
     return _.omit(correctedQuery, [
       "title",
       "interests",
       "officeStreetAddress",
-    ]) as ProfessorCreateInput;
-  }
-
-  processCourse(
-    classInfo: any,
-    coveredTerms: Set<string> = new Set()
-  ): CourseCreateInput {
-    coveredTerms.add(classInfo.termId);
-
-    const additionalProps = {
-      id: `${keys.getClassHash(classInfo)}`,
-      description: classInfo.desc,
-      minCredits: Math.floor(classInfo.minCredits),
-      maxCredits: Math.floor(classInfo.maxCredits),
-      lastUpdateTime: new Date(classInfo.lastUpdateTime),
-    };
-
-    const correctedQuery = {
-      ...classInfo,
-      ...additionalProps,
-      classAttributes: { set: classInfo.classAttributes || [] },
-      nupath: { set: classInfo.nupath || [] },
-    };
-
-    const { desc, ...finalCourse } = correctedQuery;
-
-    return finalCourse;
+      "office",
+    ]) as Prisma.ProfessorCreateInput;
   }
 
   constituteCourse(
     classInfo: any,
-    coveredTerms: Set<string> = new Set()
-  ): CourseCreateInput {
+    coveredTerms: Set<string>
+  ): Prisma.CourseCreateInput {
     coveredTerms.add(classInfo.termId);
 
     const additionalProps = {
@@ -436,7 +364,7 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  processSection(secInfo: any): SectionCreateInput {
+  processSection(secInfo: any): Prisma.SectionCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
@@ -447,10 +375,14 @@ class DumpProcessor {
       "termId",
       "subject",
       "host",
-    ]) as SectionCreateInput;
+    ]) as Prisma.SectionCreateInput;
   }
 
-  constituteSection(secInfo: any): SectionCreateInput {
+  constituteSection(
+    secInfo: Section,
+    coveredTerms: Set<string>
+  ): Prisma.SectionCreateInput & { classHash: string } {
+    coveredTerms.add(secInfo.termId);
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
@@ -460,7 +392,7 @@ class DumpProcessor {
       "termId",
       "subject",
       "host",
-    ]) as SectionCreateInput;
+    ]) as unknown as Prisma.SectionCreateInput & { classHash: string };
   }
 
   toCamelCase(str: string): string {
@@ -476,7 +408,7 @@ class DumpProcessor {
 
 const instance = new DumpProcessor();
 
-async function fromFile(termFilePath, empFilePath) {
+async function fromFile(termFilePath, empFilePath): Promise<void | null> {
   const termExists = await fs.pathExists(termFilePath);
   const empExists = await fs.pathExists(empFilePath);
 

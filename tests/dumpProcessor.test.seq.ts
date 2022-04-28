@@ -32,7 +32,7 @@ it("does not create records if dump is empty", async () => {
     prisma.subject.count(),
   ]);
   await dumpProcessor.main({
-    termDump: { classes: [], sections: [], subjects: [] },
+    termDump: { classes: [], sections: [], subjects: {} },
   });
   expect(
     Promise.all([
@@ -46,8 +46,8 @@ it("does not create records if dump is empty", async () => {
 
 describe("with professors", () => {
   it("creates professors", async () => {
-    const profDump = {
-      firstProf: {
+    const profDump = [
+      {
         id: "abcdefg",
         name: "Benjamin Lerner",
         firstName: "Benjamin",
@@ -61,7 +61,7 @@ describe("with professors", () => {
         bigPictureUrl:
           "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Benjamin-Lerner-hero-image.jpg",
       },
-      secondProf: {
+      {
         id: "hijklmnop",
         name: "Neal Lerner",
         firstName: "Neal",
@@ -71,7 +71,7 @@ describe("with professors", () => {
         primaryRole: "Professor & Chair",
         primaryDepartment: "English",
       },
-      thirdProf: {
+      {
         id: "qrstuv",
         name: "Alan Mislove",
         firstName: "Alan",
@@ -86,10 +86,10 @@ describe("with professors", () => {
         bigPictureUrl:
           "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Alan-Mislove_cropped-hero-image.jpg",
       },
-    };
+    ];
 
     await dumpProcessor.main({
-      termDump: { classes: [], sections: [], subjects: [] },
+      termDump: { classes: [], sections: [], subjects: {} },
       profDump: profDump,
     });
     expect(await prisma.professor.count()).toEqual(3);

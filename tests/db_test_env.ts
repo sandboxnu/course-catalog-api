@@ -25,6 +25,8 @@ class PrismaTestEnvironment extends NodeEnvironment {
     // to our database test schema
     process.env.DATABASE_URL = this.databaseUrl;
     this.global.process.env.DATABASE_URL = this.databaseUrl;
+    process.env.DATABASE_URL_WITH_CONNECTIONS = this.databaseUrl;
+    this.global.process.env.DATABASE_URL_WITH_CONNECTIONS = this.databaseUrl;
     // Run the migrations to ensure our schema has the required structure
     await exec(`${prismaBinary} migrate dev --preview-feature`);
     await exec(`${prismaBinary} generate`);
@@ -36,8 +38,16 @@ class PrismaTestEnvironment extends NodeEnvironment {
     const client = new Client({
       connectionString: this.databaseUrl,
     });
-    await client.connect();
-    await client.query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`);
+    await client
+      .connect()
+      .then(() => console.log(`Connected to ${this.databaseUrl}`))
+      .catch((err) => console.log(err));
+    await client
+      .query(`DROP SCHEMA IF EXISTS "${this.schema}" CASCADE`)
+      .then(() => console.log(`Dropped schema '${this.schema}' (if exists)`))
+      .catch((err) => console.log(err))
+      .finally(() => client.end);
+
     await client.end();
   }
 }

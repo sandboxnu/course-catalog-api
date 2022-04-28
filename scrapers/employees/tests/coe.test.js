@@ -8,7 +8,7 @@ import path from "path";
 
 import coe from "../coe";
 
-it("should parse all", async (done) => {
+it("should parse all", async () => {
   const data = await fs.readFile(
     path.join(__dirname, "data", "coe", "display-all.json")
   );
@@ -17,5 +17,4 @@ it("should parse all", async (done) => {
   const retVal = coe.parsePeopleList(resp);
 
   expect(retVal).toMatchSnapshot();
-  done();
 });

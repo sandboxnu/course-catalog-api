@@ -6,19 +6,19 @@ Array [
     "host": "neu.edu",
     "subCollege": "CPS",
     "termId": "202034",
-    "text": "Spring 2020 CPS Semester",
+    "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
     "subCollege": "LAW",
     "termId": "202032",
-    "text": "Spring 2020 Law Semester",
+    "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
-    "subCollege": undefined,
+    "subCollege": "NEU",
     "termId": "202030",
-    "text": "Spring 2020",
+    "text": "Spring 2020 Semester",
   },
 ]
 `;

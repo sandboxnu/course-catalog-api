@@ -12,20 +12,24 @@ import ElasticCourseSerializer from "../serializers/elasticCourseSerializer";
 import ElasticProfSerializer from "../serializers/elasticProfSerializer";
 import macros from "../utils/macros";
 
-export async function bulkUpsertCourses(courses: Course[]): Promise<void> {
+export async function bulkUpsertCourses(
+  courses: Course[]
+): Promise<Promise<unknown>> {
   // FIXME this pattern is bad
   const serializedCourses = await new ElasticCourseSerializer().bulkSerialize(
     courses,
     true
   );
-  return elastic.bulkIndexFromMap(elastic.CLASS_INDEX, serializedCourses);
+  return elastic.bulkIndexFromMap(elastic.CLASS_ALIAS, serializedCourses);
 }
 
-export async function bulkUpsertProfs(profs: Professor[]): Promise<void> {
+export async function bulkUpsertProfs(
+  profs: Professor[]
+): Promise<Promise<unknown>> {
   const serializedProfs = await new ElasticProfSerializer().bulkSerialize(
     profs
   );
-  return elastic.bulkIndexFromMap(elastic.EMPLOYEE_INDEX, serializedProfs);
+  return elastic.bulkIndexFromMap(elastic.EMPLOYEE_ALIAS, serializedProfs);
 }
 
 export async function populateES(): Promise<void> {

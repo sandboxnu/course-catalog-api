@@ -34,7 +34,8 @@ import {
   AggResults,
   SearchResult,
   CourseSearchResult,
-} from "../types/search_types";
+  ParsedQuery,
+} from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };
@@ -66,19 +67,19 @@ class Searcher {
 
   static generateFilters(): FilterPrelude {
     // type validating functions
-    const isString = (arg: any): arg is string => {
+    const isString = (arg: unknown): arg is string => {
       return typeof arg === "string";
     };
 
-    const isStringArray = (arg: any): arg is string[] => {
+    const isStringArray = (arg: unknown): arg is string[] => {
       return Array.isArray(arg) && arg.every((elem) => isString(elem));
     };
 
-    const isTrue = (arg: any): arg is true => {
+    const isTrue = (arg: unknown): arg is true => {
       return typeof arg === "boolean" && arg;
     };
 
-    const isNum = (arg: any): arg is number => {
+    const isNum = (arg: unknown): arg is number => {
       return typeof arg === "number";
     };
 
@@ -198,9 +199,9 @@ class Searcher {
     const validFilters: FilterInput = {};
     Object.keys(filters).forEach((currFilter) => {
       if (!(currFilter in this.filters)) {
-        macros.log("Invalid filter key.", currFilter);
+        macros.warn("Invalid filter key.", currFilter);
       } else if (!this.filters[currFilter].validate(filters[currFilter])) {
-        macros.log("Invalid filter value type.", currFilter);
+        macros.warn("Invalid filter value type.", currFilter);
       } else {
         validFilters[currFilter] = filters[currFilter];
       }
@@ -223,6 +224,57 @@ class Searcher {
   }
 
   /**
+   * Given a string, creates a list of queries that are either phrase queries or
+   * most_field queries. Phrases are between quotes, and use phrase matching.
+   * Most_field queries are everything else, and search the terms on all fields.
+   * @param query the string that is parsed into a list
+   * @returns an object containing a list of phrase_queries, and a field query.
+   */
+  parseQuery(query: string): ParsedQuery {
+    const matches = [...query.matchAll(/"(.*?)"/gi)];
+    const matchedPhrases = matches.map((match) => {
+      return match[0];
+    });
+
+    const matchesRegExp = new RegExp(matchedPhrases.join("|"), "gi");
+
+    //make sure theres no extra white space after removing the phrases.
+    const nonMatches = query
+      .replace(matchesRegExp, "")
+      .replace('"', "")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    // go through the phrases, and make phrase queries with them.
+    const phraseQueries = matches.map((match) => {
+      return {
+        multi_match: {
+          query: match[1],
+          type: "phrase",
+          fields: this.getFields(),
+        },
+      };
+    });
+
+    //make the field query and add it to the list.
+    let fieldQuery: LeafQuery = null;
+    if (nonMatches.trim() !== "") {
+      fieldQuery = {
+        multi_match: {
+          query: nonMatches,
+          type: "most_fields",
+          fields: this.getFields(),
+        },
+      };
+    }
+
+    return {
+      phraseQ: phraseQueries,
+      fieldQ: fieldQuery,
+    };
+  }
+
+  /**
    * Get elasticsearch query
    */
   generateQuery(
@@ -233,18 +285,13 @@ class Searcher {
     max: number,
     aggregation = ""
   ): EsQuery {
-    const fields: string[] = this.getFields();
-    // text query from the main search box
-    const matchTextQuery: LeafQuery =
-      query.length > 0
-        ? {
-            multi_match: {
-              query: query,
-              type: "most_fields", // More fields match => higher score
-              fields: fields,
-            },
-          }
-        : MATCH_ALL_QUERY;
+    //a list of all queries
+    const matchQueries: ParsedQuery = this.parseQuery(query);
+
+    const phraseQueries: LeafQuery[] = matchQueries.phraseQ;
+
+    const fieldQuery: LeafQuery = matchQueries.fieldQ;
+    const fieldQueryExists = fieldQuery !== null;
 
     // use lower classId has tiebreaker after relevance
     const sortByClassId: SortInfo = {
@@ -284,7 +331,10 @@ class Searcher {
       sort: ["_score", sortByClassId],
       query: {
         bool: {
-          must: matchTextQuery,
+          must:
+            phraseQueries.length === 0 && !fieldQueryExists
+              ? MATCH_ALL_QUERY
+              : phraseQueries,
           filter: {
             bool: {
               should: [
@@ -293,6 +343,8 @@ class Searcher {
               ],
             },
           },
+          should: fieldQuery, //should match any remaining terms
+          minimum_should_match: 0,
         },
       },
       aggregations: aggQuery,
@@ -330,7 +382,7 @@ class Searcher {
   ): Promise<PartialResults> {
     const queries = this.generateMQuery(query, termId, min, max, filters);
     const results: EsMultiResult = await elastic.mquery(
-      `${elastic.CLASS_INDEX},${elastic.EMPLOYEE_INDEX}`,
+      `${elastic.CLASS_ALIAS},${elastic.EMPLOYEE_ALIAS}`,
       queries
     );
     return this.parseResults(
@@ -416,8 +468,9 @@ class Searcher {
    * Search for classes and employees
    * @param  {string}  query  The search to query for
    * @param  {string}  termId The termId to look within
-   * @param  {integer} min    The index of first document to retreive
-   * @param  {integer} max    The index of last document to retreive
+   * @param  {number} min    The index of first document to retreive
+   * @param  {number} max    The index of last document to retreive
+   * @param filters
    */
   async search(
     query: string,
@@ -453,6 +506,7 @@ class Searcher {
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
+
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
       );

@@ -10,6 +10,11 @@ import dotenv from "dotenv";
 
 import moment from "moment";
 import commonMacros from "./abstractMacros";
+import { AmplitudeTrackResponse } from "amplitude/dist/responses";
+import { AmplitudeEvent } from "../types/requestTypes";
+import "colors";
+import { createLogger, format, transports } from "winston";
+import "winston-daily-rotate-file";
 
 dotenv.config();
 
@@ -25,7 +30,8 @@ const amplitude = new Amplitude(commonMacros.amplitudeToken);
 
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
-let oldcwd: string;
+let oldcwd: null | string = null;
+
 while (oldcwd !== process.cwd()) {
   try {
     fs.statSync("package.json");
@@ -72,7 +78,79 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 // {...} = the file
 let envVariables: EnvVars = null;
 
+enum LogLevel {
+  CRITICAL = -1,
+  ERROR = 0,
+  WARN = 1,
+  INFO = 2,
+  HTTP = 3,
+  VERBOSE = 4,
+}
+
+function getLogLevel(input: string): LogLevel {
+  input = input ? input : "";
+
+  switch (input.toUpperCase()) {
+    case "CRITICAL":
+      return LogLevel.CRITICAL;
+    case "ERROR":
+      return LogLevel.ERROR;
+    case "WARN":
+      return LogLevel.WARN;
+    case "INFO":
+      return LogLevel.INFO;
+    case "HTTP":
+      return LogLevel.HTTP;
+    case "VERBOSE":
+      return LogLevel.VERBOSE;
+    default:
+      return LogLevel.INFO;
+  }
+}
+
 class Macros extends commonMacros {
+  static logLevel = getLogLevel(process.env.LOG_LEVEL);
+
+  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
+
+  static logger = createLogger({
+    level: "info",
+    format: format.combine(
+      format.timestamp({
+        format: "YYYY-MM-DD HH:mm:ss",
+      }),
+      format.errors({ stack: true }),
+      format.splat(),
+      format.json()
+    ),
+    defaultMeta: { service: "course-catalog-api" },
+    transports: [
+      new transports.DailyRotateFile({
+        filename: "%DATE%-warn.log",
+        level: "warn",
+        dirname: Macros.dirname,
+        maxSize: "10m",
+        maxFiles: "180d",
+        zippedArchive: true,
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-info.log",
+        level: "info",
+        dirname: Macros.dirname,
+        maxSize: "10m",
+        maxFiles: "60d",
+        zippedArchive: true,
+      }),
+      new transports.DailyRotateFile({
+        filename: "%DATE%-verbose.log",
+        level: "verbose",
+        dirname: Macros.dirname,
+        maxSize: "20m",
+        maxFiles: "15d",
+        zippedArchive: true,
+      }),
+    ],
+  });
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
@@ -120,7 +198,7 @@ class Macros extends commonMacros {
     if (!exists) {
       envVariables = {};
     } else {
-      envVariables = JSON.parse(fs.readFileSync(configFileName));
+      envVariables = JSON.parse(fs.readFileSync(configFileName, "utf8"));
     }
 
     envVariables = Object.assign(envVariables, process.env);
@@ -129,7 +207,7 @@ class Macros extends commonMacros {
   }
 
   // Gets the current time, just used for logging
-  static getTime() {
+  static getTime(): string {
     return moment().format("hh:mm:ss a");
   }
 
@@ -138,7 +216,10 @@ class Macros extends commonMacros {
   }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
-  static async logAmplitudeEvent(type: string, event: any) {
+  static async logAmplitudeEvent(
+    type: string,
+    event: AmplitudeEvent
+  ): Promise<null | void | AmplitudeTrackResponse> {
     if (!Macros.PROD) {
       return null;
     }
@@ -155,7 +236,7 @@ class Macros extends commonMacros {
     });
   }
 
-  static getRollbar() {
+  static getRollbar(): Rollbar {
     if (Macros.PROD && !this.rollbar) {
       console.error("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
     }
@@ -166,16 +247,14 @@ class Macros extends commonMacros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  static async logRollbarError(args: any, shouldExit: boolean) {
+  static logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
     if (!Macros.PROD) {
       return;
     }
 
-    const stack = new Error().stack;
-
     // The middle object can include any properties and values, much like amplitude.
-    args.stack = stack;
+    args.stack = new Error().stack;
 
     // Search through the args array for an error. If one is found, log that separately.
     let possibleError: MaybeError;
@@ -186,7 +265,7 @@ class Macros extends commonMacros {
         break;
       }
     }
-    // eslint-disable-next-line no-console
+
     console.log("sending to rollbar", possibleError, args);
 
     if (possibleError) {
@@ -210,10 +289,18 @@ class Macros extends commonMacros {
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
-  static critical(...args: any) {
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static critical(...args: any): void {
+    Macros.logger.error(args);
+
     if (Macros.TEST) {
-      console.error("macros.critical called"); // eslint-disable-line no-console
-      console.error(...args); // eslint-disable-line no-console
+      console.error("macros.critical called");
+      console.error(
+        "Consider using the VERBOSE env flag for more info",
+        ...args
+      );
     } else {
       Macros.error(...args);
       process.exit(1);
@@ -222,8 +309,19 @@ class Macros extends commonMacros {
 
   // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
   // Will log something to rollbar and rollbar will send off an email
-  static async warn(...args: any) {
-    super.warn(...args);
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static warn(...args: any): void {
+    Macros.logger.warn(args);
+
+    if (LogLevel.WARN > Macros.logLevel) {
+      return;
+    }
+
+    super.warn(
+      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
+    );
 
     if (Macros.PROD) {
       this.logRollbarError(args, false);
@@ -232,11 +330,14 @@ class Macros extends commonMacros {
 
   // Use this for stuff that should never happen, but does not mean the program cannot continue.
   // This will continue running in dev, but will exit on CI
-  // Will log stack trace
-  // and cause CI to fail
-  // so CI will send an email
-  static async error(...args: any) {
-    super.error(...args);
+  // Will log stack trace and cause CI to fail,  so CI will send an email
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static error(...args: any): void {
+    Macros.logger.error(args);
+
+    super.error("Check the /logs directory for more detailed logging", ...args);
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
@@ -250,16 +351,47 @@ class Macros extends commonMacros {
     }
   }
 
-  // Use console.warn to log stuff during testing
-  static verbose(...args: any) {
-    if (!process.env.VERBOSE) {
+  static log(...args: any): void {
+    Macros.logger.info(args);
+
+    if (LogLevel.INFO > Macros.logLevel) {
       return;
     }
 
-    console.log(...args); // eslint-disable-line no-console
+    console.log(...args);
+  }
+
+  static http(...args: any): void {
+    Macros.logger.http(args);
+
+    if (LogLevel.HTTP > Macros.logLevel) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
+  // Use console.warn to log stuff during testing
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  static verbose(...args: any): void {
+    Macros.logger.verbose(args);
+
+    if (LogLevel.VERBOSE > Macros.logLevel) {
+      return;
+    }
+
+    console.log(...args);
   }
 }
 
-Macros.verbose("Starting in verbose mode.");
+Macros.log(
+  `**** Starting using log level: ${Macros.logLevel} (${
+    LogLevel[Macros.logLevel]
+  })`
+);
+Macros.log(
+  "**** Change the log level using the 'LOG_LEVEL' environment variable"
+);
 
 export default Macros;

@@ -44,7 +44,7 @@ Follow these steps for AWS Activate (per project):
 2. Set up the Terraform variables
    Terraform Variables
    - Generate a new SSH key for `ssh_public_key`: this is used to SSH into the jumphost
-   - `prod_secrets` contains _most_ of the prod secrets in the AWS Parameter Store in HCL (HashiCorp Configuration Language) which looks something like:
+   - `prod_secrets` and `staging_secrets` contain _most_ of the prod secrets and staging secrets, respectively, in the AWS Parameter Store in HCL (HashiCorp Configuration Language) which looks something like:
      ```
      [
         {
@@ -59,7 +59,7 @@ Follow these steps for AWS Activate (per project):
         },
      ]
      ```
-     - The prod secrets in the AWS Parameter Store that should NOT go in Terraform variables are the ones that have a corresponding value for staging.
+     - The prod / staging secrets in the AWS Parameter Store that should NOT go in Terraform variables are the ones declared [here](https://github.com/sandboxnu/course-catalog-api/blob/master/infrastructure/terraform/modules/course-catalog-api/ecs.tf#L184-L194) (currently `elasticURL` and `DATABASE_URL` since their values are determined by AWS).
      - In `ecs.tf`, you'll see some of the logic for generating secrets
        Environment Variables
    - `GITHUB_TOKEN` is a GitHub personal access token you have to generate. [Instructions here](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)

@@ -8,16 +8,14 @@ import path from "path";
 
 import camd from "../camd";
 
-it("should work for profile page", async (done) => {
+it("should work for profile page", async () => {
   const body = await fs.readFile(
     path.join(__dirname, "data", "camd", "profile.html")
   );
 
   const url = "https://camd.northeastern.edu/gamedesign/people/jason-duhaime/";
 
-  const output = camd.parseDetailpage(url, body);
+  const output = camd.parseDetailPage(url, body);
 
   expect(output).toMatchSnapshot();
-
-  done();
 });

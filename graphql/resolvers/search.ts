@@ -1,7 +1,7 @@
 import { identity, pickBy } from "lodash";
 import searcher from "../../services/searcher";
 import { Course, Employee } from "../../types/types";
-import { AggResults } from "../../types/search_types";
+import { AggResults } from "../../types/searchTypes";
 
 type SearchResultItem = Course | Employee;
 
@@ -70,7 +70,6 @@ const resolvers = {
   },
 
   SearchResultItem: {
-    // eslint-disable-next-line no-underscore-dangle
     __resolveType(obj: SearchResultItem) {
       return "firstName" in obj ? "Employee" : "ClassOccurrence";
     },
