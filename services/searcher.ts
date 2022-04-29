@@ -71,6 +71,10 @@ class Searcher {
       return typeof arg === "string";
     };
 
+    const isBoolean = (arg: unknown): arg is boolean => {
+      return typeof arg === "boolean";
+    };
+
     const isStringArray = (arg: unknown): arg is string[] => {
       return Array.isArray(arg) && arg.every((elem) => isString(elem));
     };
@@ -127,6 +131,10 @@ class Searcher {
       return { terms: { "sections.campus.keyword": selectedCampuses } };
     };
 
+    const getHonorsFilter = (selectedHonors: boolean): TermQuery => {
+      return { term: { "sections.honors": selectedHonors } };
+    };
+
     return {
       nupath: {
         validate: isStringArray,
@@ -154,6 +162,11 @@ class Searcher {
         validate: isStringArray,
         create: getCampusFilter,
         agg: "sections.campus.keyword",
+      },
+      honors: {
+        validate: isBoolean,
+        create: getHonorsFilter,
+        agg: "sections.honors",
       },
     };
   }
@@ -438,6 +451,7 @@ class Searcher {
             subject: [],
             classType: [],
             campus: [],
+            honors: [],
           },
     };
   }
@@ -450,6 +464,7 @@ class Searcher {
       subject: [this.generateAgg("subject", result.subject, 1)],
       classType: [{ value: result.sections[0].classType, count: 1 }],
       campus: [{ value: result.sections[0].campus, count: 1 }],
+      honors: [{ value: result.sections[0].honors.toString(), count: 1 }],
     };
   }
 
