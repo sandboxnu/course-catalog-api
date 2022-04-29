@@ -10,7 +10,7 @@ import cache from "../cache";
 import macros from "../../utils/macros";
 
 // Processors
-import { instance as markMissingRequisites } from "./processors/markMissingRequisites";
+import markMissingRequisites from "./processors/markMissingRequisites";
 import addPrerequisiteFor from "./processors/addPrerequisiteFor";
 
 // Parsers
@@ -30,9 +30,6 @@ class Main {
   runProcessors(dump: ParsedTermSR): ParsedTermSR {
     // Run the processors, sequentially
     markMissingRequisites.go(dump);
-    // termStartEndDate.go(dump); DEPRECATED
-
-    // Add new processors here.
     addPrerequisiteFor.go(dump);
 
     return dump;

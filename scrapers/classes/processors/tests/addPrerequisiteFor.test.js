@@ -117,7 +117,7 @@ describe("addPrerequisiteForFor tests", () => {
   it("should sort some optPrereqsFor", () => {
     addPrerequisiteFor.termDump = termDump;
 
-    addPrerequisiteFor.sortPreReqs(fakeClass1);
+    addPrerequisiteFor.sortPrereqs(fakeClass1);
 
     expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
   });
@@ -125,7 +125,7 @@ describe("addPrerequisiteForFor tests", () => {
   it("should sort some prereqsFor", () => {
     addPrerequisiteFor.termDump = termDump;
 
-    addPrerequisiteFor.sortPreReqs(fakeClass2);
+    addPrerequisiteFor.sortPrereqs(fakeClass2);
 
     expect(fakeClass2.prereqsFor).toMatchSnapshot();
   });
