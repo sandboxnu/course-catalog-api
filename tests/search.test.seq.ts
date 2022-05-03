@@ -1,5 +1,6 @@
 import searcher from "../services/searcher";
 import prisma from "../services/prisma";
+import { LeafQuery, ParsedQuery } from "../types/searchTypes";
 
 beforeAll(async () => {
   searcher.subjects = {};
@@ -22,6 +23,67 @@ describe("searcher", () => {
     });
   });
 
+  //Unit tests for the parseQuery function
+  describe("parseQuery", () => {
+    it("query with no phrases", () => {
+      const retQueries: ParsedQuery = searcher.parseQuery(
+        "this is a query with no phrases"
+      );
+      expect(retQueries.phraseQ.length).toEqual(0); //no phrase queries
+      expect(retQueries.fieldQ).not.toEqual(null);
+      const fieldQuery: LeafQuery = retQueries.fieldQ;
+
+      expect(fieldQuery).toEqual({
+        multi_match: {
+          query: "this is a query with no phrases",
+          type: "most_fields",
+          fields: searcher.getFields(),
+        },
+      });
+    });
+
+    it("query with just a phrase", () => {
+      const retQueries: ParsedQuery = searcher.parseQuery('"this is a phrase"');
+
+      expect(retQueries.phraseQ.length).toEqual(1);
+      expect(retQueries.fieldQ).toEqual(null);
+
+      const phraseQuery: LeafQuery = retQueries.phraseQ[0];
+
+      expect(phraseQuery).toEqual({
+        multi_match: {
+          query: "this is a phrase",
+          type: "phrase",
+          fields: searcher.getFields(),
+        },
+      });
+    });
+
+    it("query with a phrase and other text", () => {
+      const retQueries: ParsedQuery = searcher.parseQuery('text "phrase" text');
+      expect(retQueries.phraseQ.length).toEqual(1);
+      expect(retQueries.fieldQ).not.toEqual(null);
+
+      const phraseQuery: LeafQuery = retQueries.phraseQ[0];
+      const fieldQuery: LeafQuery = retQueries.fieldQ;
+
+      expect(phraseQuery).toEqual({
+        multi_match: {
+          query: "phrase",
+          type: "phrase",
+          fields: searcher.getFields(),
+        },
+      });
+
+      expect(fieldQuery).toEqual({
+        multi_match: {
+          query: "text text",
+          type: "most_fields",
+          fields: searcher.getFields(),
+        },
+      });
+    });
+  });
   // TODO: create an association between cols in elasticCourseSerializer and here
   describe("generateQuery", () => {
     it("generates match_all when no query", () => {
@@ -111,6 +173,7 @@ describe("searcher", () => {
           seatsRemaining: 0,
           classType: "Lecture",
           campus: "Seattle, WA",
+          honors: false,
         },
       });
       await prisma.section.create({
@@ -121,6 +184,7 @@ describe("searcher", () => {
           seatsRemaining: 0,
           classType: "Lecture",
           campus: "Boston",
+          honors: true,
         },
       });
     });
@@ -135,6 +199,7 @@ describe("searcher", () => {
           nupath: [],
           subject: [{ value: "CS", count: 1 }],
           classType: [{ value: "Lecture", count: 1 }],
+          honors: [{ value: "false", count: 1 }],
         });
       });
       it("Gets aggregation for single result with nupath", async () => {
@@ -151,6 +216,7 @@ describe("searcher", () => {
           ],
           subject: [{ value: "PHIL", count: 1 }],
           classType: [{ value: "Lecture", count: 1 }],
+          honors: [{ value: "true", count: 1 }],
         });
       });
     });

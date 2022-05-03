@@ -8,7 +8,7 @@
     "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.ts",
     "dev:notifs": "ENABLE_NOTIFS=true yarn dev",
     "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
-    "scrape:custom": "CUSTOM_SCRAPE=true yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
+    "scrape:custom": "CUSTOM_SCRAPE=true yarn scrape",
     "updater": "yarn babel-node-ts services/updater.ts",
     "resetIndex": "yarn babel-node-ts scripts/resetIndex.ts",
     "resetIndex:noLoss": "yarn babel-node-ts scripts/resetIndexWithoutLoss.ts",
@@ -104,6 +104,7 @@
     "lodash": "^4.17.4",
     "moment": "^2.29.2",
     "msgpack5": "^5.3.2",
+    "multi-progress-bars": "4.2.3",
     "nodemon": "^2.0.6",
     "object-hash": "^2.2.0",
     "p-map": "^4.0.0",
@@ -174,7 +175,7 @@
     "prisma": "^3.9.2",
     "ts-jest": "^27.0.0",
     "typescript": "^4.5.5",
-    "yarn-deduplicate": "^3.1.0"
+    "yarn-deduplicate": "^4.0.0"
   },
   "jest": {
     "testURL": "http://localhost/",
