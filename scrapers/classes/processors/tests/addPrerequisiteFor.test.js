@@ -3,9 +3,9 @@
  * See the license file in the root folder for details.
  */
 
-import addPreRequisiteFor from "../addPreRequisiteFor";
+import addPrerequisiteFor from "../addPrerequisiteFor";
 
-describe("addPreRequisiteFor tests", () => {
+describe("addPrerequisiteForFor tests", () => {
   const cs2500 = {
     classId: "2500",
     termId: "201829",
@@ -104,8 +104,8 @@ describe("addPreRequisiteFor tests", () => {
   };
 
   it("should load in termDump", () => {
-    addPreRequisiteFor.termDump = termDump;
-    expect(addPreRequisiteFor.termDump).toBe(termDump);
+    addPrerequisiteFor.termDump = termDump;
+    expect(addPrerequisiteFor.termDump).toBe(termDump);
   });
 
   describe("parseClass tests", () => {
@@ -115,17 +115,17 @@ describe("addPreRequisiteFor tests", () => {
   });
 
   it("should sort some optPrereqsFor", () => {
-    addPreRequisiteFor.termDump = termDump;
+    addPrerequisiteFor.termDump = termDump;
 
-    addPreRequisiteFor.sortPreReqs(fakeClass1);
+    addPrerequisiteFor.sortPrereqs(fakeClass1);
 
     expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
   });
 
   it("should sort some prereqsFor", () => {
-    addPreRequisiteFor.termDump = termDump;
+    addPrerequisiteFor.termDump = termDump;
 
-    addPreRequisiteFor.sortPreReqs(fakeClass2);
+    addPrerequisiteFor.sortPrereqs(fakeClass2);
 
     expect(fakeClass2.prereqsFor).toMatchSnapshot();
   });
