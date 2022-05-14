@@ -18,8 +18,7 @@ import {
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
 
-const URL: string =
-  macros.getEnvVariable("elasticURL") || "http://localhost:9200";
+const URL: string = process.env.elasticURL || "http://localhost:9200";
 const client = new Client({ node: URL });
 
 const BULKSIZE = 5000;
