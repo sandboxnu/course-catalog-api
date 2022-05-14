@@ -41,9 +41,12 @@ jobs:
 
       - name: Wait until the GraphQL server is ready
         run: |-
-          while docker inspect -f '{{.State.Status}}' test | grep running && ! docker logs test | grep "ready at http://localhost:4000/"; \
+          while (docker inspect -f '{{.State.Status}}' test | grep running) && ! ( docker logs test | grep "ready at http://localhost:4000/"); \
           do sleep 2; \
           done
+
+      - name: Debug
+        run: docker logs test
 
       - name: Check that the Docker container is still running
         run: docker inspect -f '{{.State.Status}}' test | grep running
