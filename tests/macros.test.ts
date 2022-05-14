@@ -5,18 +5,10 @@
 
 import macros from "../utils/macros";
 
-it("alphabet is 26", () => {
-  expect(macros.ALPHABET.length).toBe(26);
-});
-
 it("logging things work", () => {
   macros.warn();
   macros.verbose();
   macros.error("fjdaj");
-});
-
-it("can get env vars", () => {
-  expect(!!macros.getAllEnvVariables()).toBe(true);
 });
 
 it("some other stuff doesnt crash", () => {
