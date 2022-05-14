@@ -11,8 +11,8 @@ import {
 } from "../../../types/types";
 
 //this is given the output of formatRequirements, where data.type and data.values exist
-// if there is an or embedded in another or, merge them (and and's too)
-//and if there is a subvalue of only 1 len, merge that too
+//  if there is an or embedded in another or, merge them (and and's too)
+//  and if there is a subvalue of only 1 len, merge that too
 function simplifyRequirementsBase(data: Requisite): Requisite {
   if (typeof data === "string") {
     return data;
