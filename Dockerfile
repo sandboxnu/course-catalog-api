@@ -14,7 +14,7 @@ RUN yarn build
 
 FROM node:14.19.0-alpine
 WORKDIR /app
-COPY --from=build /app/dist ./dist
+COPY --from=build dist dist
 COPY infrastructure/prod .
 COPY prisma .
 COPY package.json .
