@@ -124,7 +124,7 @@ class Macros {
   private static rollbar: Rollbar =
     Macros.PROD &&
     new Rollbar({
-      accessToken: process.env.rollbarPostServerItemToken,
+      accessToken: process.env["rollbarPostServerItemToken"],
       captureUncaught: true,
       captureUnhandledRejections: true,
     });
