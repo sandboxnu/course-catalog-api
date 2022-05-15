@@ -11,21 +11,11 @@ COPY . .
 RUN yarn build
 
 
-# Production dependencies -------------------------------------------------- #
-FROM node:14.19.0-alpine as deps
-WORKDIR /app
-# Install deps
-COPY --from=build /app/dist /app/dist
-RUN cd dist
-RUN yarn install --production --frozen-lockfile
-
-
 # final container -------------------------------------------------- #
 
 FROM node:14.19.0-alpine
 WORKDIR /app
 COPY --from=build /app/dist /app/dist
-COPY --from=deps /app/dist/node_modules /app/dist/node_modules
 COPY infrastructure/prod /app
 COPY prisma .
 COPY package.json yarn.lock ./
