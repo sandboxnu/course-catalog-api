@@ -11,7 +11,7 @@ COPY . .
 RUN yarn build
 
 
-# Production dependencies
+# Production dependencies -------------------------------------------------- #
 FROM node:14.19.0-alpine as deps
 WORKDIR /app
 # Install deps

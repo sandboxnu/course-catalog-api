@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Build the Docker container
-        run: docker build -t cca-test:latest .
+        run: docker build --no-cache -t cca-test:latest .
 
       - name: Run the newly-built Docker container
         run: |-
