@@ -4,7 +4,7 @@ FROM node:14.19.0-alpine as build
 WORKDIR /app
 # Install deps
 COPY package.json yarn.lock ./
-RUN yarn install --production --frozen-lockfile
+RUN yarn install --frozen-lockfile
 
 # Copy source
 COPY . .
