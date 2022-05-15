@@ -15,9 +15,9 @@ RUN yarn build
 FROM node:14.19.0-alpine
 WORKDIR /app
 COPY --from=build /app/dist /app/dist
-COPY infrastructure/prod .
+COPY infrastructure/prod /app
 COPY prisma .
-COPY package.json .
+COPY package.json yarn.lock ./
 
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
