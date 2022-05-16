@@ -60,6 +60,28 @@ function getLogLevel(input: string): LogLevel {
   return (LogLevel as any)[input] || LogLevel.INFO;
 }
 
+type EnvKeys =
+  | "elasticURL"
+  | "dbName"
+  | "dbHost"
+  // Secrets:
+  | "dbUsername"
+  | "dbPassword"
+  | "rollbarPostServerItemToken"
+  | "fbToken"
+  | "fbVerifyToken"
+  | "fbAppSecret"
+  // Only for dev:
+  | "fbMessengerId";
+
+type EnvVars = Partial<Record<EnvKeys, string>>;
+
+// This is the JSON object saved in /etc/searchneu/config.json
+// null = hasen't been loaded yet.
+// {} = it has been loaded, but nothing was found or the file doesn't exist or the file was {}
+// {...} = the file
+let envVariables: EnvVars = null;
+
 class Macros {
   static TEST = false;
   static DEV = false;
@@ -124,10 +146,49 @@ class Macros {
   private static rollbar: Rollbar =
     Macros.PROD &&
     new Rollbar({
-      accessToken: process.env["rollbarPostServerItemToken"],
+      accessToken: Macros.getEnvVariable("rollbarPostServerItemToken"),
       captureUncaught: true,
       captureUnhandledRejections: true,
     });
+
+  static getAllEnvVariables(): EnvVars {
+    if (envVariables) {
+      return envVariables;
+    }
+
+    let configFileName = "/etc/searchneu/config.json";
+
+    // Yes, this is syncronous instead of the normal Node.js async style
+    // But keeping it sync helps simplify other parts of the code
+    // and it only takes 0.2 ms on my Mac.
+
+    let exists = fs.existsSync(configFileName);
+
+    // Also check /mnt/c/etc... in case we are running inside WSL.
+    if (!exists) {
+      configFileName = "/mnt/c/etc/searchneu/config.json";
+      exists = fs.existsSync(configFileName);
+    }
+
+    if (!exists) {
+      envVariables = {};
+    } else {
+      envVariables = JSON.parse(fs.readFileSync(configFileName, "utf8"));
+    }
+
+    envVariables = Object.assign(envVariables, process.env);
+
+    return envVariables;
+  }
+
+  // Gets the current time, just used for logging
+  static getTime(): string {
+    return moment().format("hh:mm:ss a");
+  }
+
+  static getEnvVariable(name: EnvKeys): string {
+    return this.getAllEnvVariables()[name];
+  }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
   static async logAmplitudeEvent(
@@ -352,4 +413,6 @@ Macros.log(
   "**** Change the log level using the 'LOG_LEVEL' environment variable"
 );
 
+console.log(Macros.getEnvVariable("rollbarPostServerItemToken"));
+console.log(process.env["rollbarPostServerItemToken"]);
 export default Macros;
