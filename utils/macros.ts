@@ -2,22 +2,31 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import "colors";
-import util from "util";
 import path from "path";
 import fs from "fs-extra";
-import "winston-daily-rotate-file";
 import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
+
+import moment from "moment";
+import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
+import "colors";
 import { createLogger, format, transports } from "winston";
+import "winston-daily-rotate-file";
 
 dotenv.config();
 
-// This is the same token in the frontend and the backend, and does not need to be kept private.
-const AMPLITUDE = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
+const amplitude = new Amplitude(commonMacros.amplitudeToken);
+
+// Collection of small functions that are used in many different places in the backend.
+// This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
+// Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
+// Stuff in this file can be specific to the backend and will only be ran in the backend.
+// If it needs to be ran in both the backend and the frontend, move it to the common macros file :P
+
+// TODO: improve getBaseHost by using a list of top level domains. (public on the internet)
 
 // Change the current working directory to the directory with package.json and .git folder.
 const originalCwd: string = process.cwd();
@@ -34,30 +43,17 @@ while (oldcwd !== process.cwd()) {
     // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
     // a package.json, just return to the original directory and break out of this loop.
     if (oldcwd === process.cwd()) {
-      console.warn(
+      commonMacros.warn(
         "Can't find directory with package.json, returning to",
         originalCwd
       );
       process.chdir(originalCwd);
       break;
     }
+
     continue;
   }
   break;
-}
-
-enum LogLevel {
-  CRITICAL = -1,
-  ERROR = 0,
-  WARN = 1,
-  INFO = 2,
-  HTTP = 3,
-  VERBOSE = 4,
-}
-
-function getLogLevel(input: string): LogLevel {
-  input = input ? input.toUpperCase() : "";
-  return (LogLevel as any)[input] || LogLevel.INFO;
 }
 
 type EnvKeys =
@@ -82,11 +78,37 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 // {...} = the file
 let envVariables: EnvVars = null;
 
-class Macros {
-  static TEST = false;
-  static DEV = false;
-  static PROD = false;
+enum LogLevel {
+  CRITICAL = -1,
+  ERROR = 0,
+  WARN = 1,
+  INFO = 2,
+  HTTP = 3,
+  VERBOSE = 4,
+}
 
+function getLogLevel(input: string): LogLevel {
+  input = input ? input : "";
+
+  switch (input.toUpperCase()) {
+    case "CRITICAL":
+      return LogLevel.CRITICAL;
+    case "ERROR":
+      return LogLevel.ERROR;
+    case "WARN":
+      return LogLevel.WARN;
+    case "INFO":
+      return LogLevel.INFO;
+    case "HTTP":
+      return LogLevel.HTTP;
+    case "VERBOSE":
+      return LogLevel.VERBOSE;
+    default:
+      return LogLevel.INFO;
+  }
+}
+
+class Macros extends commonMacros {
   static logLevel = getLogLevel(process.env.LOG_LEVEL);
 
   static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
@@ -142,6 +164,9 @@ class Macros {
 
   // Folder of the raw html cache for the requests.
   static REQUESTS_CACHE_DIR = "requests";
+
+  // For iterating over every letter in a couple different places in the code.
+  static ALPHABET = "maqwertyuiopsdfghjklzxcvbn";
 
   private static rollbar: Rollbar =
     Macros.PROD &&
@@ -206,7 +231,7 @@ class Macros {
       event_properties: event,
     };
 
-    return AMPLITUDE.track(data).catch((error) => {
+    return amplitude.track(data).catch((error) => {
       Macros.warn("error Logging amplitude event failed:", error);
     });
   }
@@ -294,13 +319,9 @@ class Macros {
       return;
     }
 
-    if (!Macros.TEST) {
-      const warning = [
-        "Warning:",
-        ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a)),
-      ];
-      console.warn(...warning);
-    }
+    super.warn(
+      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
+    );
 
     if (Macros.PROD) {
       this.logRollbarError(args, false);
@@ -316,19 +337,7 @@ class Macros {
   static error(...args: any): void {
     Macros.logger.error(args);
 
-    if (!Macros.TEST) {
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-      const fullArgs: string[] = args.map((a: any) =>
-        util.inspect(a, false, null, !Macros.PROD)
-      );
-
-      console.error(
-        "\n\nCheck the /logs directory for more verbose logs\n\n".blue
-          .underline,
-        ...fullArgs
-      ); // eslint-disable-line no-console
-      console.trace(); // eslint-disable-line no-console
-    }
+    super.error("Check the /logs directory for more detailed logging", ...args);
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
@@ -374,34 +383,6 @@ class Macros {
 
     console.log(...args);
   }
-
-  // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-  static isNumeric(n: string): boolean {
-    return (
-      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
-    );
-  }
-}
-
-// Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
-if (
-  process.env.PROD ||
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "prod" ||
-  (process.env.CI &&
-    process.env.NODE_ENV !== "test" &&
-    process.env.NODE_ENV !== "dev")
-) {
-  Macros.PROD = true;
-  console.log("Running in prod mode."); // eslint-disable-line no-console
-} else if (process.env.DEV || process.env.NODE_ENV === "dev") {
-  Macros.DEV = true;
-  console.log("Running in dev mode."); // eslint-disable-line no-console
-} else if (process.env.NODE_ENV === "test") {
-  Macros.TEST = true;
-} else {
-  console.log(`Unknown env! (${process.env.NODE_ENV}) Setting to dev.`); // eslint-disable-line no-console
-  Macros.DEV = true;
 }
 
 Macros.log(
@@ -413,6 +394,4 @@ Macros.log(
   "**** Change the log level using the 'LOG_LEVEL' environment variable"
 );
 
-console.log(Macros.getEnvVariable("rollbarPostServerItemToken"));
-console.log(process.env["rollbarPostServerItemToken"]);
 export default Macros;
