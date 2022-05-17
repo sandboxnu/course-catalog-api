@@ -15,6 +15,7 @@ This is the core of SearchNEU, and this `course-catalog-api`. This is how we fet
 (Copy the following code block to a [Mermaid playground](https://mermaid.live/edit#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NocmlzdG1hc10gLS0-fEdldCBtb25leXwgQihHbyBzaG9wcGluZylcbiAgICBCIC0tPiBDe0xldCBtZSB0aGlua31cbiAgICBDIC0tPnxPbmV8IERbTGFwdG9wXVxuICAgIEMgLS0-fFR3b3wgRVtpUGhvbmVdXG4gICAgQyAtLT58VGhyZWV8IEZbZmE6ZmEtY2FyIENhcl1cbiAgIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRhcmtcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0) if you can't view the diagram)
 
 High-level:
+
 ```mermaid
 flowchart TD
   A[Run scrapers] --> B[Determine which term IDs we want to scrape]
@@ -30,6 +31,7 @@ flowchart TD
 ```
 
 More in-depth
+
 ```mermaid
 flowchart TD
   A[yarn scrape] --> termIds
@@ -69,7 +71,7 @@ flowchart TD
   subgraph dumpProcessor
     DMP_K[Courses, sections, and employees are inserted into our Prisma database]
   end
-  
+
   termIds -->|Runs once, doesn't care about specific terms| employees
   termIds -->|Runs for each term in the terms list| courses
 
@@ -81,7 +83,7 @@ flowchart TD
 
 ### Custom Scraping
 
-Scraping course data for multiple terms can take quite a bit of time. Caching scrapes is fantastic for quickly initializing local databases, but for scraper-related work we might need to run real scrapes often. 
+Scraping course data for multiple terms can take quite a bit of time. Caching scrapes is fantastic for quickly initializing local databases, but for scraper-related work we might need to run real scrapes often.
 
 In order to speed up scraper-related dev work we can specify custom scraping filters so that we only fetch data for a subset of the total courses for the given terms. Filters are specified in `scrapers/filters.ts` in the following format:
 
@@ -95,6 +97,7 @@ const filters = {
 ```
 
 For example:
+
 ```js
 const filters = {
   campus: (campus) => true,
