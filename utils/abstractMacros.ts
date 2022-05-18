@@ -10,16 +10,8 @@
 // So there is no point in adding a constructor.
 class Macros {
   static TEST: boolean;
-
   static DEV: boolean;
-
   static PROD: boolean;
-
-  // Rollbar token
-  static rollbarToken = "3a76015293344e6f9c47e35c9ce4c84c";
-
-  // Google analytics token
-  static googleAnalyticsToken = "UA-85376897-3";
 }
 
 // Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
