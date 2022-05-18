@@ -15,14 +15,6 @@ class Macros {
 
   static PROD: boolean;
 
-  // XXX: This is stuff that is hardcoded for now, need to change when expanding to other schools.
-  static collegeName = "Northeastern University";
-
-  static collegeHost = "neu.edu";
-
-  // This is the same token in the frontend and the backend, and does not need to be kept private.
-  static amplitudeToken = "e0801e33a10c3b66a3c1ac8ebff53359";
-
   // Rollbar token
   static rollbarToken = "3a76015293344e6f9c47e35c9ce4c84c";
 
