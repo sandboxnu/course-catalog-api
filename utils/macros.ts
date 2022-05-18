@@ -19,7 +19,8 @@ import "winston-daily-rotate-file";
 
 dotenv.config();
 
-const amplitude = new Amplitude(commonMacros.amplitudeToken);
+// This is the same token in the frontend and the backend, and does not need to be kept private.
+const amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
 
 // Collection of small functions that are used in many different places in the backend.
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
@@ -44,7 +45,7 @@ while (oldcwd !== process.cwd()) {
     // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
     // a package.json, just return to the original directory and break out of this loop.
     if (oldcwd === process.cwd()) {
-      commonMacros.warn(
+      console.warn(
         "Can't find directory with package.json, returning to",
         originalCwd
       );
@@ -404,6 +405,13 @@ class Macros extends commonMacros {
     }
 
     console.log(...args);
+  }
+
+  // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
+  static isNumeric(n: string): boolean {
+    return (
+      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
+    );
   }
 }
 
