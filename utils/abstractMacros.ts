@@ -28,13 +28,6 @@ class Macros {
 
   // Google analytics token
   static googleAnalyticsToken = "UA-85376897-3";
-
-  // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-  static isNumeric(n: string): boolean {
-    return (
-      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
-    );
-  }
 }
 
 // Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
