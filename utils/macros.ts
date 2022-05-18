@@ -2,6 +2,7 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
+import util from "util";
 import path from "path";
 import fs from "fs-extra";
 import Rollbar, { MaybeError } from "rollbar";
@@ -319,9 +320,13 @@ class Macros extends commonMacros {
       return;
     }
 
-    super.warn(
-      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
-    );
+    if (process.env.NODE_ENV !== "test") {
+      const allArgs = ["Warning:"].concat(args);
+      const formattedArgs = allArgs.map((a) =>
+        typeof a === "string" ? a.yellow.underline : a
+      );
+      console.warn(...formattedArgs);
+    }
 
     if (Macros.PROD) {
       this.logRollbarError(args, false);
@@ -337,7 +342,19 @@ class Macros extends commonMacros {
   static error(...args: any): void {
     Macros.logger.error(args);
 
-    super.error("Check the /logs directory for more detailed logging", ...args);
+    if (!Macros.TEST) {
+      const allArgs = [
+        "Check the /logs directory for more detailed logging",
+        ...args,
+      ];
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      const fullArgs: string[] = allArgs.map((a: any) =>
+        util.inspect(a, false, null, !Macros.PROD)
+      );
+
+      console.error("Error: ", ...fullArgs); // eslint-disable-line no-console
+      console.trace(); // eslint-disable-line no-console
+    }
 
     if (Macros.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
@@ -351,6 +368,11 @@ class Macros extends commonMacros {
     }
   }
 
+  // Use this for normal logging
+  // Will log as normal, but stays silent during testing
+
+  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   static log(...args: any): void {
     Macros.logger.info(args);
 

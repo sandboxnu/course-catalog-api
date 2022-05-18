@@ -3,8 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import util from "util";
-
 // Setup environmental constants. This is used in both the frontend and the backend. The process.env is set in webpack and in package.json
 // These are setup in the webpack config
 
@@ -30,46 +28,6 @@ class Macros {
 
   // Google analytics token
   static googleAnalyticsToken = "UA-85376897-3";
-
-  // Use this for normal logging
-  // Will log as normal, but stays silent during testing
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static log(...args: any): void {
-    if (process.env.NODE_ENV === "test") {
-      return;
-    }
-
-    console.log(...args); // eslint-disable-line no-console
-  }
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static warn(...args: any): void {
-    if (process.env.NODE_ENV === "test") {
-      return;
-    }
-
-    args = ["Warning:"].concat(args);
-    console.warn(...args);
-  }
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static error(...args: any): void {
-    if (Macros.TEST) {
-      return;
-    }
-
-    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-    const fullArgs: string[] = args.map((a: any) =>
-      util.inspect(a, false, null, !Macros.PROD)
-    );
-
-    console.error("Error: ", ...fullArgs); // eslint-disable-line no-console
-    console.trace(); // eslint-disable-line no-console
-  }
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
   static isNumeric(n: string): boolean {
