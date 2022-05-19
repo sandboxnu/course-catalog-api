@@ -111,10 +111,13 @@ function getLogLevel(input: string): LogLevel {
 }
 
 class Macros extends commonMacros {
+  readonly logLevel: LogLevel;
+
   constructor() {
     super();
+
+    this.logLevel = getLogLevel(process.env.LOG_LEVEL);
   }
-  static logLevel = getLogLevel(process.env.LOG_LEVEL);
 
   static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
 
@@ -221,7 +224,7 @@ class Macros extends commonMacros {
   }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
-  static async logAmplitudeEvent(
+  async logAmplitudeEvent(
     type: string,
     event: AmplitudeEvent
   ): Promise<null | void | AmplitudeTrackResponse> {
@@ -237,7 +240,7 @@ class Macros extends commonMacros {
     };
 
     return amplitude.track(data).catch((error) => {
-      Macros.warn("error Logging amplitude event failed:", error);
+      this.warn("error Logging amplitude event failed:", error);
     });
   }
 
@@ -252,7 +255,7 @@ class Macros extends commonMacros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  static logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
+  logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
     if (!Macros.PROD) {
       return;
@@ -297,7 +300,7 @@ class Macros extends commonMacros {
 
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static critical(...args: any): void {
+  critical(...args: any): void {
     Macros.logger.error(args);
 
     if (Macros.TEST) {
@@ -307,7 +310,7 @@ class Macros extends commonMacros {
         ...args
       );
     } else {
-      Macros.error(...args);
+      this.error(...args);
       process.exit(1);
     }
   }
@@ -317,10 +320,10 @@ class Macros extends commonMacros {
 
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static warn(...args: any): void {
+  warn(...args: any): void {
     Macros.logger.warn(args);
 
-    if (LogLevel.WARN > Macros.logLevel) {
+    if (LogLevel.WARN > this.logLevel) {
       return;
     }
 
@@ -343,7 +346,7 @@ class Macros extends commonMacros {
 
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static error(...args: any): void {
+  error(...args: any): void {
     Macros.logger.error(args);
 
     if (!Macros.TEST) {
@@ -377,20 +380,20 @@ class Macros extends commonMacros {
 
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static log(...args: any): void {
+  log(...args: any): void {
     Macros.logger.info(args);
 
-    if (LogLevel.INFO > Macros.logLevel) {
+    if (LogLevel.INFO > this.logLevel) {
       return;
     }
 
     console.log(...args);
   }
 
-  static http(...args: any): void {
+  http(...args: any): void {
     Macros.logger.http(args);
 
-    if (LogLevel.HTTP > Macros.logLevel) {
+    if (LogLevel.HTTP > this.logLevel) {
       return;
     }
 
@@ -400,10 +403,10 @@ class Macros extends commonMacros {
   // Use console.warn to log stuff during testing
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static verbose(...args: any): void {
+  verbose(...args: any): void {
     Macros.logger.verbose(args);
 
-    if (LogLevel.VERBOSE > Macros.logLevel) {
+    if (LogLevel.VERBOSE > this.logLevel) {
       return;
     }
 
@@ -411,20 +414,22 @@ class Macros extends commonMacros {
   }
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
-  static isNumeric(n: string): boolean {
+  isNumeric(n: string): boolean {
     return (
       !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
     );
   }
 }
 
-Macros.log(
-  `**** Starting using log level: ${Macros.logLevel} (${
-    LogLevel[Macros.logLevel]
+const macrosInstance = new Macros();
+
+macrosInstance.log(
+  `**** Starting using log level: ${macrosInstance.logLevel} (${
+    LogLevel[macrosInstance.logLevel]
   })`
 );
-Macros.log(
+macrosInstance.log(
   "**** Change the log level using the 'LOG_LEVEL' environment variable"
 );
 
-export default Macros();
+export default macrosInstance;
