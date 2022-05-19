@@ -14,7 +14,7 @@ import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
-import { createLogger, format, transports } from "winston";
+import { createLogger, format, Logger, transports } from "winston";
 import "winston-daily-rotate-file";
 
 dotenv.config();
@@ -111,80 +111,87 @@ function getLogLevel(input: string): LogLevel {
 }
 
 class Macros extends commonMacros {
-  readonly logLevel: LogLevel;
-
-  constructor() {
-    super();
-
-    this.logLevel = getLogLevel(process.env.LOG_LEVEL);
-  }
-
-  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
-
-  static logger = createLogger({
-    level: "info",
-    format: format.combine(
-      format.timestamp({
-        format: "YYYY-MM-DD HH:mm:ss",
-      }),
-      format.errors({ stack: true }),
-      format.splat(),
-      format.json()
-    ),
-    defaultMeta: { service: "course-catalog-api" },
-    transports: [
-      new transports.DailyRotateFile({
-        filename: "%DATE%-warn.log",
-        level: "warn",
-        dirname: Macros.dirname,
-        maxSize: "10m",
-        maxFiles: "180d",
-        zippedArchive: true,
-      }),
-      new transports.DailyRotateFile({
-        filename: "%DATE%-info.log",
-        level: "info",
-        dirname: Macros.dirname,
-        maxSize: "10m",
-        maxFiles: "60d",
-        zippedArchive: true,
-      }),
-      new transports.DailyRotateFile({
-        filename: "%DATE%-verbose.log",
-        level: "verbose",
-        dirname: Macros.dirname,
-        maxSize: "20m",
-        maxFiles: "15d",
-        zippedArchive: true,
-      }),
-    ],
-  });
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
   // This will cause the data to be saved in a different folder in the public data folder.
   // The first schema change is here: https://github.com/ryanhugh/searchneu/pull/48
-  static schemaVersion = 2;
-
-  static PUBLIC_DIR = path.join("public", "data", `v${Macros.schemaVersion}`);
-
-  static DEV_DATA_DIR = path.join("dev_data", `v${Macros.schemaVersion}`);
+  readonly schemaVersion = 2;
+  readonly PUBLIC_DIR = path.join("public", "data", `v${this.schemaVersion}`);
+  readonly DEV_DATA_DIR = path.join("dev_data", `v${this.schemaVersion}`);
 
   // Folder of the raw html cache for the requests.
-  static REQUESTS_CACHE_DIR = "requests";
+  readonly REQUESTS_CACHE_DIR = "requests";
 
-  // For iterating over every letter in a couple different places in the code.
-  static ALPHABET = "maqwertyuiopsdfghjklzxcvbn";
+  readonly logLevel: LogLevel;
+  readonly dirname: string;
+  private rollbar: Rollbar;
 
-  private static rollbar: Rollbar =
-    Macros.PROD &&
-    new Rollbar({
-      accessToken: Macros.getEnvVariable("rollbarPostServerItemToken"),
-      captureUncaught: true,
-      captureUnhandledRejections: true,
+  PROD: boolean;
+  TEST: boolean;
+  DEV: boolean;
+
+  logger: Logger;
+
+  constructor() {
+    super();
+
+    this.logLevel = getLogLevel(process.env.LOG_LEVEL);
+    this.PROD = commonMacros.PROD;
+    this.TEST = commonMacros.TEST;
+    this.DEV = commonMacros.DEV;
+
+    this.rollbar =
+      this.PROD &&
+      new Rollbar({
+        accessToken: this.getEnvVariable("rollbarPostServerItemToken"),
+        captureUncaught: true,
+        captureUnhandledRejections: true,
+      });
+
+    this.dirname = "logs/" + (this.PROD ? "prod" : "dev");
+
+    this.logger = createLogger({
+      level: "info",
+      format: format.combine(
+        format.timestamp({
+          format: "YYYY-MM-DD HH:mm:ss",
+        }),
+        format.errors({ stack: true }),
+        format.splat(),
+        format.json()
+      ),
+      defaultMeta: { service: "course-catalog-api" },
+      transports: [
+        new transports.DailyRotateFile({
+          filename: "%DATE%-warn.log",
+          level: "warn",
+          dirname: this.dirname,
+          maxSize: "10m",
+          maxFiles: "180d",
+          zippedArchive: true,
+        }),
+        new transports.DailyRotateFile({
+          filename: "%DATE%-info.log",
+          level: "info",
+          dirname: this.dirname,
+          maxSize: "10m",
+          maxFiles: "60d",
+          zippedArchive: true,
+        }),
+        new transports.DailyRotateFile({
+          filename: "%DATE%-verbose.log",
+          level: "verbose",
+          dirname: this.dirname,
+          maxSize: "20m",
+          maxFiles: "15d",
+          zippedArchive: true,
+        }),
+      ],
     });
+  }
 
-  static getAllEnvVariables(): EnvVars {
+  getAllEnvVariables(): EnvVars {
     if (envVariables) {
       return envVariables;
     }
@@ -214,12 +221,7 @@ class Macros extends commonMacros {
     return envVariables;
   }
 
-  // Gets the current time, just used for logging
-  static getTime(): string {
-    return moment().format("hh:mm:ss a");
-  }
-
-  static getEnvVariable(name: EnvKeys): string {
+  getEnvVariable(name: EnvKeys): string {
     return this.getAllEnvVariables()[name];
   }
 
@@ -244,8 +246,8 @@ class Macros extends commonMacros {
     });
   }
 
-  static getRollbar(): Rollbar {
-    if (Macros.PROD && !this.rollbar) {
+  getRollbar(): Rollbar {
+    if (this.PROD && !this.rollbar) {
       console.error("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
     }
 
@@ -257,7 +259,7 @@ class Macros extends commonMacros {
   // shouldExit - exit after logging.
   logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
-    if (!Macros.PROD) {
+    if (!this.PROD) {
       return;
     }
 
@@ -279,7 +281,7 @@ class Macros extends commonMacros {
     if (possibleError) {
       // The arguments can come in any order. Any errors should be logged separately.
       // https://docs.rollbar.com/docs/nodejs#section-rollbar-log-
-      Macros.getRollbar().error(possibleError, args, () => {
+      this.getRollbar().error(possibleError, args, () => {
         if (shouldExit) {
           // And kill the process to recover.
           // forver.js will restart it.
@@ -287,7 +289,7 @@ class Macros extends commonMacros {
         }
       });
     } else {
-      Macros.getRollbar().error(args, () => {
+      this.getRollbar().error(args, () => {
         if (shouldExit) {
           process.exit(1);
         }
@@ -301,7 +303,7 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   critical(...args: any): void {
-    Macros.logger.error(args);
+    this.logger.error(args);
 
     if (Macros.TEST) {
       console.error("macros.critical called");
@@ -321,7 +323,7 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   warn(...args: any): void {
-    Macros.logger.warn(args);
+    this.logger.warn(args);
 
     if (LogLevel.WARN > this.logLevel) {
       return;
@@ -347,7 +349,7 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   error(...args: any): void {
-    Macros.logger.error(args);
+    this.logger.error(args);
 
     if (!Macros.TEST) {
       const allArgs = [
@@ -381,7 +383,7 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   log(...args: any): void {
-    Macros.logger.info(args);
+    this.logger.info(args);
 
     if (LogLevel.INFO > this.logLevel) {
       return;
@@ -391,7 +393,7 @@ class Macros extends commonMacros {
   }
 
   http(...args: any): void {
-    Macros.logger.http(args);
+    this.logger.http(args);
 
     if (LogLevel.HTTP > this.logLevel) {
       return;
@@ -404,7 +406,7 @@ class Macros extends commonMacros {
   // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   verbose(...args: any): void {
-    Macros.logger.verbose(args);
+    this.logger.verbose(args);
 
     if (LogLevel.VERBOSE > this.logLevel) {
       return;
