@@ -111,6 +111,9 @@ function getLogLevel(input: string): LogLevel {
 }
 
 class Macros extends commonMacros {
+  constructor() {
+    super();
+  }
   static logLevel = getLogLevel(process.env.LOG_LEVEL);
 
   static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
@@ -424,4 +427,4 @@ Macros.log(
   "**** Change the log level using the 'LOG_LEVEL' environment variable"
 );
 
-export default Macros;
+export default Macros();
