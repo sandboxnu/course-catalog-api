@@ -8,9 +8,6 @@ import fs from "fs-extra";
 import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
-
-import moment from "moment";
-import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
@@ -80,6 +77,12 @@ type EnvVars = Partial<Record<EnvKeys, string>>;
 // {...} = the file
 let envVariables: EnvVars = null;
 
+enum EnvLevel {
+  PROD,
+  TEST,
+  DEV,
+}
+
 enum LogLevel {
   CRITICAL = -1,
   ERROR = 0,
@@ -110,7 +113,29 @@ function getLogLevel(input: string): LogLevel {
   }
 }
 
-class Macros extends commonMacros {
+let environmentLevel;
+// Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
+if (
+  process.env.PROD ||
+  process.env.NODE_ENV === "production" ||
+  process.env.NODE_ENV === "prod" ||
+  (process.env.CI &&
+    process.env.NODE_ENV !== "test" &&
+    process.env.NODE_ENV !== "dev")
+) {
+  environmentLevel = EnvLevel.PROD;
+  console.log("Running in prod mode."); // eslint-disable-line no-console
+} else if (process.env.DEV || process.env.NODE_ENV === "dev") {
+  environmentLevel = EnvLevel.DEV;
+  console.log("Running in dev mode."); // eslint-disable-line no-console
+} else if (process.env.NODE_ENV === "test") {
+  environmentLevel = EnvLevel.TEST;
+} else {
+  console.log(`Unknown env! (${process.env.NODE_ENV}) Setting to dev.`); // eslint-disable-line no-console
+  environmentLevel = EnvLevel.DEV;
+}
+
+class Macros {
   // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
@@ -134,12 +159,11 @@ class Macros extends commonMacros {
   logger: Logger;
 
   constructor() {
-    super();
-
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
-    this.PROD = commonMacros.PROD;
-    this.TEST = commonMacros.TEST;
-    this.DEV = commonMacros.DEV;
+
+    this.PROD = environmentLevel === EnvLevel.PROD;
+    this.TEST = environmentLevel === EnvLevel.TEST;
+    this.DEV = environmentLevel === EnvLevel.DEV;
 
     this.rollbar =
       this.PROD &&
@@ -230,7 +254,7 @@ class Macros extends commonMacros {
     type: string,
     event: AmplitudeEvent
   ): Promise<null | void | AmplitudeTrackResponse> {
-    if (!Macros.PROD) {
+    if (!this.PROD) {
       return null;
     }
 
@@ -305,7 +329,7 @@ class Macros extends commonMacros {
   critical(...args: any): void {
     this.logger.error(args);
 
-    if (Macros.TEST) {
+    if (this.TEST) {
       console.error("macros.critical called");
       console.error(
         "Consider using the VERBOSE env flag for more info",
@@ -337,7 +361,7 @@ class Macros extends commonMacros {
       console.warn(...formattedArgs);
     }
 
-    if (Macros.PROD) {
+    if (this.PROD) {
       this.logRollbarError(args, false);
     }
   }
@@ -351,21 +375,21 @@ class Macros extends commonMacros {
   error(...args: any): void {
     this.logger.error(args);
 
-    if (!Macros.TEST) {
+    if (!this.TEST) {
       const allArgs = [
         "Check the /logs directory for more detailed logging",
         ...args,
       ];
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const fullArgs: string[] = allArgs.map((a: any) =>
-        util.inspect(a, false, null, !Macros.PROD)
+        util.inspect(a, false, null, !this.PROD)
       );
 
       console.error("Error: ", ...fullArgs); // eslint-disable-line no-console
       console.trace(); // eslint-disable-line no-console
     }
 
-    if (Macros.PROD) {
+    if (this.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
       if (process.env.CI) {
         process.exit(1);
