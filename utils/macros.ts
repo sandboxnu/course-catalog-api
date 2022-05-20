@@ -55,27 +55,11 @@ while (oldcwd !== process.cwd()) {
   break;
 }
 
-type EnvKeys =
-  | "elasticURL"
-  | "dbName"
-  | "dbHost"
-  // Secrets:
-  | "dbUsername"
-  | "dbPassword"
-  | "rollbarPostServerItemToken"
-  | "fbToken"
-  | "fbVerifyToken"
-  | "fbAppSecret"
-  // Only for dev:
-  | "fbMessengerId";
-
-type EnvVars = Partial<Record<EnvKeys, string>>;
-
 // This is the JSON object saved in /etc/searchneu/config.json
 // null = hasen't been loaded yet.
 // {} = it has been loaded, but nothing was found or the file doesn't exist or the file was {}
 // {...} = the file
-let envVariables: EnvVars = null;
+let envVariables = null;
 
 enum EnvLevel {
   PROD,
@@ -215,7 +199,7 @@ class Macros {
     });
   }
 
-  getAllEnvVariables(): EnvVars {
+  getAllEnvVariables(): typeof process.env {
     if (envVariables) {
       return envVariables;
     }
@@ -245,7 +229,7 @@ class Macros {
     return envVariables;
   }
 
-  getEnvVariable(name: EnvKeys): string {
+  getEnvVariable(name: string): string {
     return this.getAllEnvVariables()[name];
   }
 
