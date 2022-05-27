@@ -5,8 +5,6 @@
 
 import macros, { LogLevel } from "../../../utils/macros";
 
-process.env.CI = null;
-
 it("logAmplitudeEvent should not crash", () => {
   macros.logAmplitudeEvent("event_from_testing", {
     hostname: "3",
@@ -181,12 +179,14 @@ describe("console statements", () => {
 
     afterEach(() => {
       process.env = env;
+      process.env.CI = null;
     });
 
     it("basic testing", () => {
       macros.TEST = false;
       console.error = jest.fn();
       macros.logLevel = LogLevel.CRITICAL;
+      process.env.CI = null;
       macros.error("test");
       expect(console.error).toHaveBeenCalledWith(
         "Check the /logs directory for more detail: ",
@@ -209,6 +209,7 @@ describe("console statements", () => {
     });
 
     it("doesn't log in test", () => {
+      process.env.CI = null;
       macros.TEST = true;
       console.error = jest.fn();
       macros.error("test");
