@@ -323,7 +323,7 @@ class Macros {
       return;
     }
 
-    if (!this.DEV) {
+    if (!this.TEST) {
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const formattedArgs = args.map((a: any) =>
         typeof a === "string" ? a.yellow.underline : a

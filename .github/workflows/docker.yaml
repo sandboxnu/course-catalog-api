@@ -45,6 +45,9 @@ jobs:
           do sleep 2; \
           done
 
+      - name: Docker logs
+        run: docker logs test
+
       - name: Check that the Docker container is still running
         run: docker inspect -f '{{.State.Status}}' test | grep running
 
