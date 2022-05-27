@@ -4,5 +4,5 @@ module.exports = {
   rootDir: "./",
   moduleFileExtensions: ["js", "json", "node", "ts"],
   testMatch: ["**/*.(spec|test).seq.[jt]s?(x)"],
-  testEnvironment: "<rootDir>/db_test_env.ts",
+  testEnvironment: "<rootDir>/dbTestEnv.ts",
 };
