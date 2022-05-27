@@ -16,43 +16,20 @@ import "winston-daily-rotate-file";
 
 dotenv.config();
 
-// This is the same token in the frontend and the backend, and does not need to be kept private.
-const amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
-
 // Collection of small functions that are used in many different places in the backend.
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
 // Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
-// Stuff in this file can be specific to the backend and will only be ran in the backend.
-// If it needs to be ran in both the backend and the frontend, move it to the common macros file :P
 
-// TODO: improve getBaseHost by using a list of top level domains. (public on the internet)
+// We should be in the directory with package.json and .git folder.
+const main_dir = path.join(__dirname, "..");
+process.chdir(main_dir);
 
-// Change the current working directory to the directory with package.json and .git folder.
-const originalCwd: string = process.cwd();
-let oldcwd: null | string = null;
-
-while (oldcwd !== process.cwd()) {
-  try {
-    fs.statSync("package.json");
-  } catch (e) {
-    oldcwd = process.cwd();
-    //cd .. until in the same dir as package.json, the root of the project
-    process.chdir("..");
-
-    // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
-    // a package.json, just return to the original directory and break out of this loop.
-    if (oldcwd === process.cwd()) {
-      console.warn(
-        "Can't find directory with package.json, returning to",
-        originalCwd
-      );
-      process.chdir(originalCwd);
-      break;
-    }
-
-    continue;
-  }
-  break;
+try {
+  fs.statSync("package.json") && fs.statSync(".git");
+} catch (_e) {
+  throw new Error(
+    "The macros file seems to have moved relative to the base directory; please update the path."
+  );
 }
 
 // This is the JSON object saved in /etc/searchneu/config.json
@@ -78,52 +55,38 @@ enum LogLevel {
 
 function getLogLevel(input: string): LogLevel {
   input = input ? input : "";
-
-  switch (input.toUpperCase()) {
-    case "CRITICAL":
-      return LogLevel.CRITICAL;
-    case "ERROR":
-      return LogLevel.ERROR;
-    case "WARN":
-      return LogLevel.WARN;
-    case "INFO":
-      return LogLevel.INFO;
-    case "HTTP":
-      return LogLevel.HTTP;
-    case "VERBOSE":
-      return LogLevel.VERBOSE;
-    default:
-      return LogLevel.INFO;
-  }
+  return LogLevel[input as keyof typeof LogLevel] || LogLevel.INFO;
 }
 
-let environmentLevel;
+let environmentLevel = EnvLevel.DEV;
 // Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
-if (
+const nodeEnv = process.env.NODE_ENV;
+
+const isProdCI = process.env.CI && nodeEnv !== "test" && nodeEnv !== "dev";
+const isProd =
   process.env.PROD ||
-  process.env.NODE_ENV === "production" ||
-  process.env.NODE_ENV === "prod" ||
-  (process.env.CI &&
-    process.env.NODE_ENV !== "test" &&
-    process.env.NODE_ENV !== "dev")
-) {
+  nodeEnv === "production" ||
+  nodeEnv === "prod" ||
+  isProdCI;
+const isDev = process.env.DEV || nodeEnv === "dev";
+
+if (isProd) {
   environmentLevel = EnvLevel.PROD;
-  console.log("Running in prod mode."); // eslint-disable-line no-console
-} else if (process.env.DEV || process.env.NODE_ENV === "dev") {
+} else if (isDev) {
   environmentLevel = EnvLevel.DEV;
-  console.log("Running in dev mode."); // eslint-disable-line no-console
-} else if (process.env.NODE_ENV === "test") {
+} else if (nodeEnv === "test") {
   environmentLevel = EnvLevel.TEST;
 } else {
-  console.log(`Unknown env! (${process.env.NODE_ENV}) Setting to dev.`); // eslint-disable-line no-console
+  console.log(`Unknown env! (${nodeEnv}) Setting to dev.`); // eslint-disable-line no-console
   environmentLevel = EnvLevel.DEV;
 }
 
+console.log(`Running in ${EnvLevel[environmentLevel]}`); // eslint-disable-line no-console
+
 class Macros {
-  // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
+  // Version of the schema for the data. Any changes in this schema will affect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
-  // This will cause the data to be saved in a different folder in the public data folder.
   // The first schema change is here: https://github.com/ryanhugh/searchneu/pull/48
   readonly schemaVersion = 2;
   readonly PUBLIC_DIR = path.join("public", "data", `v${this.schemaVersion}`);
@@ -134,13 +97,13 @@ class Macros {
 
   readonly logLevel: LogLevel;
   readonly dirname: string;
+  private amplitude: Amplitude;
   private rollbar: Rollbar;
+  private logger: Logger;
 
   PROD: boolean;
   TEST: boolean;
   DEV: boolean;
-
-  logger: Logger;
 
   constructor() {
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
@@ -148,6 +111,9 @@ class Macros {
     this.PROD = environmentLevel === EnvLevel.PROD;
     this.TEST = environmentLevel === EnvLevel.TEST;
     this.DEV = environmentLevel === EnvLevel.DEV;
+
+    // This is the same token in the frontend and the backend, and does not need to be kept private.
+    this.amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
 
     this.rollbar =
       this.PROD &&
@@ -157,7 +123,7 @@ class Macros {
         captureUnhandledRejections: true,
       });
 
-    this.dirname = "logs/" + (this.PROD ? "prod" : "dev");
+    this.dirname = path.join("logs", this.PROD ? "prod" : "dev");
 
     this.logger = createLogger({
       level: "info",
@@ -249,7 +215,7 @@ class Macros {
       event_properties: event,
     };
 
-    return amplitude.track(data).catch((error) => {
+    return this.amplitude.track(data).catch((error) => {
       this.warn("error Logging amplitude event failed:", error);
     });
   }
@@ -307,28 +273,48 @@ class Macros {
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   critical(...args: any): void {
     this.logger.error(args);
 
     if (this.TEST) {
       console.error("macros.critical called");
-      console.error(
-        "Consider using the VERBOSE env flag for more info",
-        ...args
-      );
+      this.error(...args);
     } else {
       this.error(...args);
       process.exit(1);
     }
   }
 
+  // Use this for stuff that should never happen, but does not mean the program cannot continue.
+  // This will continue running in dev, but will exit on CI
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  error(...args: any): void {
+    this.logger.error(args);
+
+    if (!this.TEST) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      const fullArgs: string[] = args.map((a: any) =>
+        util.inspect(a, false, null, !this.PROD)
+      );
+
+      console.error("Check the /logs directory for more detail: ", ...fullArgs); // eslint-disable-line no-console
+      console.trace(); // eslint-disable-line no-console
+    }
+
+    if (this.PROD) {
+      // If running on Travis, just exit 1 and travis will send off an email.
+      if (process.env.CI) {
+        process.exit(1);
+      } else {
+        // If running on AWS, tell rollbar about the error so rollbar sends off an email.
+        this.logRollbarError(args, false);
+      }
+    }
+  }
+
   // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
   // Will log something to rollbar and rollbar will send off an email
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   warn(...args: any): void {
     this.logger.warn(args);
@@ -337,12 +323,12 @@ class Macros {
       return;
     }
 
-    if (process.env.NODE_ENV !== "test") {
-      const allArgs = ["Warning:"].concat(args);
-      const formattedArgs = allArgs.map((a) =>
+    if (!this.DEV) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      const formattedArgs = args.map((a: any) =>
         typeof a === "string" ? a.yellow.underline : a
       );
-      console.warn(...formattedArgs);
+      console.warn("Warning:", ...formattedArgs);
     }
 
     if (this.PROD) {
@@ -350,45 +336,6 @@ class Macros {
     }
   }
 
-  // Use this for stuff that should never happen, but does not mean the program cannot continue.
-  // This will continue running in dev, but will exit on CI
-  // Will log stack trace and cause CI to fail,  so CI will send an email
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  error(...args: any): void {
-    this.logger.error(args);
-
-    if (!this.TEST) {
-      const allArgs = [
-        "Check the /logs directory for more detailed logging",
-        ...args,
-      ];
-      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-      const fullArgs: string[] = allArgs.map((a: any) =>
-        util.inspect(a, false, null, !this.PROD)
-      );
-
-      console.error("Error: ", ...fullArgs); // eslint-disable-line no-console
-      console.trace(); // eslint-disable-line no-console
-    }
-
-    if (this.PROD) {
-      // If running on Travis, just exit 1 and travis will send off an email.
-      if (process.env.CI) {
-        process.exit(1);
-
-        // If running on AWS, tell rollbar about the error so rollbar sends off an email.
-      } else {
-        this.logRollbarError(args, false);
-      }
-    }
-  }
-
-  // Use this for normal logging
-  // Will log as normal, but stays silent during testing
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   log(...args: any): void {
     this.logger.info(args);
@@ -400,6 +347,7 @@ class Macros {
     console.log(...args);
   }
 
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   http(...args: any): void {
     this.logger.http(args);
 
@@ -410,8 +358,6 @@ class Macros {
     console.log(...args);
   }
 
-  // Use console.warn to log stuff during testing
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   verbose(...args: any): void {
     this.logger.verbose(args);
