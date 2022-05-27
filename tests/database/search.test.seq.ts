@@ -173,6 +173,7 @@ describe("searcher", () => {
           seatsRemaining: 0,
           classType: "Lecture",
           campus: "Seattle, WA",
+          honors: false,
         },
       });
       await prisma.section.create({
@@ -183,6 +184,7 @@ describe("searcher", () => {
           seatsRemaining: 0,
           classType: "Lecture",
           campus: "Boston",
+          honors: true,
         },
       });
     });
@@ -197,6 +199,7 @@ describe("searcher", () => {
           nupath: [],
           subject: [{ value: "CS", count: 1 }],
           classType: [{ value: "Lecture", count: 1 }],
+          honors: [{ value: "false", count: 1 }],
         });
       });
       it("Gets aggregation for single result with nupath", async () => {
@@ -213,6 +216,7 @@ describe("searcher", () => {
           ],
           subject: [{ value: "PHIL", count: 1 }],
           classType: [{ value: "Lecture", count: 1 }],
+          honors: [{ value: "true", count: 1 }],
         });
       });
     });

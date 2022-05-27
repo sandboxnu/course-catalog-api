@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`addPreRequisiteFor tests should sort some optPrereqsFor 1`] = `
+exports[`addPrerequisiteForFor tests should sort some optPrereqsFor 1`] = `
 Object {
   "values": Array [
     Object {
@@ -27,7 +27,7 @@ Object {
 }
 `;
 
-exports[`addPreRequisiteFor tests should sort some prereqsFor 1`] = `
+exports[`addPrerequisiteForFor tests should sort some prereqsFor 1`] = `
 Object {
   "values": Array [
     Object {

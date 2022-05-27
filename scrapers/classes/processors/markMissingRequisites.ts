@@ -4,36 +4,23 @@
  */
 
 import macros from "../../../utils/macros";
-import { BaseProcessor, instance as baseProcessor } from "./baseProcessor";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
-import {
-  CourseReq,
-  isBooleanReq,
-  isCourseReq,
-  Requisite,
-} from "../../../types/types";
+import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
 
-export class MarkMissingPrereqs extends BaseProcessor {
-  updatePrereqs(
-    prereqs: Requisite,
-    host: string,
-    termId: string,
-    keyToRows
-  ): Requisite {
+export class MarkMissingRequisites {
+  private classMap: Record<string, ParsedCourseSR> = {};
+
+  updatePrereqs(prereqs: Requisite, host: string, termId: string): Requisite {
     if (!isBooleanReq(prereqs)) {
       return prereqs;
     }
 
-    for (let i = prereqs.values.length - 1; i >= 0; i--) {
-      const prereqEntry = prereqs.values[i];
-
-      // prereqEntry could be Object{subject:classId:} or string i think
-
+    for (const prereqEntry of prereqs.values) {
       if (isCourseReq(prereqEntry)) {
         const hash = keys.getClassHash({
           host: host,
@@ -42,11 +29,11 @@ export class MarkMissingPrereqs extends BaseProcessor {
           classId: prereqEntry.classId,
         });
 
-        if (!keyToRows[hash]) {
-          (prereqs.values[i] as CourseReq).missing = true;
+        if (!this.classMap[hash]) {
+          prereqEntry.missing = true;
         }
       } else if (isBooleanReq(prereqEntry)) {
-        this.updatePrereqs(prereqEntry, host, termId, keyToRows);
+        this.updatePrereqs(prereqEntry, host, termId);
       } else if (typeof prereqEntry !== "string") {
         macros.error("wtf is ", prereqEntry, prereqs);
       }
@@ -54,12 +41,12 @@ export class MarkMissingPrereqs extends BaseProcessor {
     return prereqs;
   }
 
-  // base query is the key shared by all classes that need to be updated
-  // if an entire college needs to be updated, it could be just {host:'neu.edu'}
-  // at minimum it will be a host
-  // or if just one class {host, termId, subject, classId}
   go(termDump: ParsedTermSR): ParsedCourseSR[] {
-    const keyToRows = baseProcessor.getClassHash(termDump);
+    // Create a course mapping
+    for (const aClass of termDump.classes) {
+      const key = keys.getClassHash(aClass);
+      this.classMap[key] = aClass;
+    }
 
     const updatedClasses: ParsedCourseSR[] = [];
 
@@ -69,8 +56,7 @@ export class MarkMissingPrereqs extends BaseProcessor {
         const prereqs = this.updatePrereqs(
           aClass.prereqs,
           aClass.host,
-          aClass.termId,
-          keyToRows
+          aClass.termId
         );
 
         // And simplify tree again
@@ -81,16 +67,12 @@ export class MarkMissingPrereqs extends BaseProcessor {
         const coreqs = this.updatePrereqs(
           aClass.coreqs,
           aClass.host,
-          aClass.termId,
-          keyToRows
+          aClass.termId
         );
-        aClass.coreqs = simplifyRequirements(coreqs);
 
-        // Remove honors coreqs from classes that are not honors
-        // This logic is currently in the frontend, but should be moved to the backend.
-        // and remove non honors coreqs if there is a hon lab with the same classId
-        // this isnt going to be 100% reliable across colleges, idk how to make it better, but want to error on the side of showing too many coreqs
+        aClass.coreqs = simplifyRequirements(coreqs);
       }
+
       if (aClass.coreqs || aClass.prereqs) {
         updatedClasses.push(aClass);
       }
@@ -99,12 +81,4 @@ export class MarkMissingPrereqs extends BaseProcessor {
   }
 }
 
-export const instance = new MarkMissingPrereqs();
-
-if (require.main === module) {
-  instance.go({
-    classes: [],
-    sections: [],
-    subjects: {},
-  });
-}
+export default new MarkMissingRequisites();
