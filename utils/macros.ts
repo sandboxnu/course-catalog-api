@@ -20,12 +20,12 @@ dotenv.config();
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
 // Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
 
-// We should be in the directory with package.json and .git folder.
+// We should be in the directory with package.json
 const main_dir = path.join(__dirname, "..");
 process.chdir(main_dir);
 
 try {
-  fs.statSync("package.json") && fs.statSync(".git");
+  fs.statSync("package.json");
 } catch (_e) {
   throw new Error(
     "The macros file seems to have moved relative to the base directory; please update the path."
