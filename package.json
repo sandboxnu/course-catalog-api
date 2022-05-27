@@ -143,6 +143,7 @@
     "@types/cookie": "^0.4.1",
     "@types/domutils": "^1.7.4",
     "@types/fs-extra": "^9.0.13",
+    "@types/he": "^1.1.2",
     "@types/htmlparser2": "^3.10.3",
     "@types/jest": "^27.0.0",
     "@types/jsonwebtoken": "^8.5.6",

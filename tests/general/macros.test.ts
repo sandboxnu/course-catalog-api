@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import macros from "../utils/macros";
+import macros from "../../utils/macros";
 
 it("logging things work", () => {
   macros.warn();
