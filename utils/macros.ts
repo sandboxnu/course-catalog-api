@@ -44,7 +44,7 @@ enum EnvLevel {
   DEV,
 }
 
-enum LogLevel {
+export enum LogLevel {
   CRITICAL = -1,
   ERROR = 0,
   WARN = 1,
@@ -95,8 +95,8 @@ class Macros {
   // Folder of the raw html cache for the requests.
   readonly REQUESTS_CACHE_DIR = "requests";
 
-  readonly logLevel: LogLevel;
   readonly dirname: string;
+  logLevel: LogLevel;
   private amplitude: Amplitude;
   private rollbar: Rollbar;
   private logger: Logger;
@@ -371,9 +371,7 @@ class Macros {
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
   isNumeric(n: string): boolean {
-    return (
-      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
-    );
+    return !isNaN(parseFloat(n)) && isFinite(parseInt(n));
   }
 }
 
