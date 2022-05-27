@@ -28,7 +28,6 @@
     "-testing-": "--------testing--------",
     "test": "npx jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s'",
     "dbtest": "jest -i --projects tests/database --verbose",
-    "prodtest": "PROD=true jest reg.[jt]s",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
     "-building-": "--------building--------",
     "build_backend": "rm -rf dist; mkdir -p dist; babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --include-dotfiles; rm -rf dist/.git",
