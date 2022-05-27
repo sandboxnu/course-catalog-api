@@ -1,13 +1,8 @@
 module.exports = {
   name: "dbtest",
   displayName: "Database Tests",
-  rootDir: "../",
+  rootDir: "./",
   moduleFileExtensions: ["js", "json", "node", "ts"],
   testMatch: ["**/*.(spec|test).seq.[jt]s?(x)"],
-  testPathIgnorePatterns: [
-    "<rootDir>/tests/jest.config.js",
-    "<rootDir>/node_modules",
-    "<rootDir>/dist/",
-  ],
-  testEnvironment: "<rootDir>/tests/database/db_test_env.ts",
+  testEnvironment: "<rootDir>/db_test_env.ts",
 };
