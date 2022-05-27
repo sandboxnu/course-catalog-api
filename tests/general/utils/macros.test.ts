@@ -5,6 +5,8 @@
 
 import macros, { LogLevel } from "../../../utils/macros";
 
+process.env.CI = null;
+
 it("logAmplitudeEvent should not crash", () => {
   macros.logAmplitudeEvent("event_from_testing", {
     hostname: "3",
