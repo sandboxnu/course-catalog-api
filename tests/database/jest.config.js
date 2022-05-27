@@ -9,5 +9,5 @@ module.exports = {
     "<rootDir>/node_modules",
     "<rootDir>/dist/",
   ],
-  testEnvironment: "<rootDir>/tests/db_test_env.ts",
+  testEnvironment: "<rootDir>/tests/database/db_test_env.ts",
 };
