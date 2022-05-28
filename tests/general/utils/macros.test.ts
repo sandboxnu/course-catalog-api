@@ -3,11 +3,140 @@
  * See the license file in the root folder for details.
  */
 
-import macros, { LogLevel } from "../../../utils/macros";
+import macros, {
+  LogLevel,
+  getLogLevel,
+  EnvLevel,
+  getEnvLevel,
+} from "../../../utils/macros";
+
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
 it("logAmplitudeEvent should not crash", () => {
   macros.logAmplitudeEvent("event_from_testing", {
     hostname: "3",
+  });
+});
+
+describe("getLogLevel", () => {
+  it("using existing keys", () => {
+    expect(getLogLevel("verbose")).toBe(LogLevel.VERBOSE);
+    expect(getLogLevel("verbose ")).toBe(LogLevel.VERBOSE);
+    expect(getLogLevel(" VERBOSE")).toBe(LogLevel.VERBOSE);
+  });
+
+  it("default value", () => {
+    expect(getLogLevel(null)).toBe(LogLevel.INFO);
+    expect(getLogLevel("SdfsdfsdfSD")).toBe(LogLevel.INFO);
+    expect(getLogLevel(Number.MAX_SAFE_INTEGER.toString())).toBe(LogLevel.INFO);
+  });
+});
+
+describe("getEngLevel", () => {
+  const env = process.env;
+
+  beforeEach(() => {
+    jest.resetModules();
+    process.env = {
+      ...env,
+      PROD: null,
+      NODE_ENV: null,
+      CI: null,
+      DEV: null,
+      TEST: null,
+    };
+  });
+
+  afterEach(() => {
+    process.env = env;
+  });
+
+  it("production CI", () => {
+    process.env.CI = "true";
+    process.env.NODE_ENV = "not test and not dev";
+    expect(getEnvLevel()).toBe(EnvLevel.PROD);
+    process.env.NODE_ENV = "test";
+    expect(getEnvLevel()).not.toBe(EnvLevel.PROD);
+    process.env.NODE_ENV = "dev";
+    expect(getEnvLevel()).not.toBe(EnvLevel.PROD);
+  });
+
+  it("is a production env", () => {
+    process.env.CI = null;
+    process.env.TEST = "true";
+    process.env.PROD = "true";
+    expect(getEnvLevel()).toBe(EnvLevel.PROD);
+    process.env.PROD = null;
+    expect(getEnvLevel()).not.toBe(EnvLevel.PROD);
+    process.env.NODE_ENV = "prod";
+    expect(getEnvLevel()).toBe(EnvLevel.PROD);
+  });
+
+  it("is a dev env", () => {
+    process.env.DEV = "true";
+    expect(getEnvLevel()).toBe(EnvLevel.DEV);
+    process.env.DEV = null;
+    process.env.TEST = "true";
+    expect(getEnvLevel()).not.toBe(EnvLevel.DEV);
+    process.env.NODE_ENV = "dev";
+    expect(getEnvLevel()).toBe(EnvLevel.DEV);
+  });
+
+  it("is a test env", () => {
+    process.env.TEST = "true";
+    expect(getEnvLevel()).toBe(EnvLevel.TEST);
+  });
+
+  it("defaults to a dev env", () => {
+    expect(getEnvLevel()).toBe(EnvLevel.DEV);
+  });
+});
+
+it("env variables don't re-fetch if already fetched once", () => {
+  const envKey = "fake_key";
+  macros.getAllEnvVariables();
+  process.env[envKey] = "here";
+  expect(macros.getAllEnvVariables()[envKey]).toBeUndefined();
+});
+
+describe("logAmplitudeEvent", () => {
+  it("not prod", async () => {
+    macros.PROD = false;
+    expect(await macros.logAmplitudeEvent("", { hostname: "" })).toBeNull();
+  });
+
+  it("tracking call", async () => {
+    macros.PROD = true;
+    const prevTrackFn = macros["amplitude"].track;
+    macros["amplitude"].track = jest.fn().mockImplementationOnce(() => {
+      return {
+        catch: () => {
+          // do nothing @typescript-eslint/no-empty-function
+        },
+      };
+    });
+    const prevWarn = macros.warn;
+    macros.warn = jest.fn().mockImplementation(() => {
+      // do nothing @typescript-eslint/no-empty-function
+    });
+    Date.now = jest.fn(() => 1);
+
+    await macros.logAmplitudeEvent("type", { hostname: "host" });
+    expect(macros["amplitude"].track).toHaveBeenCalledWith({
+      event_type: "type",
+      device_id: "Backend type",
+      session_id: Date.now(),
+      event_properties: {
+        hostname: "host",
+      },
+    });
+
+    macros["amplitude"].track = prevTrackFn;
+    macros.warn = prevWarn;
+    macros.PROD = false;
+    jest.resetAllMocks();
   });
 });
 
