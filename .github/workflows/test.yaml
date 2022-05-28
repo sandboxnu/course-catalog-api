@@ -37,19 +37,18 @@ jobs:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
       - run: yarn test --coverage
-      - name: Coveralls Parallel
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: General tests
-          parallel: true
       - run: yarn dbtest --coverage
-      - name: Coveralls Parallel
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: Database tests
-          parallel: true
+          path-to-lcov: "./tests/database/coverage/lcov.info"
 
   end_to_end:
     name: End-to-end tests
@@ -117,12 +116,11 @@ jobs:
 
       - run: yarn jest -i --projects tests/end_to_end --verbose --coverage
 
-      - name: Coveralls Parallel
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: End to end tests
-          parallel: true
           path-to-lcov: "./tests/end_to_end/coverage/lcov.info"
 
       #### Some useful CLI queries to help troubleshoot
