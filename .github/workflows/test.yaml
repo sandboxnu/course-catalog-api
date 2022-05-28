@@ -42,6 +42,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: General tests
+          parallel: true
       - run: yarn dbtest --coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -49,6 +50,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: Database tests
           path-to-lcov: "./tests/database/coverage/lcov.info"
+          parallel: true
 
   end_to_end:
     name: End-to-end tests
@@ -122,11 +124,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: End to end tests
           path-to-lcov: "./tests/end_to_end/coverage/lcov.info"
+          parallel: true
 
       #### Some useful CLI queries to help troubleshoot
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'
       # - run: 'curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: \"202250\", query: \"fundies\") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
 
+<<<<<<< HEAD
   coverage:
     needs: [end_to_end, tests]
     name: Sends Coveralls coverage
@@ -139,3 +143,28 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
+||||||| merged common ancestors
+  # coverage:
+  #   needs: [end_to_end, tests]
+  #   name: Send coverage
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Coveralls Finished
+  #       uses: coverallsapp/github-action@master
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         parallel-finished: true
+  #         verbose: true
+=======
+  coverage:
+    needs: [end_to_end, tests]
+    name: Send coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          parallel-finished: true
+          verbose: true
+>>>>>>> Re-add parallel tests
