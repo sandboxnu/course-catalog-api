@@ -1,7 +1,7 @@
 import prisma from "../../services/prisma";
 import notifs from "../../services/notificationsManager";
 
-async function insertCourses(courseIds: string[]) {
+async function insertCourses(courseIds: string[]): Promise<void> {
   for (const course of courseIds) {
     await prisma.course.create({
       data: {
@@ -11,7 +11,7 @@ async function insertCourses(courseIds: string[]) {
   }
 }
 
-async function insertSections(sectionIds: string[]) {
+async function insertSections(sectionIds: string[]): Promise<void> {
   for (const section of sectionIds) {
     await prisma.section.create({
       data: {
