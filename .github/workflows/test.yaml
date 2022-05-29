@@ -112,7 +112,7 @@ jobs:
 
       - run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater
 
-      - run: yarn dev > _dev_api.log
+      - run: yarn dev > _dev_api.log &
 
       - name: Wait until the dev API server is ready
         run: sleep 10
