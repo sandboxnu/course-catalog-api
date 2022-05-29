@@ -117,13 +117,14 @@ jobs:
       - name: Wait until the dev API server is ready
         run: sleep 10
 
-      - name: Check logs
-        run: cat _dev_api.log
-
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
 
       - run: yarn jest -i --projects tests/end_to_end --verbose --coverage
+
+      - name: Check API logs
+        run: cat _dev_api.log
+        if: always()
 
       - name: Coveralls
         uses: coverallsapp/github-action@master
