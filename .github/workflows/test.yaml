@@ -36,6 +36,7 @@ jobs:
         with:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
+
       - run: yarn test --coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
@@ -43,13 +44,13 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: General tests
           parallel: true
+
       - run: yarn dbtest --coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: Database tests
-          path-to-lcov: "./tests/database/coverage/lcov.info"
           parallel: true
 
   end_to_end:
