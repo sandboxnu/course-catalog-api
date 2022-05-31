@@ -6,6 +6,7 @@
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
+import cache from "../scrapers/cache";
 import macros from "../utils/macros";
 import prisma from "./prisma";
 import keys from "../utils/keys";
@@ -91,11 +92,22 @@ class Updater {
     const startTime = Date.now();
 
     // scrape everything
-    const sections: ScrapedSection[] = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return termParser.parseSections(termId);
-      })
-    ).reduce((acc, val) => acc.concat(val), []);
+    let sections: ScrapedSection[];
+    if (macros.TEST || (macros.DEV && process.env.UPDATE_ONLY_ONCE)) {
+      const cached = await cache.get(macros.DEV_DATA_DIR, "classes", "neu");
+      if (cached) {
+        macros.log("Using cached class data - not rescraping");
+        sections = cached["sections"] as ScrapedSection[];
+      }
+    }
+
+    if (!sections) {
+      sections = (
+        await pMap(this.SEMS_TO_UPDATE, (termId) => {
+          return termParser.parseSections(termId);
+        })
+      ).reduce((acc, val) => acc.concat(val), []);
+    }
 
     macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
