@@ -132,7 +132,7 @@ jobs:
 
   coverage:
     needs: [end_to_end, tests]
-    name: Send coverage
+    name: Sends Coveralls coverage
     runs-on: ubuntu-latest
     env:
       NODE_COVERALLS_DEBUG: 1
