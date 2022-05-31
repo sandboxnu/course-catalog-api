@@ -130,6 +130,13 @@ jobs:
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'
       # - run: 'curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: \"202250\", query: \"fundies\") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
 
+  coverage:
+    needs: [end_to_end, tests]
+    name: Send coverage
+    runs-on: ubuntu-latest
+    env:
+      NODE_COVERALLS_DEBUG: 1
+    steps:
       - name: Coveralls Finished
         uses: coverallsapp/github-action@master
         with:
