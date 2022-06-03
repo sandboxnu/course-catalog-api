@@ -13,7 +13,7 @@ describe("Searching for courses", () => {
   // As such - it's outdated, and the updater should have removed it
   test("outdated courses are removed by the updater", async () => {
     const res = await query(gql`
-      query {
+      query search {
         search(termId: "202240", query: "CS2501") {
           nodes {
             ... on ClassOccurrence {
