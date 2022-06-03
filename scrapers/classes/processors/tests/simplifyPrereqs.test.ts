@@ -97,6 +97,38 @@ it("simplifyRequirements shoudl work2", () => {
   });
 });
 
+it("redundant single-value boolean reqs are simplified", () => {
+  expect(
+    simplifyRequirements({
+      type: "and",
+      values: [
+        {
+          type: "or",
+          values: [
+            {
+              type: "and",
+              values: ["Graduation Clearance"],
+            },
+            {
+              subject: "PHYS",
+              classId: "1148",
+            },
+          ],
+        },
+      ],
+    })
+  ).toEqual({
+    type: "or",
+    values: [
+      "Graduation Clearance",
+      {
+        subject: "PHYS",
+        classId: "1148",
+      },
+    ],
+  });
+});
+
 it("simplifyRequirements should put course req in a boolreq", () => {
   expect(
     simplifyRequirements({

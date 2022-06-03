@@ -140,34 +140,42 @@ class Searcher {
         validate: isStringArray,
         create: getNUpathFilter,
         agg: "class.nupath.keyword",
-      },
+      } as EsFilterStruct<string[]>,
       subject: {
         validate: isStringArray,
         create: getSubjectFilter,
         agg: "class.subject.keyword",
-      },
+      } as EsFilterStruct<string[]>,
       classType: {
         validate: isStringArray,
         create: getClassTypeFilter,
         agg: "sections.classType.keyword",
-      },
+      } as EsFilterStruct<string[]>,
       sectionsAvailable: {
         validate: isTrue,
         create: getSectionsAvailableFilter,
         agg: false,
-      },
-      classIdRange: { validate: isRange, create: getRangeFilter, agg: false },
-      termId: { validate: isString, create: getTermIdFilter, agg: false },
+      } as EsFilterStruct<true>,
+      classIdRange: {
+        validate: isRange,
+        create: getRangeFilter,
+        agg: false,
+      } as EsFilterStruct<Range>,
+      termId: {
+        validate: isString,
+        create: getTermIdFilter,
+        agg: false,
+      } as EsFilterStruct<string>,
       campus: {
         validate: isStringArray,
         create: getCampusFilter,
         agg: "sections.campus.keyword",
-      },
+      } as EsFilterStruct<string[]>,
       honors: {
         validate: isBoolean,
         create: getHonorsFilter,
         agg: "sections.honors",
-      },
+      } as EsFilterStruct<boolean>,
     };
   }
 
