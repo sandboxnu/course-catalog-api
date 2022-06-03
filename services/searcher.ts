@@ -464,7 +464,7 @@ class Searcher {
       subject: [this.generateAgg("subject", result.subject, 1)],
       classType: [{ value: result.sections[0].classType, count: 1 }],
       campus: [{ value: result.sections[0].campus, count: 1 }],
-      honors: [{ value: result.sections[0].honors.toString(), count: 1 }],
+      honors: [{ value: result.sections[0].honors?.toString(), count: 1 }],
     };
   }
 
