@@ -62,6 +62,7 @@ const server = new ApolloServer({
     searchResolvers,
     termInfoResolvers,
   ],
+  debug: true,
 });
 
 if (require.main === module) {
