@@ -11,6 +11,11 @@ it("should parse 5 links from a page", async () => {
   expect(output).toMatchSnapshot();
 });
 
+it("no urls", async () => {
+  expect(await linkSpider.main(null)).toBeNull();
+  expect(await linkSpider.main([])).toBeNull();
+});
+
 it("should ignore links that are to a different domain", async () => {
   const output = await linkSpider.main(["https://google.com/somecrossdomain"]);
 

@@ -25,6 +25,7 @@ export const getSubjectAbbreviations = _.memoize(async (termId: string) => {
 
 export const getSubjectDescriptions = _.memoize(async (termId: string) => {
   const subjectResponse = await requestSubjects(termId);
+  console.log(subjectResponse);
   return createAbbrTable(subjectResponse);
 });
 
@@ -73,4 +74,8 @@ function createAbbrTable(
 }
 
 // Export for testing https://philipwalton.com/articles/how-to-unit-test-private-functions-in-javascript/
-export { createDescriptionTable as _createDescriptionTable };
+export {
+  createDescriptionTable as _createDescriptionTable,
+  createAbbrTable as _createAbbrTable,
+  requestSubjects as _requestSubjects,
+};

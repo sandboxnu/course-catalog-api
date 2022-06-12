@@ -25,6 +25,21 @@ export default function (request) {
     };
   }
 
+  if (request.url.includes("term=termsTest")) {
+    return {
+      body: [
+        {
+          code: "ACCT",
+          description: "Accounting",
+        },
+        {
+          code: "AVM",
+          description: "Adv Manufacturing System - CPS",
+        },
+      ],
+    };
+  }
+
   if (request.url.endsWith("termslist")) {
     return {
       body: [
