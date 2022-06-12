@@ -64,12 +64,7 @@ class Updater {
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {
       setInterval(async () => {
-        // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
-        // Temp fix to address Prisma connection pool issues
-        // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
         await this.updateOrExit();
-        await prisma.$disconnect();
-        macros.log("Disconnected Prisma");
       }, intervalTime);
     }
 
