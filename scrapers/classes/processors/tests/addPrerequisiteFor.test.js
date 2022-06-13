@@ -70,6 +70,10 @@ describe("addPrerequisiteForFor tests", () => {
           subject: "CS",
           classId: "3000",
         },
+        {
+          type: "or",
+          values: undefined,
+        },
       ],
     },
     classId: "1234",
@@ -184,15 +188,48 @@ describe("addPrerequisiteForFor tests", () => {
       },
       prereqsFor: {
         values: [
+          "string",
+          {
+            classId: "3302",
+            subject: "CS",
+          },
+          {
+            classId: "3000",
+            subject: "ENGW",
+          },
           {
             classId: "3302",
             subject: "ENGW",
+          },
+          {
+            classId: "3302",
+            subject: "MATH",
           },
         ],
       },
     };
 
     addPrerequisiteFor.sortPrereqs(cs2500Sorted);
-    expect(cs2500Sorted.prereqsFor).toEqual(cs2500Parsed.prereqsFor);
+    expect(cs2500Sorted.prereqsFor).toEqual({
+      values: [
+        "string",
+        {
+          classId: "3302",
+          subject: "CS",
+        },
+        {
+          classId: "3000",
+          subject: "ENGW",
+        },
+        {
+          classId: "3302",
+          subject: "ENGW",
+        },
+        {
+          classId: "3302",
+          subject: "MATH",
+        },
+      ],
+    });
   });
 });
