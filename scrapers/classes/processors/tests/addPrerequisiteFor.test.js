@@ -3,130 +3,67 @@
  * See the license file in the root folder for details.
  */
 
+import Keys from "../../../../utils/keys";
 import addPrerequisiteFor from "../addPrerequisiteFor";
 
 describe("addPrerequisiteForFor tests", () => {
   const cs2500 = {
-    classId: "2500",
-    termId: "201829",
-    host: "neu.edu",
-  };
-
-  const cs2510 = {
     prereqs: {
       type: "or",
       values: [
         {
           subject: "CS",
+          classId: "3000",
+        },
+        "this is a string2",
+      ],
+    },
+    classId: "2500",
+    termId: "201829",
+    subject: "CS",
+    host: "neu.edu",
+  };
+
+  const cs3000 = {
+    classId: "3000",
+    termId: "201829",
+    subject: "CS",
+    host: "neu.edu",
+  };
+
+  const engw3302 = {
+    prereqs: {
+      type: "and",
+      values: [
+        {
+          subject: "CS",
           classId: "2500",
         },
+        "this is a string",
       ],
     },
-    coreqs: {
-      type: "or",
-      values: [
-        {
-          subject: "CS",
-          classId: "2511",
-        },
-      ],
-    },
-    classId: "2510",
-    termId: "201830",
-    subject: "CS",
-  };
-
-  const fakeClass1 = {
-    optPrereqsFor: {
-      values: [
-        {
-          subject: "CS",
-          classId: "5",
-        },
-        {
-          subject: "MATH",
-          classId: "2",
-        },
-        {
-          subject: "EECE",
-          classId: "11",
-        },
-        {
-          subject: "EECE",
-          classId: "7",
-        },
-        {
-          subject: "MATH",
-          classId: "3",
-        },
-      ],
-    },
-    classId: "2510",
-    termId: "201830",
-    subject: "CS",
+    classId: "3302",
+    termId: "201829",
+    subject: "ENGW",
     host: "neu.edu",
   };
-
-  const fakeClass2 = {
-    prereqsFor: {
-      values: [
-        {
-          subject: "CS",
-          classId: "5",
-        },
-        {
-          subject: "MATH",
-          classId: "2",
-        },
-        {
-          subject: "EECE",
-          classId: "11",
-        },
-        {
-          subject: "EECE",
-          classId: "7",
-        },
-        {
-          subject: "MATH",
-          classId: "3",
-        },
-      ],
-    },
-    classId: "2510",
-    termId: "201830",
-    subject: "EECE",
-    host: "neu.edu",
-  };
-
   const termDump = {
-    classes: [cs2500, cs2510, fakeClass1],
+    classes: [cs2500, cs3000, engw3302],
     sections: [],
   };
 
-  it("should load in termDump", () => {
-    addPrerequisiteFor.termDump = termDump;
-    expect(addPrerequisiteFor.termDump).toBe(termDump);
-  });
+  // it("should sort some optPrereqsFor", () => {
+  //   addPrerequisiteFor.sortPrereqs(cs2500);
+  //   expect(cs2500.prereqs).toMatchSnapshot();
+  // });
 
-  describe("parseClass tests", () => {
-    const outputPreReqClass = cs2500;
-    outputPreReqClass.prereqsFor = [];
-    outputPreReqClass.prereqsFor.push(cs2510);
-  });
+  // it("should sort some prereqsFor", () => {
+  //   addPrerequisiteFor.sortPrereqs(fakeClass2);
+  //   expect(fakeClass2.prereqsFor).toMatchSnapshot();
+  // });
 
-  it("should sort some optPrereqsFor", () => {
-    addPrerequisiteFor.termDump = termDump;
-
-    addPrerequisiteFor.sortPrereqs(fakeClass1);
-
-    expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
-  });
-
-  it("should sort some prereqsFor", () => {
-    addPrerequisiteFor.termDump = termDump;
-
-    addPrerequisiteFor.sortPrereqs(fakeClass2);
-
-    expect(fakeClass2.prereqsFor).toMatchSnapshot();
+  it("should parse prereqs", () => {
+    addPrerequisiteFor.go(termDump);
+    expect(termDump).toMatchSnapshot();
   });
 });
