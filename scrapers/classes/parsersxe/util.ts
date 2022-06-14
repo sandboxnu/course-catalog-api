@@ -116,4 +116,5 @@ async function getCookiesForSearch(termId: string): Promise<req.CookieJar> {
 export default {
   parseTable: parseTable,
   getCookiesForSearch: getCookiesForSearch,
+  uniquify: uniquify,
 };

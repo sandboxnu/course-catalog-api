@@ -224,6 +224,9 @@ describe("getRefsFromJson", () => {
                       subject: "CS",
                       classId: "789",
                     },
+                    {
+                      subject: "CS",
+                    },
                   ],
                 },
               ],
