@@ -92,6 +92,42 @@ describe("classParser", () => {
     });
   });
 
+  describe("parseFees", () => {
+    it("No fee information available.", () => {
+      expect(ClassParser.parseFees("No fee information available.")).toEqual({
+        amount: null,
+        description: "",
+      });
+    });
+
+    it("rows.length !== 1", () => {
+      expect(ClassParser.parseFees("<table></table>")).toEqual({
+        amount: null,
+        description: "",
+      });
+    });
+
+    it("actual table", () => {
+      expect(
+        ClassParser.parseFees(`<table class="datadisplaytable">
+      <tbody>
+        <tr>
+          <td class="dddefault">Amount</td>
+          <td class="dddefault">Description</td>
+        </tr>
+        <tr>
+          <td class="dddefault">$1,30.00</td>
+          <td class="dddefault">this is a description</td>
+        </tr>
+      </tbody>
+    </table>`)
+      ).toEqual({
+        amount: 130,
+        description: "this is a description",
+      });
+    });
+  });
+
   describe("getAllCourseRefs", () => {
     it("collects all the course refs", () => {
       const course = {
@@ -138,6 +174,75 @@ describe("classParser", () => {
           classId: "3000",
         },
       });
+    });
+  });
+});
+
+describe("getRefsFromJson", () => {
+  it("null", () => {
+    expect(ClassParser.getRefsFromJson(null, "")).toEqual({});
+  });
+
+  it("with typed values", () => {
+    expect(
+      ClassParser.getRefsFromJson(
+        {
+          values: [
+            {
+              type: true,
+              values: [],
+            },
+          ],
+        },
+        "123"
+      )
+    ).toEqual({});
+  });
+
+  it("with class values", () => {
+    expect(
+      ClassParser.getRefsFromJson(
+        {
+          values: [
+            {
+              type: true,
+              values: [
+                {
+                  subject: "CS",
+                  classId: "123",
+                  values: [
+                    {
+                      subject: "CS",
+                      classId: "111",
+                    },
+                  ],
+                },
+                {
+                  type: "class",
+                  values: [
+                    {
+                      subject: "CS",
+                      classId: "789",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        "123"
+      )
+    ).toEqual({
+      "neu.edu/123/CS/123": {
+        classId: "123",
+        subject: "CS",
+        termId: "123",
+      },
+      "neu.edu/123/CS/789": {
+        classId: "789",
+        subject: "CS",
+        termId: "123",
+      },
     });
   });
 });
