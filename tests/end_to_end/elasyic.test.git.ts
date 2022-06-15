@@ -3,8 +3,6 @@ import client from "../../utils/elastic";
 
 it("Connections", async () => {
   expect(await client.isConnected()).toBeTruthy();
-  expect(await client.isConnected()).toBeTruthy();
-  expect(client.closeClient()).toBeFalsy();
 });
 
 it("fetchIndexName", async () => {
