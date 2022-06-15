@@ -32,7 +32,7 @@ it("resetting indexes", async () => {
   await client.createIndex("index_to_reset", { mappings: {} });
   await client.createAlias("index_to_reset", "index_to_reset_main");
 
-  expect(client["indexes"]["index_to_reset"].mapping).toEqual({
+  expect(client["indexes"]["index_to_reset_main"].mapping).toEqual({
     mappings: {},
   });
 
