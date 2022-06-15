@@ -17,12 +17,12 @@ it("fetchIndexName", async () => {
 
 it("Creating indexes", async () => {
   await client.createIndex("indexname", classMap);
-  expect(
-    async () => await client.createIndex("indexname", classMap)
-  ).toThrowError();
+  await expect(
+    client.createIndex("indexname", classMap)
+  ).rejects.toThrowError();
 
   await client.deleteIndex("indexname");
-  expect(async () => await client.deleteIndex("indexname")).toThrowError();
+  await expect(client.deleteIndex("indexname")).rejects.toThrowError();
 
   await client.createIndex("indexname", classMap);
   await client.deleteIndex("indexname");
