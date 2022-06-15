@@ -6,13 +6,16 @@ it("Connections", async () => {
 });
 
 it("fetchIndexName", async () => {
-  expect(client["indexes"]["classes"]).toBeUndefined();
+  expect(client["indexes"]["classes"]).toEqual({
+    name: "",
+    mapping: classMap,
+  });
   await client.fetchIndexName("classes");
 
-  expect(client["indexes"]["classes"]).toBe("classes_blue");
+  expect(client["indexes"]["classes"]["name"]).toBe("classes_blue");
 });
 
 it("Creating indexes", async () => {
   await client.createIndex("indexname", classMap);
-  await client.createIndex("indexname", classMap);
+  expect(() => client.createIndex("indexname", classMap)).toThrowError();
 });
