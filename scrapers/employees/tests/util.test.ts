@@ -12,6 +12,7 @@ it("standardize email works", () => {
   expect(input).toEqual("b@google.com");
   expect(standardizeEmail("fdafdsa")).toEqual(null);
   expect(standardizeEmail("f@b.com")).toEqual("f@b.com");
+  expect(standardizeEmail(null)).toBeNull();
 });
 
 it("standardizePhone works", () => {
@@ -25,6 +26,7 @@ it("standardizePhone works", () => {
   expect(input3).toEqual("5612547896");
 
   expect(standardizePhone("fdafdsa")).toEqual(null);
+  expect(standardizePhone(null)).toBeNull();
 });
 
 it("parseGoogleScolarLink works", () => {
@@ -35,6 +37,8 @@ it("parseGoogleScolarLink works", () => {
   const url2 = "https://scholar.google.com/oi=ao";
   const input2 = parseGoogleScholarLink(url2);
   expect(input2).toEqual(null);
+
+  expect(parseGoogleScholarLink(null)).toBeNull();
 });
 it("should parse a name with spaces", () => {
   expect(parseNameWithSpaces("Bob    Ross")).toEqual({
@@ -63,10 +67,12 @@ it("getBaseHost should work", () => {
   expect(getBaseHost("http://a.google.com")).toBe("google.com");
   expect(getBaseHost("fadjsl.google.com")).toBe(null);
   expect(getBaseHost("fdasfsdcom")).toBe(null);
+  expect(getBaseHost("http://localhost")).toBeNull();
 });
 
 it("occurrences should work", () => {
   expect(occurrences("a a a a b b b b", "a", false)).toBe(4);
   expect(occurrences("a a a a b b b b", "aaa", false)).toBe(0);
   expect(occurrences("onenenenenenenene bbbb", "nenen", true)).toBe(6);
+  expect(occurrences("abc", "", false)).toBe(4);
 });

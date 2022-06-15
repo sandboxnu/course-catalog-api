@@ -39,7 +39,7 @@ describe("parseTable", () => {
 });
 
 it("uniquifies", () => {
-  expect(util.uniquify(["1"], "1")).toBe("11");
+  expect(util.uniquify(["1", "11"], "1")).toBe("12");
 });
 
 describe("parseTable", () => {

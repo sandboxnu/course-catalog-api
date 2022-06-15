@@ -133,6 +133,8 @@ export function getBaseHost(url: string): null | string {
     return null;
   }
 
+  console.log(homepage);
+
   const match = homepage.match(/[^.]+\.[^.]+$/i);
   if (!match) {
     macros.error("homepage match failed...", homepage);
