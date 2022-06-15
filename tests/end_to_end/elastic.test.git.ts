@@ -17,5 +17,26 @@ it("fetchIndexName", async () => {
 
 it("Creating indexes", async () => {
   await client.createIndex("indexname", classMap);
-  expect(() => client.createIndex("indexname", classMap)).toThrowError();
+  expect(
+    async () => await client.createIndex("indexname", classMap)
+  ).toThrowError();
+
+  await client.deleteIndex("indexname");
+  expect(async () => await client.deleteIndex("indexname")).toThrowError();
+
+  await client.createIndex("indexname", classMap);
+  await client.deleteIndex("indexname");
+});
+
+it("resetting indexes", async () => {
+  await client.createIndex("indexname", { mappings: {} });
+  await client.createAlias("indexname", "indexname2");
+
+  expect(client["indexes"]["indexname"].mapping).toEqual({
+    mappings: {},
+  });
+
+  await client.resetIndex();
+
+  expect(client["indexes"]["indexname"].mapping).toEqual(classMap);
 });
