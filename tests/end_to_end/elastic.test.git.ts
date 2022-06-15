@@ -29,14 +29,14 @@ it("Creating indexes", async () => {
 });
 
 it("resetting indexes", async () => {
-  await client.createIndex("indexname", { mappings: {} });
-  await client.createAlias("indexname", "indexname2");
+  await client.createIndex("index_to_reset", { mappings: {} });
+  await client.createAlias("index_to_reset", "index_to_reset_2");
 
-  expect(client["indexes"]["indexname"].mapping).toEqual({
+  expect(client["indexes"]["index_to_reset"].mapping).toEqual({
     mappings: {},
   });
 
   await client.resetIndex();
 
-  expect(client["indexes"]["indexname"].mapping).toEqual(classMap);
+  expect(client["indexes"]["index_to_reset"].mapping).toEqual(classMap);
 });
