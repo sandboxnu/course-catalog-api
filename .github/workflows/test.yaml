@@ -78,7 +78,6 @@ jobs:
       NODE_COVERALLS_DEBUG: 1
       NODE_ENV: dev
       DEV: true
-      ENABLE_NOTIFS: true
     steps:
       - uses: actions/checkout@v2
 

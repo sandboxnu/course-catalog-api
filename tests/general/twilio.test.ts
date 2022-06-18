@@ -122,7 +122,7 @@ describe("TwilioNotifyer", () => {
           return {
             verifications: {
               create: jest.fn(async (args) => {
-                let err = new Error();
+                const err = new Error();
                 switch (args.to) {
                   case "1":
                     return 200;
