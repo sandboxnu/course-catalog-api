@@ -1,4 +1,5 @@
 import { twilioClient } from "../../twilio/client";
+
 jest.mock("../../twilio/client", () => ({
   twilioClient: jest.fn(),
 }));
@@ -11,7 +12,7 @@ describe("TwilioNotifyer", () => {
     beforeAll(() => {
       twilioClient["verify"] = {
         // @ts-expect-error - wrong type
-        services: (_sid) => {
+        services: () => {
           return {
             verificationChecks: {
               create: jest.fn(async (args) => {
@@ -20,11 +21,12 @@ describe("TwilioNotifyer", () => {
                     return { status: notifs.TWILIO_VERIF_CHECK_APPROVED };
                   case "NOT VERIFIED":
                     return { status: "any status besides that one above" };
-                  default:
+                  default: {
                     const err = new Error();
                     // @ts-expect-error - Wrong type, I don't care :)
                     err.code = args.code;
                     throw err;
+                  }
                 }
               }),
             },
@@ -43,19 +45,19 @@ describe("TwilioNotifyer", () => {
     });
 
     it("Error responses", async () => {
-      // @ts-expect-error
       const resp_max_attempts = await notifs.checkVerificationCode(
         "911",
+        // @ts-expect-error - wrong type, don't care
         notifs.TWILIO_ERRORS.MAX_CHECK_ATTEMPTS_REACHED
       );
-      // @ts-expect-error
       const resp_not_found = await notifs.checkVerificationCode(
         "911",
+        // @ts-expect-error - wrong type, don't care
         notifs.TWILIO_ERRORS.RESOURCE_NOT_FOUND
       );
-      // @ts-expect-error
       const resp_invalid = await notifs.checkVerificationCode(
         "911",
+        // @ts-expect-error - wrong type, don't care
         notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER
       );
 
@@ -109,6 +111,69 @@ describe("TwilioNotifyer", () => {
       // @ts-expect-error - it's not the exact same type, but I don't care
       notifs.handleUserReply(req, mockRes);
       expect(mockRes.send.mock.calls[0][0]).toMatch(/have been removed/i);
+    });
+  });
+
+  describe("sendVerificationCode", () => {
+    beforeAll(() => {
+      twilioClient["verify"] = {
+        // @ts-expect-error - wrong type
+        services: () => {
+          return {
+            verifications: {
+              create: jest.fn(async (args) => {
+                let err = new Error();
+                switch (args.to) {
+                  case "1":
+                    return 200;
+                  case "2":
+                    // @ts-expect-error -- wrong error type
+                    err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
+                    throw err;
+                  case "3":
+                    // @ts-expect-error -- wrong error type
+                    err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
+                    throw err;
+                  case "4":
+                    // @ts-expect-error -- wrong error type
+                    err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
+                    throw err;
+                  default:
+                    throw err;
+                }
+              }),
+            },
+          };
+        },
+      };
+    });
+
+    it("non-error", async () => {
+      const resp = await notifs.sendVerificationCode("1");
+      expect(resp.statusCode).toBe(200);
+      expect(resp.message).toMatch(/code sent/i);
+    });
+
+    it("landline error", async () => {
+      const resp = await notifs.sendVerificationCode("2");
+      expect(resp.statusCode).toBe(400);
+      expect(resp.message).toMatch(/not supported by landline/i);
+    });
+
+    it("invalid number error", async () => {
+      const resp = await notifs.sendVerificationCode("3");
+      expect(resp.statusCode).toBe(400);
+      expect(resp.message).toMatch(/invalid phone number/i);
+    });
+
+    it("max send attempts error", async () => {
+      const resp = await notifs.sendVerificationCode("4");
+      expect(resp.statusCode).toBe(400);
+      expect(resp.message).toMatch(/attempted to send.*too many times/i);
+    });
+
+    it("default error", async () => {
+      await expect(notifs.sendVerificationCode("123123142")).rejects.toThrow();
     });
   });
 });
