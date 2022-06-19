@@ -210,7 +210,7 @@ describe("TwilioNotifyer", () => {
       jest.spyOn(macros, "warn");
       jest
         .spyOn(notificationsManager, "deleteAllUserSubscriptions")
-        .mockImplementationOnce(async (_phone: string) => {
+        .mockImplementationOnce(async () => {
           // don't do anytthing
         });
 

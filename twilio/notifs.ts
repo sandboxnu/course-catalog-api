@@ -70,7 +70,7 @@ class TwilioNotifyer {
     return this.twilioClient.verify
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
-      .then((verification) => {
+      .then(() => {
         return { statusCode: 200, message: "Verification code sent!" };
       })
       .catch((err) => {
