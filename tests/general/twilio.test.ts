@@ -1,11 +1,12 @@
 import { twilioClient } from "../../twilio/client";
-
 jest.mock("../../twilio/client", () => ({
   twilioClient: jest.fn(),
 }));
 
 import notifs from "../../twilio/notifs";
 import express from "express";
+import macros from "../../utils/macros";
+import notificationsManager from "../../services/notificationsManager";
 
 describe("TwilioNotifyer", () => {
   describe("checkVerificationCode", () => {
@@ -174,6 +175,64 @@ describe("TwilioNotifyer", () => {
 
     it("default error", async () => {
       await expect(notifs.sendVerificationCode("123123142")).rejects.toThrow();
+    });
+  });
+
+  describe("sendNotificationText", () => {
+    beforeAll(() => {
+      twilioClient["messages"] = {
+        // @ts-expect-error - wrong type
+        create: jest.fn(async (args) => {
+          const err = new Error();
+          switch (args.to) {
+            case "1":
+              return;
+            case "2":
+              // @ts-expect-error -- wrong error type
+              err.code = notifs.TWILIO_ERRORS.USER_UNSUBSCRIBED;
+              throw err;
+            default:
+              throw err;
+          }
+        }),
+      };
+    });
+
+    it("Successfully sends a message", async () => {
+      jest.spyOn(macros, "log");
+      await notifs.sendNotificationText("1", "message");
+      expect(macros.log).toHaveBeenCalledWith(
+        expect.stringMatching(/sent.*text/i)
+      );
+    });
+
+    it("Unsubcribed error", async () => {
+      jest.spyOn(macros, "warn");
+      jest
+        .spyOn(notificationsManager, "deleteAllUserSubscriptions")
+        .mockImplementationOnce(async (_phone: string) => {
+          // don't do anytthing
+        });
+
+      await notifs.sendNotificationText("2", "message");
+      expect(macros.warn).toHaveBeenCalledWith(
+        expect.stringMatching(/has unsubscribed/i)
+      );
+      expect(
+        notificationsManager.deleteAllUserSubscriptions
+      ).toHaveBeenCalledWith("2");
+    });
+
+    it("Default error", async () => {
+      jest.spyOn(macros, "error").mockImplementationOnce(() => {
+        // don't do anytthing
+      });
+
+      await notifs.sendNotificationText("3", "message");
+      expect(macros.error).toHaveBeenCalledWith(
+        expect.stringMatching(/error trying to send/i),
+        expect.any(Error)
+      );
     });
   });
 });

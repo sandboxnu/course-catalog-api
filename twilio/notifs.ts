@@ -37,7 +37,7 @@ class TwilioNotifyer {
     this.twilioClient = twilioClient;
   }
 
-  sendNotificationText(
+  async sendNotificationText(
     recipientNumber: string,
     message: string
   ): Promise<void> {
@@ -66,7 +66,7 @@ class TwilioNotifyer {
       });
   }
 
-  sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
+  async sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
     return this.twilioClient.verify
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
