@@ -120,9 +120,6 @@ jobs:
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
 
-      - name: Check that the notifications server is up and running
-        run: curl -Is http://localhost:8080/knockknock | head -1 | grep -q 200
-
       - run: yarn jest -i --projects tests/end_to_end --verbose --coverage
 
       - name: Check API logs
