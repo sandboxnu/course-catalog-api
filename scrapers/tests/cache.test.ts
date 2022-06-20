@@ -12,7 +12,7 @@ describe("Cache", () => {
     devDir = macros.DEV_DATA_DIR;
     // @ts-expect-error, read-only property
     macros.DEV_DATA_DIR = CACHE_DIR;
-    fs.mkdir(FULL_CACHE_DIR);
+    fs.mkdirSync(FULL_CACHE_DIR, { recursive: true });
   });
 
   afterAll(() => {
