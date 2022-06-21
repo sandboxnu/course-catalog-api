@@ -16,14 +16,22 @@ it("fetchIndexName", async () => {
 });
 
 it("Creating indexes", async () => {
-  await client.createIndex("indexname", classMap);
-  await expect(
-    client.createIndex("indexname", classMap)
-  ).rejects.toThrowError();
+  const indexName = "indexname";
+  const aliasName = "aliasname";
 
-  await client.deleteIndex("indexname");
-  await expect(client.deleteIndex("indexname")).rejects.toThrowError();
+  await client.createIndex(indexName, classMap);
+  await expect(client.createIndex(indexName, classMap)).rejects.toThrowError();
 
-  await client.createIndex("indexname", classMap);
-  await client.deleteIndex("indexname");
+  await client.createAlias(indexName, aliasName);
+  await expect(client.createAlias(indexName, aliasName)).rejects.toThrowError();
+
+  expect(client["indexes"][aliasName]).toBeNull();
+  await client.fetchIndexName(aliasName);
+  expect(client["indexes"][aliasName]["name"]).toBe(indexName);
+
+  await client.deleteIndex(indexName);
+  await expect(client.deleteIndex(indexName)).rejects.toThrowError();
+
+  await client.createIndex(indexName, classMap);
+  await client.deleteIndex(indexName);
 });
