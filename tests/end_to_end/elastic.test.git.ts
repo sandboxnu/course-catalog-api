@@ -23,7 +23,6 @@ it("Creating indexes", async () => {
   await expect(client.createIndex(indexName, classMap)).rejects.toThrowError();
 
   await client.createAlias(indexName, aliasName);
-  await expect(client.createAlias(indexName, aliasName)).rejects.toThrowError();
 
   expect(client["indexes"][aliasName]).toBeNull();
   await client.fetchIndexName(aliasName);
