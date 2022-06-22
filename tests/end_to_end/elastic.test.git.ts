@@ -29,7 +29,7 @@ it("Creating indexes", async () => {
   client["indexes"][aliasName] = { mapping: classMap };
   expect(client["indexes"][aliasName]["name"]).toBeUndefined();
   await client.fetchIndexName(aliasName);
-  expect(client["indexes"][aliasName]["name"]).toBe(indexName);
+  expect(client["indexes"][aliasName]["name"]).toMatch(`${aliasName}_`);
 
   await client.deleteIndex(indexName);
   await expect(client.deleteIndex(indexName)).rejects.toThrowError();
