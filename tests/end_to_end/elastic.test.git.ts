@@ -39,6 +39,7 @@ it("Creating indexes", async () => {
 });
 
 it("queries", async () => {
+  jest.setTimeout(20_000);
   const aliasName = "employees_2";
 
   // @ts-expect-error - we know the type is missing, that's the point
