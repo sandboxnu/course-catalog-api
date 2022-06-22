@@ -59,27 +59,22 @@ it("queries", async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
+  const getId = async () => {
+    // @ts-expect-error - wrong type
+    return client.query(aliasName, 0, 10, body).body.hits;
+  };
+
   const body = { query: { match_all: {} } };
-  // @ts-expect-error - wrong type
-  expect(
-    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
-  ).toBe(id);
+  expect((await getId()).hits[0]["_id"]).toBe(id);
 
   await client.resetIndexWithoutLoss();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  // @ts-expect-error - wrong type
-  expect(
-    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
-  ).toBe(id);
+  expect((await getId()).hits[0]["_id"]).toBe(id);
 
   await client.resetIndex();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  // @ts-expect-error - wrong type
-  console.log((await client.query(aliasName, 0, 10, body)).body.hits);
-  // @ts-expect-error - wrong type
-  expect(
-    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
-  ).toBe(id);
+  console.log((await getId()).body.hits);
+  expect((await getId()).hits[0]["_id"]).toBe(id);
 });
