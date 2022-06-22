@@ -1,6 +1,7 @@
 import classMap from "../../scrapers/classes/classMapping.json";
 import client from "../../utils/elastic";
 import employeeMap from "../../scrapers/employees/employeeMapping.json";
+import { bulkUpsertProfs } from "../../scripts/populateES";
 
 it("Connections", async () => {
   expect(await client.isConnected()).toBeTruthy();
@@ -73,41 +74,31 @@ it("queries", async () => {
     },
   });
 
+  await bulkUpsertProfs([
+    {
+      bigPictureUrl: null,
+      email: "email",
+      emails: ["emails"],
+      firstName: null,
+      googleScholarId: null,
+      id: "id",
+      lastName: null,
+      link: null,
+      name: null,
+      officeRoom: null,
+      personalSite: null,
+      phone: null,
+      pic: null,
+      primaryDepartment: null,
+      primaryRole: null,
+      streetAddress: null,
+      url: null,
+    },
+  ]);
+
   console.log(
     (
       await client.query(aliasName, 0, 10, {
-        from: 0,
-        size: 10,
-        sort: [
-          "_score",
-          {
-            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-          },
-        ],
-        query: { match_all: {} },
-      })
-    ).body.hits
-  );
-
-  console.log(
-    (
-      await client.query(indexName, 0, 10, {
-        from: 0,
-        size: 10,
-        sort: [
-          "_score",
-          {
-            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-          },
-        ],
-        query: { match_all: {} },
-      })
-    ).body.hits
-  );
-
-  console.log(
-    (
-      await client.query("aliasname_blue", 0, 10, {
         from: 0,
         size: 10,
         sort: [
