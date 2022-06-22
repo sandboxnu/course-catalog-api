@@ -96,6 +96,7 @@ it("queries", async () => {
     },
   ]);
 
+  await new Promise((r) => setTimeout(r, 1_000));
   console.log(
     (
       await client.query(aliasName, 0, 10, {
@@ -113,6 +114,10 @@ it("queries", async () => {
   );
 
   const body = { query: { match_all: {} } };
+  // @ts-expect-error - don't fill the body type out
+  console.log((await client.query("_all", 0, 10, body)).body.hits);
+
+  await new Promise((r) => setTimeout(r, 1_000));
   // @ts-expect-error - don't fill the body type out
   console.log((await client.query("_all", 0, 10, body)).body.hits);
 });
