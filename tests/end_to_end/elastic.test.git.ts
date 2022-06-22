@@ -62,9 +62,14 @@ it("queries", async () => {
   );
 
   await client.bulkIndexFromMap(aliasName, {
-    jason: {
+    "Jason Jason": {
       type: "employee",
-      name: "Jason",
+      employee: {
+        id: "Jason Jason",
+        name: "Jason Jason",
+        emails: ["jason@jason.jason"],
+        phone: "911",
+      },
     },
   });
 
@@ -116,12 +121,7 @@ it("queries", async () => {
     ).body.hits
   );
 
-  console.log(
-    (
-      // @ts-expect-error - don't fill the body type out
-      await client.query("_all", 0, 10, {
-        query: { match_all: {} },
-      })
-    ).body.hits
-  );
+  const body = { query: { match_all: {} } };
+  // @ts-expect-error - don't fill the body type out
+  console.log((await client.query("_all", 0, 10, body)).body.hits);
 });
