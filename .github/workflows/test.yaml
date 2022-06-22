@@ -126,9 +126,6 @@ jobs:
         run: cat _dev_api.log
         if: always()
 
-      - name: Elasticsearch test
-        run: 'curl --location --request GET ''localhost:9200/*/_search'' --header ''Content-Type: application/json'' --data-raw ''{ "query": { "match_all": {} } }'''
-
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:

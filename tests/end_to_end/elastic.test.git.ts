@@ -40,33 +40,17 @@ it("Creating indexes", async () => {
 });
 
 it("queries", async () => {
-  const indexName = "indexname";
-  const aliasName = "aliasname";
+  const aliasName = "employees_2";
 
-  await client.createIndex(indexName, employeeMap);
-  await client.createAlias(indexName, aliasName);
+  // @ts-expect-error - we know the type is missing, that's the point
+  client["indexes"][aliasName] = { mapping: employeeMap };
 
-  console.log(
-    (
-      await client.query(aliasName, 0, 10, {
-        from: 0,
-        size: 10,
-        sort: [
-          "_score",
-          {
-            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-          },
-        ],
-        query: { match_all: {} },
-      })
-    ).body.hits
-  );
-
+  const id = "Jason Jason";
   await client.bulkIndexFromMap(aliasName, {
     "Jason Jason": {
       type: "employee",
       employee: {
-        id: "Jason Jason",
+        id: id,
         name: "Jason Jason",
         emails: ["jason@jason.jason"],
         phone: "911",
@@ -74,30 +58,11 @@ it("queries", async () => {
     },
   });
 
-  await bulkUpsertProfs([
-    {
-      bigPictureUrl: null,
-      email: "email",
-      emails: ["emails"],
-      firstName: null,
-      googleScholarId: null,
-      id: "id",
-      lastName: null,
-      link: null,
-      name: null,
-      officeRoom: null,
-      personalSite: null,
-      phone: null,
-      pic: null,
-      primaryDepartment: null,
-      primaryRole: null,
-      streetAddress: null,
-      url: null,
-    },
-  ]);
-
+  // We need a little pause for the indexing
+  // eslint-disable-next-line  promise/param-names
   await new Promise((r) => setTimeout(r, 1_000));
-  console.log(
+
+  expect(
     (
       await client.query(aliasName, 0, 10, {
         from: 0,
@@ -110,14 +75,6 @@ it("queries", async () => {
         ],
         query: { match_all: {} },
       })
-    ).body.hits
-  );
-
-  const body = { query: { match_all: {} } };
-  // @ts-expect-error - don't fill the body type out
-  console.log((await client.query("_all", 0, 10, body)).body.hits);
-
-  await new Promise((r) => setTimeout(r, 1_000));
-  // @ts-expect-error - don't fill the body type out
-  console.log((await client.query("_all", 0, 10, body)).body.hits);
+    ).body.hits.hits[0]["_id"]
+  ).toBe(id);
 });
