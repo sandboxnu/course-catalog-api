@@ -1,5 +1,6 @@
 import classMap from "../../scrapers/classes/classMapping.json";
 import client from "../../utils/elastic";
+import employeeMap from "../../scrapers/employees/employeeMapping.json";
 
 it("Connections", async () => {
   expect(await client.isConnected()).toBeTruthy();
@@ -24,7 +25,9 @@ it("Creating indexes", async () => {
 
   await client.createAlias(indexName, aliasName);
 
-  expect(client["indexes"][aliasName]).toBeUndefined();
+  // @ts-expect-error - we know the type is missing, that's the point
+  client["indexes"][aliasName] = { mapping: classMap };
+  expect(client["indexes"][aliasName]["name"]).toBeUndefined();
   await client.fetchIndexName(aliasName);
   expect(client["indexes"][aliasName]["name"]).toBe(indexName);
 
@@ -39,7 +42,7 @@ it("queries", async () => {
   const indexName = "indexname";
   const aliasName = "aliasname";
 
-  await client.createIndex(indexName, classMap);
+  await client.createIndex(indexName, employeeMap);
   await client.createAlias(indexName, aliasName);
 
   console.log(
@@ -57,16 +60,9 @@ it("queries", async () => {
   );
 
   await client.bulkIndexFromMap(aliasName, {
-    cs3200: {
-      type: "class",
-      class: {
-        host: "test",
-      },
-      sections: [
-        {
-          host: "test2",
-        },
-      ],
+    jason: {
+      type: "employee",
+      name: "Jason",
     },
   });
 
