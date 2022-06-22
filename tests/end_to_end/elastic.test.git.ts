@@ -61,7 +61,7 @@ it("queries", async () => {
 
   const getId = async () => {
     // @ts-expect-error - wrong type
-    return client.query(aliasName, 0, 10, body).body.hits;
+    return (await client.query(aliasName, 0, 10, body)).body.hits;
   };
 
   const body = { query: { match_all: {} } };
