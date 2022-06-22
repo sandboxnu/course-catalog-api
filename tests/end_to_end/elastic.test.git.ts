@@ -24,7 +24,7 @@ it("Creating indexes", async () => {
 
   await client.createAlias(indexName, aliasName);
 
-  expect(client["indexes"][aliasName]).toBeNull();
+  expect(client["indexes"][aliasName]).toBeUndefined();
   await client.fetchIndexName(aliasName);
   expect(client["indexes"][aliasName]["name"]).toBe(indexName);
 
@@ -33,4 +33,54 @@ it("Creating indexes", async () => {
 
   await client.createIndex(indexName, classMap);
   await client.deleteIndex(indexName);
+});
+
+it("queries", async () => {
+  const indexName = "indexname";
+  const aliasName = "aliasname";
+
+  await client.createIndex(indexName, classMap);
+  await client.createAlias(indexName, aliasName);
+
+  console.log(
+    await client.query(aliasName, 0, 10, {
+      from: 0,
+      size: 10,
+      sort: [
+        "_score",
+        {
+          "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+        },
+      ],
+      query: { match_all: {} },
+    })
+  );
+
+  await client.bulkIndexFromMap(aliasName, {
+    cs3200: {
+      type: "class",
+      class: {
+        host: "test",
+      },
+      sections: [
+        {
+          host: "test2",
+        },
+      ],
+    },
+  });
+
+  console.log(
+    await client.query(aliasName, 0, 10, {
+      from: 0,
+      size: 10,
+      sort: [
+        "_score",
+        {
+          "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+        },
+      ],
+      query: { match_all: {} },
+    })
+  );
 });
