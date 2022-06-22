@@ -1,7 +1,6 @@
 import classMap from "../../scrapers/classes/classMapping.json";
 import client from "../../utils/elastic";
 import employeeMap from "../../scrapers/employees/employeeMapping.json";
-import { bulkUpsertProfs } from "../../scripts/populateES";
 
 it("Connections", async () => {
   expect(await client.isConnected()).toBeTruthy();
@@ -58,23 +57,29 @@ it("queries", async () => {
     },
   });
 
-  // We need a little pause for the indexing
-  // eslint-disable-next-line  promise/param-names
-  await new Promise((r) => setTimeout(r, 1_000));
+  await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
+  const body = { query: { match_all: {} } };
+  // @ts-expect-error - wrong type
   expect(
-    (
-      await client.query(aliasName, 0, 10, {
-        from: 0,
-        size: 10,
-        sort: [
-          "_score",
-          {
-            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-          },
-        ],
-        query: { match_all: {} },
-      })
-    ).body.hits.hits[0]["_id"]
+    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
+  ).toBe(id);
+
+  await client.resetIndexWithoutLoss();
+  await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
+
+  // @ts-expect-error - wrong type
+  expect(
+    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
+  ).toBe(id);
+
+  await client.resetIndex();
+  await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
+
+  // @ts-expect-error - wrong type
+  console.log((await client.query(aliasName, 0, 10, body)).body.hits);
+  // @ts-expect-error - wrong type
+  expect(
+    (await client.query(aliasName, 0, 10, body)).body.hits.hits[0]["_id"]
   ).toBe(id);
 });
