@@ -60,21 +60,20 @@ it("queries", async () => {
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
   const getId = async () => {
-    // @ts-expect-error - wrong type
-    return (await client.query(aliasName, 0, 10, body)).body.hits;
+    // @ts-expect-error - body type is inaccurate
+    return client.query(aliasName, 0, 10, { query: { match_all: {} } });
   };
 
-  const body = { query: { match_all: {} } };
-  expect((await getId()).hits[0]["_id"]).toBe(id);
+  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
 
   await client.resetIndexWithoutLoss();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  expect((await getId()).hits[0]["_id"]).toBe(id);
+  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
 
   await client.resetIndex();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
   console.log((await getId()).body.hits);
-  expect((await getId()).hits[0]["_id"]).toBe(id);
+  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
 });
