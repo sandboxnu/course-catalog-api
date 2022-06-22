@@ -46,17 +46,19 @@ it("queries", async () => {
   await client.createAlias(indexName, aliasName);
 
   console.log(
-    await client.query(aliasName, 0, 10, {
-      from: 0,
-      size: 10,
-      sort: [
-        "_score",
-        {
-          "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-        },
-      ],
-      query: { match_all: {} },
-    })
+    (
+      await client.query(aliasName, 0, 10, {
+        from: 0,
+        size: 10,
+        sort: [
+          "_score",
+          {
+            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+          },
+        ],
+        query: { match_all: {} },
+      })
+    ).body.hits
   );
 
   await client.bulkIndexFromMap(aliasName, {
@@ -67,16 +69,59 @@ it("queries", async () => {
   });
 
   console.log(
-    await client.query(aliasName, 0, 10, {
-      from: 0,
-      size: 10,
-      sort: [
-        "_score",
-        {
-          "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
-        },
-      ],
-      query: { match_all: {} },
-    })
+    (
+      await client.query(aliasName, 0, 10, {
+        from: 0,
+        size: 10,
+        sort: [
+          "_score",
+          {
+            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+          },
+        ],
+        query: { match_all: {} },
+      })
+    ).body.hits
+  );
+
+  console.log(
+    (
+      await client.query(indexName, 0, 10, {
+        from: 0,
+        size: 10,
+        sort: [
+          "_score",
+          {
+            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+          },
+        ],
+        query: { match_all: {} },
+      })
+    ).body.hits
+  );
+
+  console.log(
+    (
+      await client.query("aliasname_blue", 0, 10, {
+        from: 0,
+        size: 10,
+        sort: [
+          "_score",
+          {
+            "class.classId.keyword": { order: "asc", unmapped_type: "keyword" },
+          },
+        ],
+        query: { match_all: {} },
+      })
+    ).body.hits
+  );
+
+  console.log(
+    // @ts-expect-error - don't fill the body type out
+    (
+      await client.query("_all", 0, 10, {
+        query: { match_all: {} },
+      })
+    ).body.hits
   );
 });
