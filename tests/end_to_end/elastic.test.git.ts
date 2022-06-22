@@ -117,8 +117,8 @@ it("queries", async () => {
   );
 
   console.log(
+    // @ts-expect-error - don't fill the body type out
     (
-      // @ts-expect-error - don't fill the body type out
       await client.query("_all", 0, 10, {
         query: { match_all: {} },
       })
