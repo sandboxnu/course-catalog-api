@@ -74,6 +74,5 @@ it("queries", async () => {
   await client.resetIndex();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  console.log((await getId()).body.hits);
-  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
-}, 20_000);
+  expect((await getId()).body.hits.hits.length).toBe(0);
+}, 40_000);
