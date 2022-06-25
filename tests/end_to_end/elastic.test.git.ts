@@ -70,9 +70,4 @@ it("queries", async () => {
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
   expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
-
-  await client.resetIndex();
-  await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
-
-  expect((await getId()).body.hits.hits.length).toBe(0);
 }, 40_000);
