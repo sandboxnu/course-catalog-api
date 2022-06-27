@@ -2,13 +2,12 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
+import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
-import { DocumentNode } from "graphql";
 import prisma from "../../services/prisma";
 import server from "../index";
 
-const query = async (queryBody: { query: string | DocumentNode }) =>
-  server.executeOperation(queryBody);
+const { query } = createTestClient(server);
 
 beforeAll(async () => {
   await prisma.section.deleteMany({});

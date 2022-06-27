@@ -20,8 +20,8 @@ const CONCURRENCY_COUNT = 10;
 interface MajorInput {
   id: string;
   yearVersion: string;
-  major: Prisma.JsonObject;
-  plansOfStudy: Prisma.JsonObject;
+  major: Prisma.InputJsonObject;
+  plansOfStudy: Prisma.InputJsonObject;
 }
 
 interface MajorJSON {

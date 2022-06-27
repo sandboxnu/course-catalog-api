@@ -20,13 +20,11 @@ it("can get env vars", () => {
 });
 
 it("some other stuff doesnt crash", () => {
-  // @ts-ignore, wrong type but I don't care :)
   macros.logAmplitudeEvent("test event", { hi: 4 });
 });
 
 it("logAmplitudeEvent should not crash", () => {
   macros.logAmplitudeEvent("event_from_testing", {
-    // @ts-ignore, wrong type but I don't care :)
     a: 3,
   });
 });
