@@ -147,7 +147,6 @@ describe("with classes", () => {
       subjects: [],
     };
 
-    // @ts-ignore, missing some props but doesn't matter for this test
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(3);
   });
@@ -215,7 +214,7 @@ describe("with sections", () => {
       subjects: [],
     };
 
-    // @ts-ignore, missing some props but doesn't matter for this test
+    await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.section.count()).toEqual(3);
   });
 });
@@ -290,7 +289,6 @@ describe("with updates", () => {
       subjects: [],
     };
 
-    // @ts-ignore, missing some props but doesn't matter for this test
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
