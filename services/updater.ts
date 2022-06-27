@@ -258,13 +258,15 @@ class Updater {
   }
 
   static getCampusFromTerm(term: string): string {
-    const campusIdentifier = term[5];
-    if (campusIdentifier === "0") {
-      return "NEU";
-    } else if (campusIdentifier === "2" || campusIdentifier === "8") {
-      return "LAW";
-    } else if (campusIdentifier === "4" || campusIdentifier === "5") {
-      return "CPS";
+    switch (term[5]) {
+      case "2":
+      case "8":
+        return "LAW";
+      case "4":
+      case "5":
+        return "CPS";
+      default:
+        return "NEU";
     }
   }
 

@@ -158,7 +158,7 @@ class Cache {
     this.verifyFolderName(folderName);
 
     const filePath = this.getFilePath(folderName, className);
-
+    console.log("Getting: " + filePath);
     // Make sure the cache exists and is loaded.
     await this.ensureLoaded(filePath);
 

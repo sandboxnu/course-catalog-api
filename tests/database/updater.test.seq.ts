@@ -211,6 +211,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  await prisma.term;
   await prisma.followedCourse.deleteMany({});
   await prisma.followedSection.deleteMany({});
   await prisma.user.deleteMany({});
@@ -265,6 +266,19 @@ function createSection(
 }
 
 describe("Updater", () => {
+  it("gets the expected campus from term IDs", () => {
+    expect(Updater.getCampusFromTerm("202210")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("202230")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("unknown")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("")).toBe("NEU");
+
+    expect(Updater.getCampusFromTerm("202235")).toBe("CPS");
+    expect(Updater.getCampusFromTerm("202234")).toBe("CPS");
+
+    expect(Updater.getCampusFromTerm("202222")).toBe("LAW");
+    expect(Updater.getCampusFromTerm("202228")).toBe("LAW");
+  });
+
   it("scrapes the right terms to update", async () => {
     const mockTermParser = jest.fn(async () => {
       return [];
