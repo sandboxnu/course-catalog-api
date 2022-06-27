@@ -272,7 +272,7 @@ class Updater {
   async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
-    const dbResults = await prisma.$queryRawUnsafe(
+    const dbResults: Record<string, any>[] = await prisma.$queryRawUnsafe(
       `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
     );
 
