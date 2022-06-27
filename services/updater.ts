@@ -6,7 +6,6 @@
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
-import cache from "../scrapers/cache";
 import macros from "../utils/macros";
 import prisma from "./prisma";
 import keys from "../utils/keys";
@@ -64,7 +63,12 @@ class Updater {
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {
       setInterval(async () => {
+        // TEMP / TODO - REMOVE / DO NOT LEAVE HERE PLEASE
+        // Temp fix to address Prisma connection pool issues
+        // https://github.com/prisma/prisma/issues/7249#issuecomment-1059719644
         await this.updateOrExit();
+        await prisma.$disconnect();
+        macros.log("Disconnected Prisma");
       }, intervalTime);
     }
 
@@ -87,22 +91,11 @@ class Updater {
     const startTime = Date.now();
 
     // scrape everything
-    let sections: ScrapedSection[];
-    if (macros.TEST || (macros.DEV && process.env.UPDATE_ONLY_ONCE)) {
-      const cached = await cache.get(macros.DEV_DATA_DIR, "classes", "neu");
-      if (cached) {
-        macros.log("Using cached class data - not rescraping");
-        sections = cached["sections"] as ScrapedSection[];
-      }
-    }
-
-    if (!sections) {
-      sections = (
-        await pMap(this.SEMS_TO_UPDATE, (termId) => {
-          return termParser.parseSections(termId);
-        })
-      ).reduce((acc, val) => acc.concat(val), []);
-    }
+    const sections: ScrapedSection[] = (
+      await pMap(this.SEMS_TO_UPDATE, (termId) => {
+        return termParser.parseSections(termId);
+      })
+    ).reduce((acc, val) => acc.concat(val), []);
 
     macros.log(`scraped ${sections.length} sections`);
     const notificationInfo = await this.getNotificationInfo(sections);
