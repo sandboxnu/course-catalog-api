@@ -13,7 +13,9 @@ describe("scraping employees", () => {
     fs.rmSync(cacheDir, { recursive: true, force: true });
 
     jest.spyOn(employees, "queryEmployeesApi");
+    console.log("Call 1");
     const result = await employees.main();
+    console.log("Call 2");
     const result2 = await employees.main();
 
     // The IDs are random for each run, so we remove them.
