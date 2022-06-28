@@ -211,7 +211,6 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  await prisma.term;
   await prisma.followedCourse.deleteMany({});
   await prisma.followedSection.deleteMany({});
   await prisma.user.deleteMany({});
@@ -233,7 +232,7 @@ function createSection(
 ) {
   return prisma.section.create({
     data: {
-      ..._.omit(sec, [
+      ...(_.omit(sec, [
         "classId",
         "termId",
         "subject",
@@ -250,7 +249,9 @@ function createSection(
         "optPrereqsFor",
         "feeAmount",
         "feeDescription",
-      ]),
+      ]) as Omit<SectionType, "lastUpdateTime">),
+      // The Prisma type clashes with 'lastUpdateType'. We remove it,
+      //  but lodash doesn't know that, so we make it
       id: Keys.getSectionHash(sec),
       crn: sec.crn,
       seatsRemaining,
