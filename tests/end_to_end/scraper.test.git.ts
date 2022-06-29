@@ -5,19 +5,8 @@ import cache from "../../scrapers/cache";
 
 describe("scraping employees", () => {
   it("should be able to query the API and cache it", async () => {
-    const cacheDir = cache.getFilePath(
-      macros.DEV_DATA_DIR,
-      employees.constructor.name
-    );
-
-    console.log(cacheDir);
-
-    fs.rmSync(cacheDir, { recursive: true, force: true });
-
     jest.spyOn(employees, "queryEmployeesApi");
-    console.log("Call 1");
     const result = await employees.main();
-    console.log("Call 2");
     const result2 = await employees.main();
 
     // The IDs are random for each run, so we remove them.
@@ -27,6 +16,6 @@ describe("scraping employees", () => {
     expect(result2).toEqual(result);
     // Of the two calls, only one should have queried the live API
     // The other would use the cache
-    expect(employees.queryEmployeesApi).toHaveBeenCalledTimes(1);
+    expect(employees.queryEmployeesApi).toHaveBeenCalledTimes(0);
   });
 });
