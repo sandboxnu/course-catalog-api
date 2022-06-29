@@ -407,6 +407,7 @@ async function fromFile(termFilePath, empFilePath): Promise<void | null> {
   await instance.main({ termDump: termDump, profDump: profDump });
 }
 
+/* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
 if (require.main === module) {
   // If called directly, attempt to index the dump in public dir
   const termFilePath = path.join(
