@@ -208,9 +208,17 @@ beforeEach(async () => {
 
   await prisma.user.create({ data: USER_ONE });
   await prisma.user.create({ data: USER_TWO });
+  await prisma.termInfo.create({
+    data: {
+      termId: "202210",
+      subCollege: "NEU",
+      text: "description",
+    },
+  });
 });
 
 afterEach(async () => {
+  await prisma.termInfo.deleteMany({});
   await prisma.followedCourse.deleteMany({});
   await prisma.followedSection.deleteMany({});
   await prisma.user.deleteMany({});
@@ -702,5 +710,23 @@ describe("Updater", () => {
         FUNDIES_TWO_S3.waitRemaining
       );
     });
+  });
+
+  it("Creates an updater instance", async () => {
+    const updater = await Updater.create();
+    expect(updater.SEMS_TO_UPDATE).toEqual(["202210"]);
+
+    const updateEnv = process.env.UPDATE_ONLY_ONCE;
+    process.env.UPDATE_ONLY_ONCE = "true";
+
+    jest.spyOn(updater, "update").mockImplementationOnce(async () => {
+      // do nothing
+    });
+
+    await updater.start();
+
+    expect(updater.update).toHaveBeenCalled();
+
+    process.env.UPDATE_ONLY_ONCE = updateEnv;
   });
 });
