@@ -117,6 +117,7 @@ class NeuEmployee {
         this.constructor.name,
         "main"
       );
+      console.log(!!devData);
       if (devData) {
         return (devData as Employee[]).map((employee) => {
           const id = employee?.email ?? uuidv4();

@@ -10,6 +10,8 @@ describe("scraping employees", () => {
       employees.constructor.name
     );
 
+    console.log(cacheDir);
+
     fs.rmSync(cacheDir, { recursive: true, force: true });
 
     jest.spyOn(employees, "queryEmployeesApi");
