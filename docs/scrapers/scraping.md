@@ -4,9 +4,11 @@ Scraping is the core of SearchNEU, and of this API. "Scraping" refers to the pro
 
 ## Overview
 
-(Copy the following code block to a [Mermaid playground](https://mermaid.live/edit#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NocmlzdG1hc10gLS0-fEdldCBtb25leXwgQihHbyBzaG9wcGluZylcbiAgICBCIC0tPiBDe0xldCBtZSB0aGlua31cbiAgICBDIC0tPnxPbmV8IERbTGFwdG9wXVxuICAgIEMgLS0-fFR3b3wgRVtpUGhvbmVdXG4gICAgQyAtLT58VGhyZWV8IEZbZmE6ZmEtY2FyIENhcl1cbiAgIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRhcmtcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0) if you can't view the diagram)
+(Copy the following code blocks to a [Mermaid playground](https://mermaid.live/edit#eyJjb2RlIjoiZ3JhcGggVERcbiAgICBBW0NocmlzdG1hc10gLS0-fEdldCBtb25leXwgQihHbyBzaG9wcGluZylcbiAgICBCIC0tPiBDe0xldCBtZSB0aGlua31cbiAgICBDIC0tPnxPbmV8IERbTGFwdG9wXVxuICAgIEMgLS0-fFR3b3wgRVtpUGhvbmVdXG4gICAgQyAtLT58VGhyZWV8IEZbZmE6ZmEtY2FyIENhcl1cbiAgIiwibWVybWFpZCI6IntcbiAgXCJ0aGVtZVwiOiBcImRhcmtcIlxufSIsInVwZGF0ZUVkaXRvciI6ZmFsc2UsImF1dG9TeW5jIjp0cnVlLCJ1cGRhdGVEaWFncmFtIjpmYWxzZX0) if you can't view the diagram)
 
-### High-level
+<!-- tabs:start -->
+
+#### **High-level**
 
 ```mermaid
 flowchart TD
@@ -22,7 +24,7 @@ flowchart TD
   DONE["Inserts the courses into Elasticsearch, which allows for easy & efficient searching"]
 ```
 
-### In-depth
+#### **In depth**
 
 ```mermaid
 flowchart TD
@@ -73,11 +75,17 @@ flowchart TD
     ES --> DONE["When users search on the website, the searching is handled by Elasticsearch"]
 ```
 
+<!-- tabs:end -->
+
 ## Custom Scraping
 
 Scraping course data for multiple terms can take quite a bit of time. Caching scrapes is fantastic for quickly initializing local databases, but for scraper-related work we might need to run real scrapes often.
 
 In order to speed up scraper-related dev work we can specify custom scraping filters so that we only fetch data for a subset of the total courses for the given terms. Filters are specified in `scrapers/filters.ts` in the following format:
+
+<!-- tabs:start -->
+
+#### **Typescript types**
 
 ```ts
 const filters = {
@@ -88,7 +96,7 @@ const filters = {
 };
 ```
 
-For example:
+#### **Example**
 
 ```js
 const filters = {
@@ -99,9 +107,11 @@ const filters = {
 };
 ```
 
+<!-- tabs:end -->
+
 The custom scrape will only scrape courses that fulfill **all** filters, so the above can be read as: "Scrape all courses from all campuses that have subject "CS" or "MATH" AND have a course number 3000 or higher. Clear out my local database before inserting the custom scrape data."
 
-The custom scrape will _not_ overwrite the cache, and therefore it will also never read from the cache.
+?> The custom scrape will _not_ overwrite the cache, and therefore it will also never read from the cache.
 
 #### Flags
 
@@ -119,6 +129,4 @@ Assuming the filters include `B` but _not_ `A`:
 
 In summary, if you're looking at any course-to-course info while using a custom scrape then pay extra attention to what exactly you scraped. When in doubt, do a full scrape.
 
-The command to run the custom scrape is:
-
-`yarn scrape:custom`
+The command to run the custom scrape is: `yarn scrape:custom`

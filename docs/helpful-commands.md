@@ -14,10 +14,6 @@ Run these commands one line at a time
 
 ### Inside The Jumphost
 
-#### Q: How do I run a production scrape?
-
-- Check out `documentation/infrastructure/production_scrape.md` - it lists out the exact steps to do this
-
 #### Q: How do I view or update data in production?
 
 - `psql <DATABASE URL>` to connect to the staging or prod database and view/update data
@@ -31,7 +27,11 @@ Run these commands one line at a time
 
 #### Q: How I copy a local folder/file into the Jumphost?
 
-- In a terminal on your machine, run `scp -i <PATH TO YOUR JUMPHOST PRIVATE KEY> <PATH TO SOME FOLDER/FILE> <JUMPHOST USER>@<JUMPHOST PUBLIC IP ADDRESS>:<DIRECTORY>`
+- In a terminal on your machine, run
+
+```bash
+scp -i <PATH TO YOUR JUMPHOST PRIVATE KEY> <PATH TO SOME FOLDER/FILE> <JUMPHOST USER>@<JUMPHOST PUBLIC IP ADDRESS>:<DIRECTORY>
+```
 
 ## For Elasticsearch
 

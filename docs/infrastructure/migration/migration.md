@@ -37,7 +37,7 @@ These are other admin setup steps that aren't required but are **probably good t
 
 ## Setting up the new Terraform workspace
 
-**GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
+!> **GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
 
 1. Create a new Terraform workspace.
    - Type: Version control workflow
@@ -77,7 +77,7 @@ These are other admin setup steps that aren't required but are **probably good t
 
 ## Creating the New Infrastructure
 
-Warning: this process is ugly and error-prone, you'll likely run into unexplainable failures and have to run things multiple times. It's okay. Here are some of the steps to take, errors we've run into, and ways we've handled them.
+!> Warning: this process is ugly and error-prone, you'll likely run into unexplainable failures and have to run things multiple times. It's okay. Here are some of the steps to take, errors we've run into, and ways we've handled them.
 
 1. Trigger a run from Terraform. Creating the elasticsearch domain might fail the first time (see [this comment](https://github.com/sandboxnu/course-catalog-api/blob/master/infrastructure/terraform/modules/course-catalog-api/elasticsearch.tf#L20)). The second time you run Terraform, creating the elasticsearch domain could take up to 40 minutes.
 2. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.

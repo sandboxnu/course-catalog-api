@@ -1,7 +1,6 @@
 - Getting started
-  - [Intro](getting-started/intro.md)
   - [Prerequisites](getting-started/prereqs.md)
-  - [Cache setup](getting-started/cache-setup.md)
+  - [Cache setup](getting-started/stored-cache.md)
   - [Running the backend](getting-started/running.md)
 - Technical Details
   - [Scrapers](scrapers/scraping.md)

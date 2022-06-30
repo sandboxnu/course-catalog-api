@@ -1,4 +1,4 @@
-## Overview
+## Overview <!-- {docsify-ignore} -->
 
 The updater service can be thought of as a lightweight scrape. To compare the two:
 
