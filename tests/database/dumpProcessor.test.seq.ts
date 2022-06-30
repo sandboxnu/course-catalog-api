@@ -3,9 +3,9 @@
  * See the license file in the root folder for details.
  */
 
-import prisma from "../services/prisma";
-import dumpProcessor from "../services/dumpProcessor";
-import elastic from "../utils/elastic";
+import prisma from "../../services/prisma";
+import dumpProcessor from "../../services/dumpProcessor";
+import elastic from "../../utils/elastic";
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(true);
 
