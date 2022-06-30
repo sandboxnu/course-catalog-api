@@ -1,0 +1,17 @@
+- Getting started
+  - [Intro](getting-started/intro.md)
+  - [Prerequisites](getting-started/prereqs.md)
+  - [Cache setup](getting-started/cache-setup.md)
+  - [Running the backend](getting-started/running.md)
+- Technical Details
+  - [Scrapers](scrapers/scraping.md)
+  - [Updater](updater/updating.md)
+  - [Indexing/Searching](indexing/elasticsearch.md)
+  - [Notifications](notifications/notifications.md)
+- Infrastructure
+  - [Overview](infrastructure/infrastructure.md)
+  - [Jumphost](infrastructure/jumphost.md)
+  - [Scraping in Prod](infrastructure/scraping.md)
+  - [Migration](infrastructure/migration/migration.md)
+- [Deployment](deployment/deploy.md)
+- [Helpful Commands](helpful-commands.md)
