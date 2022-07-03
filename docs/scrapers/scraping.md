@@ -85,17 +85,6 @@ In order to speed up scraper-related dev work we can specify custom scraping fil
 
 <!-- tabs:start -->
 
-#### **Typescript types**
-
-```ts
-const filters = {
-  campus: (campus: string) => boolean,
-  subject: (subject: string) => boolean,
-  courseNumber: (courseNumber: number) => boolean,
-  truncate: boolean,
-};
-```
-
 #### **Example**
 
 ```js
@@ -104,6 +93,17 @@ const filters = {
   subject: (subject) => ["CS", "MATH"].includes(subject),
   courseNumber: (courseNumber) => courseNumber >= 3000,
   truncate: true,
+};
+```
+
+#### **Typescript types**
+
+```ts
+const filters = {
+  campus: (campus: string) => boolean,
+  subject: (subject: string) => boolean,
+  courseNumber: (courseNumber: number) => boolean,
+  truncate: boolean,
 };
 ```
 

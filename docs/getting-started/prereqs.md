@@ -16,20 +16,20 @@ To work on this project, you\'ll need a UNIX-based terminal. Mac/Linux users alr
 - Ensure that `docker-compose` was installed - run `docker-compose --help` in your terminal to check
   - If using Windows, ensure that WSL2 integration is enabled ([WSL integration](https://docs.docker.com/desktop/windows/wsl/))
 
-### Node Version Manager (nvm)
+### Fast Node Manager (fnm)
 
-- Install [NVM](https://github.com/nvm-sh/nvm) - this helps manage Node versions
-  - Run `nvm install node`
-    - This will install the latest version by default. That's fine for now, although we will be using a specific version in later steps. More on that in a bit.
-
-### Yarn
-
-- `yarn` is our package manager of choice - we use it to manage all of the dependencies we are using for this project.
-- Run `npm i -g yarn`
+- Install [FNM](https://github.com/Schniz/fnm) - this helps manage Node versions
+  - Don't install anything else yet - we'll do that in a bit
 
 ### Source code
 
 - Clone the repo: `git clone https://github.com/sandboxnu/course-catalog-api`
 - Change into the repo directory: `cd ./course-catalog-api`
-- Switch Node versions: `nvm use`
-  - There is a file called `.nvmrc` in the repository, which tells `nvm` which version to use
+- Switch Node versions: `fnm use`
+  - There is a file called `.nvmrc` in the repository, which tells `fnm` which version to use
+
+### Yarn
+
+- `yarn` is our package manager of choice - we use it to manage all of the dependencies we are using for this project.
+- Run `npm i -g yarn`
+  - If you ever switch Node versions, you'll have to reinstall this (see this [issue](https://github.com/Schniz/fnm/issues/109))
