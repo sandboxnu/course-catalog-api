@@ -1,4 +1,7 @@
-- [Frontend API](https://docs.searchneu.com)
+- [🔗 Frontend documentation](https://docs.searchneu.com)
+
+---
+
 - Getting started
   - [Prerequisites](getting-started/prereqs.md)
   - [Cache setup](getting-started/stored-cache.md)
