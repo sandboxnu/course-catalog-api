@@ -24,10 +24,11 @@ describe("Searching for courses", () => {
               }
           `);
 
-      expect(
-        "Fundamentals of Computer Science 1" in
-          (res.data?.search.nodes || []).map((node) => node.name)
-      ).toBeTruthy();
+      const result = res.data?.search.nodes || [];
+      const names = result.map((node) => node.names);
+      console.log(names);
+
+      expect("Fundamentals of Computer Science 1" in names).toBeTruthy();
     }
   });
 
