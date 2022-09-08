@@ -26,6 +26,7 @@ describe("Searching for courses", () => {
 
       const result = res.data?.search.nodes || [];
       const names = result.map((node) => node.name);
+      console.log(result);
       console.log(names);
 
       expect("Fundamentals of Computer Science 1" in names).toBeTruthy();
