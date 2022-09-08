@@ -9,18 +9,25 @@ async function query(q: DocumentNode): Promise<GraphQLResponse> {
 
 describe("Searching for courses", () => {
   // https://trello.com/c/AFcdt4tt/106-display-one-search-result-with-a-course-code
-  test("searching for a single course only returns one result", async () => {
+  test("searching for a single course returns it as a result", async () => {
     const queries = ["CS2500", "cs2500", "cs 2500", "CS 2500"];
     for (const q of queries) {
       const res = await query(gql`
             query {
                 search(termId: "202240", query: "${q}") {
-                  totalCount
+                  nodes {
+                    ... on ClassOccurrence {
+                      name
+                    }
+                  }
                 }
               }
           `);
 
-      expect(res.data?.search.totalCount).toBe(1);
+      expect(
+        "Fundamentals of Computer Science 1" in
+          (res.data?.search.nodes || []).map((node) => node.name)
+      ).toBeTruthy();
     }
   });
 
@@ -40,7 +47,7 @@ describe("Searching for courses", () => {
       }
     `);
 
-    const name = res.data.search.nodes[0].name;
+    const name = res.data?.search.nodes[0].name;
     expect(name).toMatch(/Fundamentals of Computer Science.*/);
   });
 });
