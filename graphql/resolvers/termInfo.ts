@@ -9,9 +9,17 @@ type TermInfoCache = Record<
   }
 >;
 
+/**
+ * This mechanism caches the list of terms for each subcollege.
+ * This list is only updated when new semesters are released (ie. 2-4 times a year)
+ *
+ * Every time a user first loads the SearchNEU page, they need to know which semesters are available. It makes no
+ *  sense to query Postgres every time - this isn't a scalable method, as Prisma (and psql) limit the number of connections.
+ * Instead, we can cache the list of terms, only updating it every once in a while (and not on a user-by-user basis)
+ */
 const TERM_INFO_CACHE: TermInfoCache = {};
 
-// How long should it take for the cache to be declared stale and re-fetched? 2 hours
+// How long should it take for the cache to be declared stale and re-fetched, in ms? (currently 2 hours)
 const CACHE_REFRESH_INTERVAL = 2 * 60 * 60 * 1000;
 
 // Checks if the cache is valid, or if it's time to revalidate and fetch from the database
