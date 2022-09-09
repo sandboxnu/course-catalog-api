@@ -1,4 +1,6 @@
-# Notifications
+## Overview
+
+We use Twilio for SMS notifications. At the moment, notifications are used to alert users when new seats open up in a specific section.
 
 ## Setting Up The Dev Environment (Backend)
 
@@ -15,7 +17,7 @@ Follow these steps to get the Twilio environment variables:
 
    - You can fill out your profile like this:
 
-   <img src="./twilioSetup.png" width="300" >
+   ![Profile setup](./twilioSetup.png)
 
 2. Once you're set up, the landing page contains the info for `TWILIO_ACCOUNT_SID` and `TWILIO_AUTH_TOKEN`.
    - Note: you don't need quotes in your `.env` file; you can just have something like `TWILIO_ACCOUNT_SID=abc123`.
@@ -29,8 +31,6 @@ Follow these steps to get the Twilio environment variables:
    - The service SID is the value for `TWILIO_VERIFY_SERVICE_ID` ![Twilio Verify SID](./twilioVerifySID.png)
 
 Once your `.env` file is filled out, you can start up the notification server by running `yarn dev:notifs`
-
----
 
 ## How It Works
 
