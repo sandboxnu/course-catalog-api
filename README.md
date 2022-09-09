@@ -10,4 +10,4 @@
 
 ## Docs
 
-Please see the `/docs` directory for documentation. The rendered documentation can be found on [our Github Pages](https://sandboxnu.github.io/course-catalog-api/).
+Our documentation can be found at [https://apidocs.searchneu.com/](https://apidocs.searchneu.com/)
