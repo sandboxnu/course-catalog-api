@@ -51,8 +51,6 @@ class Searcher {
 
   AGG_RES_SIZE: number;
 
-  COURSE_CODE_PATTERN: RegExp;
-
   constructor() {
     this.elastic = elastic;
     this.subjects = {};
@@ -62,7 +60,6 @@ class Searcher {
       (f): f is EsAggFilterStruct => f.agg !== false
     );
     this.AGG_RES_SIZE = 1000;
-    this.COURSE_CODE_PATTERN = /^\s*([a-zA-Z]{2,4})\s*(\d{4})?\s*$/i;
   }
 
   static generateFilters(): FilterPrelude {
@@ -177,13 +174,6 @@ class Searcher {
         this.subjects[obj.abbreviation] = obj.description;
       });
     }
-  }
-
-  /**
-   * return a set of all existing subjects of classes
-   */
-  getSubjects(): Record<string, string> {
-    return this.subjects;
   }
 
   /**
@@ -485,37 +475,21 @@ class Searcher {
   ): Promise<SearchResults> {
     await this.initializeSubjects();
     const start = Date.now();
-    let results: SearchResult[];
-    let resultCount: number;
-    let took: number;
-    let hydrateDuration: number;
-    let aggregations: AggResults;
-    // if we know that the query is of the format of a course code, we want to return only one result
-    const patternResults = query.match(this.COURSE_CODE_PATTERN);
-    const subject = patternResults ? patternResults[1].toUpperCase() : "";
-    if (
-      patternResults &&
-      macros.isNumeric(patternResults[2]) &&
-      subject in this.getSubjects()
-    ) {
-      ({ results, resultCount, took, hydrateDuration, aggregations } =
-        await this.getOneSearchResult(subject, patternResults[2], termId));
-    } else {
-      const searchResults = await this.getSearchResults(
-        query,
-        termId,
-        min,
-        max,
-        filters
-      );
-      ({ resultCount, took, aggregations } = searchResults);
-      const startHydrate = Date.now();
+    const searchResults = await this.getSearchResults(
+      query,
+      termId,
+      min,
+      max,
+      filters
+    );
+    const { resultCount, took, aggregations } = searchResults;
+    const startHydrate = Date.now();
 
-      results = await new HydrateSerializer().bulkSerialize(
-        searchResults.output
-      );
-      hydrateDuration = Date.now() - startHydrate;
-    }
+    const results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
+      searchResults.output
+    );
+    const hydrateDuration: number = Date.now() - startHydrate;
+
     return {
       searchContent: results,
       resultCount,
