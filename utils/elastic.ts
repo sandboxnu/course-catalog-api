@@ -17,6 +17,7 @@ import {
 } from "../types/searchTypes";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
+import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 
 const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";
@@ -249,7 +250,29 @@ export class Elastic {
           bulk.push(map[id]);
         }
         // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
-        const res = await client.bulk({ index: indexName, body: bulk });
+        let res = null;
+
+        // We occasionally get 429 errors from Elasticsearch, meaning that we're sending too many requests in too short a time
+        // To mitigate that, we make 5 attempts to send the request to Elasticsearch
+        for (let i = 0; i++; i < 5) {
+          try {
+            res = await client.bulk({ index: indexName, body: bulk });
+          } catch (e) {
+            // If it's a 429, we'll get a ResponseError
+            if (e instanceof ResponseError) {
+              macros.warn("Request failed - retrying...");
+              // Each time, we want to wait a little longer
+              // 750 is an arbitrary multiplier - adjust as needed
+              const timeoutMs = (i + 1) * 750;
+              // This is a simple blocking function - think `sleep()`, except JS doesn't have one, so this
+              //  does the same thing.
+              await new Promise((resolve) => setTimeout(resolve, timeoutMs));
+            } else {
+              throw e;
+            }
+          }
+        }
+
         macros.log(
           `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
         );
