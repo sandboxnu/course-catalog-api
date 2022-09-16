@@ -167,24 +167,12 @@ class DumpProcessor {
 
     // First, we break the sections into groups of 2000 each. Each group will become 1 query
     const groupedSections = _.chunk(processedSections, 2000);
-    // Then, we break the groups into further groups of 5
-    // Each of those 5 groups is a group of 2000 sections (or one query)
     // We do this because Prisma can only handle 15 simultaneous connections, so we want to make sure
-    //  we aren't exhausing the connection pool by only sending 5 queries at a time
-    const groupedSectionGroups = _.chunk(groupedSections, 5);
+    //  we aren't exhausing the connection pool
 
-    for (const sectionGroup of groupedSectionGroups) {
-      await Promise.all(
-        sectionGroup.map(async (sections) => {
-          await prisma.$executeRawUnsafe(
-            this.bulkUpsert(
-              "sections",
-              sectionCols,
-              sectionTransforms,
-              sections
-            )
-          );
-        })
+    for (const sections of groupedSections) {
+      await prisma.$executeRawUnsafe(
+        this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
       );
     }
 

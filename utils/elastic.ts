@@ -258,6 +258,7 @@ export class Elastic {
           try {
             res = await client.bulk({ index: indexName, body: bulk });
           } catch (e) {
+            macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
             // If it's a 429, we'll get a ResponseError
             if (e instanceof ResponseError) {
               macros.warn("Request failed - retrying...");
