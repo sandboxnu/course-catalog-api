@@ -11,8 +11,13 @@ Run these commands in order:
 4. `yarn db:refresh`
    - This generated a custom Prisma client for our project
    - **Prisma** is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) - it allows us to communicate with our database in a Javascript-based fashion, instead of executing raw SQL statements
+
+!> **Important:** If you are not on the Northeasern `NUWave` wifi (or don't want to wait for a scrape \[~30 minutes\]), please read the "Cache structure" page.
+
 5. `yarn scrape`
-   - Normally, this command would scrape Northeastern's course catalog for course data. **However**, since we have a `cache` directory, it just populates our database with the cached data.
+   - Normally, this command would scrape Northeastern's course catalog for course data.
+     - If you have installed the cache (see "Cache structure"), this command will just populate our database with the cached data. No network calls will be made.
+     - If not, this will scrape Northeastern's live Banner API.
 6. `yarn scrape`
    - You read that right - re-run the scrape command.
    - The second pass-through is necessary to create the table for the term IDs (every term/semester has a unique Northeastern ID). We only store the term IDs for which we have course data, so we need one pass to actually gather the course data, and one to populate the term IDs by comparing against the course data we now how.
