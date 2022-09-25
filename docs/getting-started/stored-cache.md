@@ -1,3 +1,9 @@
+?> **Note:** If you're currently on the Northeastern `NUWave` wifi, you can skip this step during setup. However, we highly recommend reading this page!
+
+## What's a cache?
+
+A cache is a locally-stored version of the data we would normally scrape from the Banner API.
+
 ## Why use a cache?
 
 This project uses a lot of data, and getting that data takes a long time.
