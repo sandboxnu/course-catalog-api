@@ -237,8 +237,10 @@ class CombineCCISandEmployees {
             const personFirstNameLower = person.firstName.toLowerCase();
             const personLastNameLower = person.lastName.toLowerCase();
 
-            const matchedPersonFirstNameLower = matchedPerson.firstName.toLowerCase();
-            const matchedPersonLastNameLower = matchedPerson.lastName.toLowerCase();
+            const matchedPersonFirstNameLower =
+              matchedPerson.firstName.toLowerCase();
+            const matchedPersonLastNameLower =
+              matchedPerson.lastName.toLowerCase();
 
             const firstMatch =
               personFirstNameLower.includes(matchedPersonFirstNameLower) ||

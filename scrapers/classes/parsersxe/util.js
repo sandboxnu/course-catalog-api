@@ -72,8 +72,7 @@ async function getCookiesForSearch(termCode) {
   // first, get the cookies
   // https://jennydaman.gitlab.io/nubanned/dark.html#studentregistrationssb-clickcontinue-post
   const clickContinue = await request.post({
-    url:
-      "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search?mode=search",
+    url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search?mode=search",
     form: {
       term: termCode,
     },

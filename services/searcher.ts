@@ -367,9 +367,9 @@ class Searcher {
     const serializer = new HydrateCourseSerializer();
     const showCourse = result && result.sections && result.sections.length > 0;
     // don't show search result of course with no sections
-    const resultOutput: SSRSerializerOutput = (showCourse
-      ? await serializer.bulkSerialize([result])
-      : {}) as SSRSerializerOutput;
+    const resultOutput: SSRSerializerOutput = (
+      showCourse ? await serializer.bulkSerialize([result]) : {}
+    ) as SSRSerializerOutput;
     const results: SearchResult[] = Object.values(resultOutput);
     return {
       results,
@@ -427,13 +427,8 @@ class Searcher {
       macros.isNumeric(patternResults[2]) &&
       subject in this.getSubjects()
     ) {
-      ({
-        results,
-        resultCount,
-        took,
-        hydrateDuration,
-        aggregations,
-      } = await this.getOneSearchResult(subject, patternResults[2], termId));
+      ({ results, resultCount, took, hydrateDuration, aggregations } =
+        await this.getOneSearchResult(subject, patternResults[2], termId));
     } else {
       const searchResults = await this.getSearchResults(
         query,

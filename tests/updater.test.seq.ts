@@ -208,7 +208,7 @@ function createSection(
       seatsRemaining,
       waitRemaining,
       info: "",
-      meetings: (sec.meetings as unknown) as InputJsonValue, // FIXME sus
+      meetings: sec.meetings as unknown as InputJsonValue, // FIXME sus
       profs: { set: sec.profs },
       course: { connect: { id: Keys.getClassHash(sec) } },
     },

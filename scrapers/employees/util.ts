@@ -29,9 +29,10 @@ export function occurrences(
   return n;
 }
 
-export function parseNameWithSpaces(
-  name: string
-): { firstName: string; lastName: string } {
+export function parseNameWithSpaces(name: string): {
+  firstName: string;
+  lastName: string;
+} {
   // Standardize spaces.
   name = name.trim().replace(/\s+/gi, " ");
 

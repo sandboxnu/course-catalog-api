@@ -150,8 +150,7 @@ class Employee {
 
     this.cookiePromise = request
       .get({
-        url:
-          "https://prod-web.neu.edu/wasapp/employeelookup/public/main.action",
+        url: "https://prod-web.neu.edu/wasapp/employeelookup/public/main.action",
       })
       .then((resp) => {
         // Parse the cookie from the response
