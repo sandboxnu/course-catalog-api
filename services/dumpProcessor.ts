@@ -138,10 +138,8 @@ class DumpProcessor {
       macros.log("DumpProcessor: finished with profs");
     }
 
-    // First, we break the classes into groups of 2000 each. Each group will become 1 query
+    // Break the classes into groups of 2000 each. Each group will become 1 query
     const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
-    // We do this because Prisma can only handle 15 simultaneous connections, so we want to make sure
-    //  we aren't exhausing the connection pool
     for (const courses of groupedClasses) {
       await prisma.$executeRawUnsafe(
         this.bulkUpsert(
@@ -165,11 +163,8 @@ class DumpProcessor {
       .map((section) => this.constituteSection(section, coveredTerms))
       .filter((s) => courseIds.has(s.classHash));
 
-    // First, we break the sections into groups of 2000 each. Each group will become 1 query
+    // Break the sections into groups of 2000 each. Each group will become 1 query
     const groupedSections = _.chunk(processedSections, 2000);
-    // We do this because Prisma can only handle 15 simultaneous connections, so we want to make sure
-    //  we aren't exhausing the connection pool
-
     for (const sections of groupedSections) {
       await prisma.$executeRawUnsafe(
         this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
