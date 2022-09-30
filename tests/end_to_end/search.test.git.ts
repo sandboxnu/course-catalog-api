@@ -62,14 +62,14 @@ describe("Searching for professors", () => {
               name
               firstName
               lastName
-              emails
+              email
             }
           }
         }
       }
     `);
 
-    const obj = res.data.search.nodes[0];
+    const obj = res.data?.search.nodes[0];
     expect(obj.firstName).toBe("Jason");
     expect(obj.lastName).toBe("Hemann");
     expect(obj.name).toBe("Jason Hemann");
@@ -82,14 +82,14 @@ describe("Searching for professors", () => {
               name
               firstName
               lastName
-              emails
+              email
             }
           }
         }
       }
     `);
 
-    const obj2 = res2.data.search.nodes[0];
+    const obj2 = res2.data?.search.nodes[0];
     expect(obj2.name).toBe("Jeff Burds");
   });
 });
