@@ -132,7 +132,6 @@ class NeuEmployee {
     macros.verbose("Done all employee requests");
 
     if (macros.DEV) {
-      macros.log("cache");
       await cache.set(
         macros.DEV_DATA_DIR,
         this.constructor.name,
