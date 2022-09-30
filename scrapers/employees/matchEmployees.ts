@@ -52,7 +52,7 @@ class Employees {
     ];
 
     const filteredList = employeeList.filter((person) => {
-      return hiddenProfs.includes(person.email);
+      return !hiddenProfs.includes(person.email);
     });
 
     // Remove data from individual entries
@@ -90,7 +90,10 @@ class Employees {
       JSON.stringify(employeeDump)
     );
 
-    macros.log("Done scraping employees!\n\n".green.underline);
+    macros.log(
+      `Done scraping employees! (found ${employeeList.length})\n\n`.green
+        .underline
+    );
     return employeeList;
   }
 }
