@@ -23,7 +23,6 @@ import {
   RequestAnalytics,
   CustomRequestConfig,
   RequestPool,
-  PartialRequestConfig,
   AmplitudeEvent,
   AgentAnalytics,
 } from "../types/requestTypes";
@@ -557,7 +556,7 @@ class RequestInput {
     }
   }
 
-  async request(config: PartialRequestConfig): Promise<Response> {
+  async request(config: Partial<CustomRequestConfig>): Promise<Response> {
     const output = {};
     config = this.standardizeInputConfig(config);
 
@@ -568,7 +567,7 @@ class RequestInput {
   }
 
   standardizeInputConfig(
-    config: PartialRequestConfig | string,
+    config: Partial<CustomRequestConfig> | string,
     method = "GET"
   ): CustomRequestConfig {
     if (typeof config === "string") {
@@ -598,72 +597,40 @@ class RequestInput {
     return config as CustomRequestConfig;
   }
 
-  static get(config): Promise<Response> {
-    return new this(null).get(config);
-  }
-
   // Helpers for get and post
-  async get(config: PartialRequestConfig | undefined): Promise<Response> {
-    if (!config) {
-      macros.error("Warning, request get called with no config");
-      return null;
-    }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "GET",
-      });
-    }
-
-    config.method = "GET";
-    return this.request(config);
+  async get(
+    url: string,
+    config?: Partial<CustomRequestConfig>
+  ): Promise<Response> {
+    return this.prepareRequest(url, config, "GET");
   }
 
-  async post(config: PartialRequestConfig): Promise<null | Response> {
+  async post(
+    url: string,
+    config: Partial<CustomRequestConfig>
+  ): Promise<null | Response> {
+    return this.prepareRequest(url, config, "POST");
+  }
+
+  private async prepareRequest(
+    url: string,
+    config: Partial<CustomRequestConfig>,
+    method: "GET" | "POST"
+  ): Promise<null | Response> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
     }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "POST",
-      });
-    }
 
-    config.method = "POST";
+    config.method = method;
+    config.url = url;
+    // FIXME remove, break the URL out of the config
     return this.request(config);
-  }
-
-  async head(config: PartialRequestConfig): Promise<null | Response> {
-    if (!config) {
-      macros.error("Warning, request head called with no config");
-      return null;
-    }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "HEAD",
-      });
-    }
-
-    config.method = "HEAD";
-    return instance.request(config as CustomRequestConfig);
   }
 
   // Pass through methods to deal with cookies.
   jar(): CookieJar {
     return request.jar();
-  }
-
-  cookie(cookie): Cookie {
-    return request.cookie(cookie);
-  }
-
-  // Do a head request. If that fails, do a get request. If that fails, the site is down and return false
-  // need to turn off high retry count
-  async isPageUp(): Promise<void> {
-    throw new Error("This does not work yet");
   }
 }
 

@@ -22,8 +22,8 @@ export interface AgentAnalytics {
 }
 
 export interface CustomRequestConfig extends CoreOptions {
-  url: string;
   method: string;
+  url: string;
   cache?: boolean;
   cacheName?: string;
   headers?: Record<string, string>;
@@ -32,10 +32,6 @@ export interface CustomRequestConfig extends CoreOptions {
   shortBodyWarning?: boolean;
   pool?: RequestPool;
 }
-
-export type PartialRequestConfig =
-  | (Partial<CustomRequestConfig> & { url: string })
-  | string;
 
 export interface NativeRequestConfig extends CustomRequestConfig {
   method: string;

@@ -258,15 +258,17 @@ class ClassParser {
      * if the request fails because termId and/or crn are invalid,
      * request will retry 35 attempts before crashing.
      */
-    return await request.post({
-      url: `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/${endpoint}`,
-      form: {
-        term: termId,
-        subjectCode: subject,
-        courseNumber: classId,
-      },
-      cache: false,
-    });
+    return await request.post(
+      `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/${endpoint}`,
+      {
+        form: {
+          term: termId,
+          subjectCode: subject,
+          courseNumber: classId,
+        },
+        cache: false,
+      }
+    );
   }
 
   getAllCourseRefs(course: ParsedCourseSR): Record<string, CourseRef> {
