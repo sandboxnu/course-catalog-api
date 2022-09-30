@@ -9,7 +9,7 @@ import { ESProfessor } from "../types/serializerTypes";
 
 class ElasticProfSerializer extends ProfSerializer<ESProfessor> {
   _serializeProf(prof: PrismaProfessor): ESProfessor {
-    return _.pick(prof, ["id", "name", "emails", "phone"]);
+    return _.pick(prof, ["id", "name", "email", "phone"]);
   }
 }
 
