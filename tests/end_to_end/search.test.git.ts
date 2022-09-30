@@ -56,7 +56,7 @@ describe("Searching for professors", () => {
   test("searching by professor name", async () => {
     const res = await query(gql`
       query {
-        search(termId: "202240", query: "jason hemann") {
+        search(termId: "202240", query: "Felleisen Matthias") {
           nodes {
             ... on Employee {
               name
@@ -70,9 +70,9 @@ describe("Searching for professors", () => {
     `);
 
     const obj = res.data?.search.nodes[0];
-    expect(obj.firstName).toBe("Jason");
-    expect(obj.lastName).toBe("Hemann");
-    expect(obj.name).toBe("Jason Hemann");
+    expect(obj.firstName).toBe("Matthias");
+    expect(obj.lastName).toBe("Felleisen");
+    expect(obj.name).toBe("Matthias Felleisen");
 
     const res2 = await query(gql`
       query {
