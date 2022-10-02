@@ -14,7 +14,7 @@ interface SearchResultItemConnection {
   filterOptions: AggResults;
   isCurrentTerm: boolean;
 }
-function determineIfCurrentTerm(termId: String) {
+function determineIfCurrentTerm(termId: string) {
   return true;
 }
 interface SearchArgs {
