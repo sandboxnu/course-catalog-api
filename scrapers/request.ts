@@ -556,33 +556,32 @@ class RequestInput {
     }
   }
 
-  async request(config: Partial<CustomRequestConfig>): Promise<Response> {
-    const output = {};
-    config = this.standardizeInputConfig(config);
+  private async request(
+    url: string,
+    config: Partial<CustomRequestConfig>,
+    method: "GET" | "POST"
+  ): Promise<Response> {
+    if (!config) {
+      macros.error("Warning, request post called with no config");
+      return null;
+    }
 
+    config.method = method;
+    config.url = url;
+    // FIXME remove, break the URL out of the config
+
+    const output = {};
     // Use the fields from this.config that were not specified in cache.
-    Object.assign(output, this.config, config);
+    Object.assign(output, this.config, this.standardizeInputConfig(config));
 
     return instance.request(output as CustomRequestConfig);
   }
 
   standardizeInputConfig(
-    config: Partial<CustomRequestConfig> | string,
-    method = "GET"
+    config: Partial<CustomRequestConfig>
   ): CustomRequestConfig {
-    if (typeof config === "string") {
-      config = {
-        method: method,
-        url: config,
-      };
-    }
-
     if (!config.headers) {
       config.headers = {};
-    }
-
-    if (!config.method) {
-      config.method = method;
     }
 
     if (macros.DEV) {
@@ -602,30 +601,14 @@ class RequestInput {
     url: string,
     config?: Partial<CustomRequestConfig>
   ): Promise<Response> {
-    return this.prepareRequest(url, config, "GET");
+    return this.request(url, config, "GET");
   }
 
   async post(
     url: string,
     config: Partial<CustomRequestConfig>
   ): Promise<null | Response> {
-    return this.prepareRequest(url, config, "POST");
-  }
-
-  private async prepareRequest(
-    url: string,
-    config: Partial<CustomRequestConfig>,
-    method: "GET" | "POST"
-  ): Promise<null | Response> {
-    if (!config) {
-      macros.error("Warning, request post called with no config");
-      return null;
-    }
-
-    config.method = method;
-    config.url = url;
-    // FIXME remove, break the URL out of the config
-    return this.request(config);
+    return this.request(url, config, "POST");
   }
 
   // Pass through methods to deal with cookies.
