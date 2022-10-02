@@ -14,8 +14,18 @@ interface SearchResultItemConnection {
   filterOptions: AggResults;
   isCurrentTerm: boolean;
 }
-function determineIfCurrentTerm(termId: Number) {
-  return true;
+function determineIfCurrentTerm(termId: number): boolean {
+  const termIdStringify: String = termId.toString();
+  const termIdYear: Number = +termIdStringify.substring(0, 4);
+
+  const date = new Date();
+  const year = date.getFullYear();
+
+  if (termIdYear < year) {
+    return false;
+  }
+
+  return false;
 }
 interface SearchArgs {
   termId: number;
