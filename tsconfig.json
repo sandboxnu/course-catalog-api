@@ -4,10 +4,9 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "jsx": "react",
-    "lib": ["dom", "es5", "scripthost", "es2015.promise"],
+    "lib": ["es2020"],
+    "downlevelIteration": true,
     "skipLibCheck": true
   },
-  "include": ["./scrapers/**/*"],
   "exclude": ["node_modules"]
 }
