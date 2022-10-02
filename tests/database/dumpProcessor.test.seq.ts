@@ -53,13 +53,9 @@ describe("with professors", () => {
         firstName: "Benjamin",
         lastName: "Lerner",
         phone: "6173732462",
-        emails: ["be.lerner@northeastern.edu", "blerner@ccs.neu.edu"],
+        email: "be.lerner@northeastern.edu",
         primaryRole: "Assistant Teaching Professor",
         primaryDepartment: "Khoury",
-        url: "https://www.khoury.northeastern.edu/people/benjamin-lerner/",
-        personalSite: "http://www.ccs.neu.edu/home/blerner/",
-        bigPictureUrl:
-          "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Benjamin-Lerner-hero-image.jpg",
       },
       {
         id: "hijklmnop",
@@ -67,7 +63,7 @@ describe("with professors", () => {
         firstName: "Neal",
         lastName: "Lerner",
         phone: "6173732451",
-        emails: ["n.lerner@northeastern.edu"],
+        email: "n.lerner@northeastern.edu",
         primaryRole: "Professor & Chair",
         primaryDepartment: "English",
       },
@@ -77,14 +73,9 @@ describe("with professors", () => {
         firstName: "Alan",
         lastName: "Mislove",
         phone: "6173737069",
-        emails: ["a.mislove@northeastern.edu", "amislove@ccs.neu.edu"],
+        email: "a.mislove@northeastern.edu",
         primaryRole: "Professor",
         primaryDepartment: "Khoury",
-        url: "https://www.khoury.northeastern.edu/people/alan-mislove/",
-        personalSite: "https://mislove.org",
-        googleScholarId: "oAqKi9MAAAAJ",
-        bigPictureUrl:
-          "https://www.khoury.northeastern.edu/wp-content/uploads/2016/02/Alan-Mislove_cropped-hero-image.jpg",
       },
     ];
 

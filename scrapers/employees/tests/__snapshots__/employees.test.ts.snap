@@ -4,9 +4,6 @@ exports[`static data should be able to parse API responses 1`] = `
 Array [
   Object {
     "email": "m.abedi@northeastern.edu",
-    "emails": Array [
-      "m.abedi@northeastern.edu",
-    ],
     "firstName": "Mehdi",
     "id": "m.abedi@northeastern.edu",
     "lastName": "Abedi",
@@ -18,9 +15,6 @@ Array [
   },
   Object {
     "email": "h.abeels@northeastern.edu",
-    "emails": Array [
-      "h.abeels@northeastern.edu",
-    ],
     "firstName": "Hannah",
     "id": "h.abeels@northeastern.edu",
     "lastName": "Abeels",
@@ -32,9 +26,6 @@ Array [
   },
   Object {
     "email": "s.abel@northeastern.edu",
-    "emails": Array [
-      "s.abel@northeastern.edu",
-    ],
     "firstName": "Sherry",
     "id": "s.abel@northeastern.edu",
     "lastName": "Abel",
@@ -46,9 +37,6 @@ Array [
   },
   Object {
     "email": "p.abelli@northeastern.edu",
-    "emails": Array [
-      "p.abelli@northeastern.edu",
-    ],
     "firstName": "Peter",
     "id": "p.abelli@northeastern.edu",
     "lastName": "Abelli",
@@ -60,9 +48,6 @@ Array [
   },
   Object {
     "email": "m.abels@northeastern.edu",
-    "emails": Array [
-      "m.abels@northeastern.edu",
-    ],
     "firstName": "Margot",
     "id": "m.abels@northeastern.edu",
     "lastName": "Abels",
@@ -74,9 +59,6 @@ Array [
   },
   Object {
     "email": "e.ackerman@northeastern.edu",
-    "emails": Array [
-      "e.ackerman@northeastern.edu",
-    ],
     "firstName": "Elizabeth",
     "id": "e.ackerman@northeastern.edu",
     "lastName": "Ackerman",
@@ -88,9 +70,6 @@ Array [
   },
   Object {
     "email": "m.acosta@northeastern.edu",
-    "emails": Array [
-      "m.acosta@northeastern.edu",
-    ],
     "firstName": "Beth",
     "id": "m.acosta@northeastern.edu",
     "lastName": "Acosta",
@@ -102,9 +81,6 @@ Array [
   },
   Object {
     "email": "m.adams@northeastern.edu",
-    "emails": Array [
-      "m.adams@northeastern.edu",
-    ],
     "firstName": "Marybeth",
     "id": "m.adams@northeastern.edu",
     "lastName": "Adams-Khoury",
@@ -116,9 +92,6 @@ Array [
   },
   Object {
     "email": "j.adelberg@northeastern.edu",
-    "emails": Array [
-      "j.adelberg@northeastern.edu",
-    ],
     "firstName": "Jeff",
     "id": "j.adelberg@northeastern.edu",
     "lastName": "Adelberg",

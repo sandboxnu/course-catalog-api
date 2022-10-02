@@ -212,7 +212,7 @@ class Searcher {
       "sections.profs",
       "sections.crn",
       "employee.name^2",
-      "employee.emails",
+      "employee.email",
       "employee.phone",
     ];
   }
