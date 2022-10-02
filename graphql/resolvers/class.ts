@@ -94,7 +94,7 @@ const resolvers = {
     class: (parent, args) => {
       return getLatestClassOccurrence(args.subject, args.classId);
     },
-    bulkClass: (parent, args) => {
+    bulkClasses: (parent, args) => {
       return getBulkClassOccurrences(args.input);
     },
     classByHash: (parent, args) => {

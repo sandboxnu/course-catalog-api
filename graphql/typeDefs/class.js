@@ -3,7 +3,7 @@ import { gql } from "apollo-server";
 const typeDef = gql`
   extend type Query {
     class(subject: String!, classId: String!): Class
-    bulkClass(input: [BulkClassInput!]!): [Class!]
+    bulkClasses(input: [BulkClassInput!]!): [Class!]
     classByHash(hash: String!): ClassOccurrence
     sectionByHash(hash: String!): Section
   }
