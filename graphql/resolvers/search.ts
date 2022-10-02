@@ -14,7 +14,7 @@ interface SearchResultItemConnection {
   filterOptions: AggResults;
   isCurrentTerm: boolean;
 }
-function determineIfCurrentTerm(termId: string) {
+function determineIfCurrentTerm(termId: Number) {
   return true;
 }
 interface SearchArgs {
@@ -68,7 +68,7 @@ const resolvers = {
           hasNextPage,
         },
         filterOptions: results.aggregations,
-        isCurrentTerm: determineIfCurrentTerm(),
+        isCurrentTerm: isCurrentTerm,
       };
     },
   },
