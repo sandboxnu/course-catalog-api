@@ -457,7 +457,6 @@ class Searcher {
       honors: [{ value: result.sections[0].honors.toString(), count: 1 }],
     };
   }
-
   /**
    * Search for classes and employees
    * @param  {string}  query  The search to query for
@@ -489,7 +488,6 @@ class Searcher {
       searchResults.output
     );
     const hydrateDuration: number = Date.now() - startHydrate;
-
     return {
       searchContent: results,
       resultCount,

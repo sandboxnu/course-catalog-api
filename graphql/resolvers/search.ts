@@ -12,8 +12,11 @@ interface SearchResultItemConnection {
   };
   nodes: SearchResultItem[];
   filterOptions: AggResults;
+  isCurrentTerm: boolean;
 }
-
+function determineIfCurrentTerm(termId: String) {
+  return true;
+}
 interface SearchArgs {
   termId: number;
   query?: string;
@@ -53,7 +56,7 @@ const resolvers = {
       );
 
       const hasNextPage = offset + first < results.resultCount;
-
+      const isCurrentTerm: boolean = determineIfCurrentTerm(args.termId);
       return {
         totalCount: results.resultCount,
         nodes: results.searchContent.map((r) =>
@@ -65,6 +68,7 @@ const resolvers = {
           hasNextPage,
         },
         filterOptions: results.aggregations,
+        isCurrentTerm: determineIfCurrentTerm(),
       };
     },
   },
