@@ -7,7 +7,8 @@ import { Course, Requisite, Section } from "../../types/types";
 
 jest.mock("../../services/searcher");
 
-const { query } = createTestClient(server);
+// there's a type-mismatch between apollo-server-testing and apollo-server: use `any`
+const { query } = createTestClient(server as any);
 
 const EMPTY_REQ: Requisite = {
   type: "or",

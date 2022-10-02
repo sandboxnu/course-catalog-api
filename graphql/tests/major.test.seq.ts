@@ -3,7 +3,8 @@ import { gql } from "apollo-server";
 import prisma from "../../services/prisma";
 import server from "../index";
 
-const { query } = createTestClient(server);
+// there's a type-mismatch between apollo-server-testing and apollo-server: use `any`
+const { query } = createTestClient(server as any);
 
 beforeAll(async () => {
   await prisma.major.deleteMany({});

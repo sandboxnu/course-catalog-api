@@ -136,9 +136,9 @@ describe("with classes", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.course.count()).toEqual(3);
   });
 });
@@ -203,9 +203,9 @@ describe("with sections", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.section.count()).toEqual(3);
   });
 });
@@ -266,7 +266,6 @@ describe("with updates", () => {
       sections: [],
       classes: [
         {
-          id: "neu.edu/202030/CS/3500",
           maxCredits: 4,
           minCredits: 4,
           host: "neu.edu",
@@ -278,9 +277,9 @@ describe("with updates", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
-    await dumpProcessor.main({ termDump: termDump });
+    await dumpProcessor.main({ termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
     expect(await prisma.subject.count()).toEqual(1);
