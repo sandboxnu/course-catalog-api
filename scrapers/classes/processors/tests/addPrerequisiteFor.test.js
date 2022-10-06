@@ -2,8 +2,6 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-
-import Keys from "../../../../utils/keys";
 import addPrerequisiteFor from "../addPrerequisiteFor";
 
 describe("addPrerequisiteForFor tests", () => {

@@ -3,12 +3,16 @@
  * See the license file in the root folder for details.
  */
 import { gql } from "apollo-server";
+import { GraphQLResponse } from "apollo-server-core";
 import { DocumentNode } from "graphql";
 import prisma from "../../services/prisma";
 import server from "../index";
 
-const query = async (queryBody: { query: string | DocumentNode }) =>
-  server.executeOperation(queryBody);
+const query = async (queryBody: {
+  query: string | DocumentNode;
+}): Promise<GraphQLResponse> => {
+  return server.executeOperation(queryBody);
+};
 
 beforeAll(async () => {
   await prisma.section.deleteMany({});

@@ -25,7 +25,6 @@ export const getSubjectAbbreviations = _.memoize(async (termId: string) => {
 
 export const getSubjectDescriptions = _.memoize(async (termId: string) => {
   const subjectResponse = await requestSubjects(termId);
-  console.log(subjectResponse);
   return createAbbrTable(subjectResponse);
 });
 
