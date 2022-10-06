@@ -138,18 +138,28 @@ class DumpProcessor {
       macros.log("DumpProcessor: finished with profs");
     }
 
-    await Promise.all(
-      _.chunk(Object.values(termDump.classes), 2000).map(async (courses) => {
-        await prisma.$executeRawUnsafe(
-          this.bulkUpsert(
-            "courses",
-            courseCols,
-            courseTransforms,
-            courses.map((c) => this.constituteCourse(c, coveredTerms))
-          )
-        );
-      })
-    );
+    // First, we break the classes into groups of 2000 each. Each group will become 1 query
+    const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
+    // Then, we break the groups into further groups of 5
+    // Each of those 5 groups is a group of 2000 classes (or one query)
+    // We do this because Prisma can only handle 15 simultaneous connections, so we want to make sure
+    //  we aren't exhausing the connection pool by only sending 5 queries at a time
+    const groupedClassGroups = _.chunk(groupedClasses, 5);
+
+    for (const classGroup of groupedClassGroups) {
+      await Promise.all(
+        classGroup.map(async (courses) => {
+          await prisma.$executeRawUnsafe(
+            this.bulkUpsert(
+              "courses",
+              courseCols,
+              courseTransforms,
+              courses.map((c) => this.constituteCourse(c, coveredTerms))
+            )
+          );
+        })
+      );
+    }
 
     macros.log("DumpProcessor: finished with courses");
 
@@ -163,13 +173,28 @@ class DumpProcessor {
       .map((section) => this.constituteSection(section, coveredTerms))
       .filter((s) => courseIds.has(s.classHash));
 
-    await Promise.all(
-      _.chunk(processedSections, 2000).map(async (sections) => {
-        await prisma.$executeRawUnsafe(
-          this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
-        );
-      })
-    );
+    // First, we break the sections into groups of 2000 each. Each group will become 1 query
+    const groupedSections = _.chunk(processedSections, 2000);
+    // Then, we break the groups into further groups of 5
+    // Each of those 5 groups is a group of 2000 sections (or one query)
+    // We do this because Prisma can only handle 15 simultaneous connections, so we want to make sure
+    //  we aren't exhausing the connection pool by only sending 5 queries at a time
+    const groupedSectionGroups = _.chunk(groupedSections, 5);
+
+    for (const sectionGroup of groupedSectionGroups) {
+      await Promise.all(
+        sectionGroup.map(async (sections) => {
+          await prisma.$executeRawUnsafe(
+            this.bulkUpsert(
+              "sections",
+              sectionCols,
+              sectionTransforms,
+              sections
+            )
+          );
+        })
+      );
+    }
 
     macros.log("DumpProcessor: finished with sections");
 

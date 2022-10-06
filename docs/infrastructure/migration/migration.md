@@ -1,12 +1,14 @@
-# Migrating Infrastructure To New AWS Account
+This document covers how we migrate infrastructure.
 
-Until we have a better system, the SearchNEU team will have to periodically migrate the infrastructure to a new AWS account when the old one runs out of AWS credits. Here are the things you'll need to do:
+Since SearchNEU has inherent turnover amongst its team, we want to keep accounts in the hands of active members. That requires some migration of the infrastructure from time to time
+
+## Migrating AWS accounts
+
+We have to periodically migrate the infrastructure to a new AWS account when the old one runs out of AWS credits. Here are the things you'll need to do:
 
 ### Create a new AWS account and apply for AWS credits
 
-1. Create a new AWS account using someone's northeastern email.
-
-Follow these steps for AWS Activate (per project):
+Create a new AWS account using someone's northeastern email, then follow these steps for AWS Activate (per project):
 
 1.  Visit the AWS Activate webpage https://aws.amazon.com/activate/portfolio-signup to apply.
 2.  Ask someone on the Sandbox E-Board for the Organization ID (case-sensitive) on your application form. (Note: This is not a promotional code that can be used in your Billing Console)
@@ -15,7 +17,9 @@ Follow these steps for AWS Activate (per project):
 5.  Email aws@sandboxnu.com with an email including the project name and some basic details. This is an unofficial step but will let Sandbox know that we can "OK" the credit package.
 6.  The Sandbox exec director has to approve the request for AWS credits so if it's been a few days, just message them to get it approved! You can check whether or not you received the credits by going to Billing > Credits.
 
-### Some other admin setup steps that aren't required but probably good to do
+### Optinal setup steps
+
+These are other admin setup steps that aren't required but are **probably good to do**
 
 - Go to Billing Preferences and check `Receive Billing Alerts` and `Receive Free Tier Usage Alerts` cuz you probably want those alerts
 - Create a billing alarm (set thresholds you're comfortable with) so you can get notified if you're getting charged more than you expect
@@ -33,7 +37,7 @@ Follow these steps for AWS Activate (per project):
 
 ## Setting up the new Terraform workspace
 
-**GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
+!> **GOTCHA**: You can't just replace the existing `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` in Terraform because Terraform maintains some internal state with each applied run, so it'll still think you're trying to apply infrastructure changes to the old account (and fail because the new AWS access keys are for the new account). This means you either have to manually destroy the Terraform plan - not the best option - or create a new Terraform workspace - the better option.
 
 1. Create a new Terraform workspace.
    - Type: Version control workflow
@@ -73,7 +77,7 @@ Follow these steps for AWS Activate (per project):
 
 ## Creating the New Infrastructure
 
-Warning: this process is ugly and error-prone, you'll likely run into unexplainable failures and have to run things multiple times. It's okay. Here are some of the steps to take, errors we've run into, and ways we've handled them.
+!> Warning: this process is ugly and error-prone, you'll likely run into unexplainable failures and have to run things multiple times. It's okay. Here are some of the steps to take, errors we've run into, and ways we've handled them.
 
 1. Trigger a run from Terraform. Creating the elasticsearch domain might fail the first time (see [this comment](https://github.com/sandboxnu/course-catalog-api/blob/master/infrastructure/terraform/modules/course-catalog-api/elasticsearch.tf#L20)). The second time you run Terraform, creating the elasticsearch domain could take up to 40 minutes.
 2. If this hasn't been configured in Terraform, go to EC2 -> Target Groups (under Load Balancers) and change the health check path for both staging and prod to `/.well-known/apollo/server-health`. This is the status check path for the Apollo GraphQL server. The default path of `/` won't work and will cause all the ECS tasks to get killed because the load balancer thinks they're unhealthy.
@@ -82,4 +86,17 @@ Warning: this process is ugly and error-prone, you'll likely run into unexplaina
 
 ## Make Sure Graduate Isn't Broken
 
+Graduate is a Sandbox project which relies on our API.
+
 1. Migrate major data into the production database so Graduate doesn't break. Ask someone on the Graduate team for an up-to-date `majors.json` file, put that inside the `./data` directory, and run the `migrate_major_data` script inside `./scripts` by running `DATABASE_URL=<PROD DATABASE URL> yarn babel-node-ts scripts/migrate_major_data.ts`.
+
+## Changing the Staging URL
+
+This isn't something that needs to happen often, but we have had to change our staging URL before from `staging.api.searchneu.com` to `stagingapi.searchneu.com` because our SSL certificate only covered one wildcard subdomain.
+
+1. In `staging.tf`, change `domains` to the desired name.
+2. Apply and run Terraform with this change. At this point, the AWS load balancer should have a rule for the new domain, something like `IF Host is stagingapi.searchneu.com THEN forward to somewhere`. CloudFlare should also have a new CNAME record for this new domain.
+3. However, if you visit the new domain, you'll probably get a 526 Invalid SSL Certificate error. This is because you need a new certificate in AWS ACM that covers this new domain.
+4. To set up this new certificate, go to AWS ACM and request a new public certificate. Fill in the appropriate domain names and choose `DNS validation`.
+5. The certificate status will say `Pending validation` until you add the given CNAME record(s) to CloudFlare with proxy status `DNS only`.
+6. Finally, to put this certificate to use, go to the AWS load balancer -> Listeners -> select the listener with an SSL certificate -> Edit and change the default SSL certificate to the newly created one.

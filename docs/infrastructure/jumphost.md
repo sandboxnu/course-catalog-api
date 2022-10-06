@@ -1,4 +1,8 @@
-# How to access the Jumphost
+## What is a jumphost?
+
+A jump server, jump host or jump box is a system on a network used to access and manage devices in a separate security zone. For SearchNEU, the jumphost is an EC2 that can connect to the rest of the AWS infrastructure (database, elasticsearch, etc.)
+
+## Accessing the jumphost
 
 1. Generate an SSH key pair on your machine.
 2. Give someone with prod access your public SSH key and have them follow [these instructions](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) to add new SSH key to the Jumphost - see the section on `Add or replace a key pair for your instance`. Basically, add the new public SSH key to `.ssh/authorized_keys` on the jumphost.

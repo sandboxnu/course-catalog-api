@@ -131,8 +131,8 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: End to end tests
-          path-to-lcov: "./tests/end_to_end/coverage/lcov.info"
           parallel: true
+          path-to-lcov: "./tests/end_to_end/coverage/lcov.info"
 
       #### Some useful CLI queries to help troubleshoot
       # psql -U postgres -h localhost -p 5432 -d searchneu_dev -c 'SELECT count(*) from sections'

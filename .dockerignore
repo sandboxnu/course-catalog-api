@@ -1,0 +1,14 @@
+node_modules/
+cache*
+dist
+public
+*.log
+.DS_Store
+data/*
+!data/*
+*.terraform.lock.hcl
+.env
+cache.zip
+.idea/*
+logs/
+coverage/
