@@ -1,7 +1,7 @@
 import { identity, pickBy } from "lodash";
 import searcher from "../../services/searcher";
 import { Course, Employee } from "../../types/types";
-import { AggResults } from "../../types/searchTypes";
+import { AggResults, SearchResult } from "../../types/searchTypes";
 
 type SearchResultItem = Course | Employee;
 
@@ -14,18 +14,37 @@ interface SearchResultItemConnection {
   filterOptions: AggResults;
   isCurrentTerm: boolean;
 }
-function determineIfCurrentTerm(termId: number): boolean {
+function determineIfCurrentTerm(
+  termId: number,
+  resultSearch: SearchResult[]
+  //resultSearch: Employee | { Course; Section }
+): boolean {
+  // Fall: 9/20
+  // if the greatest end date is smaller than where we are currently, don't have notifications
+  // otherwise put: if we are past the date of the semester, no notifications needed
+  // (e.g today is 9/20/22 semester ends 8/30/22) => no notifications
   const termIdStringify: String = termId.toString();
   const termIdYear: Number = +termIdStringify.substring(0, 4);
 
-  const date = new Date();
-  const year = date.getFullYear();
+  const date = new Date().getTime();
+  const currentDate = Math.floor(date / 8.64e7);
 
-  if (termIdYear < year) {
+  let maxEndDate: number = 0;
+  for (let result of resultSearch) {
+    if (result.type === "class") {
+      if (
+        result.sections != null &&
+        result.sections[0].meetings != null &&
+        result.sections[0].meetings[0].endDate > maxEndDate
+      ) {
+        maxEndDate = result.sections[0].meetings[0].endDate;
+      }
+    }
+  }
+  if (maxEndDate < currentDate) {
     return false;
   }
-
-  return false;
+  return true;
 }
 interface SearchArgs {
   termId: number;
@@ -66,14 +85,19 @@ const resolvers = {
       );
 
       const hasNextPage = offset + first < results.resultCount;
-      const isCurrentTerm: boolean = determineIfCurrentTerm(args.termId);
+      const nodes = results.searchContent.map((r) =>
+        r.type === "employee"
+          ? r.employee
+          : { ...r.class, sections: r.sections }
+      );
+
+      const isCurrentTerm: boolean = determineIfCurrentTerm(
+        args.termId,
+        results.searchContent
+      );
       return {
         totalCount: results.resultCount,
-        nodes: results.searchContent.map((r) =>
-          r.type === "employee"
-            ? r.employee
-            : { ...r.class, sections: r.sections }
-        ),
+        nodes: nodes,
         pageInfo: {
           hasNextPage,
         },
