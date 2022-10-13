@@ -1,5 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`class query can query in bulk 1`] = `
+Object {
+  "data": Object {
+    "bulkClasses": Array [
+      Object {
+        "classId": "3500",
+        "latestOccurrence": Object {
+          "termId": "201930",
+        },
+        "name": "OOD",
+        "subject": "CS",
+      },
+      Object {
+        "classId": "2500",
+        "latestOccurrence": Object {
+          "termId": "201930",
+        },
+        "name": "Fundamentals of Computer Science 1",
+        "subject": "CS",
+      },
+    ],
+  },
+  "errors": undefined,
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;
+
 exports[`class query gets all occurrences 1`] = `
 Object {
   "data": Object {
