@@ -45,7 +45,7 @@ jobs:
           do sleep 2; \
           done
 
-      - name: Debug
+      - name: Docker logs
         run: docker logs test
 
       - name: Check that the Docker container is still running
