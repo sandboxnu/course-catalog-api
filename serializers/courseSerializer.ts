@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
 import prisma from "../services/prisma";
 import { Course, Section } from "../types/types";
 import { Section as PrismaSection } from "@prisma/client";
@@ -12,6 +11,7 @@ import {
   SerializedCourse,
   SerializedSection,
 } from "../types/serializerTypes";
+import keys from "../utils/keys";
 
 /* The type of this class is complicated by the fact that this needs to support Course, and also
   a slim version of Course for elasticsearch.
@@ -19,7 +19,10 @@ import {
   So, the course we take has to be a subset of Course.
   The section we take has to be a subset of Section
  */
-class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
+abstract class CourseSerializer<
+  C extends Partial<Course>,
+  S extends Partial<Section>
+> {
   // FIXME this pattern is bad
   async bulkSerialize(
     instances: PrismaCourseWithSections[],
@@ -43,17 +46,35 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
       });
     }
 
-    const classToSections = _.groupBy(sections, "classHash");
+    // Build a map from each sections' class hash to a list of corresponding sections
+    const classToSections: Record<string, PrismaSection[]> = sections.reduce<
+      Record<string, PrismaSection[]>
+    >((classToSections, section) => {
+      if (section.classHash in classToSections) {
+        classToSections[section.classHash].push(section);
+      } else {
+        classToSections[section.classHash] = [section];
+      }
+      return classToSections;
+    }, {});
 
-    return _(courses)
-      .keyBy(this.getClassHash)
-      .mapValues((course) => {
-        return this.bulkSerializeCourse(
-          course,
-          classToSections[this.getClassHash(course)] || []
-        );
-      })
-      .value();
+    // Wrap the existing class hashing function to accept a course
+    const getClassHash = (course: C) =>
+      keys.getClassHash({
+        host: "neu.edu",
+        termId: course.termId,
+        subject: course.subject,
+        classId: course.classId,
+      });
+
+    // Build a map from each courses' hash to its own serialized course object
+    return courses.reduce((record, course) => {
+      record[getClassHash(course)] = this.bulkSerializeCourse(
+        course,
+        classToSections[getClassHash(course)] || []
+      );
+      return record;
+    }, {});
   }
 
   bulkSerializeCourse(
@@ -80,7 +101,16 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
         return this.serializeSection(section);
       })
       .map((section) => {
-        return { ...section, ..._.pick(parentCourse, this.courseProps()) };
+        return {
+          ...section,
+          ...this.courseProps().reduce<Partial<C>>(
+            (acc, prop) =>
+              prop in parentCourse
+                ? { ...acc, [prop]: parentCourse[prop] }
+                : acc,
+            {}
+          ),
+        };
       });
   }
 
@@ -120,24 +150,11 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     return this.finishSectionObj(section);
   }
 
-  // TODO this should definitely be eliminated
-  getClassHash(course: C): string {
-    return ["neu.edu", course.termId, course.subject, course.classId].join("/");
-  }
+  abstract courseProps(): string[];
 
-  courseProps(): string[] {
-    throw new Error("not implemented");
-  }
+  abstract finishCourseObj(course: Course): C;
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  finishCourseObj(_: Course): C {
-    throw new Error("not implemented");
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  finishSectionObj(_: SerializedSection): S {
-    throw new Error("not implemented");
-  }
+  abstract finishSectionObj(section: SerializedSection): S;
 }
 
 export default CourseSerializer;
