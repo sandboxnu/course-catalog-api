@@ -546,24 +546,24 @@ class RequestInput {
   cacheName: string;
   config: Partial<CustomRequestConfig>;
 
-  constructor(cacheName, config = {}) {
+  constructor(cacheName: string, config = {}) {
     this.cacheName = cacheName;
     this.config = config;
-
-    // Use the cache if it was not specified in the config
-    if (this.config.cache === undefined) {
-      this.config.cache = true;
-    }
+    // Use the cache if it was not already specified in the config
+    this.config.cache = this.config.cache ?? true;
   }
 
+  /**
+   * Sends a request to the given URL, with the given method and configuration.
+   */
   private async request(
     url: string,
     config: Partial<CustomRequestConfig>,
     method: "GET" | "POST"
   ): Promise<Response> {
     if (!config) {
-      macros.error("Warning, request post called with no config");
-      return null;
+      macros.error("Warning, request called with no config");
+      return;
     }
 
     config.method = method;
@@ -572,17 +572,20 @@ class RequestInput {
 
     const output = {};
     // Use the fields from this.config that were not specified in cache.
-    Object.assign(output, this.config, this.standardizeInputConfig(config));
+    // Uses .assign() to avoid overwriting our this.config object
+    Object.assign(output, this.config, this.normalizeRequestConfig(config));
 
     return instance.request(output as CustomRequestConfig);
   }
 
-  standardizeInputConfig(
+  /**
+   * Standardizes a request configuration, adding headers and a cache name
+   * if necessary
+   */
+  normalizeRequestConfig(
     config: Partial<CustomRequestConfig>
   ): CustomRequestConfig {
-    if (!config.headers) {
-      config.headers = {};
-    }
+    config.headers = config.headers ?? {};
 
     if (macros.DEV) {
       if (this.cacheName) {
@@ -596,7 +599,9 @@ class RequestInput {
     return config as CustomRequestConfig;
   }
 
-  // Helpers for get and post
+  /**
+   * Sends a GET request to the given URL, with the given configuration
+   */
   async get(
     url: string,
     config?: Partial<CustomRequestConfig>
@@ -604,14 +609,19 @@ class RequestInput {
     return this.request(url, config, "GET");
   }
 
+  /**
+   * Sends a POST request to the given URL, with the given configuration
+   */
   async post(
     url: string,
     config: Partial<CustomRequestConfig>
-  ): Promise<null | Response> {
+  ): Promise<Response> {
     return this.request(url, config, "POST");
   }
 
-  // Pass through methods to deal with cookies.
+  /**
+   * Pass-through method to get the cookie jar from our interal requests object
+   */
   jar(): CookieJar {
     return request.jar();
   }

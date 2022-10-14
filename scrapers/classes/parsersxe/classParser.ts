@@ -37,22 +37,24 @@ class ClassParser {
     classId: string
   ): Promise<false | ParsedCourseSR> {
     const cookiejar = await util.getCookiesForSearch(termId);
-    const req = await request.get({
-      url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
-      qs: {
-        txt_term: termId,
-        txt_subject: subject,
-        txt_courseNumber: classId,
-        startDatepicker: "",
-        endDatepicker: "",
-        pageOffset: 0,
-        pageMaxSize: 1,
-        sortColumn: "subjectDescription",
-        sortDirection: "asc",
-      },
-      jar: cookiejar,
-      json: true,
-    });
+    const req = await request.get(
+      "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
+      {
+        qs: {
+          txt_term: termId,
+          txt_subject: subject,
+          txt_courseNumber: classId,
+          startDatepicker: "",
+          endDatepicker: "",
+          pageOffset: 0,
+          pageMaxSize: 1,
+          sortColumn: "subjectDescription",
+          sortDirection: "asc",
+        },
+        jar: cookiejar,
+        json: true,
+      }
+    );
     if (req.body.success && req.body.data && req.body.data[0]) {
       return this.parseClassFromSearchResult(req.body.data[0], termId);
     }

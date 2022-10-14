@@ -156,16 +156,18 @@ class TermParser {
     // second, get the total number of sections in this semester
     try {
       return (await this.concatPagination(async (offset, pageSize) => {
-        const req = await request.get({
-          url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
-          qs: {
-            txt_term: termId,
-            pageOffset: offset,
-            pageMaxSize: pageSize,
-          },
-          jar: cookiejar,
-          json: true,
-        });
+        const req = await request.get(
+          "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
+          {
+            qs: {
+              txt_term: termId,
+              pageOffset: offset,
+              pageMaxSize: pageSize,
+            },
+            jar: cookiejar,
+            json: true,
+          }
+        );
         if (req.body.success) {
           return { items: req.body.data, totalCount: req.body.totalCount };
         }
@@ -187,16 +189,18 @@ class TermParser {
     // second, get the total number of sections in this semester
     try {
       return (await this.concatPagination(async (offset, pageSize) => {
-        const req = await request.get({
-          url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
-          qs: {
-            txt_term: termId,
-            pageOffset: offset,
-            pageMaxSize: pageSize,
-          },
-          jar: cookiejar,
-          json: true,
-        });
+        const req = await request.get(
+          "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
+          {
+            qs: {
+              txt_term: termId,
+              pageOffset: offset,
+              pageMaxSize: pageSize,
+            },
+            jar: cookiejar,
+            json: true,
+          }
+        );
         if (req.body.success) {
           return { items: req.body.data, totalCount: req.body.totalCount };
         }

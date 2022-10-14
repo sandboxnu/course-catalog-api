@@ -33,8 +33,7 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   const URL =
     "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearch/get_subject";
   const subjectUrl = `${URL}?searchTerm=&term=${termId}&offset=1&max=${MAX}`;
-  const response = await request.get({
-    url: subjectUrl,
+  const response = await request.get(subjectUrl, {
     json: true,
   });
 
