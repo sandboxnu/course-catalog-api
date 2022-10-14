@@ -370,7 +370,9 @@ class Macros {
 
   // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
   isNumeric(n: string): boolean {
-    return !isNaN(parseFloat(n)) && isFinite(parseInt(n));
+    return (
+      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
+    );
   }
 }
 

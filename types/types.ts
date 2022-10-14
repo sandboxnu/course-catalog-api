@@ -72,34 +72,15 @@ export interface EmployeeRequestResponse {
 }
 
 export interface Employee {
+  id: string;
   name: string;
   firstName: string;
   lastName: string;
   primaryDepartment?: string;
   primaryRole?: string;
   phone?: string;
-  emails: string[];
   email?: string;
-  url?: string;
-  officeStreetAddress?: string;
-  streetAddress?: string;
-  personalSite?: string;
-  googleScholarId?: string;
-  bigPictureUrl?: string;
-  pic?: string;
-  link?: string;
   officeRoom?: string;
-  id?: string;
-  image?: string;
-  interests?: string;
-  title?: string;
-}
-
-export type EmployeeWithId = Employee & { id: string };
-
-export interface MatchEmployee extends Employee {
-  matches: Employee[];
-  peopleListIndexMatches: Record<number, boolean>;
 }
 
 // A course within a semester
@@ -179,7 +160,7 @@ export interface CourseRef {
 
 export interface Dump {
   termDump?: ParsedTermSR;
-  profDump?: EmployeeWithId[];
+  profDump?: Employee[];
   destroy?: boolean;
   currentTermInfos?: TermInfo[];
 }
