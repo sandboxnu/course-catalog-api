@@ -17,7 +17,7 @@ import dnsCache from "dnscache";
 
 import cache from "./cache";
 import macros from "../utils/macros";
-import { Cookie, CookieJar, Response } from "request";
+import { CookieJar, Response } from "request";
 import {
   NativeRequestConfig,
   RequestAnalytics,
@@ -561,7 +561,7 @@ class RequestInput {
     config: Partial<CustomRequestConfig>,
     method: "GET" | "POST"
   ): Promise<Response> {
-    if (!config) {
+    if (method === "POST" && !config) {
       macros.error("Warning, request called with no config");
       return;
     }
