@@ -601,7 +601,7 @@ class RequestInput {
     url: string,
     config?: Partial<CustomRequestConfig>
   ): Promise<Response> {
-    return this.request(url, config, "GET");
+    return this.request(url, config ?? {}, "GET");
   }
 
   /**
