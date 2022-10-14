@@ -45,8 +45,9 @@ You can `git clone` the repository, and then move one of the cache directories t
 Now, follow the steps on the **Running the backend** page to populate your database with this cached data.
 
 ### Using multiple caches
-If you'd like to use the cache of more than one academic year, you can "combine" them. Follow the instructions above for one cache, and ensure that the data is present in your database (ie. follow the steps on the **Running the backend**). 
 
-Now, you can delete the `cache` directory, and repeat *both* steps above. Each time you do so, the new cached data will be added to the existing data - you can "stack" different caches in this manner. 
+If you'd like to use the cache of more than one academic year, you can "combine" them. Follow the instructions above for one cache, and ensure that the data is present in your database (ie. follow the steps on the **Running the backend**).
 
-?> **Tip:** For development purposes, we don't recommend "stacking" many caches - it adds unecessary overhead for dev purposes. 
+Now, you can delete the `cache` directory, and repeat _both_ steps above. Each time you do so, the new cached data will be added to the existing data - you can "stack" different caches in this manner.
+
+?> **Tip:** For development purposes, we don't recommend "stacking" many caches - it adds unecessary overhead for dev purposes.

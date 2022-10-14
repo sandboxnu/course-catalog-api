@@ -214,7 +214,7 @@
   "husky": {
     "hooks": {
       "__comment_1": "Runs prettier, and lint, only on the staged files",
-      "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
+      "pre-commit": "yarn pretty-quick --staged && yarn eslint --no-error-on-unmatched-pattern --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
   },
   "engines": {
