@@ -15,6 +15,18 @@ beforeAll(async () => {
   await prisma.course.deleteMany({});
   await prisma.course.create({
     data: {
+      id: "neu.edu/201930/CS/3500",
+      host: "neu.edu",
+      termId: "201930",
+      subject: "CS",
+      classId: "3500",
+      name: "OOD",
+      lastUpdateTime: new Date(),
+    },
+  });
+
+  await prisma.course.create({
+    data: {
       id: "neu.edu/201930/CS/2500",
       host: "neu.edu",
       termId: "201930",
@@ -51,6 +63,29 @@ beforeAll(async () => {
   });
 });
 describe("class query", () => {
+  it("can query in bulk", async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          bulkClasses(
+            input: [
+              { subject: "CS", classId: "3500" }
+              { subject: "CS", classId: "2500" }
+            ]
+          ) {
+            subject
+            classId
+            name
+            latestOccurrence {
+              termId
+            }
+          }
+        }
+      `,
+    });
+    expect(res).toMatchSnapshot();
+  });
+
   it("gets all occurrences", async () => {
     const res = await query({
       query: gql`
