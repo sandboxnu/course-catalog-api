@@ -561,11 +561,6 @@ class RequestInput {
     config: Partial<CustomRequestConfig>,
     method: "GET" | "POST"
   ): Promise<Response> {
-    if (method === "POST" && !config) {
-      macros.error("Warning, request called with no config");
-      return;
-    }
-
     config.method = method;
     config.url = url;
     // FIXME remove, break the URL out of the config
@@ -616,6 +611,10 @@ class RequestInput {
     url: string,
     config: Partial<CustomRequestConfig>
   ): Promise<Response> {
+    if (!config) {
+      macros.error("Warning, request called with no config");
+    }
+
     return this.request(url, config, "POST");
   }
 
