@@ -1,3 +1,9 @@
+?> **Note:** If you're currently on the Northeastern `NUWave` wifi, you can skip this step during setup. However, we highly recommend reading this page!
+
+## What's a cache?
+
+A cache is a locally-stored version of the data we would normally scrape from the Banner API.
+
 ## Why use a cache?
 
 This project uses a lot of data, and getting that data takes a long time.
@@ -32,9 +38,16 @@ Our caches use a versioning system. We are currently on `v2` of the cache struct
 
 ## Setup
 
-The cache can be obtained from any current member of the SearchNEU team. You can also generate your own cache; feel free to read through the documentation after finishing this setup guide.
+A cache can be obtained from [our archives](https://github.com/sandboxnu/course-catalog-api-cache). These contain (at the time of writing) all Northeastern semesters accessible on Banner, spanning from 2015 to 2023.
 
-The format will likely be a `.zip` archive, containing the structure mentioned in the above section. To use the cache:
+You can `git clone` the repository, and then move one of the cache directories to the `course-catalog-api` directory (so, it'd look something like `course-catalog-api/20XX-XX-cache`. Rename that directory to `cache` (so, `course-catalog-api/cache`).
 
-- Unzip the `cache.zip` file, and move the contents to a directory named `cache` in the **root** of the repository
-  - ie. `course-catalog-api/cache` (Make sure there isn\'t a `cache` directory in the `cache` directory - depending on how you unzip it, it might have created a nested directory.)
+Now, follow the steps on the **Running the backend** page to populate your database with this cached data.
+
+### Using multiple caches
+
+If you'd like to use the cache of more than one academic year, you can "combine" them. Follow the instructions above for one cache, and ensure that the data is present in your database (ie. follow the steps on the **Running the backend**).
+
+Now, you can delete the `cache` directory, and repeat _both_ steps above. Each time you do so, the new cached data will be added to the existing data - you can "stack" different caches in this manner.
+
+?> **Tip:** For development purposes, we don't recommend "stacking" many caches - it adds unecessary overhead for dev purposes.

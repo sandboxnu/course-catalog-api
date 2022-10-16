@@ -14,7 +14,7 @@ import { populateES } from "../scripts/populateES";
 import {
   BulkUpsertInput,
   Dump,
-  EmployeeWithId,
+  Employee,
   Section,
   TransformFunction,
 } from "../types/types";
@@ -133,7 +133,7 @@ class DumpProcessor {
     if (profDump.length > 1) {
       await prisma.professor.deleteMany({});
       await prisma.professor.createMany({
-        data: profDump.map((prof) => this.processProf(prof)),
+        data: profDump,
       });
       macros.log("DumpProcessor: finished with profs");
     }
@@ -325,16 +325,6 @@ class DumpProcessor {
 
   boolTransform(val: Maybe<boolean>): string {
     return val ? "TRUE" : "FALSE";
-  }
-
-  processProf(profInfo: EmployeeWithId): Prisma.ProfessorCreateInput {
-    const correctedQuery = { ...profInfo, emails: { set: profInfo.emails } };
-    return _.omit(correctedQuery, [
-      "title",
-      "interests",
-      "officeStreetAddress",
-      "office",
-    ]) as Prisma.ProfessorCreateInput;
   }
 
   constituteCourse(

@@ -6,17 +6,13 @@
 import Request from "../request";
 import cache from "../cache";
 import macros from "../../utils/macros";
-import {
-  Employee,
-  EmployeeRequestResponse,
-  EmployeeWithId,
-} from "../../types/types";
+import { Employee, EmployeeRequestResponse } from "../../types/types";
 import { v4 as uuidv4 } from "uuid";
 
 const request = new Request("Employees");
 
 class NeuEmployee {
-  people: EmployeeWithId[];
+  people: Employee[];
 
   constructor() {
     this.people = [];
@@ -27,7 +23,7 @@ class NeuEmployee {
     return parameter.toLowerCase() !== "not available" ? parameter : null;
   }
 
-  parseApiResponse(response: EmployeeRequestResponse[]): EmployeeWithId[] {
+  parseApiResponse(response: EmployeeRequestResponse[]): Employee[] {
     return (
       response
         .map((employee) => {
@@ -41,7 +37,6 @@ class NeuEmployee {
             primaryDepartment: employee.Department,
             primaryRole: this.parseParameter(employee.PositionTitle),
             phone: this.parseParameter(employee.PhoneNumber),
-            emails: email ? [email] : [],
             email: email,
             officeRoom: this.parseParameter(employee.CampusAddress),
           };
@@ -57,6 +52,26 @@ class NeuEmployee {
     );
   }
 
+  // Scrapes the source code to get the X-CSRF token.
+  async queryXcsrfToken(): Promise<string> {
+    return request
+      .get({
+        url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
+      })
+      .then((resp) => {
+        return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
+      });
+  }
+
+  // Queries the API module version from the API (needed for requests)
+  async queryModuleVersion(): Promise<string> {
+    return request
+      .get({
+        url: "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo",
+      })
+      .then((resp) => resp.body["versionToken"]);
+  }
+
   /**
    * Queries the Northeastern employees API.
    */
@@ -64,21 +79,8 @@ class NeuEmployee {
     // These values are taken from the API exposed here: https://nu.outsystemsenterprise.com/FSD/
     // The purpose of these values is unknown, as the API is undocumented. If requests start failing, please
     // inspect the API response at the above link & update accordingly
-
-    // Scrapes the source code to get the X-CSRF token.
-    const csrfToken = await request
-      .get({
-        url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
-      })
-      .then((resp) => {
-        return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
-      });
-
-    const moduleVersion = await request
-      .get({
-        url: "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo",
-      })
-      .then((resp) => resp.body["versionToken"]);
+    const csrfToken = await this.queryXcsrfToken();
+    const moduleVersion = await this.queryModuleVersion();
 
     const employeeQuery = {
       versionInfo: {
