@@ -6,6 +6,8 @@
   - [Prerequisites](getting-started/prereqs.md)
   - [Cache setup](getting-started/stored-cache.md)
   - [Running the backend](getting-started/running.md)
+- NEU's Course Catalog
+  - [Banner](banner/banner.md)
 - Technical Details
   - [Scrapers](scrapers/scraping.md)
   - [Updater](updater/updating.md)

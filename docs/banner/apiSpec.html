@@ -1,0 +1,999 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>NU Banner API</title><link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css"><style>@import url('https://fonts.googleapis.com/css?family=Roboto:400,700|Inconsolata|Raleway:200');.hljs-comment,.hljs-title{color:#8e908c}.hljs-variable,.hljs-attribute,.hljs-tag,.hljs-regexp,.ruby .hljs-constant,.xml .hljs-tag .hljs-title,.xml .hljs-pi,.xml .hljs-doctype,.html .hljs-doctype,.css .hljs-id,.css .hljs-class,.css .hljs-pseudo{color:#c82829}.hljs-number,.hljs-preprocessor,.hljs-pragma,.hljs-built_in,.hljs-literal,.hljs-params,.hljs-constant{color:#f5871f}.ruby .hljs-class .hljs-title,.css .hljs-rules .hljs-attribute{color:#eab700}.hljs-string,.hljs-value,.hljs-inheritance,.hljs-header,.ruby .hljs-symbol,.xml .hljs-cdata{color:#718c00}.css .hljs-hexcolor{color:#3e999f}.hljs-function,.python .hljs-decorator,.python .hljs-title,.ruby .hljs-function .hljs-title,.ruby .hljs-title .hljs-keyword,.perl .hljs-sub,.javascript .hljs-title,.coffeescript .hljs-title{color:#4271ae}.hljs-keyword,.javascript .hljs-function{color:#8959a8}.hljs{display:block;background:white;color:#4d4d4c;padding:.5em}.coffeescript .javascript,.javascript .xml,.tex .hljs-formula,.xml .javascript,.xml .vbscript,.xml .css,.xml .hljs-cdata{opacity:.5}.right .hljs-comment{color:#969896}.right .css .hljs-class,.right .css .hljs-id,.right .css .hljs-pseudo,.right .hljs-attribute,.right .hljs-regexp,.right .hljs-tag,.right .hljs-variable,.right .html .hljs-doctype,.right .ruby .hljs-constant,.right .xml .hljs-doctype,.right .xml .hljs-pi,.right .xml .hljs-tag .hljs-title{color:#c66}.right .hljs-built_in,.right .hljs-constant,.right .hljs-literal,.right .hljs-number,.right .hljs-params,.right .hljs-pragma,.right .hljs-preprocessor{color:#de935f}.right .css .hljs-rule .hljs-attribute,.right .ruby .hljs-class .hljs-title{color:#f0c674}.right .hljs-header,.right .hljs-inheritance,.right .hljs-name,.right .hljs-string,.right .hljs-value,.right .ruby .hljs-symbol,.right .xml .hljs-cdata{color:#b5bd68}.right .css .hljs-hexcolor,.right .hljs-title{color:#8abeb7}.right .coffeescript .hljs-title,.right .hljs-function,.right .javascript .hljs-title,.right .perl .hljs-sub,.right .python .hljs-decorator,.right .python .hljs-title,.right .ruby .hljs-function .hljs-title,.right .ruby .hljs-title .hljs-keyword{color:#81a2be}.right .hljs-keyword,.right .javascript .hljs-function{color:#b294bb}.right .hljs{display:block;overflow-x:auto;background:#1d1f21;color:#c5c8c6;padding:.5em;-webkit-text-size-adjust:none}.right .coffeescript .javascript,.right .javascript .xml,.right .tex .hljs-formula,.right .xml .css,.right .xml .hljs-cdata,.right .xml .javascript,.right .xml .vbscript{opacity:.5}.hljs-comment,.hljs-quote{color:#9e8f9e}.hljs-attribute,.hljs-link,.hljs-name,.hljs-regexp,.hljs-selector-class,.hljs-selector-id,.hljs-tag,.hljs-template-variable,.hljs-variable{color:#ca402b}.hljs-built_in,.hljs-literal,.hljs-meta,.hljs-number,.hljs-params,.hljs-type{color:#a65926}.hljs-bullet,.hljs-string,.hljs-symbol{color:#918b3b}.hljs-section,.hljs-title{color:#516aec}.hljs-keyword,.hljs-selector-tag{color:#7b59c0}.hljs{display:block;overflow-x:auto;background:#1b181b;color:#ab9bab;padding:.5em}.hljs-emphasis{font-style:italic}.hljs-strong{font-weight:700}.right .hljs-comment,.right .hljs-quote{color:#776977}.right .hljs-attribute,.right .hljs-link,.right .hljs-name,.right .hljs-regexp,.right .hljs-selector-class,.right .hljs-selector-id,.right .hljs-tag,.right .hljs-template-variable,.right .hljs-variable{color:#ca402b}.right .hljs-built_in,.right .hljs-literal,.right .hljs-meta,.right .hljs-number,.right .hljs-params,.right .hljs-type{color:#a65926}.right .hljs-bullet,.right .hljs-string,.right .hljs-symbol{color:#918b3b}.right .hljs-section,.right .hljs-title{color:#516aec}.right .hljs-keyword,.right .hljs-selector-tag{color:#7b59c0}.right .hljs{display:block;overflow-x:auto;background:#f7f3f7;color:#695d69;padding:.5em}.right .hljs-emphasis{font-style:italic}.right .hljs-strong{font-weight:700}body{color:#c8c8c8;background:#272b30;font:400 14px / 1.42 'Roboto',Helvetica,sans-serif}header{border-bottom:1px solid #373d44;margin-bottom:12px}h1,h2,h3,h4,h5{color:#c8c8c8;margin:12px 0}h1 .permalink,h2 .permalink,h3 .permalink,h4 .permalink,h5 .permalink{margin-left:0;opacity:0;transition:opacity .25s ease}h1:hover .permalink,h2:hover .permalink,h3:hover .permalink,h4:hover .permalink,h5:hover .permalink{opacity:1}.triple h1 .permalink,.triple h2 .permalink,.triple h3 .permalink,.triple h4 .permalink,.triple h5 .permalink{opacity:.15}.triple h1:hover .permalink,.triple h2:hover .permalink,.triple h3:hover .permalink,.triple h4:hover .permalink,.triple h5:hover .permalink{opacity:.15}h1{font:200 36px 'Raleway',Helvetica,sans-serif;font-size:36px}h2{font:200 36px 'Raleway',Helvetica,sans-serif;font-size:30px}h3{font-size:100%;text-transform:uppercase}h5{font-size:100%;font-weight:normal}p{margin:0 0 10px}p.choices{line-height:1.6}a{color:white;text-decoration:none}li p{margin:0}hr.split{border:0;height:1px;width:100%;padding-left:6px;margin:12px auto;background-image:linear-gradient(to right, rgba(200,200,200,0) 20%, rgba(200,200,200,0.2) 51.4%, rgba(39,43,48,0.2) 51.4%, rgba(39,43,48,0) 80%)}dl dt{float:left;width:130px;clear:left;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}dl dd{margin-left:150px}blockquote{color:rgba(200,200,200,0.5);font-size:15.5px;padding:10px 20px;margin:12px 0;border-left:5px solid #2b3237}blockquote p:last-child{margin-bottom:0}pre{background-color:#202529;padding:12px;border:1px solid #424c54;border-radius:6px;overflow:auto}pre code{color:#c8c8c8;background-color:transparent;padding:0;border:none}code{color:#ddd;background-color:#373b40;font:'Inconsolata',monospace;padding:1px 4px;border:1px solid #424c54;border-radius:3px}ul,ol{padding-left:2em}table{border-collapse:collapse;border-spacing:0;margin-bottom:12px}table tr:nth-child(2n){background-color:#22262a}table th,table td{padding:6px 12px;border:1px solid #101214}.text-muted{opacity:.5}.note,.warning{padding:.3em 1em;margin:1em 0;border-radius:2px;font-size:90%}.note h1,.warning h1,.note h2,.warning h2,.note h3,.warning h3,.note h4,.warning h4,.note h5,.warning h5,.note h6,.warning h6{font-family:200 36px 'Raleway',Helvetica,sans-serif;font-size:135%;font-weight:500}.note p,.warning p{margin:.5em 0}.note{color:#c8c8c8;background-color:#2b373e;border-left:4px solid #5bc0de}.note h1,.note h2,.note h3,.note h4,.note h5,.note h6{color:#5bc0de}.warning{color:#c8c8c8;background-color:#352b30;border-left:4px solid #e9322d}.warning h1,.warning h2,.warning h3,.warning h4,.warning h5,.warning h6{color:#e9322d}header{margin-top:24px}nav{position:fixed;top:24px;bottom:0;overflow-y:auto}nav .resource-group{padding:0}nav .resource-group .heading{position:relative}nav .resource-group .heading .chevron{position:absolute;top:12px;right:12px;opacity:.5}nav .resource-group .heading a{display:block;color:#c8c8c8;opacity:.7;border-left:2px solid transparent;margin:0}nav .resource-group .heading a:hover{text-decoration:none;background-color:bad-color;border-left:2px solid #c8c8c8}nav ul{list-style-type:none;padding-left:0}nav ul a{display:block;font-size:13px;color:rgba(200,200,200,0.7);padding:8px 12px;border-top:1px solid #202020;border-left:2px solid transparent;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}nav ul a:hover{text-decoration:none;background-color:bad-color;border-left:2px solid #c8c8c8}nav ul>li{margin:0}nav ul>li:first-child{margin-top:-12px}nav ul>li:last-child{margin-bottom:-12px}nav ul ul a{padding-left:24px}nav ul ul li{margin:0}nav ul ul li:first-child{margin-top:0}nav ul ul li:last-child{margin-bottom:0}nav>div>div>ul>li:first-child>a{border-top:none}.preload *{transition:none !important}.pull-left{float:left}.pull-right{float:right}.badge{display:inline-block;float:right;min-width:10px;min-height:14px;padding:3px 7px;font-size:12px;color:#fff;background-color:#373d44;border-radius:10px;margin:-2px 0}.badge.get{color:white;background-color:#5bc0de}.badge.head{color:white;background-color:#5bc0de}.badge.options{color:white;background-color:#5bc0de}.badge.put{color:white;background-color:#f89406}.badge.patch{color:white;background-color:#f89406}.badge.post{color:white;background-color:#62c462}.badge.delete{color:white;background-color:#ee5f5b}.collapse-button{float:right}.collapse-button .close{display:none;color:white;cursor:pointer}.collapse-button .open{color:white;cursor:pointer}.collapse-button.show .close{display:inline}.collapse-button.show .open{display:none}.collapse-content{max-height:0;overflow:hidden;transition:max-height .3s ease-in-out}nav{width:220px}.container{max-width:940px;margin-left:auto;margin-right:auto}.container .row .content{margin-left:244px;width:696px}.container .row:after{content:'';display:block;clear:both}.container-fluid nav{width:22%}.container-fluid .row .content{margin-left:24%}.container-fluid.triple nav{width:16.5%;padding-right:1px}.container-fluid.triple .row .content{position:relative;margin-left:16.5%;padding-left:24px}.middle:before,.middle:after{content:'';display:table}.middle:after{clear:both}.middle{box-sizing:border-box;width:51.5%;padding-right:12px}.right{box-sizing:border-box;float:right;width:48.5%;padding-left:12px}.right a{color:#666}.right h1,.right h2,.right h3,.right h4,.right h5,.right p,.right div{color:#272b30}.right pre{background-color:#f7f6f5;border:1px solid #f7f6f5}.right pre code{color:#333}.right .description{margin-top:12px}.triple .resource-heading{font-size:125%}.definition{margin-top:12px;margin-bottom:12px}.definition .method{font-weight:bold}.definition .method.get{color:#2e98b8}.definition .method.head{color:#2e98b8}.definition .method.options{color:#2e98b8}.definition .method.post{color:#2eb82e}.definition .method.put{color:#b87f2e}.definition .method.patch{color:#b87f2e}.definition .method.delete{color:#b8322e}.definition .uri{word-break:break-all;word-wrap:break-word}.definition .hostname{opacity:.5}.example-names{background-color:#eee;padding:12px;border-radius:6px}.example-names .tab-button{cursor:pointer;color:#c8c8c8;border:1px solid #ddd;padding:6px;margin-left:12px}.example-names .tab-button.active{background-color:#d5d5d5}.right .example-names{background-color:#adaaa6}.right .example-names .tab-button{color:#272b30;border:1px solid #d8d4cf;border-radius:6px}.right .example-names .tab-button.active{background-color:#95918b}#nav-background{position:fixed;left:0;top:0;bottom:0;width:16.5%;padding-right:14.4px;background-color:#272b30;border-right:1px solid #272b30;z-index:-1}#right-panel-background{position:absolute;right:-12px;top:-12px;bottom:-12px;width:48.6%;background-color:#d8d4cf;z-index:-1}@media (max-width:1200px){nav{width:198px}.container{max-width:840px}.container .row .content{margin-left:224px;width:606px}}@media (max-width:992px){nav{width:169.4px}.container{max-width:720px}.container .row .content{margin-left:194px;width:526px}}@media (max-width:768px){nav{display:none}.container{width:95%;max-width:none}.container .row .content,.container-fluid .row .content,.container-fluid.triple .row .content{margin-left:auto;margin-right:auto;width:95%}#nav-background{display:none}#right-panel-background{width:48.6%}}.back-to-top{position:fixed;z-index:1;bottom:0;right:24px;padding:4px 8px;color:rgba(200,200,200,0.5);background-color:#373d44;text-decoration:none !important;border-top:1px solid #202020;border-left:1px solid #202020;border-right:1px solid #202020;border-top-left-radius:3px;border-top-right-radius:3px}.resource-group{padding:12px;margin-bottom:12px;background-color:#272b30;border:1px solid #202020;border-radius:6px}.resource-group h2.group-heading,.resource-group .heading a{padding:12px;margin:-12px -12px 12px -12px;background-color:#373d44;border-bottom:1px solid #202020;border-top-left-radius:6px;border-top-right-radius:6px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}.triple .content .resource-group{padding:0;border:none}.triple .content .resource-group h2.group-heading,.triple .content .resource-group .heading a{margin:0 0 12px 0;border:1px solid #202020}nav .resource-group .heading a{padding:12px;margin-bottom:0}nav .resource-group .collapse-content{padding:0}.action{margin-bottom:12px;padding:12px 12px 0 12px;overflow:hidden;border:1px solid transparent;border-radius:6px}.action h4.action-heading{padding:6px 12px;margin:-12px -12px 12px -12px;border-bottom:1px solid transparent;border-top-left-radius:6px;border-top-right-radius:6px;overflow:hidden}.action h4.action-heading .name{float:right;font-weight:normal;padding:6px 0}.action h4.action-heading .method{padding:6px 12px;margin-right:12px;border-radius:3px;display:inline-block}.action h4.action-heading .method.get{color:#fff;background-color:#2390b0}.action h4.action-heading .method.head{color:#fff;background-color:#2390b0}.action h4.action-heading .method.options{color:#fff;background-color:#2390b0}.action h4.action-heading .method.put{color:#fff;background-color:#945904}.action h4.action-heading .method.patch{color:#fff;background-color:#945904}.action h4.action-heading .method.post{color:#fff;background-color:#348c34}.action h4.action-heading .method.delete{color:#fff;background-color:#ce1a15}.action h4.action-heading code{color:black;background-color:rgba(255,255,255,0.7);border-color:transparent;font-weight:normal;word-break:break-all;display:inline-block;margin-top:2px}.action dl.inner{padding-bottom:2px}.action .title{border-bottom:1px solid #272b30;margin:0 -12px -1px -12px;padding:12px}.action.get{border-color:#202020}.action.get h4.action-heading{color:#2390b0;background:#5bc0de;border-bottom-color:#202020}.action.head{border-color:#202020}.action.head h4.action-heading{color:#2390b0;background:#5bc0de;border-bottom-color:#202020}.action.options{border-color:#202020}.action.options h4.action-heading{color:#2390b0;background:#5bc0de;border-bottom-color:#202020}.action.post{border-color:#202020}.action.post h4.action-heading{color:#348c34;background:#62c462;border-bottom-color:#202020}.action.put{border-color:#202020}.action.put h4.action-heading{color:#945904;background:#f89406;border-bottom-color:#202020}.action.patch{border-color:#202020}.action.patch h4.action-heading{color:#945904;background:#f89406;border-bottom-color:#202020}.action.delete{border-color:#202020}.action.delete h4.action-heading{color:#ce1a15;background:#ee5f5b;border-bottom-color:#202020}</style></head><body class="preload"><a href="#top" class="text-muted back-to-top"><i class="fa fa-toggle-up"></i>&nbsp;Back to top</a><div class="container"><div class="row"><nav><div class="resource-group"><div class="heading"><div class="chevron"><i class="open fa fa-angle-down"></i></div><a href="#studentregistrationssb">StudentRegistrationSsb</a></div><div class="collapse-content"><ul><li><a href="#studentregistrationssb-terms-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>List semesters</a></li><li><a href="#studentregistrationssb-subjects-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Search for subjects</a></li><li><a href="#studentregistrationssb-clickcontinue-post"><span class="badge post"><i class="fa fa-plus"></i></span>Declare term</a></li><li><a href="#studentregistrationssb-search-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Search courses</a></li><li><a href="#studentregistrationssb-reset-form-post"><span class="badge post"><i class="fa fa-plus"></i></span>Reset data form</a></li><li><a href="#studentregistrationssb-contact-card-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Staff Information</a></li></ul></div></div><div class="resource-group"><div class="heading"><div class="chevron"><i class="open fa fa-angle-down"></i></div><a href="#searchresults">searchResults</a></div><div class="collapse-content"><ul><li><a href="#searchresults-class-details-post"><span class="badge post"><i class="fa fa-plus"></i></span>Class Details</a></li><li><a href="#searchresults-bookstore-post"><span class="badge post"><i class="fa fa-plus"></i></span>Bookstore Links</a></li><li><a href="#searchresults-course-description-post"><span class="badge post"><i class="fa fa-plus"></i></span>Course Description</a></li><li><a href="#searchresults-syllabus-post"><span class="badge post"><i class="fa fa-plus"></i></span>Syllabus</a></li><li><a href="#searchresults-section-attributes-post"><span class="badge post"><i class="fa fa-plus"></i></span>Attributes</a></li><li><a href="#searchresults-restrictions-post"><span class="badge post"><i class="fa fa-plus"></i></span>Restrictions</a></li><li><a href="#searchresults-meeting-times-get"><span class="badge get"><i class="fa fa-arrow-down"></i></span>Instructor/Meeting Times</a></li><li><a href="#searchresults-enrollment-info-post"><span class="badge post"><i class="fa fa-plus"></i></span>Enrollment/Waitlist</a></li><li><a href="#searchresults-corequisites-post"><span class="badge post"><i class="fa fa-plus"></i></span>Corequisites</a></li><li><a href="#searchresults-prerequisites-post"><span class="badge post"><i class="fa fa-plus"></i></span>Prerequisites</a></li><li><a href="#searchresults-mutual-exclusion-post"><span class="badge post"><i class="fa fa-plus"></i></span>Mutual Exclusion</a></li><li><a href="#searchresults-cross-listed-courses-post"><span class="badge post"><i class="fa fa-plus"></i></span>Cross Listed Courses</a></li><li><a href="#searchresults-linked-sections-post"><span class="badge post"><i class="fa fa-plus"></i></span>Linked Sections</a></li><li><a href="#searchresults-fees-post"><span class="badge post"><i class="fa fa-plus"></i></span>Fees</a></li><li><a href="#searchresults-catalog-post"><span class="badge post"><i class="fa fa-plus"></i></span>Catalog</a></li></ul></div></div><p style="text-align: center; word-wrap: break-word;"><a href="https://nubanner.neu.edu/StudentRegistrationSsb/ssb">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</a></p></nav><div class="content"><header><h1 id="top">NU Banner API</h1></header><p>This web page documents usage of the public-facing API for browsing classes on
+<a href="https://nubanner.neu.edu/StudentRegistrationSsb/"><em>NU Banner</em></a>.
+It is not official; all this information was discovered through reverse-engineering.
+We are unaffiliated with both Northeastern University and Ellucian.
+See the <a href="https://gitlab.com/jennydaman/nubanned#nu-banner-api">README on Gitlab</a>
+for more information.</p>
+<p>Listing data returns <em>JSON</em>, while most endpoints that describe a specific course
+will return <em>HTML</em> instead.</p>
+<section id="studentregistrationssb" class="resource-group"><h2 class="group-heading">StudentRegistrationSsb <a href="#studentregistrationssb" class="permalink">&para;</a></h2><div id="studentregistrationssb-terms" class="resource"><h3 class="resource-heading">Terms <a href="#studentregistrationssb-terms" class="permalink">&nbsp;&para;</a></h3><div id="studentregistrationssb-terms-get" class="action get"><h4 class="action-heading"><div class="name">List semesters</div><a href="#studentregistrationssb-terms-get" class="method get">GET</a><code class="uri">/classSearch/getTerms{?offset,max,searchTerm}</code></h4><p>Generates a list of semesters and their corresponding term codes that
+are available to be viewed.</p>
+<h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/classSearch/getTerms?<span class="hljs-attribute">offset=</span><span class="hljs-literal">1</span>&<span class="hljs-attribute">max=</span><span class="hljs-literal">10</span>&<span class="hljs-attribute">searchTerm=</span><span class="hljs-literal"></span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>offset</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Start index (keep it as 1)</p>
+</dd><dt>max</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>10</span></span><p>How many semesters to return (change this if you want)</p>
+</dd><dt>searchTerm</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;<p>Key word to filter the results by</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span><br><span class="hljs-attribute">Set-Cookie</span>: <span class="hljs-string">JSESSIONID=ABCDEF0123456789ABCDEF0123456789;path=/StudentRegistrationSsb;Secure;HttpOnly</span><br><span class="hljs-attribute">Set-Cookie</span>: <span class="hljs-string">nubanner-cookie=0123456789.12345.1234; path=/; Httponly; Secure</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201960"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Summer 2 2019 Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201954"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Summer 2019 CPS Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201950"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Summer Full 2019 Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201940"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Summer 1 2019 Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201938"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Spring 2019 Law Quarter"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201935"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Spring 2019 CPS Quarter"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201934"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Spring 2019 CPS Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201932"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Spring 2019 Law Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Spring 2019 Semester"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"201928"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Winter 2019 Law Quarter (View Only)"</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="studentregistrationssb-subjects" class="resource"><h3 class="resource-heading">Subjects <a href="#studentregistrationssb-subjects" class="permalink">&nbsp;&para;</a></h3><div id="studentregistrationssb-subjects-get" class="action get"><h4 class="action-heading"><div class="name">Search for subjects</div><a href="#studentregistrationssb-subjects-get" class="method get">GET</a><code class="uri">/classSearch/get_subject{?searchTerm,term,offset,max}</code></h4><p><em>nubanner</em> includes <code>&amp;_=1550718949982</code> in the query string, but the function
+is unknown and the value is probably ignored.</p>
+<h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/classSearch/get_subject?<span class="hljs-attribute">searchTerm=</span><span class="hljs-literal">Bio</span>&<span class="hljs-attribute">term=</span><span class="hljs-literal">201930</span>&<span class="hljs-attribute">offset=</span><span class="hljs-literal">1</span>&<span class="hljs-attribute">max=</span><span class="hljs-literal">10</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>term</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>201930</span></span><p>The term code for the semester to search in</p>
+</dd><dt>offset</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>1</span></span><p>Start index (keep it as 1)</p>
+</dd><dt>max</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>10</span></span><p>How many subjects to return (change this if you want)</p>
+</dd><dt>searchTerm</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>Bio</span></span><p>Key word to filter the results by</p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>[
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"BIOC"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Biochemistry"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"BIOE"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Bioengineering"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"BINF"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Bioinformatics"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"BIOL"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Biology"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"BIOT"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Biotechnology"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"CHEM"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Chemistry &amp;amp; Chemical Biology"</span>
+  </span>},
+  {
+    "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"EEMB"</span></span>,
+    "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Ecology, Evolutn &amp;amp; Marine Biol"</span>
+  </span>}
+]</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="studentregistrationssb-clickcontinue" class="resource"><h3 class="resource-heading">clickContinue <a href="#studentregistrationssb-clickcontinue" class="permalink">&nbsp;&para;</a></h3><div id="studentregistrationssb-clickcontinue-post" class="action post"><h4 class="action-heading"><div class="name">Declare term</div><a href="#studentregistrationssb-clickcontinue-post" class="method post">POST</a><code class="uri">/term/search</code></h4><p>Tells <em>nubanner</em> which term the client is interested in,
+and will grant permission to the client session (cookies <code>JSESSIONID</code> and <code>nubanner-cookie</code>)
+to get <a href="#studentregistrationssb-search"><code>/searchResults/searchResults</code></a>.</p>
+<p>If provided cookies, then the current session is authorized.
+Otherwise, authorized cookies are returned in the response with <code>Set-Cookie</code>.</p>
+<p><em>NU Banner</em> uses the query string <code>?mode=search</code>,
+however it doesn’t seem to be necessary.</p>
+<div class="note">
+<p>If you forget <code>term</code> in the body, then you’ll get a response containing these values:</p>
+<pre><code class="language-json">"regAllowed": false,
+"studentEligFailures": 
+["No Classes Found in this Date Range"]</code></pre>
+<p>There is no validation that the specified term is correct.</p>
+</div>
+<h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/term/search</span></div><div class="title"><strong>Request&nbsp;&nbsp;<code>term code</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded; charset=UT</span><br><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=ABCDEF0123456789ABCDEF0123456789; nubanner-cookie=0123456789.12345.1234;</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;studyPath=&amp;studyPathText=&amp;startDatepicker=&amp;endDatepicker=</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">fwdURL</span>": <span class="hljs-value"><span class="hljs-string">"/StudentRegistrationSsb/ssb/classSearch/classSearch"</span>
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="studentregistrationssb-search" class="resource"><h3 class="resource-heading">Search <a href="#studentregistrationssb-search" class="permalink">&nbsp;&para;</a></h3><p>Produces a list of courses that matches the given criteria.</p>
+<div class="warning">
+<h4 id="header-warning"><i class="fa fa-warning"></i> Warning <a class="permalink" href="#header-warning" aria-hidden="true">¶</a></h4>
+<p>Fresh sessions are <em>blocked</em> from getting course data.
+Before getting the <code>/searchResults/searchResults</code> endpoint,
+the client must first get permission by
+<a href="#studentregistrationssb-clickcontinue-post">POSTing the term code to <code>/term/search</code></a>.</p>
+<p>Otherwise, <code>/searchResults/searchResults</code> will return <code>&quot;success&quot;: false</code>.</p>
+</div>
+<div id="studentregistrationssb-search-get" class="action get"><h4 class="action-heading"><div class="name">Search courses</div><a href="#studentregistrationssb-search-get" class="method get">GET</a><code class="uri">/searchResults/searchResults{?txt_subject,txt_courseNumber,txt_term,startDatepicker,endDatepicker,pageOffset,pageMaxSize,sortColumn,sortDirection}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/searchResults?<span class="hljs-attribute">txt_subject=</span><span class="hljs-literal">CS</span>&<span class="hljs-attribute">txt_courseNumber=</span><span class="hljs-literal">2500</span>&<span class="hljs-attribute">txt_term=</span><span class="hljs-literal">201930</span>&<span class="hljs-attribute">startDatepicker=</span><span class="hljs-literal"></span>&<span class="hljs-attribute">endDatepicker=</span><span class="hljs-literal"></span>&<span class="hljs-attribute">pageOffset=</span><span class="hljs-literal">0</span>&<span class="hljs-attribute">pageMaxSize=</span><span class="hljs-literal">10</span>&<span class="hljs-attribute">sortColumn=</span><span class="hljs-literal">subjectDescription</span>&<span class="hljs-attribute">sortDirection=</span><span class="hljs-literal">asc</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>txt_subject</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>CS</span></span><p>Subject code</p>
+</dd><dt>txt_courseNumber</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>2500</span></span><p>Course number</p>
+</dd><dt>txt_term</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>201930</span></span><p>term code—must match what was POSTed to <a href="#studentregistrationssb-clickcontinue-post"><code>/term/search</code></a></p>
+</dd><dt>startDatepicker</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;</dd><dt>endDatepicker</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;</dd><dt>pageOffset</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>0</span></span><p>Start index (default 0)</p>
+</dd><dt>pageMaxSize</dt><dd><code>number</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>10</span></span><p>How many sessions to return (default 20). <strong>Maximum number of results is 500.</strong></p>
+</dd><dt>sortColumn</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>subjectDescription</span></span><p>how to sort the results</p>
+</dd><dt>sortDirection</dt><dd><code>string</code>&nbsp;<span>(optional)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>asc</span></span><p>direction to sort the columns</p>
+</dd></dl></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=ABCDEF0123456789ABCDEF0123456789; nubanner-cookie=0123456789.12345.1234;</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+      <span class="hljs-string">"success"</span>: <span class="hljs-literal">true</span>,
+      <span class="hljs-string">"totalCount"</span>: <span class="hljs-number">4</span>,
+      <span class="hljs-string">"data"</span>: [
+        {
+          <span class="hljs-string">"id"</span>: <span class="hljs-number">207227</span>,
+          <span class="hljs-string">"term"</span>: <span class="hljs-string">"201930"</span>,
+          <span class="hljs-string">"termDesc"</span>: <span class="hljs-string">"Spring 2019 Semester"</span>,
+          <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+          <span class="hljs-string">"partOfTerm"</span>: <span class="hljs-string">"1"</span>,
+          <span class="hljs-string">"courseNumber"</span>: <span class="hljs-string">"2500"</span>,
+          <span class="hljs-string">"subject"</span>: <span class="hljs-string">"CS"</span>,
+          <span class="hljs-string">"subjectDescription"</span>: <span class="hljs-string">"Computer Science"</span>,
+          <span class="hljs-string">"sequenceNumber"</span>: <span class="hljs-string">"01"</span>,
+          <span class="hljs-string">"campusDescription"</span>: <span class="hljs-string">"Boston"</span>,
+          <span class="hljs-string">"scheduleTypeDescription"</span>: <span class="hljs-string">"Lecture"</span>,
+          <span class="hljs-string">"courseTitle"</span>: <span class="hljs-string">"Fundamentals of Computer Science 1"</span>,
+          <span class="hljs-string">"creditHours"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"maximumEnrollment"</span>: <span class="hljs-number">75</span>,
+          <span class="hljs-string">"enrollment"</span>: <span class="hljs-number">71</span>,
+          <span class="hljs-string">"seatsAvailable"</span>: <span class="hljs-number">4</span>,
+          <span class="hljs-string">"waitCapacity"</span>: <span class="hljs-number">0</span>,
+          <span class="hljs-string">"waitCount"</span>: <span class="hljs-number">0</span>,
+          <span class="hljs-string">"waitAvailable"</span>: <span class="hljs-number">0</span>,
+          <span class="hljs-string">"crossList"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"crossListCapacity"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"crossListCount"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"crossListAvailable"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"creditHourHigh"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"creditHourLow"</span>: <span class="hljs-number">4</span>,
+          <span class="hljs-string">"creditHourIndicator"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"openSection"</span>: <span class="hljs-literal">true</span>,
+          <span class="hljs-string">"linkIdentifier"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"isSectionLinked"</span>: <span class="hljs-literal">false</span>,
+          <span class="hljs-string">"subjectCourse"</span>: <span class="hljs-string">"CS2500"</span>,
+          <span class="hljs-string">"faculty"</span>: [
+            {
+              <span class="hljs-string">"bannerId"</span>: <span class="hljs-string">"000550992"</span>,
+              <span class="hljs-string">"category"</span>: <span class="hljs-literal">null</span>,
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.faculty.FacultyResultDecorator"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"displayName"</span>: <span class="hljs-string">"Mislove, Alan"</span>,
+              <span class="hljs-string">"emailAddress"</span>: <span class="hljs-literal">null</span>,
+              <span class="hljs-string">"primaryIndicator"</span>: <span class="hljs-literal">true</span>,
+              <span class="hljs-string">"term"</span>: <span class="hljs-string">"201930"</span>
+            }
+          ],
+          <span class="hljs-string">"meetingsFaculty"</span>: [
+            {
+              <span class="hljs-string">"category"</span>: <span class="hljs-string">"01"</span>,
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.schedule.SectionSessionDecorator"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"faculty"</span>: [],
+              <span class="hljs-string">"meetingTime"</span>: {
+                <span class="hljs-string">"beginTime"</span>: <span class="hljs-string">"0915"</span>,
+                <span class="hljs-string">"building"</span>: <span class="hljs-string">"EV"</span>,
+                <span class="hljs-string">"buildingDescription"</span>: <span class="hljs-string">"East Village"</span>,
+                <span class="hljs-string">"campus"</span>: <span class="hljs-string">"BOS"</span>,
+                <span class="hljs-string">"campusDescription"</span>: <span class="hljs-string">"Boston"</span>,
+                <span class="hljs-string">"category"</span>: <span class="hljs-string">"01"</span>,
+                <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.general.overall.MeetingTimeDecorator"</span>,
+                <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+                <span class="hljs-string">"creditHourSession"</span>: <span class="hljs-number">4</span>,
+                <span class="hljs-string">"endDate"</span>: <span class="hljs-string">"04/17/2019"</span>,
+                <span class="hljs-string">"endTime"</span>: <span class="hljs-string">"1020"</span>,
+                <span class="hljs-string">"friday"</span>: <span class="hljs-literal">false</span>,
+                <span class="hljs-string">"hoursWeek"</span>: <span class="hljs-number">3.25</span>,
+                <span class="hljs-string">"meetingScheduleType"</span>: <span class="hljs-string">"LEC"</span>,
+                <span class="hljs-string">"meetingType"</span>: <span class="hljs-string">"CLAS"</span>,
+                <span class="hljs-string">"meetingTypeDescription"</span>: <span class="hljs-string">"Class"</span>,
+                <span class="hljs-string">"monday"</span>: <span class="hljs-literal">true</span>,
+                <span class="hljs-string">"room"</span>: <span class="hljs-string">"024"</span>,
+                <span class="hljs-string">"saturday"</span>: <span class="hljs-literal">false</span>,
+                <span class="hljs-string">"startDate"</span>: <span class="hljs-string">"01/07/2019"</span>,
+                <span class="hljs-string">"sunday"</span>: <span class="hljs-literal">false</span>,
+                <span class="hljs-string">"term"</span>: <span class="hljs-string">"201930"</span>,
+                <span class="hljs-string">"thursday"</span>: <span class="hljs-literal">true</span>,
+                <span class="hljs-string">"tuesday"</span>: <span class="hljs-literal">false</span>,
+                <span class="hljs-string">"wednesday"</span>: <span class="hljs-literal">true</span>
+              },
+              <span class="hljs-string">"term"</span>: <span class="hljs-string">"201930"</span>
+            }
+          ],
+          <span class="hljs-string">"reservedSeatSummary"</span>: <span class="hljs-literal">null</span>,
+          <span class="hljs-string">"sectionAttributes"</span>: [
+            {
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.schedule.SectionDegreeProgramAttributeDecorator"</span>,
+              <span class="hljs-string">"code"</span>: <span class="hljs-string">"NCFQ"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"description"</span>: <span class="hljs-string">" NUpath Formal/Quant Reasoning"</span>,
+              <span class="hljs-string">"isZTCAttribute"</span>: <span class="hljs-literal">false</span>,
+              <span class="hljs-string">"termCode"</span>: <span class="hljs-string">"201930"</span>
+            },
+            {
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.schedule.SectionDegreeProgramAttributeDecorator"</span>,
+              <span class="hljs-string">"code"</span>: <span class="hljs-string">"NCND"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"description"</span>: <span class="hljs-string">" NUpath Natural/Designed World"</span>,
+              <span class="hljs-string">"isZTCAttribute"</span>: <span class="hljs-literal">false</span>,
+              <span class="hljs-string">"termCode"</span>: <span class="hljs-string">"201930"</span>
+            },
+            {
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.schedule.SectionDegreeProgramAttributeDecorator"</span>,
+              <span class="hljs-string">"code"</span>: <span class="hljs-string">"NCT1"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"description"</span>: <span class="hljs-string">" NU Core Science/Tech Lvl 1"</span>,
+              <span class="hljs-string">"isZTCAttribute"</span>: <span class="hljs-literal">false</span>,
+              <span class="hljs-string">"termCode"</span>: <span class="hljs-string">"201930"</span>
+            },
+            {
+              <span class="hljs-string">"class"</span>: <span class="hljs-string">"net.hedtech.banner.student.schedule.SectionDegreeProgramAttributeDecorator"</span>,
+              <span class="hljs-string">"code"</span>: <span class="hljs-string">"UBCS"</span>,
+              <span class="hljs-string">"courseReferenceNumber"</span>: <span class="hljs-string">"30340"</span>,
+              <span class="hljs-string">"description"</span>: <span class="hljs-string">"Computer&amp;amp;Info Sci"</span>,
+              <span class="hljs-string">"isZTCAttribute"</span>: <span class="hljs-literal">false</span>,
+              <span class="hljs-string">"termCode"</span>: <span class="hljs-string">"201930"</span>
+            }
+          ]
+        },
+        {... other results omitted ...}
+      ],
+      <span class="hljs-string">"pageOffset"</span>: <span class="hljs-number">0</span>,
+      <span class="hljs-string">"pageMaxSize"</span>: <span class="hljs-number">10</span>,
+      <span class="hljs-string">"sectionsFetchedCount"</span>: <span class="hljs-number">4</span>,
+      <span class="hljs-string">"pathMode"</span>: <span class="hljs-string">"search"</span>,
+      <span class="hljs-string">"searchResultsConfigs"</span>: {...},
+      <span class="hljs-string">"ztcEncodedImage"</span>: ...
+    }</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="studentregistrationssb-reset-form" class="resource"><h3 class="resource-heading">Reset Form <a href="#studentregistrationssb-reset-form" class="permalink">&nbsp;&para;</a></h3><p>Resets the input from last search, so that you can search for a different subject and course number.
+The server remembers your inquiry.
+If you try to search for a different class using the same session, it will not work.</p>
+<div id="studentregistrationssb-reset-form-post" class="action post"><h4 class="action-heading"><div class="name">Reset data form</div><a href="#studentregistrationssb-reset-form-post" class="method post">POST</a><code class="uri">/classSearch/resetDataForm</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/classSearch/resetDataForm</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Cookie</span>: <span class="hljs-string">JSESSIONID=ABCDEF0123456789ABCDEF0123456789; nubanner-cookie=0123456789.12345.1234;</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html;charset=utf-8</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-literal">true</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="studentregistrationssb-contact-card" class="resource"><h3 class="resource-heading">Contact Card <a href="#studentregistrationssb-contact-card" class="permalink">&nbsp;&para;</a></h3><p>This endpoint isn’t very useful, since the contact info (email and phone) are always <code>null</code>.</p>
+<div id="studentregistrationssb-contact-card-get" class="action get"><h4 class="action-heading"><div class="name">Staff Information</div><a href="#studentregistrationssb-contact-card-get" class="method get">GET</a><code class="uri">/contactCard/retrieveData{?bannerId,termCode}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/contactCard/retrieveData?<span class="hljs-attribute">bannerId=</span><span class="hljs-literal">000933475</span>&<span class="hljs-attribute">termCode=</span><span class="hljs-literal">201930</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>termCode</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>201930</span></span><p>The term code for the semester</p>
+</dd><dt>bannerId</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>000933475</span></span><p>From <a href="#studentregistrationssb-search-get"><code>searchResults</code></a></p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">data</span>": <span class="hljs-value">{
+    "<span class="hljs-attribute">facultyCardPopupConfig</span>": <span class="hljs-value">[
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyCardPopup"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Card Popup"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Card Popup"</span>
+      </span>},
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyName"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Name"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Name"</span>
+      </span>},
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyPhoto"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Photo"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Photo"</span>
+      </span>},
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyTitle"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Title"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Title"</span>
+      </span>},
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyDepartment"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Department"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Department"</span>
+      </span>},
+      {
+        "<span class="hljs-attribute">config</span>": <span class="hljs-value"><span class="hljs-string">"facultyEmail"</span></span>,
+        "<span class="hljs-attribute">display</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Email Address"</span></span>,
+        "<span class="hljs-attribute">title</span>": <span class="hljs-value"><span class="hljs-string">"Faculty Email Address"</span>
+      </span>}
+    ]</span>,
+    "<span class="hljs-attribute">personData</span>": <span class="hljs-value">{
+      "<span class="hljs-attribute">lastName</span>": <span class="hljs-value"><span class="hljs-string">"Shivers III"</span></span>,
+      "<span class="hljs-attribute">firstName</span>": <span class="hljs-value"><span class="hljs-string">"Olin"</span></span>,
+      "<span class="hljs-attribute">middleName</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+      "<span class="hljs-attribute">fullName</span>": <span class="hljs-value"><span class="hljs-string">"Olin Shivers III"</span></span>,
+      "<span class="hljs-attribute">displayName</span>": <span class="hljs-value"><span class="hljs-string">"Shivers III, Olin"</span></span>,
+      "<span class="hljs-attribute">preferenceFirstName</span>": <span class="hljs-value"><span class="hljs-string">"Olin"</span></span>,
+      "<span class="hljs-attribute">namePrefix</span>": <span class="hljs-value"><span class="hljs-string">"Dr"</span></span>,
+      "<span class="hljs-attribute">nameSuffix</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+      "<span class="hljs-attribute">scheduleIndicator</span>": <span class="hljs-value"><span class="hljs-string">"Y"</span></span>,
+      "<span class="hljs-attribute">advisorIndicator</span>": <span class="hljs-value"><span class="hljs-string">"Y"</span></span>,
+      "<span class="hljs-attribute">title</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.system.FacultyCategory"</span></span>,
+        "<span class="hljs-attribute">id</span>": <span class="hljs-value"><span class="hljs-number">1</span></span>,
+        "<span class="hljs-attribute">version</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+        "<span class="hljs-attribute">code</span>": <span class="hljs-value"><span class="hljs-string">"PROF"</span></span>,
+        "<span class="hljs-attribute">dataOrigin</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+        "<span class="hljs-attribute">description</span>": <span class="hljs-value"><span class="hljs-string">"Professor"</span></span>,
+        "<span class="hljs-attribute">lastModified</span>": <span class="hljs-value"><span class="hljs-string">"10/29/2008"</span></span>,
+        "<span class="hljs-attribute">lastModifiedBy</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">deptAndCollegeInformation</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+      "<span class="hljs-attribute">address</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+      "<span class="hljs-attribute">telephone</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+      "<span class="hljs-attribute">email</span>": <span class="hljs-value"><span class="hljs-literal">null</span>
+    </span>}</span>,
+    "<span class="hljs-attribute">message</span>": <span class="hljs-value"><span class="hljs-string">""</span>
+  </span>}
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div></section><section id="searchresults" class="resource-group"><h2 class="group-heading">searchResults <a href="#searchresults" class="permalink">&para;</a></h2><p>Most (but one) of these are <code>POST</code> endpoints that require the same URL encoded body,
+and returns HTML code.</p>
+<div id="searchresults-class-details" class="resource"><h3 class="resource-heading">Class Details <a href="#searchresults-class-details" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-class-details-post" class="action post"><h4 class="action-heading"><div class="name">Class Details</div><a href="#searchresults-class-details-post" class="method post">POST</a><code class="uri">/searchResults/getClassDetails</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getClassDetails</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Associated Term: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>Spring 2019 Semester <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>CRN: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"courseReferenceNumber"</span>&gt;</span>30392<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Campus: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>Boston  <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Schedule Type: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+    Lecture
+
+<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Instructional Method: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>Traditional<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Section Number: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"sectionNumber"</span>&gt;</span>02<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>  <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Subject: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"subject"</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>  <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Course Number: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"courseNumber"</span>&gt;</span>1147<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>  <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Title: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">id</span>=<span class="hljs-value">"courseTitle"</span>&gt;</span>Physics for Life Sciences 2<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Credit Hours:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+    4
+    <span class="hljs-tag">&lt;<span class="hljs-title">br</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Grade Mode: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+    No Section specified grade mode, please see Catalog link below for more information.<span class="hljs-tag">&lt;<span class="hljs-title">br</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-bookstore" class="resource"><h3 class="resource-heading">Bookstore <a href="#searchresults-bookstore" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-bookstore-post" class="action post"><h4 class="action-heading"><div class="name">Bookstore Links</div><a href="#searchresults-bookstore-post" class="method post">POST</a><code class="uri">/searchResults/getSectionBookstoreDetails</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getSectionBookstoreDetails</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Bookstore Links<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span>&gt;</span>Use the link(s) below to access online bookstores to determine the cost of required materials.<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"https://www.barnesandnoble.com"</span> <span class="hljs-attribute">target</span>=<span class="hljs-value">"_blank"</span>&gt;</span>Barnes and Noble<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"http://www.bkstr.com/webapp/wcs/stores/servlet/CourseMaterialsResultsView?storeId=&amp;lt;&amp;lt;Campus Store ID&amp;gt;&amp;gt;&amp;amp;termId=201930&amp;amp;departmentDisplayName=PHYS&amp;amp;courseDisplayName=Physics&amp;amp;sectionDisplayName=1147"</span> <span class="hljs-attribute">target</span>=<span class="hljs-value">"_blank"</span>&gt;</span>Follett Bookstore<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">a</span> <span class="hljs-attribute">href</span>=<span class="hljs-value">"http://northeastern.bncollege.com"</span> <span class="hljs-attribute">target</span>=<span class="hljs-value">"_blank"</span>&gt;</span>bookstore.links.NUBookstore<span class="hljs-tag">&lt;/<span class="hljs-title">a</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-course-description" class="resource"><h3 class="resource-heading">Course Description <a href="#searchresults-course-description" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-course-description-post" class="action post"><h4 class="action-heading"><div class="name">Course Description</div><a href="#searchresults-course-description-post" class="method post">POST</a><code class="uri">/searchResults/getCourseDescription</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getCourseDescription</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>Continues PHYS <span class="hljs-number">1145.</span> Covers heat, electricity, vibrations and waves, sound, geometrical optics, and nuclear physics and radioactivity. The application <span class="hljs-keyword">of</span> physics to a variety <span class="hljs-keyword">of</span> problems <span class="hljs-keyword">in</span> the life and health sciences is emphasized. Electricity topics include electrostatics, capacitance, resistivity, direct-current circuits, and RC circuits. Vibrations and waves topics include simple harmonic motion and wave motion. Sound topics include wave characteristics, the ear, Doppler effect, shock waves, and ultrasound. Optics topics include reflection, mirrors, refraction, total internal reflection, fiber optics, lenses, the eye, telescopes, and microscopes. Nuclear physics and radioactivity topics include atomic nucleus, radioactivity, half-life, radioactive dating, detectors, nuclear reaction, fission, fusion, radiation damage, radiation therapy, PET, and MRI. A laboratory is included.</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-syllabus" class="resource"><h3 class="resource-heading">Syllabus <a href="#searchresults-syllabus" class="permalink">&nbsp;&para;</a></h3><p>Unfortunately, the syllabus is uploaded for only a few courses.</p>
+<div id="searchresults-syllabus-post" class="action post"><h4 class="action-heading"><div class="name">Syllabus</div><a href="#searchresults-syllabus-post" class="method post">POST</a><code class="uri">/searchResults/getSyllabus</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getSyllabus</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>No Syllabus Information Available</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-section-attributes" class="resource"><h3 class="resource-heading">Section Attributes <a href="#searchresults-section-attributes" class="permalink">&nbsp;&para;</a></h3><p>Information about NUPath.</p>
+<div id="searchresults-section-attributes-post" class="action post"><h4 class="action-heading"><div class="name">Attributes</div><a href="#searchresults-section-attributes-post" class="method post">POST</a><code class="uri">/searchResults/getSectionAttributes</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getSectionAttributes</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">'attribute-text'</span>&gt;</span> NUpath Natural/Designed World  NCND
+            <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+     <span class="hljs-tag">&lt;<span class="hljs-title">div</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">'attribute-text'</span>&gt;</span>UG College of Science  UBSC
+            <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-restrictions" class="resource"><h3 class="resource-heading">Restrictions <a href="#searchresults-restrictions" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-restrictions-post" class="action post"><h4 class="action-heading"><div class="name">Restrictions</div><a href="#searchresults-restrictions-post" class="method post">POST</a><code class="uri">/searchResults/getRestrictions</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getRestrictions</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"infoicon"</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Not all restrictions are applicable.<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Must be enrolled in one of the following Levels: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+                    <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"detail-popup-indentation"</span>&gt;</span>Undergraduate (UG)<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-meeting-times" class="resource"><h3 class="resource-heading">Meeting Times <a href="#searchresults-meeting-times" class="permalink">&nbsp;&para;</a></h3><div class="warning">
+<h4 id="header-warning-1"><i class="fa fa-warning"></i> Warning <a class="permalink" href="#header-warning-1" aria-hidden="true">¶</a></h4>
+<p>Rarely, maybe once out of 5,000 requests, you’ll get an HTTP 302 redirect
+to the Shibboleth SSO login page <small title="https://neuidmsso.neu.edu/idp/profile/cas/login?TARGET=https%3A%2F%2Fnubanner.neu.edu%2FStudentRegistrationSsb%2Fj_spring_cas_security_check">(<a href="http://neuidmsso.neu.edu">neuidmsso.neu.edu</a>)</small> instead.
+Here is a <a href="https://gitlab.com/jennydaman/nubanned/blob/master/catch_meetings_login.sh">script</a>
+to test this inconsistency using cURL.</p>
+</div>
+<div id="searchresults-meeting-times-get" class="action get"><h4 class="action-heading"><div class="name">Instructor/Meeting Times</div><a href="#searchresults-meeting-times-get" class="method get">GET</a><code class="uri">/searchResults/getFacultyMeetingTimes{?term,courseReferenceNumber}</code></h4><h4>Example URI</h4><div class="definition"><span class="method get">GET</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getFacultyMeetingTimes?<span class="hljs-attribute">term=</span><span class="hljs-literal">201930</span>&<span class="hljs-attribute">courseReferenceNumber=</span><span class="hljs-literal">30393</span></span></div><div class="title"><strong>URI Parameters</strong><div class="collapse-button show"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><dl class="inner"><dt>term</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>201930</span></span><p>The term code for the semester</p>
+</dd><dt>courseReferenceNumber</dt><dd><code>number</code>&nbsp;<span class="required">(required)</span>&nbsp;<span class="text-muted example"><strong>Example:&nbsp;</strong><span>30393</span></span><p>From <a href="#studentregistrationssb-search-get"><code>searchResults</code></a></p>
+</dd></dl></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/json</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>{
+  "<span class="hljs-attribute">fmt</span>": <span class="hljs-value">[
+    {
+      "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+      "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.schedule.SectionSessionDecorator"</span></span>,
+      "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+      "<span class="hljs-attribute">faculty</span>": <span class="hljs-value">[
+        {
+          "<span class="hljs-attribute">bannerId</span>": <span class="hljs-value"><span class="hljs-string">"000124859"</span></span>,
+          "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+          "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.faculty.FacultyResultDecorator"</span></span>,
+          "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+          "<span class="hljs-attribute">displayName</span>": <span class="hljs-value"><span class="hljs-string">"Kravchenko, Sergey"</span></span>,
+          "<span class="hljs-attribute">emailAddress</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+          "<span class="hljs-attribute">primaryIndicator</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+          "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+        </span>},
+        {
+          "<span class="hljs-attribute">bannerId</span>": <span class="hljs-value"><span class="hljs-string">"001676905"</span></span>,
+          "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+          "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.faculty.FacultyResultDecorator"</span></span>,
+          "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+          "<span class="hljs-attribute">displayName</span>": <span class="hljs-value"><span class="hljs-string">"Fotovatian, Assad"</span></span>,
+          "<span class="hljs-attribute">emailAddress</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+          "<span class="hljs-attribute">primaryIndicator</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+          "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+        </span>}
+      ]</span>,
+      "<span class="hljs-attribute">meetingTime</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">beginTime</span>": <span class="hljs-value"><span class="hljs-string">"1335"</span></span>,
+        "<span class="hljs-attribute">building</span>": <span class="hljs-value"><span class="hljs-string">"CG"</span></span>,
+        "<span class="hljs-attribute">buildingDescription</span>": <span class="hljs-value"><span class="hljs-string">"Cargill Hall"</span></span>,
+        "<span class="hljs-attribute">campus</span>": <span class="hljs-value"><span class="hljs-string">"BOS"</span></span>,
+        "<span class="hljs-attribute">campusDescription</span>": <span class="hljs-value"><span class="hljs-string">"Boston"</span></span>,
+        "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+        "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.general.overall.MeetingTimeDecorator"</span></span>,
+        "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+        "<span class="hljs-attribute">creditHourSession</span>": <span class="hljs-value"><span class="hljs-number">4</span></span>,
+        "<span class="hljs-attribute">endDate</span>": <span class="hljs-value"><span class="hljs-string">"04/17/2019"</span></span>,
+        "<span class="hljs-attribute">endTime</span>": <span class="hljs-value"><span class="hljs-string">"1440"</span></span>,
+        "<span class="hljs-attribute">friday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">hoursWeek</span>": <span class="hljs-value"><span class="hljs-number">3.25</span></span>,
+        "<span class="hljs-attribute">meetingScheduleType</span>": <span class="hljs-value"><span class="hljs-string">"LEC"</span></span>,
+        "<span class="hljs-attribute">meetingType</span>": <span class="hljs-value"><span class="hljs-string">"CLAS"</span></span>,
+        "<span class="hljs-attribute">meetingTypeDescription</span>": <span class="hljs-value"><span class="hljs-string">"Class"</span></span>,
+        "<span class="hljs-attribute">monday</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+        "<span class="hljs-attribute">room</span>": <span class="hljs-value"><span class="hljs-string">"097"</span></span>,
+        "<span class="hljs-attribute">saturday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">startDate</span>": <span class="hljs-value"><span class="hljs-string">"01/07/2019"</span></span>,
+        "<span class="hljs-attribute">sunday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span></span>,
+        "<span class="hljs-attribute">thursday</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+        "<span class="hljs-attribute">tuesday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">wednesday</span>": <span class="hljs-value"><span class="hljs-literal">true</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+    </span>},
+    {
+      "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+      "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.schedule.SectionSessionDecorator"</span></span>,
+      "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+      "<span class="hljs-attribute">faculty</span>": <span class="hljs-value">[
+        {
+          "<span class="hljs-attribute">bannerId</span>": <span class="hljs-value"><span class="hljs-string">"000124859"</span></span>,
+          "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+          "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.faculty.FacultyResultDecorator"</span></span>,
+          "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+          "<span class="hljs-attribute">displayName</span>": <span class="hljs-value"><span class="hljs-string">"Kravchenko, Sergey"</span></span>,
+          "<span class="hljs-attribute">emailAddress</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+          "<span class="hljs-attribute">primaryIndicator</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+          "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+        </span>},
+        {
+          "<span class="hljs-attribute">bannerId</span>": <span class="hljs-value"><span class="hljs-string">"001676905"</span></span>,
+          "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+          "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.student.faculty.FacultyResultDecorator"</span></span>,
+          "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+          "<span class="hljs-attribute">displayName</span>": <span class="hljs-value"><span class="hljs-string">"Fotovatian, Assad"</span></span>,
+          "<span class="hljs-attribute">emailAddress</span>": <span class="hljs-value"><span class="hljs-literal">null</span></span>,
+          "<span class="hljs-attribute">primaryIndicator</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+          "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+        </span>}
+      ]</span>,
+      "<span class="hljs-attribute">meetingTime</span>": <span class="hljs-value">{
+        "<span class="hljs-attribute">beginTime</span>": <span class="hljs-value"><span class="hljs-string">"1030"</span></span>,
+        "<span class="hljs-attribute">building</span>": <span class="hljs-value"><span class="hljs-string">"EL"</span></span>,
+        "<span class="hljs-attribute">buildingDescription</span>": <span class="hljs-value"><span class="hljs-string">"Ell Hall"</span></span>,
+        "<span class="hljs-attribute">campus</span>": <span class="hljs-value"><span class="hljs-string">"BOS"</span></span>,
+        "<span class="hljs-attribute">campusDescription</span>": <span class="hljs-value"><span class="hljs-string">"Boston"</span></span>,
+        "<span class="hljs-attribute">category</span>": <span class="hljs-value"><span class="hljs-string">"01"</span></span>,
+        "<span class="hljs-attribute">class</span>": <span class="hljs-value"><span class="hljs-string">"net.hedtech.banner.general.overall.MeetingTimeDecorator"</span></span>,
+        "<span class="hljs-attribute">courseReferenceNumber</span>": <span class="hljs-value"><span class="hljs-string">"30393"</span></span>,
+        "<span class="hljs-attribute">creditHourSession</span>": <span class="hljs-value"><span class="hljs-number">0</span></span>,
+        "<span class="hljs-attribute">endDate</span>": <span class="hljs-value"><span class="hljs-string">"04/23/2019"</span></span>,
+        "<span class="hljs-attribute">endTime</span>": <span class="hljs-value"><span class="hljs-string">"1230"</span></span>,
+        "<span class="hljs-attribute">friday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">hoursWeek</span>": <span class="hljs-value"><span class="hljs-number">2</span></span>,
+        "<span class="hljs-attribute">meetingScheduleType</span>": <span class="hljs-value"><span class="hljs-string">"LEC"</span></span>,
+        "<span class="hljs-attribute">meetingType</span>": <span class="hljs-value"><span class="hljs-string">"FNEX"</span></span>,
+        "<span class="hljs-attribute">meetingTypeDescription</span>": <span class="hljs-value"><span class="hljs-string">"Final Exam"</span></span>,
+        "<span class="hljs-attribute">monday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">room</span>": <span class="hljs-value"><span class="hljs-string">"AUD"</span></span>,
+        "<span class="hljs-attribute">saturday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">startDate</span>": <span class="hljs-value"><span class="hljs-string">"04/23/2019"</span></span>,
+        "<span class="hljs-attribute">sunday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span></span>,
+        "<span class="hljs-attribute">thursday</span>": <span class="hljs-value"><span class="hljs-literal">false</span></span>,
+        "<span class="hljs-attribute">tuesday</span>": <span class="hljs-value"><span class="hljs-literal">true</span></span>,
+        "<span class="hljs-attribute">wednesday</span>": <span class="hljs-value"><span class="hljs-literal">false</span>
+      </span>}</span>,
+      "<span class="hljs-attribute">term</span>": <span class="hljs-value"><span class="hljs-string">"201930"</span>
+    </span>}
+  ]
+</span>}</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-enrollment-info" class="resource"><h3 class="resource-heading">Enrollment Info <a href="#searchresults-enrollment-info" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-enrollment-info-post" class="action post"><h4 class="action-heading"><div class="name">Enrollment/Waitlist</div><a href="#searchresults-enrollment-info-post" class="method post">POST</a><code class="uri">/searchResults/getEnrollmentInfo</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getEnrollmentInfo</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Enrollment Actual:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 94 <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Enrollment Maximum:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 155 <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Enrollment Seats Available:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 61 <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>  <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">hr</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Waitlist Capacity:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 0  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Waitlist Actual:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 0  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Waitlist Seats Available:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">dir</span>=<span class="hljs-value">"ltr"</span>&gt;</span> 0  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-corequisites" class="resource"><h3 class="resource-heading">Corequisites <a href="#searchresults-corequisites" class="permalink">&nbsp;&para;</a></h3><div class="warning">
+<h4 id="header-warning-2"><i class="fa fa-warning"></i> Warning <a class="permalink" href="#header-warning-2" aria-hidden="true">¶</a></h4>
+<p>The structure of the returned HTML table is inconsistent!
+Different classes might return either 3 or 5 columns.</p>
+</div>
+<a href="different_corequisite_tables.png" style="display: block; max-width: 100%">
+    <img src="different_corequisite_tables.png" alt="screenshot" style="width: 100%">
+</a><div id="searchresults-corequisites-post" class="action post"><h4 class="action-heading"><div class="name">Corequisites</div><a href="#searchresults-corequisites-post" class="method post">POST</a><code class="uri">/searchResults/getCorequisites</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getCorequisites</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">table</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"basePreqTable"</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">thead</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Subject<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Course Number<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Title<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">thead</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">tbody</span>&gt;</span>
+
+                <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1148<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                    <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Lab for PHYS 1147<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;/<span class="hljs-title">tbody</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">table</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=202010&amp;courseReferenceNumber=18505</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">table</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">thead</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>CRN<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Subject<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Course Number<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Title<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+            <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Section<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">thead</span>&gt;</span>
+    <span class="hljs-tag">&lt;<span class="hljs-title">tbody</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>18504<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Health Sci - Interdisciplinary<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1200<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Basic Skills for the Healthcare Professional<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+                <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>02<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+            <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;/<span class="hljs-title">tbody</span>&gt;</span>
+<span class="hljs-tag">&lt;/<span class="hljs-title">table</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-prerequisites" class="resource"><h3 class="resource-heading">Prerequisites <a href="#searchresults-prerequisites" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-prerequisites-post" class="action post"><h4 class="action-heading"><div class="name">Prerequisites</div><a href="#searchresults-prerequisites-post" class="method post">POST</a><code class="uri">/searchResults/getSectionPrerequisites</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getSectionPrerequisites</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>Catalog Prerequisites<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">table</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"basePreqTable"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">thead</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>And/Or<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Test<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Score<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Subject<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Course Number<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Level<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Grade<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">thead</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">tbody</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1145<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>D-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1149<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>D-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1151<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>D-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1161<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>D-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1171<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>D-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;/<span class="hljs-title">tbody</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">table</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201730&amp;courseReferenceNumber=35984</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">h3</span>&gt;</span>Catalog Prerequisites<span class="hljs-tag">&lt;/<span class="hljs-title">h3</span>&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">table</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"basePreqTable"</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">thead</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>And/Or<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Test<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Score<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Subject<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Course Number<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Level<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span>Grade<span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+        <span class="hljs-tag">&lt;<span class="hljs-title">th</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">th</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+      <span class="hljs-tag">&lt;/<span class="hljs-title">thead</span>&gt;</span>
+      <span class="hljs-tag">&lt;<span class="hljs-title">tbody</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>(<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Mathematics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>2321<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>C-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>And<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Physics<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1155<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>C-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>And<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>(<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Chemistry &amp;amp; Chemical Biology<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1151<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>C-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Chemistry &amp;amp; Chemical Biology<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>1211<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Undergraduate<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>C-<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>)<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>)<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">tr</span>&gt;</span>
+
+            <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Or<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>Graduate Admission<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span>REQ<span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+          <span class="hljs-tag">&lt;<span class="hljs-title">td</span>&gt;</span><span class="hljs-tag">&lt;/<span class="hljs-title">td</span>&gt;</span>
+        <span class="hljs-tag">&lt;/<span class="hljs-title">tr</span>&gt;</span>
+
+      <span class="hljs-tag">&lt;/<span class="hljs-title">tbody</span>&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">table</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-mutual-exclusion" class="resource"><h3 class="resource-heading">Mutual Exclusion <a href="#searchresults-mutual-exclusion" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-mutual-exclusion-post" class="action post"><h4 class="action-heading"><div class="name">Mutual Exclusion</div><a href="#searchresults-mutual-exclusion-post" class="method post">POST</a><code class="uri">/searchResults/getCourseMutuallyExclusions</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getCourseMutuallyExclusions</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>No Mutual Exclusion information available.</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-cross-listed-courses" class="resource"><h3 class="resource-heading">Cross Listed Courses <a href="#searchresults-cross-listed-courses" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-cross-listed-courses-post" class="action post"><h4 class="action-heading"><div class="name">Cross Listed Courses</div><a href="#searchresults-cross-listed-courses-post" class="method post">POST</a><code class="uri">/searchResults/getXlstSections</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getXlstSections</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>No cross list information available.</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-linked-sections" class="resource"><h3 class="resource-heading">Linked Sections <a href="#searchresults-linked-sections" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-linked-sections-post" class="action post"><h4 class="action-heading"><div class="name">Linked Sections</div><a href="#searchresults-linked-sections-post" class="method post">POST</a><code class="uri">/searchResults/getLinkedSections</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getLinkedSections</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>No linked course information available.</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-fees" class="resource"><h3 class="resource-heading">Fees <a href="#searchresults-fees" class="permalink">&nbsp;&para;</a></h3><div id="searchresults-fees-post" class="action post"><h4 class="action-heading"><div class="name">Fees</div><a href="#searchresults-fees-post" class="method post">POST</a><code class="uri">/searchResults/getFees</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getFees</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>No fee information available.</code></pre><div style="height: 1px;"></div></div></div></div></div><div id="searchresults-catalog" class="resource"><h3 class="resource-heading">Catalog <a href="#searchresults-catalog" class="permalink">&nbsp;&para;</a></h3><p>Summary of section information, including title, college, department, hours,
+levels, grading mode, type of class (lecture or lab), and NUPath attributes.</p>
+<div id="searchresults-catalog-post" class="action post"><h4 class="action-heading"><div class="name">Catalog</div><a href="#searchresults-catalog-post" class="method post">POST</a><code class="uri">/searchResults/getSectionCatalogDetails</code></h4><h4>Example URI</h4><div class="definition"><span class="method post">POST</span>&nbsp;<span class="uri"><span class="hostname">https://nubanner.neu.edu/StudentRegistrationSsb/ssb</span>/searchResults/getSectionCatalogDetails</span></div><div class="title"><strong>Request</strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">application/x-www-form-urlencoded</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code>term=201930&amp;courseReferenceNumber=30392</code></pre><div style="height: 1px;"></div></div></div><div class="title"><strong>Response&nbsp;&nbsp;<code>200</code></strong><div class="collapse-button"><span class="close">Hide</span><span class="open">Show</span></div></div><div class="collapse-content"><div class="inner"><h5>Headers</h5><pre><code><span class="hljs-attribute">Content-Type</span>: <span class="hljs-string">text/html</span></code></pre><div style="height: 1px;"></div><h5>Body</h5><pre><code><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Title: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>Physics for Life Sciences 2<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>College:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+        <span class="hljs-tag">&lt;<span class="hljs-title">span</span>&gt;</span>College of Science  SC<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Division:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Department:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span>&gt;</span>Physics  PHYS<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Hours:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>Credit Hours: <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"credit-hours-direction"</span>&gt;</span>4  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+
+    <span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>
+        Lecture: <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"credit-hours-direction"</span>&gt;</span>4  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+        Lab: <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"credit-hours-direction"</span>&gt;</span>  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+        Other: <span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"credit-hours-direction"</span>&gt;</span>  <span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span> <span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+    <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Levels:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span><span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>
+
+        Undergraduate  UG
+
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Grading Modes:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>
+    Pass/Fail  P<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span> Traditional  S 
+<span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Schedule Types:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span>Lecture  LEC <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">span</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"status-bold"</span>&gt;</span>Attributes:<span class="hljs-tag">&lt;/<span class="hljs-title">span</span>&gt;</span>
+<span class="hljs-tag">&lt;<span class="hljs-title">div</span> <span class="hljs-attribute">class</span>=<span class="hljs-value">"indent-left"</span>&gt;</span> NUpath Natural/Designed World  NCND<span class="hljs-tag">&lt;<span class="hljs-title">br</span>/&gt;</span> UG College of Science  UBSC <span class="hljs-tag">&lt;/<span class="hljs-title">div</span>&gt;</span></code></pre><div style="height: 1px;"></div></div></div></div></div></section></div></div></div><p style="text-align: center;" class="text-muted">Generated by&nbsp;<a href="https://github.com/danielgtaylor/aglio" class="aglio">aglio</a>&nbsp;on 29 Oct 2019</p><script>/* eslint-env browser */
+/* eslint quotes: [2, "single"] */
+'use strict';
+
+/*
+  Determine if a string ends with another string.
+*/
+function endsWith(str, suffix) {
+    return str.indexOf(suffix, str.length - suffix.length) !== -1;
+}
+
+/*
+  Get a list of direct child elements by class name.
+*/
+function childrenByClass(element, name) {
+  var filtered = [];
+
+  for (var i = 0; i < element.children.length; i++) {
+    var child = element.children[i];
+    var classNames = child.className.split(' ');
+    if (classNames.indexOf(name) !== -1) {
+      filtered.push(child);
+    }
+  }
+
+  return filtered;
+}
+
+/*
+  Get an array [width, height] of the window.
+*/
+function getWindowDimensions() {
+  var w = window,
+      d = document,
+      e = d.documentElement,
+      g = d.body,
+      x = w.innerWidth || e.clientWidth || g.clientWidth,
+      y = w.innerHeight || e.clientHeight || g.clientHeight;
+
+  return [x, y];
+}
+
+/*
+  Collapse or show a request/response example.
+*/
+function toggleCollapseButton(event) {
+    var button = event.target.parentNode;
+    var content = button.parentNode.nextSibling;
+    var inner = content.children[0];
+
+    if (button.className.indexOf('collapse-button') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+        // Currently showing, so let's hide it
+        button.className = 'collapse-button';
+        content.style.maxHeight = '0px';
+    } else {
+        // Currently hidden, so let's show it
+        button.className = 'collapse-button show';
+        content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+function toggleTabButton(event) {
+    var i, index;
+    var button = event.target;
+
+    // Get index of the current button.
+    var buttons = childrenByClass(button.parentNode, 'tab-button');
+    for (i = 0; i < buttons.length; i++) {
+        if (buttons[i] === button) {
+            index = i;
+            button.className = 'tab-button active';
+        } else {
+            buttons[i].className = 'tab-button';
+        }
+    }
+
+    // Hide other tabs and show this one.
+    var tabs = childrenByClass(button.parentNode.parentNode, 'tab');
+    for (i = 0; i < tabs.length; i++) {
+        if (i === index) {
+            tabs[i].style.display = 'block';
+        } else {
+            tabs[i].style.display = 'none';
+        }
+    }
+}
+
+/*
+  Collapse or show a navigation menu. It will not be hidden unless it
+  is currently selected or `force` has been passed.
+*/
+function toggleCollapseNav(event, force) {
+    var heading = event.target.parentNode;
+    var content = heading.nextSibling;
+    var inner = content.children[0];
+
+    if (heading.className.indexOf('heading') === -1) {
+      // Clicked without hitting the right element?
+      return;
+    }
+
+    if (content.style.maxHeight && content.style.maxHeight !== '0px') {
+      // Currently showing, so let's hide it, but only if this nav item
+      // is already selected. This prevents newly selected items from
+      // collapsing in an annoying fashion.
+      if (force || window.location.hash && endsWith(event.target.href, window.location.hash)) {
+        content.style.maxHeight = '0px';
+      }
+    } else {
+      // Currently hidden, so let's show it
+      content.style.maxHeight = inner.offsetHeight + 12 + 'px';
+    }
+}
+
+/*
+  Refresh the page after a live update from the server. This only
+  works in live preview mode (using the `--server` parameter).
+*/
+function refresh(body) {
+    document.querySelector('body').className = 'preload';
+    document.body.innerHTML = body;
+
+    // Re-initialize the page
+    init();
+    autoCollapse();
+
+    document.querySelector('body').className = '';
+}
+
+/*
+  Determine which navigation items should be auto-collapsed to show as many
+  as possible on the screen, based on the current window height. This also
+  collapses them.
+*/
+function autoCollapse() {
+  var windowHeight = getWindowDimensions()[1];
+  var itemsHeight = 64; /* Account for some padding */
+  var itemsArray = Array.prototype.slice.call(
+    document.querySelectorAll('nav .resource-group .heading'));
+
+  // Get the total height of the navigation items
+  itemsArray.forEach(function (item) {
+    itemsHeight += item.parentNode.offsetHeight;
+  });
+
+  // Should we auto-collapse any nav items? Try to find the smallest item
+  // that can be collapsed to show all items on the screen. If not possible,
+  // then collapse the largest item and do it again. First, sort the items
+  // by height from smallest to largest.
+  var sortedItems = itemsArray.sort(function (a, b) {
+    return a.parentNode.offsetHeight - b.parentNode.offsetHeight;
+  });
+
+  while (sortedItems.length && itemsHeight > windowHeight) {
+    for (var i = 0; i < sortedItems.length; i++) {
+      // Will collapsing this item help?
+      var itemHeight = sortedItems[i].nextSibling.offsetHeight;
+      if ((itemsHeight - itemHeight <= windowHeight) || i === sortedItems.length - 1) {
+        // It will, so let's collapse it, remove its content height from
+        // our total and then remove it from our list of candidates
+        // that can be collapsed.
+        itemsHeight -= itemHeight;
+        toggleCollapseNav({target: sortedItems[i].children[0]}, true);
+        sortedItems.splice(i, 1);
+        break;
+      }
+    }
+  }
+}
+
+/*
+  Initialize the interactive functionality of the page.
+*/
+function init() {
+    var i, j;
+
+    // Make collapse buttons clickable
+    var buttons = document.querySelectorAll('.collapse-button');
+    for (i = 0; i < buttons.length; i++) {
+        buttons[i].onclick = toggleCollapseButton;
+
+        // Show by default? Then toggle now.
+        if (buttons[i].className.indexOf('show') !== -1) {
+            toggleCollapseButton({target: buttons[i].children[0]});
+        }
+    }
+
+    var responseCodes = document.querySelectorAll('.example-names');
+    for (i = 0; i < responseCodes.length; i++) {
+        var tabButtons = childrenByClass(responseCodes[i], 'tab-button');
+        for (j = 0; j < tabButtons.length; j++) {
+            tabButtons[j].onclick = toggleTabButton;
+
+            // Show by default?
+            if (j === 0) {
+                toggleTabButton({target: tabButtons[j]});
+            }
+        }
+    }
+
+    // Make nav items clickable to collapse/expand their content.
+    var navItems = document.querySelectorAll('nav .resource-group .heading');
+    for (i = 0; i < navItems.length; i++) {
+        navItems[i].onclick = toggleCollapseNav;
+
+        // Show all by default
+        toggleCollapseNav({target: navItems[i].children[0]});
+    }
+}
+
+// Initial call to set up buttons
+init();
+
+window.onload = function () {
+    autoCollapse();
+    // Remove the `preload` class to enable animations
+    document.querySelector('body').className = '';
+};
+</script></body></html>
