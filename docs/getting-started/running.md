@@ -2,6 +2,8 @@ Now for the fun part - actually running the `course-catalog-api`.
 
 Run these commands in order:
 
+1. `cp template.env .env`
+   - This will copy our templated `.env` file for your own use. Some of these environment variables are required for our codebase to work.
 1. `yarn install`
    - This command installs all of our dependencies, and it does so locally. In other words, these dependencies are only visible to this project.
 2. `yarn dev:docker`
