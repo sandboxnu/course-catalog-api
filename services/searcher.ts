@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import { Course, Section } from "@prisma/client";
+import { Course, Section } from "../types/types";
 import prisma from "../services/prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
@@ -379,6 +379,7 @@ class Searcher {
       `${elastic.CLASS_ALIAS},${elastic.EMPLOYEE_ALIAS}`,
       queries
     );
+
     return this.parseResults(
       results.body.responses,
       Object.keys(this.aggFilters)
@@ -482,17 +483,71 @@ class Searcher {
       max,
       filters
     );
-    const { resultCount, took, aggregations } = searchResults;
+    const { took, aggregations } = searchResults;
     const startHydrate = Date.now();
 
-    const results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
+    let results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
       searchResults.output
     );
+
     const hydrateDuration: number = Date.now() - startHydrate;
 
+    // Do extra filtering if Honors or Campus Filters are being applied since those filter sections,
+    // which ElasticSearch doesn't actually filter out.
+
+    const validFilters = this.validateFilters(filters);
+    let honorsFilter: boolean = false;
+    let campusFilter: string = "";
+
+    // are we filtering by honors?
+    if (Object.keys(validFilters).includes("honors")) {
+      honorsFilter = true;
+    }
+
+    // are we filtering by campus?
+    if (Object.keys(validFilters).includes("campus")) {
+      campusFilter = "" + validFilters["campus"];
+    }
+
+    // create a new list initially containing the results, if we are doing further filtering
+    // we'll set it to an empty list and build up the new filtered results.
+    let filteredResults: SearchResult[] = results;
+    if (honorsFilter || campusFilter != "") {
+      filteredResults = [];
+
+      // go through each Result, if it's a course: filter the sections.
+      results.forEach((curResult: SearchResult) => {
+        if (curResult.type === "class") {
+          // filter the sections for each result
+          curResult.sections = curResult.sections.filter(
+            (curSection: Section) => {
+              if (honorsFilter && !curSection.honors) {
+                return false;
+              }
+              if (campusFilter !== "" && curSection.campus !== campusFilter) {
+                return false;
+              }
+              return true;
+            }
+          );
+
+          // if the current class still has remaining sections after being filtered, add it to filtered results.
+          if (curResult.sections.length > 0) {
+            filteredResults.push(curResult);
+          }
+        }
+        // if the result is an employee just add it to results
+        else {
+          filteredResults.push(curResult);
+        }
+      });
+    }
+
     return {
-      searchContent: results,
-      resultCount,
+      searchContent: filteredResults,
+      // the result count might differ if some classes get completely filtered out, so we set it to the
+      // length of filteredResults.
+      resultCount: filteredResults.length,
       took: {
         total: Date.now() - start,
         hydrate: hydrateDuration,
