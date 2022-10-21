@@ -486,7 +486,7 @@ class Searcher {
     const { took, aggregations } = searchResults;
     const startHydrate = Date.now();
 
-    let results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
+    const results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
       searchResults.output
     );
 
@@ -496,8 +496,8 @@ class Searcher {
     // which ElasticSearch doesn't actually filter out.
 
     const validFilters = this.validateFilters(filters);
-    let honorsFilter: boolean = false;
-    let campusFilter: string = "";
+    let honorsFilter = false;
+    let campusFilter = "";
 
     // are we filtering by honors?
     if (Object.keys(validFilters).includes("honors")) {
