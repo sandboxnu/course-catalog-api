@@ -13,8 +13,8 @@
     "resetIndex": "yarn babel-node-ts scripts/resetIndex.ts",
     "resetIndex:noLoss": "yarn babel-node-ts scripts/resetIndexWithoutLoss.ts",
     "populateES": "yarn babel-node-ts scripts/populateES.ts",
-    "script": "cd $INIT_CWD; babel-node --extensions \".js,.jsx,.ts,.tsx\" --root-mode upward --ignore \".this_does_not_exit\"",
-    "inspect": "cd $INIT_CWD;echo 'Open chrome://inspect in chrome and hit the node button';yarn -s script -- --inspect-brk",
+    "script": "cd $INIT_CWD && babel-node --extensions \".js,.jsx,.ts,.tsx\" --root-mode upward --ignore \".this_does_not_exit\"",
+    "inspect": "cd $INIT_CWD && echo 'Open chrome://inspect in chrome and hit the node button' && yarn -s script -- --inspect-brk",
     "dev:docker": "docker-compose -f infrastructure/dev/docker-compose.yml up -d",
     "dev:docker:del": "docker-compose -f infrastructure/dev/docker-compose.yml down -v",
     "dev:docker:server": "docker-compose -f infrastructure/dev/docker-compose-server.yml up -d",
@@ -30,7 +30,7 @@
     "dbtest": "jest -i --projects tests/database --verbose",
     "coverage": "./node_modules/jest-cli/bin/jest.js --coverage",
     "-building-": "--------building--------",
-    "build_backend": "rm -rf dist; mkdir -p dist; babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --include-dotfiles; rm -rf dist/.git",
+    "build_backend": "rm -rf dist && mkdir -p dist && babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --ignore .git --include-dotfiles && rm -rf dist/.git",
     "build": "yarn -s build_backend",
     "-deployment-": "--------deployment--------",
     "prod:scrape": "node dist/scrapers/main.js",
@@ -101,7 +101,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
     "lodash": "^4.17.4",
-    "moment": "^2.29.2",
+    "moment": "^2.29.4",
     "msgpack5": "^5.3.2",
     "multi-progress-bars": "4.2.3",
     "nodemon": "^2.0.6",
@@ -213,7 +213,7 @@
   "husky": {
     "hooks": {
       "__comment_1": "Runs prettier, and lint, only on the staged files",
-      "pre-commit": "yarn pretty-quick --staged && yarn eslint --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
+      "pre-commit": "yarn pretty-quick --staged && yarn eslint --no-error-on-unmatched-pattern --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
   },
   "engines": {

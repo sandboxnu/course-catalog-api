@@ -46,23 +46,15 @@ model Major {
 }
 
 model Professor {
-  bigPictureUrl     String?  @map("big_picture_url")
-  email             String?
-  emails            String[]
-  firstName         String?  @map("first_name")
-  googleScholarId   String?  @map("google_scholar_id")
   id                String   @id
-  lastName          String?  @map("last_name")
-  link              String?
-  name              String?
-  officeRoom        String?  @map("office_room")
-  personalSite      String?  @map("personal_site")
-  phone             String?
-  pic               Json?
+  name              String
+  firstName         String  @map("first_name")
+  lastName          String  @map("last_name")
   primaryDepartment String?  @map("primary_department")
   primaryRole       String?  @map("primary_role")
-  streetAddress     String?  @map("street_address")
-  url               String?
+  phone             String?
+  email             String?
+  officeRoom        String?  @map("office_room")
 
   @@map("professors")
 }

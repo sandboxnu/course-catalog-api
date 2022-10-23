@@ -5,17 +5,10 @@ const typeDef = gql`
     name: String!
     firstName: String!
     lastName: String!
-    emails: [String!]!
+    email: String
     primaryDepartment: String
     primaryRole: String
     phone: String
-    url: String
-    streetAddress: String
-    personalSite: String
-    googleScholarId: String
-    bigPictureUrl: String
-    pic: String
-    link: String
     officeRoom: String
   }
 `;

@@ -13,17 +13,21 @@
   <div id="app"></div>
 
   <script src="//cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+
   <script>
     var num = 0;
     mermaid.initialize({ startOnLoad: false });
 
     window.$docsify = {
       name: 'Course Catalog API',
-      repo: 'sandboxnu/course-catalog-api',
       logo: 'search-logo-red.png',
       loadSidebar: true,
       subMaxLevel: 3,
       auto2top: true,
+      plugins: [
+        EditOnGithubPlugin.create("https://github.com/sandboxnu/course-catalog-api/tree/master/docs/", "https://github.com/sandboxnu/course-catalog-api/edit/master/docs/", "Edit on GitHub!")  
+      ],
       markdown: {
         renderer: {
           code: function(code, lang) {

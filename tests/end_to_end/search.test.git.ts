@@ -56,23 +56,23 @@ describe("Searching for professors", () => {
   test("searching by professor name", async () => {
     const res = await query(gql`
       query {
-        search(termId: "202240", query: "jason hemann") {
+        search(termId: "202240", query: "Felleisen Matthias") {
           nodes {
             ... on Employee {
               name
               firstName
               lastName
-              emails
+              email
             }
           }
         }
       }
     `);
 
-    const obj = res.data.search.nodes[0];
-    expect(obj.firstName).toBe("Jason");
-    expect(obj.lastName).toBe("Hemann");
-    expect(obj.name).toBe("Jason Hemann");
+    const obj = res.data?.search.nodes[0];
+    expect(obj.firstName).toBe("Matthias");
+    expect(obj.lastName).toBe("Felleisen");
+    expect(obj.name).toBe("Matthias Felleisen");
 
     const res2 = await query(gql`
       query {
@@ -82,14 +82,14 @@ describe("Searching for professors", () => {
               name
               firstName
               lastName
-              emails
+              email
             }
           }
         }
       }
     `);
 
-    const obj2 = res2.data.search.nodes[0];
+    const obj2 = res2.data?.search.nodes[0];
     expect(obj2.name).toBe("Jeff Burds");
   });
 });

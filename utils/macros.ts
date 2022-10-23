@@ -2,81 +2,47 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
+import util from "util";
 import path from "path";
 import fs from "fs-extra";
 import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
-
-import moment from "moment";
-import commonMacros from "./abstractMacros";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
 import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
-import { createLogger, format, transports } from "winston";
+import { createLogger, format, Logger, transports } from "winston";
 import "winston-daily-rotate-file";
 
 dotenv.config();
 
-const amplitude = new Amplitude(commonMacros.amplitudeToken);
-
 // Collection of small functions that are used in many different places in the backend.
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
 // Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
-// Stuff in this file can be specific to the backend and will only be ran in the backend.
-// If it needs to be ran in both the backend and the frontend, move it to the common macros file :P
 
-// TODO: improve getBaseHost by using a list of top level domains. (public on the internet)
+// We should be in the directory with package.json
+const main_dir = path.join(__dirname, "..");
+process.chdir(main_dir);
 
-// Change the current working directory to the directory with package.json and .git folder.
-const originalCwd: string = process.cwd();
-let oldcwd: null | string = null;
-
-while (oldcwd !== process.cwd()) {
-  try {
-    fs.statSync("package.json");
-  } catch (e) {
-    oldcwd = process.cwd();
-    //cd .. until in the same dir as package.json, the root of the project
-    process.chdir("..");
-
-    // Prevent an infinite loop: If we keep cd'ing upward and we hit the root dir and still haven't found
-    // a package.json, just return to the original directory and break out of this loop.
-    if (oldcwd === process.cwd()) {
-      commonMacros.warn(
-        "Can't find directory with package.json, returning to",
-        originalCwd
-      );
-      process.chdir(originalCwd);
-      break;
-    }
-
-    continue;
-  }
-  break;
+try {
+  fs.statSync("package.json");
+} catch (_e) {
+  throw new Error(
+    "The macros file seems to have moved relative to the base directory; please update the path."
+  );
 }
-
-type EnvKeys =
-  | "elasticURL"
-  | "dbName"
-  | "dbHost"
-  // Secrets:
-  | "dbUsername"
-  | "dbPassword"
-  | "rollbarPostServerItemToken"
-  | "fbToken"
-  | "fbVerifyToken"
-  | "fbAppSecret"
-  // Only for dev:
-  | "fbMessengerId";
-
-type EnvVars = Partial<Record<EnvKeys, string>>;
 
 // This is the JSON object saved in /etc/searchneu/config.json
 // null = hasen't been loaded yet.
 // {} = it has been loaded, but nothing was found or the file doesn't exist or the file was {}
 // {...} = the file
-let envVariables: EnvVars = null;
+let envVariables = null;
+
+enum EnvLevel {
+  PROD,
+  TEST,
+  DEV,
+}
 
 enum LogLevel {
   CRITICAL = -1,
@@ -89,94 +55,117 @@ enum LogLevel {
 
 function getLogLevel(input: string): LogLevel {
   input = input ? input : "";
-
-  switch (input.toUpperCase()) {
-    case "CRITICAL":
-      return LogLevel.CRITICAL;
-    case "ERROR":
-      return LogLevel.ERROR;
-    case "WARN":
-      return LogLevel.WARN;
-    case "INFO":
-      return LogLevel.INFO;
-    case "HTTP":
-      return LogLevel.HTTP;
-    case "VERBOSE":
-      return LogLevel.VERBOSE;
-    default:
-      return LogLevel.INFO;
-  }
+  return LogLevel[input as keyof typeof LogLevel] || LogLevel.INFO;
 }
 
-class Macros extends commonMacros {
-  static logLevel = getLogLevel(process.env.LOG_LEVEL);
+let environmentLevel = EnvLevel.DEV;
+// Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
+const nodeEnv = process.env.NODE_ENV;
 
-  static dirname = "logs/" + (Macros.PROD ? "prod" : "dev");
+const isProdCI = process.env.CI && nodeEnv !== "test" && nodeEnv !== "dev";
+const isProd =
+  process.env.PROD ||
+  nodeEnv === "production" ||
+  nodeEnv === "prod" ||
+  isProdCI;
+const isDev = process.env.DEV || nodeEnv === "dev";
 
-  static logger = createLogger({
-    level: "info",
-    format: format.combine(
-      format.timestamp({
-        format: "YYYY-MM-DD HH:mm:ss",
-      }),
-      format.errors({ stack: true }),
-      format.splat(),
-      format.json()
-    ),
-    defaultMeta: { service: "course-catalog-api" },
-    transports: [
-      new transports.DailyRotateFile({
-        filename: "%DATE%-warn.log",
-        level: "warn",
-        dirname: Macros.dirname,
-        maxSize: "10m",
-        maxFiles: "180d",
-        zippedArchive: true,
-      }),
-      new transports.DailyRotateFile({
-        filename: "%DATE%-info.log",
-        level: "info",
-        dirname: Macros.dirname,
-        maxSize: "10m",
-        maxFiles: "60d",
-        zippedArchive: true,
-      }),
-      new transports.DailyRotateFile({
-        filename: "%DATE%-verbose.log",
-        level: "verbose",
-        dirname: Macros.dirname,
-        maxSize: "20m",
-        maxFiles: "15d",
-        zippedArchive: true,
-      }),
-    ],
-  });
-  // Version of the schema for the data. Any changes in this schema will effect the data saved in the dev_data folder
+if (isProd) {
+  environmentLevel = EnvLevel.PROD;
+} else if (isDev) {
+  environmentLevel = EnvLevel.DEV;
+} else if (nodeEnv === "test") {
+  environmentLevel = EnvLevel.TEST;
+} else {
+  console.log(`Unknown env! (${nodeEnv}) Setting to dev.`); // eslint-disable-line no-console
+  environmentLevel = EnvLevel.DEV;
+}
+
+console.log(`Running in ${EnvLevel[environmentLevel]}`); // eslint-disable-line no-console
+
+class Macros {
+  // Version of the schema for the data. Any changes in this schema will affect the data saved in the dev_data folder
   // and the data saved in the term dumps in the public folder and the search indexes in the public folder.
   // Increment this number every time there is a breaking change in the schema.
-  // This will cause the data to be saved in a different folder in the public data folder.
   // The first schema change is here: https://github.com/ryanhugh/searchneu/pull/48
-  static schemaVersion = 2;
-
-  static PUBLIC_DIR = path.join("public", "data", `v${Macros.schemaVersion}`);
-
-  static DEV_DATA_DIR = path.join("dev_data", `v${Macros.schemaVersion}`);
+  readonly schemaVersion = 2;
+  readonly PUBLIC_DIR = path.join("public", "data", `v${this.schemaVersion}`);
+  readonly DEV_DATA_DIR = path.join("dev_data", `v${this.schemaVersion}`);
 
   // Folder of the raw html cache for the requests.
-  static REQUESTS_CACHE_DIR = "requests";
+  readonly REQUESTS_CACHE_DIR = "requests";
 
-  // For iterating over every letter in a couple different places in the code.
-  static ALPHABET = "maqwertyuiopsdfghjklzxcvbn";
+  readonly logLevel: LogLevel;
+  readonly dirname: string;
+  private amplitude: Amplitude;
+  private rollbar: Rollbar;
+  private logger: Logger;
 
-  private static rollbar: Rollbar =
-    Macros.PROD &&
-    new Rollbar({
-      accessToken: Macros.getEnvVariable("rollbarPostServerItemToken"),
-      captureUncaught: true,
-      captureUnhandledRejections: true,
+  PROD: boolean;
+  TEST: boolean;
+  DEV: boolean;
+
+  constructor() {
+    this.logLevel = getLogLevel(process.env.LOG_LEVEL);
+
+    this.PROD = environmentLevel === EnvLevel.PROD;
+    this.TEST = environmentLevel === EnvLevel.TEST;
+    this.DEV = environmentLevel === EnvLevel.DEV;
+
+    // This is the same token in the frontend and the backend, and does not need to be kept private.
+    this.amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
+
+    this.rollbar =
+      this.PROD &&
+      new Rollbar({
+        accessToken: this.getEnvVariable("rollbarPostServerItemToken"),
+        captureUncaught: true,
+        captureUnhandledRejections: true,
+      });
+
+    this.dirname = path.join("logs", this.PROD ? "prod" : "dev");
+
+    this.logger = createLogger({
+      level: "info",
+      format: format.combine(
+        format.timestamp({
+          format: "YYYY-MM-DD HH:mm:ss",
+        }),
+        format.errors({ stack: true }),
+        format.splat(),
+        format.json()
+      ),
+      defaultMeta: { service: "course-catalog-api" },
+      transports: [
+        new transports.DailyRotateFile({
+          filename: "%DATE%-warn.log",
+          level: "warn",
+          dirname: this.dirname,
+          maxSize: "10m",
+          maxFiles: "180d",
+          zippedArchive: true,
+        }),
+        new transports.DailyRotateFile({
+          filename: "%DATE%-info.log",
+          level: "info",
+          dirname: this.dirname,
+          maxSize: "10m",
+          maxFiles: "60d",
+          zippedArchive: true,
+        }),
+        new transports.DailyRotateFile({
+          filename: "%DATE%-verbose.log",
+          level: "verbose",
+          dirname: this.dirname,
+          maxSize: "20m",
+          maxFiles: "15d",
+          zippedArchive: true,
+        }),
+      ],
     });
+  }
 
-  static getAllEnvVariables(): EnvVars {
+  getAllEnvVariables(): typeof process.env {
     if (envVariables) {
       return envVariables;
     }
@@ -206,21 +195,16 @@ class Macros extends commonMacros {
     return envVariables;
   }
 
-  // Gets the current time, just used for logging
-  static getTime(): string {
-    return moment().format("hh:mm:ss a");
-  }
-
-  static getEnvVariable(name: EnvKeys): string {
+  getEnvVariable(name: string): string {
     return this.getAllEnvVariables()[name];
   }
 
   // Log an event to amplitude. Same function signature as the function for the frontend.
-  static async logAmplitudeEvent(
+  async logAmplitudeEvent(
     type: string,
     event: AmplitudeEvent
   ): Promise<null | void | AmplitudeTrackResponse> {
-    if (!Macros.PROD) {
+    if (!this.PROD) {
       return null;
     }
 
@@ -231,13 +215,13 @@ class Macros extends commonMacros {
       event_properties: event,
     };
 
-    return amplitude.track(data).catch((error) => {
-      Macros.warn("error Logging amplitude event failed:", error);
+    return this.amplitude.track(data).catch((error) => {
+      this.warn("error Logging amplitude event failed:", error);
     });
   }
 
-  static getRollbar(): Rollbar {
-    if (Macros.PROD && !this.rollbar) {
+  getRollbar(): Rollbar {
+    if (this.PROD && !this.rollbar) {
       console.error("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
     }
 
@@ -247,9 +231,9 @@ class Macros extends commonMacros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  static logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
+  logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
-    if (!Macros.PROD) {
+    if (!this.PROD) {
       return;
     }
 
@@ -271,7 +255,7 @@ class Macros extends commonMacros {
     if (possibleError) {
       // The arguments can come in any order. Any errors should be logged separately.
       // https://docs.rollbar.com/docs/nodejs#section-rollbar-log-
-      Macros.getRollbar().error(possibleError, args, () => {
+      this.getRollbar().error(possibleError, args, () => {
         if (shouldExit) {
           // And kill the process to recover.
           // forver.js will restart it.
@@ -279,7 +263,7 @@ class Macros extends commonMacros {
         }
       });
     } else {
-      Macros.getRollbar().error(args, () => {
+      this.getRollbar().error(args, () => {
         if (shouldExit) {
           process.exit(1);
         }
@@ -289,109 +273,119 @@ class Macros extends commonMacros {
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static critical(...args: any): void {
-    Macros.logger.error(args);
+  critical(...args: any): void {
+    this.logger.error(args);
 
-    if (Macros.TEST) {
+    if (this.TEST) {
       console.error("macros.critical called");
-      console.error(
-        "Consider using the VERBOSE env flag for more info",
-        ...args
-      );
+      this.error(...args);
     } else {
-      Macros.error(...args);
+      this.error(...args);
       process.exit(1);
-    }
-  }
-
-  // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
-  // Will log something to rollbar and rollbar will send off an email
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
-  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static warn(...args: any): void {
-    Macros.logger.warn(args);
-
-    if (LogLevel.WARN > Macros.logLevel) {
-      return;
-    }
-
-    super.warn(
-      ...args.map((a) => (typeof a === "string" ? a.yellow.underline : a))
-    );
-
-    if (Macros.PROD) {
-      this.logRollbarError(args, false);
     }
   }
 
   // Use this for stuff that should never happen, but does not mean the program cannot continue.
   // This will continue running in dev, but will exit on CI
-  // Will log stack trace and cause CI to fail,  so CI will send an email
-
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static error(...args: any): void {
-    Macros.logger.error(args);
+  error(...args: any): void {
+    this.logger.error(args);
 
-    super.error("Check the /logs directory for more detailed logging", ...args);
+    if (!this.TEST) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      const fullArgs: string[] = args.map((a: any) =>
+        util.inspect(a, false, null, !this.PROD)
+      );
 
-    if (Macros.PROD) {
+      console.error("Check the /logs directory for more detail: ", ...fullArgs); // eslint-disable-line no-console
+      console.trace(); // eslint-disable-line no-console
+    }
+
+    if (this.PROD) {
       // If running on Travis, just exit 1 and travis will send off an email.
       if (process.env.CI) {
         process.exit(1);
-
-        // If running on AWS, tell rollbar about the error so rollbar sends off an email.
       } else {
+        // If running on AWS, tell rollbar about the error so rollbar sends off an email.
         this.logRollbarError(args, false);
       }
     }
   }
 
-  static log(...args: any): void {
-    Macros.logger.info(args);
-
-    if (LogLevel.INFO > Macros.logLevel) {
-      return;
-    }
-
-    console.log(...args);
-  }
-
-  static http(...args: any): void {
-    Macros.logger.http(args);
-
-    if (LogLevel.HTTP > Macros.logLevel) {
-      return;
-    }
-
-    console.log(...args);
-  }
-
-  // Use console.warn to log stuff during testing
-  // We ignore the 'any' error, since console.log/warn/error all take the 'any' type
+  // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
+  // Will log something to rollbar and rollbar will send off an email
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  static verbose(...args: any): void {
-    Macros.logger.verbose(args);
+  warn(...args: any): void {
+    this.logger.warn(args);
 
-    if (LogLevel.VERBOSE > Macros.logLevel) {
+    if (LogLevel.WARN > this.logLevel) {
+      return;
+    }
+
+    if (!this.TEST) {
+      // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+      const formattedArgs = args.map((a: any) =>
+        typeof a === "string" ? a.yellow.underline : a
+      );
+      console.warn("Warning:", ...formattedArgs);
+    }
+
+    if (this.PROD) {
+      this.logRollbarError(args, false);
+    }
+  }
+
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  log(...args: any): void {
+    this.logger.info(args);
+
+    if (LogLevel.INFO > this.logLevel) {
       return;
     }
 
     console.log(...args);
+  }
+
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  http(...args: any): void {
+    this.logger.http(args);
+
+    if (LogLevel.HTTP > this.logLevel) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  verbose(...args: any): void {
+    this.logger.verbose(args);
+
+    if (LogLevel.VERBOSE > this.logLevel) {
+      return;
+    }
+
+    console.log(...args);
+  }
+
+  // https://stackoverflow.com/questions/18082/validate-decimal-numbers-in-javascript-isnumeric
+  isNumeric(n: string): boolean {
+    return (
+      !Number.isNaN(Number.parseFloat(n)) && Number.isFinite(Number.parseInt(n))
+    );
   }
 }
 
-Macros.log(
-  `**** Starting using log level: ${Macros.logLevel} (${
-    LogLevel[Macros.logLevel]
+const macrosInstance = new Macros();
+
+macrosInstance.log(
+  `**** Starting using log level: ${macrosInstance.logLevel} (${
+    LogLevel[macrosInstance.logLevel]
   })`
 );
-Macros.log(
+macrosInstance.log(
   "**** Change the log level using the 'LOG_LEVEL' environment variable"
 );
 
-export default Macros;
+export default macrosInstance;

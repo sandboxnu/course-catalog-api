@@ -21,12 +21,26 @@ const getLatestClassOccurrence = async (
   subject: string,
   classId: string
 ): Promise<Course> => {
-  const results: PrismaCourse[] = await prisma.course.findMany({
+  const results: PrismaCourse = await prisma.course.findFirst({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
   });
-  return serializeValues(results)[0];
+  return serializeValues([results])[0];
+};
+
+const getBulkClassOccurrences = async (
+  input: Array<{
+    subject: string;
+    classId: string;
+  }>
+): Promise<Course[]> => {
+  const results: PrismaCourse[] = await prisma.course.findMany({
+    where: { OR: input },
+    orderBy: { termId: "desc" },
+    distinct: ["classId", "subject"],
+  });
+  return serializeValues(results);
 };
 
 const getAllClassOccurrences = async (
@@ -78,10 +92,10 @@ const getSectionById = async (id: string): Promise<Section> => {
 const resolvers = {
   Query: {
     class: (parent, args) => {
-      return getLatestClassOccurrence(
-        args.subject,
-        args.classId && args.classId
-      );
+      return getLatestClassOccurrence(args.subject, args.classId);
+    },
+    bulkClasses: (parent, args) => {
+      return getBulkClassOccurrences(args.input);
     },
     classByHash: (parent, args) => {
       return getClassOccurrenceById(args.hash);
