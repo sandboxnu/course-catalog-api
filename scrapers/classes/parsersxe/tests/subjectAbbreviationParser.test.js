@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { _createDescriptionTable } from "../subjectAbbreviationParser";
+import * as subject from "../subjectAbbreviationParser";
 
 describe("subjectAbbreviationParser", () => {
   it("_createDescriptionTable builds mapping", () => {
@@ -17,6 +17,36 @@ describe("subjectAbbreviationParser", () => {
       Accounting: "ACCT",
       "Adv Manufacturing System - CPS": "AVM",
     };
-    expect(_createDescriptionTable(banner)).toEqual(map);
+    expect(subject._createDescriptionTable(banner)).toEqual(map);
+  });
+
+  it("_createAbbrTable builds mapping", () => {
+    const banner = [
+      {
+        code: "ACCT",
+        description: "Accounting",
+      },
+      {
+        code: "AVM",
+        description: "Adv Manufacturing System - CPS",
+      },
+    ];
+    const map = {
+      ACCT: "Accounting",
+      AVM: "Adv Manufacturing System - CPS",
+    };
+    expect(subject._createAbbrTable(banner)).toEqual(map);
+  });
+
+  it("requesting subjects", async () => {
+    expect(await subject.getSubjectDescriptions("termsTest")).toEqual({
+      ACCT: "Accounting",
+      AVM: "Adv Manufacturing System - CPS",
+    });
+
+    expect(await subject.getSubjectAbbreviations("termsTest")).toEqual({
+      Accounting: "ACCT",
+      "Adv Manufacturing System - CPS": "AVM",
+    });
   });
 });

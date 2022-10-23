@@ -1,9 +1,14 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 import prisma from "../../services/prisma";
 import server from "../index";
+import { DocumentNode } from "graphql";
+import { GraphQLResponse } from "apollo-server-core";
 
-const { query } = createTestClient(server);
+const query = async (queryBody: {
+  query: string | DocumentNode;
+}): Promise<GraphQLResponse> => {
+  return server.executeOperation(queryBody);
+};
 
 beforeAll(async () => {
   await prisma.major.deleteMany({});

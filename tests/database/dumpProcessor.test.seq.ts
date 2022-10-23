@@ -6,6 +6,7 @@
 import prisma from "../../services/prisma";
 import dumpProcessor from "../../services/dumpProcessor";
 import elastic from "../../utils/elastic";
+import { TermInfo } from "../../types/types";
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(true);
 
@@ -18,11 +19,25 @@ beforeEach(async () => {
   await prisma.section.deleteMany({});
   await prisma.course.deleteMany({});
   await prisma.subject.deleteMany({});
+  await prisma.termInfo.deleteMany({});
 });
 
 afterAll(async () => {
   jest.restoreAllMocks();
 });
+
+const termInfos: TermInfo[] = [
+  {
+    termId: "123456",
+    subCollege: "NEU",
+    text: "This is some text",
+  },
+  {
+    termId: "654321",
+    subCollege: "LAW",
+    text: "This is some more text",
+  },
+];
 
 it("does not create records if dump is empty", async () => {
   const prevCounts = Promise.all([
@@ -30,6 +45,7 @@ it("does not create records if dump is empty", async () => {
     prisma.course.count(),
     prisma.section.count(),
     prisma.subject.count(),
+    prisma.termInfo.count(),
   ]);
   await dumpProcessor.main({
     termDump: { classes: [], sections: [], subjects: {} },
@@ -40,8 +56,74 @@ it("does not create records if dump is empty", async () => {
       prisma.course.count(),
       prisma.section.count(),
       prisma.subject.count(),
+      prisma.termInfo.count(),
     ])
   ).toEqual(prevCounts);
+});
+
+describe("with termInfos", () => {
+  it("creates termInfos", async () => {
+    await dumpProcessor.main({
+      termDump: { classes: [], sections: [], subjects: {} },
+      profDump: [],
+      currentTermInfos: termInfos,
+    });
+    expect(await prisma.termInfo.count()).toEqual(2);
+  });
+
+  it("deletes old termInfos", async () => {
+    await prisma.termInfo.create({
+      data: {
+        termId: "1",
+        subCollege: "NEU",
+        text: "hello",
+      },
+    });
+
+    await dumpProcessor.main({
+      termDump: { classes: [], sections: [], subjects: {} },
+      profDump: [],
+      currentTermInfos: termInfos,
+    });
+    expect(await prisma.termInfo.count()).toEqual(2);
+  });
+
+  it("updates existing termInfos", async () => {
+    await prisma.termInfo.create({
+      data: {
+        termId: "654321",
+        subCollege: "fake college",
+        text: "This is some more text",
+      },
+    });
+
+    expect(
+      (
+        await prisma.termInfo.findFirst({
+          where: {
+            termId: "654321",
+          },
+        })
+      )?.subCollege
+    ).toBe("fake college");
+
+    await dumpProcessor.main({
+      termDump: { classes: [], sections: [], subjects: {} },
+      profDump: [],
+      currentTermInfos: termInfos,
+    });
+
+    expect(await prisma.termInfo.count()).toEqual(2);
+    expect(
+      (
+        await prisma.termInfo.findFirst({
+          where: {
+            termId: "654321",
+          },
+        })
+      )?.subCollege
+    ).toBe("LAW");
+  });
 });
 
 describe("with professors", () => {
@@ -133,11 +215,13 @@ describe("with classes", () => {
           termId: "202030",
           subject: "CS",
           lastUpdateTime: 123456789,
+          honors: true,
         },
       ],
       subjects: [],
     };
 
+    // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(3);
   });
@@ -205,6 +289,7 @@ describe("with sections", () => {
       subjects: [],
     };
 
+    // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.section.count()).toEqual(3);
   });
@@ -280,6 +365,7 @@ describe("with updates", () => {
       subjects: [],
     };
 
+    // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
     expect(await prisma.section.count()).toEqual(1);
@@ -289,7 +375,7 @@ describe("with updates", () => {
         await prisma.course.findUnique({
           where: { id: "neu.edu/202030/CS/3500" },
         })
-      ).name
+      )?.name
     ).toEqual("Compilers");
   });
 
@@ -303,7 +389,7 @@ describe("with updates", () => {
     };
     expect(
       (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
-        .description
+        ?.description
     ).toEqual("Computer Science");
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
@@ -311,7 +397,7 @@ describe("with updates", () => {
     expect(await prisma.subject.count()).toEqual(1);
     expect(
       (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
-        .description
+        ?.description
     ).toEqual("Computer Sciences");
   });
 });

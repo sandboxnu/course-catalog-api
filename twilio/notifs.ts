@@ -2,6 +2,7 @@ import twilio, { Twilio } from "twilio";
 import express from "express";
 import macros from "../utils/macros";
 import notificationsManager from "../services/notificationsManager";
+import { twilioClient } from "./client";
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 
@@ -33,13 +34,10 @@ class TwilioNotifyer {
       USER_UNSUBSCRIBED: 21610,
     };
     this.TWILIO_VERIF_CHECK_APPROVED = "approved";
-    this.twilioClient = twilio(
-      process.env.TWILIO_ACCOUNT_SID,
-      process.env.TWILIO_AUTH_TOKEN
-    );
+    this.twilioClient = twilioClient;
   }
 
-  sendNotificationText(
+  async sendNotificationText(
     recipientNumber: string,
     message: string
   ): Promise<void> {
@@ -68,11 +66,11 @@ class TwilioNotifyer {
       });
   }
 
-  sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
+  async sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
     return this.twilioClient.verify
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
-      .then((verification) => {
+      .then(() => {
         return { statusCode: 200, message: "Verification code sent!" };
       })
       .catch((err) => {
@@ -104,7 +102,7 @@ class TwilioNotifyer {
       });
   }
 
-  checkVerificationCode(
+  async checkVerificationCode(
     recipientNumber: string,
     code: string
   ): Promise<TwilioResponse> {
