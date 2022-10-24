@@ -155,7 +155,8 @@ class Request {
     this.timer = null;
   }
 
-  ensureAnalyticsObject(hostname: string): void {
+  // Ensure that there is an analytics object ready for this host
+  prepareHostAnalytics(hostname: string): void {
     if (this.analytics[hostname]) {
       return;
     }
@@ -168,14 +169,11 @@ class Request {
     };
   }
 
+  // Get analytics from a specific agent
   getAnalyticsFromAgent(
     pool: RequestPool
   ): Record<string, never> | AgentAnalytics {
-    let agent = pool["https:false:ALL"];
-
-    if (!agent) {
-      agent = pool["http:"];
-    }
+    const agent = pool["https:false:ALL"] ?? pool["http"];
 
     if (!agent) {
       macros.http("Agent is false,", pool);
@@ -200,10 +198,11 @@ class Request {
     return moreAnalytics;
   }
 
-  onInterval(): void {
-    const analyticsHostnames = Object.keys(this.analytics);
-
-    for (const hostname of analyticsHostnames) {
+  /**
+   * Logs the analytics for the active hosts, and resets the saved active hosts.
+   */
+  private logActiveHostAnalytics(): void {
+    for (const hostname of Object.keys(this.analytics)) {
       if (!this.activeHostnames[hostname]) {
         continue;
       }
@@ -231,15 +230,28 @@ class Request {
     }
 
     this.activeHostnames = {};
+  }
 
-    // Shared pool
-    const sharedPoolAnalytics: Partial<AmplitudeEvent> =
-      this.getAnalyticsFromAgent(separateReqDefaultPool);
+  // Logs the analytics from the shared pool
+  private logSharedPoolAnalytics(): void {
+    const sharedPoolAnalytics = this.getAnalyticsFromAgent(
+      separateReqDefaultPool
+    ) as Partial<AmplitudeEvent>;
+
     macros.http(JSON.stringify(sharedPoolAnalytics, null, 4));
 
     // Also upload it to Amplitude.
     sharedPoolAnalytics.hostname = "shared";
     macros.logAmplitudeEvent("Scrapers", sharedPoolAnalytics as AmplitudeEvent);
+  }
+
+  /**
+   * Logs all the analytics, and resets the active hostnames.
+   * Should be run on an interval.
+   */
+  logAnalytics(): void {
+    this.logActiveHostAnalytics();
+    this.logSharedPoolAnalytics();
 
     if (this.openRequests === 0) {
       clearInterval(this.timer);
@@ -263,7 +275,7 @@ class Request {
     const urlParsed = new URI(config.url);
 
     const hostname = urlParsed.hostname();
-    this.ensureAnalyticsObject(hostname);
+    this.prepareHostAnalytics(hostname);
     this.activeHostnames[hostname] = true;
 
     // Setup the default config
@@ -324,9 +336,9 @@ class Request {
       clearInterval(this.timer);
       macros.http("Starting request analytics timer.");
       this.analytics[hostname].startTime = Date.now();
-      this.timer = setInterval(() => this.onInterval(), 5000);
+      this.timer = setInterval(() => this.logAnalytics(), 5000);
       setTimeout(() => {
-        this.onInterval();
+        this.logAnalytics();
       }, 0);
     }
 
@@ -352,49 +364,38 @@ class Request {
     return response;
   }
 
-  doAnyStringsInArray(array: string[], body: any): boolean {
-    for (let i = 0; i < array.length; i++) {
-      if (body.includes(array[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  safeToCacheByUrl(config: CustomRequestConfig): boolean {
+  // For caching, if the only header is Cookie and the only items in the config are url
+  // and method===get and headers,the request is safe to cache by just the url.
+  // Otherwise, we will need to do some hashing, which consumes a lot of time when repeated
+  private safeToCacheByUrl(config: CustomRequestConfig): boolean {
     if (config.method !== "GET") {
       return false;
     }
 
-    // If the only header is Cookie and the only items in the config are url and method===get and headers,
-    // The request is safe to cache by just the url, and no hashing is required.
-    // The vast majority of requests follow these rules.
-    const listOfHeaders = Object.keys(config.headers);
+    const filteredHeaders = Object.keys(config.headers).filter(
+      (key) => key !== "Cookie"
+    );
 
-    _.pull(listOfHeaders, "Cookie");
-    if (listOfHeaders.length > 0) {
-      const configToLog = { ...config };
-      configToLog.jar = null;
-
+    if (filteredHeaders.length > 0) {
+      const configToLog = { ...config, jar: null };
       macros.http(
         "Not caching by url b/c it has other headers",
-        listOfHeaders,
+        filteredHeaders,
         configToLog
       );
       return false;
     }
 
-    const listOfConfigOptions = Object.keys(config);
-
-    _.pull(
-      listOfConfigOptions,
+    const optionsToIgnore = [
       "method",
       "headers",
       "url",
-      "requiredInBody",
       "cacheName",
       "jar",
-      "cache"
+      "cache",
+    ];
+    const listOfConfigOptions = Object.keys(config).filter((key) =>
+      optionsToIgnore.includes(key)
     );
 
     if (listOfConfigOptions.length > 0) {
@@ -408,47 +409,43 @@ class Request {
     return true;
   }
 
+  // Creates a cache key for this config
+  // Skipping the hashing when it is not necessary significantly speeds this up.
+  // Caching by url is faster, so log a warning if had to cache by hash.
+  private getCacheKey(config: CustomRequestConfig): string {
+    if (this.safeToCacheByUrl(config)) {
+      return config.url;
+    }
+
+    // Make a new request without the cookies and the cookie jar.
+    const configToHash: Partial<NativeRequestConfig> = {
+      ...config,
+      jar: undefined,
+    };
+    configToHash.headers = { ...config.headers, Cookie: undefined };
+
+    return objectHash(configToHash);
+  }
+
   // Outputs a response object. Get the body of this object with ".body".
   async request(config: CustomRequestConfig): Promise<Response> {
     macros.http("Request hitting", config);
 
     const urlParsed = new URI(config.url);
     const hostname = urlParsed.hostname();
-    this.ensureAnalyticsObject(hostname);
-
-    let newKey: string | undefined;
+    this.prepareHostAnalytics(hostname);
 
     if (macros.DEV && config.cache) {
-      // Skipping the hashing when it is not necessary significantly speeds this up.
-      // When everything was hashed, the call to objectHash function was the function with the most self-time in the profiler lol.
-      // Caching by url is faster, so log a warning if had to cache by hash.
-      if (this.safeToCacheByUrl(config)) {
-        newKey = config.url;
-      } else {
-        // Make a new request without the cookies and the cookie jar.
-        const headersWithoutCookie = { ...config.headers };
-        headersWithoutCookie.Cookie = undefined;
-
-        const configToHash: Partial<NativeRequestConfig> = { ...config };
-        configToHash.headers = headersWithoutCookie;
-        configToHash.jar = undefined;
-
-        newKey = objectHash(configToHash);
-      }
-
+      // Try querying our cache; if it exists, return it
       const content = await cache.get(
         macros.REQUESTS_CACHE_DIR,
         config.cacheName,
-        newKey
+        this.getCacheKey(config)
       );
+
       if (content) {
         return content as Response;
       }
-    }
-
-    let retryCount = MAX_RETRY_COUNT;
-    if (config.retryCount) {
-      retryCount = config.retryCount;
     }
 
     let tryCount = 0;
@@ -457,18 +454,17 @@ class Request {
     let requestDuration: number | undefined;
 
     return retry(
+      // Retry this function until we get a good response
       async () => {
         let response: undefined | Response;
         tryCount++;
+
         try {
           const requestStart = Date.now();
           response = await this.fireRequest(config);
           requestDuration = Date.now() - requestStart;
           this.analytics[hostname].totalGoodRequests++;
         } catch (err) {
-          // Most sites just give a ECONNRESET or ETIMEDOUT, but dccc also gives a EPROTO and ECONNREFUSED.
-          // This will retry for any error code.
-
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
             macros.error(
@@ -491,29 +487,12 @@ class Request {
           throw err;
         }
 
-        // Ensure that body contains given string.
-        if (
-          config.requiredInBody &&
-          !this.doAnyStringsInArray(config.requiredInBody, response.body)
-        ) {
-          macros.warn(
-            `Try#: ${tryCount} Warning, body did not contain specified text ${response.body.length} ${response.statusCode} ${this.openRequests} ${config.url}`
-          );
-          throw new Error("Body missing required text.");
-        }
-
-        if (response.body.length < 4000 && !config.shortBodyWarning === false) {
-          macros.warn(
-            `Warning, short body ${config.url} ${response.body} ${this.openRequests}`
-          );
-        }
-
         // Save the response to a file for development
         if (macros.DEV && config.cache) {
           await cache.set(
             macros.REQUESTS_CACHE_DIR,
             config.cacheName,
-            newKey,
+            this.getCacheKey(config),
             response.toJSON(),
             true
           );
@@ -530,7 +509,7 @@ class Request {
         return response;
       },
       {
-        retries: retryCount,
+        retries: MAX_RETRY_COUNT,
         minTimeout: timeout,
         maxTimeout: timeout,
         factor: 1,

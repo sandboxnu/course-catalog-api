@@ -27,9 +27,6 @@ export interface CustomRequestConfig extends CoreOptions {
   cache?: boolean;
   cacheName?: string;
   headers?: Record<string, string>;
-  retryCount?: number;
-  requiredInBody?: string[];
-  shortBodyWarning?: boolean;
   pool?: RequestPool;
 }
 
