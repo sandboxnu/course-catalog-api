@@ -129,6 +129,8 @@ dnsCache({
 });
 
 const MAX_RETRY_COUNT = 35;
+const USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:24.0) Gecko/20100101 Firefox/24.0";
 
 // These numbers are in ms.
 const RETRY_DELAY = 100;
@@ -169,7 +171,9 @@ class Request {
     };
   }
 
-  // Get analytics from a specific agent
+  /**
+   * Get analytics from a specific agent
+   */
   getAnalyticsFromAgent(
     pool: RequestPool
   ): Record<string, never> | AgentAnalytics {
@@ -232,7 +236,9 @@ class Request {
     this.activeHostnames = {};
   }
 
-  // Logs the analytics from the shared pool
+  /**
+   * Logs the analytics from the shared pool
+   */
   private logSharedPoolAnalytics(): void {
     const sharedPoolAnalytics = this.getAnalyticsFromAgent(
       separateReqDefaultPool
@@ -266,28 +272,45 @@ class Request {
     );
   }
 
-  async fireRequest(config: CustomRequestConfig): Promise<Response> {
-    // Default to JSON for POST bodies
-    if (config.method === "POST" && !config.headers["Content-Type"]) {
-      config.headers["Content-Type"] = "application/json";
-    }
-
-    const urlParsed = new URI(config.url);
-
-    const hostname = urlParsed.hostname();
-    this.prepareHostAnalytics(hostname);
-    this.activeHostnames[hostname] = true;
-
-    // Setup the default config
-    // Change some settings from the default request settings for
-    const defaultConfig: Partial<NativeRequestConfig> = {
-      headers: {},
+  /**
+   * Creates a default RequestConfig object, which we use to build up
+   * configurations for requests
+   */
+  private getDefaultRequestConfig(): Partial<NativeRequestConfig> {
+    return {
+      headers: {
+        "User-Agent": USER_AGENT,
+      },
+      // Timeout was increased from 5 mins to help with socket hang up errors
+      timeout: 15 * 60 * 1000, // doesn't include the time the request is waiting for a socket
+      resolveWithFullResponse: true,
+      // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
+      // Additionally needed for DNS caching b/c the url no longer matches the url in the cert.
+      rejectUnauthorized: false,
+      requestCert: false,
+      ciphers: "ALL",
     };
+  }
 
+  /**
+   * Prepares the RequestConfig with some settings before firing it off
+   */
+  private prepareRequestConfig(
+    config: CustomRequestConfig,
+    hostname: string
+  ): CustomRequestConfig {
     // Default to JSON for POST bodies
     if (config.method === "POST") {
-      defaultConfig.headers["Content-Type"] = "application/json";
+      config.headers["Content-Type"] ??= "application/json";
     }
+
+    const defaultConfig = this.getDefaultRequestConfig();
+
+    // Needed on some old sites that will redirect/block requests when this is not set
+    // eg. when a user is requesting a page that is not the entry page of the site
+    defaultConfig.headers["Referer"] = config.url;
+    // Manually set the host - b/c of the DNS caching, it would be set to the IP instead
+    defaultConfig.headers["Host"] = hostname;
 
     // Enable keep-alive to make sequential requests faster
     if (separateReqPools[hostname]) {
@@ -296,37 +319,23 @@ class Request {
       defaultConfig.pool = separateReqDefaultPool;
     }
 
-    // Fifteen min. This timeout does not include the time the request is waiting for a socket.
-    // Just increased from 5 min to help with socket hang up errors.
-    defaultConfig.timeout = 15 * 60 * 1000;
-
-    defaultConfig.resolveWithFullResponse = true;
-
-    // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
-    // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
-    // Additionally, this is needed when doing application layer dns caching because the url no longer matches the url in the cert.
-    defaultConfig.rejectUnauthorized = false;
-    defaultConfig.requestCert = false;
-    defaultConfig.ciphers = "ALL";
-
-    // Set the host in the header to the hostname on the url.
-    // This is not done automatically because of the application layer dns caching (it would be set to the ip instead)
-    defaultConfig.headers.Host = hostname;
-
-    defaultConfig.headers["User-Agent"] =
-      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:24.0) Gecko/20100101 Firefox/24.0";
-
-    //trololololol
-    //Needed on some old sites that will redirect/block requests when this is not set
-    //when a user is requesting a page that is not the entry page of the site
-    //temple, etc
-    defaultConfig.headers.Referer = config.url;
-
-    // Merge the default config and the input config
-    // Need to merge headers and output separately because config.headers object would totally override
-    // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
+    // Merge the default config and the input config. We merge `headers` seperately, because
+    // config.headers overries defaultConfig.headers in the first merge attempt
     const output = { ...defaultConfig, ...config } as NativeRequestConfig;
     output.headers = { ...defaultConfig.headers, ...config.headers };
+
+    return output;
+  }
+
+  // TODO break this into smaller function
+  async fireRequest(config: CustomRequestConfig): Promise<Response> {
+    const urlParsed = new URI(config.url);
+    const hostname = urlParsed.hostname();
+
+    this.prepareHostAnalytics(hostname);
+    this.activeHostnames[hostname] = true;
+
+    const output = this.prepareRequestConfig(config, hostname);
 
     macros.http("Firing request to", output.url);
 
@@ -337,6 +346,7 @@ class Request {
       macros.http("Starting request analytics timer.");
       this.analytics[hostname].startTime = Date.now();
       this.timer = setInterval(() => this.logAnalytics(), 5000);
+      // TODO - why do we have this setTimeout??? what does it do
       setTimeout(() => {
         this.logAnalytics();
       }, 0);
@@ -364,9 +374,11 @@ class Request {
     return response;
   }
 
-  // For caching, if the only header is Cookie and the only items in the config are url
-  // and method===get and headers,the request is safe to cache by just the url.
-  // Otherwise, we will need to do some hashing, which consumes a lot of time when repeated
+  /**
+   * For caching, if the only header is Cookie and the only items in the config are url
+   * and method===get and headers,the request is safe to cache by just the url.
+   * Otherwise, we will need to do some hashing, which consumes a lot of time when repeated
+   */
   private safeToCacheByUrl(config: CustomRequestConfig): boolean {
     if (config.method !== "GET") {
       return false;
@@ -409,9 +421,10 @@ class Request {
     return true;
   }
 
-  // Creates a cache key for this config
-  // Skipping the hashing when it is not necessary significantly speeds this up.
-  // Caching by url is faster, so log a warning if had to cache by hash.
+  /** Creates a cache key for this config
+   * Skipping the hashing when it is not necessary significantly speeds this up.
+   * Caching by url is faster, so log a warning if had to cache by hash.
+   */
   private getCacheKey(config: CustomRequestConfig): string {
     if (this.safeToCacheByUrl(config)) {
       return config.url;
@@ -428,6 +441,7 @@ class Request {
   }
 
   // Outputs a response object. Get the body of this object with ".body".
+  // TODO break this into smaller function
   async request(config: CustomRequestConfig): Promise<Response> {
     macros.http("Request hitting", config);
 
