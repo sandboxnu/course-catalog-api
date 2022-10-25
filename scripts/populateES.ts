@@ -33,12 +33,10 @@ export async function bulkUpsertProfs(
 }
 
 export async function populateES(): Promise<void> {
-  // FIXME - These Prisma calls used to be in parallel, but Prisma seems to be having issues with parallel calls -
-  //    our connection limit is 30, and RDS (our AWS db) reports a max of ~15-20 connections at any time, yet parallel calls
-  //    (specifically this one) cause our updater to periodically die due to a lack of free connections (allegedly).
-  // This can be switched back to parallel later, but this is low priority - all it does is slow our updater a tiny bit.
-  const courses = await prisma.course.findMany();
-  const professors = await prisma.professor.findMany();
+  const [courses, professors] = await Promise.all([
+    prisma.course.findMany(),
+    prisma.professor.findMany(),
+  ]);
   await Promise.all([bulkUpsertCourses(courses), bulkUpsertProfs(professors)]);
 }
 
