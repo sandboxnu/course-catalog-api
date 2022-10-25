@@ -35,7 +35,7 @@ const RETRY_TIME_MULTIPLIER = 750;
 
 type ElasticIndex = {
   name: string;
-  mapping: any;
+  mapping: Record<string, unknown>;
 };
 
 export class Elastic {
@@ -243,7 +243,7 @@ export class Elastic {
   // Bulk index a collection of documents using ids from hashmap
   // Note that this creates the index if it doesn't exist too
   // https://www.elastic.co/guide/en/elasticsearch/reference/7.16/docs-bulk.html
-  async bulkIndexFromMap(indexAlias: string, map: EsBulkData): Promise<any> {
+  async bulkIndexFromMap(indexAlias: string, map: EsBulkData): Promise<void> {
     await this.fetchIndexName(indexAlias);
 
     const indexName = this.getIndexNameFromAlias(indexAlias);
@@ -310,9 +310,7 @@ export class Elastic {
    * Implementing a retry mechanism is the suggested resolution for AWS:
    * https://aws.amazon.com/premiumsupport/knowledge-center/opensearch-resolve-429-error/
    */
-  async retryBulkQuery(indexName: string, bulk: any[]): Promise<unknown> {
-    let response = null;
-
+  async retryBulkQuery(indexName: string, bulk: unknown[]): Promise<unknown> {
     // We occasionally get 429 errors from Elasticsearch, meaning that we're sending too many requests in too short a time
     // To mitigate that, we make multiple attempts to send the request to Elasticsearch
     for (let i = 0; i < MAX_RETRY_ATTEMPTS; i++) {
