@@ -8,7 +8,7 @@ import dumpProcessor from "../../services/dumpProcessor";
 import elastic from "../../utils/elastic";
 import { TermInfo } from "../../types/types";
 
-jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(true);
+jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(null);
 
 beforeAll(() => {
   dumpProcessor.CHUNK_SIZE = 2;
