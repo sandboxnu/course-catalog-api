@@ -257,7 +257,7 @@ export class Elastic {
           bulk.push({ index: { _id: id } });
           bulk.push(map[id]);
         }
-
+        // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
         const res = await this.retryBulkQuery(indexName, bulk);
 
         macros.log(
@@ -315,9 +315,9 @@ export class Elastic {
 
     // We occasionally get 429 errors from Elasticsearch, meaning that we're sending too many requests in too short a time
     // To mitigate that, we make multiple attempts to send the request to Elasticsearch
-    for (let i = 0; i++; i < MAX_RETRY_ATTEMPTS) {
+    for (let i = 0; i < MAX_RETRY_ATTEMPTS; i++) {
       try {
-        response = await client.bulk({ index: indexName, body: bulk });
+        return await client.bulk({ index: indexName, body: bulk });
       } catch (e) {
         macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
         // If it's a 429, we'll get a ResponseError
@@ -332,8 +332,6 @@ export class Elastic {
         }
       }
     }
-
-    return response;
   }
 }
 
