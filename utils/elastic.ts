@@ -11,7 +11,6 @@ import macros from "./macros";
 import {
   EsBulkData,
   EsQuery,
-  EsMapping,
   EsMultiResult,
   EsResult,
 } from "../types/searchTypes";

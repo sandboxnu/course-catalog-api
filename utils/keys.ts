@@ -17,6 +17,14 @@ import macros from "./macros";
 
 const KEYS_REGEX = /[^A-Za-z0-9.]/g;
 
+interface KeyObject {
+  host: string;
+  termId: string;
+  subject: string;
+  classId: string;
+  crn: string;
+}
+
 class Keys {
   // The five keys to track the five different data structures
   static allKeys = ["host", "termId", "subject", "classId", "crn"];
@@ -25,7 +33,10 @@ class Keys {
   // Gets a hash from the object from 0 to the given key index
   // eg if key index is 3 it would be a subject hash - host, termId, subject
   // returns the hash - a string
-  static getHashWithKeysSlice(obj, endIndex: number): string | null {
+  static getHashWithKeysSlice(
+    obj: Partial<KeyObject>,
+    endIndex: number
+  ): string | null {
     if (!obj) {
       return null;
     }
@@ -51,7 +62,7 @@ class Keys {
   }
 
   // Takes in an object with a host field and returns a host hash
-  static getHostHash(obj: { host: string }): string | null {
+  static getHostHash(obj: Partial<KeyObject>): string | null {
     const hash = this.getHashWithKeysSlice(obj, 1);
 
     if (!hash) {
@@ -63,7 +74,7 @@ class Keys {
   }
 
   // Takes in an object with a host,termId field and returns a term hash
-  static getTermHash(obj: { host: string; termId: string }): string | null {
+  static getTermHash(obj: Partial<KeyObject>): string | null {
     const hash = this.getHashWithKeysSlice(obj, 2);
 
     if (!hash) {
@@ -75,11 +86,7 @@ class Keys {
   }
 
   // Takes in an object with a host,termId,subject field and returns a subject hash
-  static getSubjectHash(obj: {
-    host: string;
-    termId: string;
-    subject: string;
-  }): string | null {
+  static getSubjectHash(obj: Partial<KeyObject>): string | null {
     const hash = this.getHashWithKeysSlice(obj, 3);
 
     if (!hash) {
@@ -91,12 +98,7 @@ class Keys {
   }
 
   // Takes in an object with a host,termId,subject,classId field and returns a class hash
-  static getClassHash(obj: {
-    host: string;
-    termId: string;
-    subject: string;
-    classId: string;
-  }): string | null {
+  static getClassHash(obj: Partial<KeyObject>): string | null {
     const hash = this.getHashWithKeysSlice(obj, 4);
 
     if (!hash) {
@@ -108,13 +110,7 @@ class Keys {
   }
 
   // Takes in an object with a host,termId,subject,classId,crn field and returns a section hash
-  static getSectionHash(obj: {
-    host: string;
-    termId: string;
-    subject: string;
-    classId: string;
-    crn: string;
-  }): string | null {
+  static getSectionHash(obj: Partial<KeyObject>): string | null {
     const hash = this.getHashWithKeysSlice(obj, 5);
 
     if (!hash) {
@@ -125,13 +121,7 @@ class Keys {
     return hash;
   }
 
-  static parseSectionHash(hash: string): null | {
-    host: string;
-    termId: string;
-    subject: string;
-    classId: string;
-    crn: string;
-  } {
+  static parseSectionHash(hash: string): null | Partial<KeyObject> {
     const hashSplit = hash.split("/");
     if (!(hashSplit && hashSplit.length === 5)) {
       macros.error("Invalid class hash", hash);
