@@ -30,7 +30,7 @@ describe("Searching for courses", () => {
     }
   });
 
-  test("searching for a single course returns nothing if it doesn't exactly match the subject", async () => {
+  test("falls back to general search if the single-course search has a subject we don't know about", async () => {
     const queries = ["AA2500", "aa2500", "aa 2500", "AA 2500"];
     for (const q of queries) {
       const res = await query(gql`
@@ -46,7 +46,7 @@ describe("Searching for courses", () => {
           `);
 
       const result = res.data?.search?.nodes;
-      expect(result.length).toBe(0);
+      expect(result.length).toBeGreaterThan(0);
     }
   });
 
