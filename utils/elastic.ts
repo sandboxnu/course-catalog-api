@@ -22,7 +22,16 @@ const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";
 const client = new Client({ node: URL });
 
-const BULKSIZE = 5000;
+const BULKSIZE = 2000;
+/**
+ * The max number of times we retry an ES query before throwing an error.
+ */
+const MAX_RETRY_ATTEMPTS = 5;
+/**
+ * The multiplier (in ms) by which we increase the wait time in between succsessive retries.
+ * This is an arbitrary number - 750 was chosen because it works.
+ */
+const RETRY_TIME_MULTIPLIER = 750;
 
 type ElasticIndex = {
   name: string;
@@ -248,30 +257,8 @@ export class Elastic {
           bulk.push({ index: { _id: id } });
           bulk.push(map[id]);
         }
-        // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
-        let res = null;
 
-        // We occasionally get 429 errors from Elasticsearch, meaning that we're sending too many requests in too short a time
-        // To mitigate that, we make 5 attempts to send the request to Elasticsearch
-        for (let i = 0; i++; i < 5) {
-          try {
-            res = await client.bulk({ index: indexName, body: bulk });
-          } catch (e) {
-            macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
-            // If it's a 429, we'll get a ResponseError
-            if (e instanceof ResponseError) {
-              macros.warn("Request failed - retrying...");
-              // Each time, we want to wait a little longer
-              // 750 is an arbitrary multiplier - adjust as needed
-              const timeoutMs = (i + 1) * 750;
-              // This is a simple blocking function - think `sleep()`, except JS doesn't have one, so this
-              //  does the same thing.
-              await new Promise((resolve) => setTimeout(resolve, timeoutMs));
-            } else {
-              throw e;
-            }
-          }
-        }
+        const res = await this.retryBulkQuery(indexName, bulk);
 
         macros.log(
           `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
@@ -315,6 +302,38 @@ export class Elastic {
 
   closeClient(): void {
     client.close();
+  }
+
+  /**
+   * Runs an Elasticsearch `bulk` query, retrying up to `MAX_RETRY_ATTEMPTS` in
+   * the case of a 429 error, indicating too many requests/writes.
+   * Implementing a retry mechanism is the suggested resolution for AWS:
+   * https://aws.amazon.com/premiumsupport/knowledge-center/opensearch-resolve-429-error/
+   */
+  async retryBulkQuery(indexName: string, bulk: any[]): Promise<unknown> {
+    let response = null;
+
+    // We occasionally get 429 errors from Elasticsearch, meaning that we're sending too many requests in too short a time
+    // To mitigate that, we make multiple attempts to send the request to Elasticsearch
+    for (let i = 0; i++; i < MAX_RETRY_ATTEMPTS) {
+      try {
+        response = await client.bulk({ index: indexName, body: bulk });
+      } catch (e) {
+        macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
+        // If it's a 429, we'll get a ResponseError
+        if (e instanceof ResponseError) {
+          macros.warn("Request failed - retrying...");
+          // Each time, we want to wait a little longer
+          const timeoutMs = (i + 1) * RETRY_TIME_MULTIPLIER;
+          // This is a simple blocking function - think `sleep()`, except JS doesn't have one
+          await new Promise((resolve) => setTimeout(resolve, timeoutMs));
+        } else {
+          throw e;
+        }
+      }
+    }
+
+    return response;
   }
 }
 
