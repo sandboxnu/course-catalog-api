@@ -63,7 +63,7 @@ class Updater {
    * this will throw an error eventually (since this term has no sections associated with it in Banner).
    */
   static filterTermIds(termIds: string[]): string[] {
-    return termIds.filter((t) => FAULTY_TERM_IDS.includes(t));
+    return termIds.filter((t) => !FAULTY_TERM_IDS.includes(t));
   }
 
   // TODO must call this in server
