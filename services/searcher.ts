@@ -450,11 +450,10 @@ class Searcher {
     const result = results?.output[0];
 
     const hasSections = result?._source?.sections?.length > 0;
-    const exactMatch =
-      result?._source?.class?.subject === subject &&
-      result?._source?.class?.classId === classId;
+    const subjectMatches = result?._source?.class?.subject === subject;
+    const codeMatches = result?._source?.class?.classId === classId;
     // Only show this course
-    const showCourse = hasSections && exactMatch;
+    const showCourse = hasSections && subjectMatches && codeMatches;
 
     let aggregations: AggResults;
     let resultOutput: SearchResult[];
@@ -462,29 +461,24 @@ class Searcher {
     if (showCourse) {
       resultOutput = await new HydrateSerializer().bulkSerialize([result]);
 
-      const resultWithSections = {
+      aggregations = this.getSingleResultAggs({
         ...result._source?.class,
         sections: result._source?.sections,
-      } as CourseWithSections;
+      });
+    }
 
-      aggregations = this.getSingleResultAggs(resultWithSections);
-    } else {
-      resultOutput = [];
-      aggregations = {
+    return {
+      results: resultOutput ?? [],
+      resultCount: showCourse ? 1 : 0,
+      took: 0,
+      hydrateDuration: Date.now() - start,
+      aggregations: aggregations ?? {
         nupath: [],
         subject: [],
         classType: [],
         campus: [],
         honors: [],
-      };
-    }
-
-    return {
-      results: resultOutput,
-      resultCount: showCourse ? 1 : 0,
-      took: 0,
-      hydrateDuration: Date.now() - start,
-      aggregations: aggregations,
+      },
     };
   }
 
@@ -525,17 +519,15 @@ class Searcher {
     let aggregations: AggResults;
 
     // if we know that the query is of the format of a course code, we want to return only one result
-    const isSingleCourseSearch = query.match(this.COURSE_CODE_PATTERN);
+    const isSingleCourse = query.match(this.COURSE_CODE_PATTERN);
 
-    const subject = isSingleCourseSearch
-      ? isSingleCourseSearch[1].toUpperCase()
-      : "";
+    const subject = isSingleCourse ? isSingleCourse[1].toUpperCase() : "";
     const isSubjectValid = subject in this.subjects;
 
-    const courseCode = isSingleCourseSearch ? isSingleCourseSearch[2] : "";
+    const courseCode = isSingleCourse ? isSingleCourse[2] : "";
     const isCourseCodeValid = macros.isNumeric(courseCode);
 
-    if (isSingleCourseSearch && isSubjectValid && isCourseCodeValid) {
+    if (isSingleCourse && isSubjectValid && isCourseCodeValid) {
       const singleResult = await this.getOneSearchResult(
         subject,
         courseCode,
