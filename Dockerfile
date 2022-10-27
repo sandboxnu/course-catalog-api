@@ -11,7 +11,7 @@ COPY . .
 RUN yarn build
 
 
-# final container -------------------------------------------------- #
+# final container ---------------------------------------- ---------- #
 
 FROM node:14.19.0-alpine
 WORKDIR /app
