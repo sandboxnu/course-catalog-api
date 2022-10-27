@@ -39,6 +39,7 @@ it("Creating indexes", async () => {
 });
 
 it("queries", async () => {
+  await client.resetIndex();
   const aliasName = "employees2";
 
   // @ts-expect-error - we know the type is missing, that's the point
