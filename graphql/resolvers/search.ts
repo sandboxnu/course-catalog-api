@@ -29,8 +29,6 @@ function determineIfCurrentTerm(
   const date = new Date().getTime();
   const currentDate = Math.floor(date / 8.64e7);
   if (maxEndDate != null && maxEndDate != -1) {
-    console.log("test");
-    console.log(maxEndDate > currentDate);
     return maxEndDate > currentDate;
   }
 
@@ -90,10 +88,10 @@ const resolvers = {
         )
       );
 
-      const termInfo: TermInfo | null = await prisma.termInfo.findFirst({
+      const termInfo: TermInfo = await prisma.termInfo.findFirst({
         where: { termId: "" + args.termId },
       });
-      let maxEndDate: number = -1;
+      let maxEndDate = -1;
       if (termInfo) {
         maxEndDate = termInfo.maxEndDate;
       }
