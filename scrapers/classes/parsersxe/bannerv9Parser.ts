@@ -31,32 +31,37 @@ However, we allow for overriding this number via the `NUMBER_OF_TERMS` env varia
 */
 export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
-function getTermsIds(termIds: string[]): string[] {
-  const termsStr = process.env.TERMS_TO_SCRAPE;
-
-  if (termsStr) {
-    const terms = termsStr.split(",").filter((termId) => {
-      if (!termIds.includes(termId) && termId) {
-        macros.warn(`${termId} not in list of term IDs from Banner! Skipping`);
-      }
-      return termIds.includes(termId);
-    });
-
-    macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
-    return terms;
-  }
-
-  const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
-  const numTerms = isNaN(rawNumTerms) ? NUMBER_OF_TERMS_TO_UPDATE : rawNumTerms;
-
-  return termIds.slice(0, numTerms);
-}
 /**
  * Top level parser. Exposes nice interface to rest of app.
  */
 export class Bannerv9Parser {
+  getTermsIds(termIds: string[]): string[] {
+    const termsStr = process.env.TERMS_TO_SCRAPE;
+
+    if (termsStr) {
+      const terms = termsStr.split(",").filter((termId) => {
+        if (!termIds.includes(termId) && termId !== null) {
+          macros.warn(
+            `${termId} not in list of term IDs from Banner! Skipping`
+          );
+        }
+        return termIds.includes(termId);
+      });
+
+      macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
+      return terms;
+    }
+
+    const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
+    const numTerms = isNaN(rawNumTerms)
+      ? NUMBER_OF_TERMS_TO_UPDATE
+      : rawNumTerms;
+
+    return termIds.slice(0, numTerms);
+  }
+
   async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
-    const termIds = getTermsIds(termInfos.map((t) => t.termId));
+    const termIds = this.getTermsIds(termInfos.map((t) => t.termId));
 
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 

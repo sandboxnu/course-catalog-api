@@ -2,131 +2,232 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-
 import addPrerequisiteFor from "../addPrerequisiteFor";
 
 describe("addPrerequisiteForFor tests", () => {
   const cs2500 = {
-    classId: "2500",
-    termId: "201829",
-    host: "neu.edu",
-  };
-
-  const cs2510 = {
     prereqs: {
       type: "or",
       values: [
         {
           subject: "CS",
+          classId: "3000",
+        },
+        "this is a string2",
+      ],
+    },
+    classId: "2500",
+    termId: "201829",
+    subject: "CS",
+    host: "neu.edu",
+  };
+
+  const cs3000 = {
+    classId: "3000",
+    termId: "201829",
+    subject: "CS",
+    host: "neu.edu",
+  };
+
+  const engw3302 = {
+    prereqs: {
+      type: "and",
+      values: [
+        {
+          subject: "CS",
           classId: "2500",
+        },
+        {
+          subject: "not in term dump",
+          classId: "1234",
+        },
+        "this is a string",
+        {
+          type: "or",
+          values: [
+            {
+              subject: "CS",
+              classId: "3000",
+            },
+            "this is a string2",
+          ],
         },
       ],
     },
-    coreqs: {
+    classId: "3302",
+    termId: "201829",
+    subject: "ENGW",
+    host: "neu.edu",
+  };
+
+  const cs1234 = {
+    prereqs: {
       type: "or",
       values: [
         {
           subject: "CS",
-          classId: "2511",
+          classId: "3000",
+        },
+        {
+          type: "or",
+          values: undefined,
         },
       ],
     },
-    classId: "2510",
-    termId: "201830",
+    classId: "1234",
+    termId: "201829",
     subject: "CS",
-  };
-
-  const fakeClass1 = {
-    optPrereqsFor: {
-      values: [
-        {
-          subject: "CS",
-          classId: "5",
-        },
-        {
-          subject: "MATH",
-          classId: "2",
-        },
-        {
-          subject: "EECE",
-          classId: "11",
-        },
-        {
-          subject: "EECE",
-          classId: "7",
-        },
-        {
-          subject: "MATH",
-          classId: "3",
-        },
-      ],
-    },
-    classId: "2510",
-    termId: "201830",
-    subject: "CS",
-    host: "neu.edu",
-  };
-
-  const fakeClass2 = {
-    prereqsFor: {
-      values: [
-        {
-          subject: "CS",
-          classId: "5",
-        },
-        {
-          subject: "MATH",
-          classId: "2",
-        },
-        {
-          subject: "EECE",
-          classId: "11",
-        },
-        {
-          subject: "EECE",
-          classId: "7",
-        },
-        {
-          subject: "MATH",
-          classId: "3",
-        },
-      ],
-    },
-    classId: "2510",
-    termId: "201830",
-    subject: "EECE",
     host: "neu.edu",
   };
 
   const termDump = {
-    classes: [cs2500, cs2510, fakeClass1],
+    classes: [cs2500, cs3000, engw3302, cs1234],
     sections: [],
   };
 
-  it("should load in termDump", () => {
-    addPrerequisiteFor.termDump = termDump;
-    expect(addPrerequisiteFor.termDump).toBe(termDump);
-  });
+  const cs2500Parsed = {
+    ...JSON.parse(JSON.stringify(cs2500)),
+    optPrereqsFor: {
+      values: [],
+    },
+    prereqsFor: {
+      values: [
+        {
+          classId: "3302",
+          subject: "ENGW",
+        },
+      ],
+    },
+  };
 
-  describe("parseClass tests", () => {
-    const outputPreReqClass = cs2500;
-    outputPreReqClass.prereqsFor = [];
-    outputPreReqClass.prereqsFor.push(cs2510);
+  const cs3000Parsed = {
+    ...JSON.parse(JSON.stringify(cs3000)),
+    optPrereqsFor: {
+      values: [
+        {
+          classId: "1234",
+          subject: "CS",
+        },
+        {
+          classId: "2500",
+          subject: "CS",
+        },
+        {
+          classId: "3302",
+          subject: "ENGW",
+        },
+      ],
+    },
+    prereqsFor: {
+      values: [],
+    },
+  };
+
+  const engw3302Parsed = {
+    ...JSON.parse(JSON.stringify(engw3302)),
+    optPrereqsFor: {
+      values: [],
+    },
+    prereqsFor: {
+      values: [],
+    },
+  };
+
+  const cs1234Parsed = {
+    ...JSON.parse(JSON.stringify(cs1234)),
+    optPrereqsFor: {
+      values: [],
+    },
+    prereqsFor: {
+      values: [],
+    },
+  };
+
+  it("should parse prereqs", () => {
+    addPrerequisiteFor.go(termDump);
+    expect(termDump).toEqual({
+      classes: [cs2500Parsed, cs3000Parsed, engw3302Parsed, cs1234Parsed],
+      sections: [],
+    });
   });
 
   it("should sort some optPrereqsFor", () => {
-    addPrerequisiteFor.termDump = termDump;
-
-    addPrerequisiteFor.sortPrereqs(fakeClass1);
-
-    expect(fakeClass1.optPrereqsFor).toMatchSnapshot();
+    const cs3000Sorted = {
+      ...JSON.parse(JSON.stringify(cs3000)),
+      optPrereqsFor: {
+        values: [
+          {
+            classId: "3302",
+            subject: "ENGW",
+          },
+          {
+            classId: "2500",
+            subject: "CS",
+          },
+          {
+            classId: "1234",
+            subject: "CS",
+          },
+        ],
+      },
+      prereqsFor: {
+        values: [],
+      },
+    };
+    addPrerequisiteFor.sortPrereqs(cs3000Sorted);
+    expect(cs3000Sorted.optPrereqsFor).toEqual(cs3000Parsed.optPrereqsFor);
   });
 
   it("should sort some prereqsFor", () => {
-    addPrerequisiteFor.termDump = termDump;
+    const cs2500Sorted = {
+      ...JSON.parse(JSON.stringify(cs2500)),
+      optPrereqsFor: {
+        values: [],
+      },
+      prereqsFor: {
+        values: [
+          "string",
+          {
+            classId: "3302",
+            subject: "CS",
+          },
+          {
+            classId: "3000",
+            subject: "ENGW",
+          },
+          {
+            classId: "3302",
+            subject: "ENGW",
+          },
+          {
+            classId: "3302",
+            subject: "MATH",
+          },
+        ],
+      },
+    };
 
-    addPrerequisiteFor.sortPrereqs(fakeClass2);
-
-    expect(fakeClass2.prereqsFor).toMatchSnapshot();
+    addPrerequisiteFor.sortPrereqs(cs2500Sorted);
+    expect(cs2500Sorted.prereqsFor).toEqual({
+      values: [
+        "string",
+        {
+          classId: "3302",
+          subject: "CS",
+        },
+        {
+          classId: "3000",
+          subject: "ENGW",
+        },
+        {
+          classId: "3302",
+          subject: "ENGW",
+        },
+        {
+          classId: "3302",
+          subject: "MATH",
+        },
+      ],
+    });
   });
 });

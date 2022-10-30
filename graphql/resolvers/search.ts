@@ -46,7 +46,7 @@ function determineIfCurrentTerm(
   return maxEndDate > currentDate;
 }
 interface SearchArgs {
-  termId: number;
+  termId: string;
   query?: string;
   subject?: string[];
   nupath?: string[];
@@ -55,8 +55,8 @@ interface SearchArgs {
   classIdRange?: { min: number; max: number };
   honors?: boolean;
   // Pagination parameters
-  offset: number;
-  first: number;
+  offset?: number;
+  first?: number;
 }
 const resolvers = {
   Query: {
@@ -67,7 +67,7 @@ const resolvers = {
       const { offset = 0, first = 10 } = args;
       const results = await searcher.search(
         args.query || "",
-        String(args.termId),
+        args.termId,
         offset,
         offset + first,
         pickBy(

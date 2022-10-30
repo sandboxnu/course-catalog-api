@@ -44,6 +44,24 @@ it("can substitute one line", () => {
   });
 });
 
+it("ignores non-boolean reqs", () => {
+  const prereqs = {
+    classId: "2500",
+    subject: "MATH",
+  };
+
+  const output = markMissingRequisites.updatePrereqs(
+    prereqs,
+    "neu.edu",
+    "201770"
+  );
+
+  expect(output).toEqual({
+    classId: "2500",
+    subject: "MATH",
+  });
+});
+
 it("can insert a missing if cant find in db", () => {
   const keyToRows = {};
 

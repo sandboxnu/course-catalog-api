@@ -36,15 +36,17 @@ jobs:
         with:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
+
       - run: yarn test --coverage
-      - name: Coveralls Parallel
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           flag-name: General tests
           parallel: true
+
       - run: yarn dbtest --coverage
-      - name: Coveralls Parallel
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -54,7 +56,6 @@ jobs:
   end_to_end:
     name: End-to-end tests
     runs-on: ubuntu-latest
-    needs: tests
     services:
       postgres:
         image: postgres:11.5
@@ -95,8 +96,6 @@ jobs:
 
       - run: yarn db:refresh
 
-      - run: yarn dev &
-
       # We have to run yarn scrape twice, in order to populate the termInfos table
       - run: yarn scrape
       - run: yarn scrape
@@ -113,12 +112,21 @@ jobs:
 
       - run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater
 
+      - run: yarn dev > _dev_api.log &
+
+      - name: Wait until the dev API server is ready
+        run: sleep 10
+
       - name: Checks that 'yarn dev' actually starts the API server
         run: curl -Is http://localhost:4000/.well-known/apollo/server-health | head -1 | grep -q 200
 
       - run: yarn jest -i --projects tests/end_to_end --verbose --coverage
 
-      - name: Coveralls Parallel
+      - name: Check API logs
+        run: cat _dev_api.log
+        if: always()
+
+      - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -142,4 +150,3 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           parallel-finished: true
-          verbose: true

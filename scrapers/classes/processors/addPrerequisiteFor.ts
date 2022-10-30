@@ -76,7 +76,12 @@ class AddPrerequisiteFor {
 
     // Get the class we wish to refer to
     if (isCourseReq(req)) {
-      const hash = keys.getClassHash(mainClass);
+      const hash = keys.getClassHash({
+        host: mainClass.host,
+        termId: mainClass.termId,
+        subject: req.subject,
+        classId: req.classId,
+      });
       const nodeRef = this.classMap[hash];
 
       if (!nodeRef) {

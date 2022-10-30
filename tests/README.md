@@ -18,12 +18,18 @@ We have three types of tests:
     - Have a working PSQL instance running on your local device
   - Locations:
     - Same as **general** tests. The database tests can be differentiated from the general tests by the `.seq` extension, such as `search.test.seq.ts`
+
+Neither **General** nor **Database** tests should require an internet connection. All requests should be cached. In other words -- if Banner dies, these tests should pass nonetheless.
+
+End to end tests **can** send real requests (and should), as the Banner-CCA connection is critical for our use cases.
+
 - End to end
   - Description:
     - These are end-to-end tests. They do everything, from environment setup onwards. As such -- these tests shouldn't be run locally, they're moreso meant for the CI
   - Requirements to run:
     - Download the repo
-    - _Have a local environment (DB, Elasticsearch) that you're willing to completely trash_
-      - **Note**: When running in CI, these tests set up their own environment. They can't do that locally, so if you run it locally, don't be surprised if your enviornment gets a little funky.
+    - NOTE: Highly discourage running this locally, but:
+      - _Have a local environment (DB, Elasticsearch) that you're willing to completely trash_
+        - **Note**: When running in CI, these tests set up their own environment. They can't do that locally, so don't run it locally unless you're willing to fully reset your local environment.
   - Locations:
     - **Only** in the `tests/end_to_end` directory

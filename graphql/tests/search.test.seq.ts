@@ -1,13 +1,18 @@
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
 import { mocked } from "jest-mock";
 import searcher from "../../services/searcher";
 import server from "../index";
 import { Course, Requisite, Section } from "../../types/types";
+import { DocumentNode } from "graphql";
+import { GraphQLResponse } from "apollo-server-core";
 
 jest.mock("../../services/searcher");
 
-const { query } = createTestClient(server);
+const query = async (queryBody: {
+  query: string | DocumentNode;
+}): Promise<GraphQLResponse> => {
+  return server.executeOperation(queryBody);
+};
 
 const EMPTY_REQ: Requisite = {
   type: "or",
