@@ -459,6 +459,60 @@ class Searcher {
     };
   }
 
+  filterSection(
+    curSection: Section,
+    honorsFilter: boolean,
+    campusFilter: string
+  ): boolean {
+    if (honorsFilter && !curSection.honors) {
+      return false;
+    }
+    if (campusFilter !== "" && curSection.campus !== campusFilter) {
+      return false;
+    }
+
+    return true;
+  }
+
+  filterResults(filters, results): SearchResult[] {
+    // Do extra filtering if Honors or Campus Filters are being applied since those filter sections,
+    // which ElasticSearch doesn't actually filter out.
+
+    const validFilters = this.validateFilters(filters);
+
+    const honorsFilter: boolean = validFilters["honors"] ? true : false;
+
+    const campusFilter: string = "" + (validFilters["campus"] ?? "");
+
+    // create a new list initially containing the results, if we are doing further filtering
+    // we'll set it to an empty list and build up the new filtered results.
+    let filteredResults: SearchResult[] = results;
+    if (honorsFilter || campusFilter !== "") {
+      filteredResults = [];
+
+      // go through each Result, if it's a course: filter the sections.
+      results.forEach((curResult: SearchResult) => {
+        if (curResult.type === "class") {
+          // filter the sections for each result
+          curResult.sections = curResult.sections.filter(
+            (curSection: Section) =>
+              this.filterSection(curSection, honorsFilter, campusFilter)
+          );
+
+          // if the current class still has remaining sections after being filtered, add it to filtered results.
+          if (curResult.sections.length > 0) {
+            filteredResults.push(curResult);
+          }
+        }
+        // if the result is an employee just add it to results
+        else {
+          filteredResults.push(curResult);
+        }
+      });
+    }
+    return filteredResults;
+  }
+
   /**
    * Search for classes and employees
    * @param  {string}  query  The search to query for
@@ -492,61 +546,10 @@ class Searcher {
 
     const hydrateDuration: number = Date.now() - startHydrate;
 
-    // Do extra filtering if Honors or Campus Filters are being applied since those filter sections,
-    // which ElasticSearch doesn't actually filter out.
-
-    const validFilters = this.validateFilters(filters);
-    let honorsFilter = false;
-    let campusFilter = "";
-
-    // are we filtering by honors?
-    if (Object.keys(validFilters).includes("honors")) {
-      honorsFilter = true;
-    }
-
-    // are we filtering by campus?
-    if (Object.keys(validFilters).includes("campus")) {
-      campusFilter = "" + validFilters["campus"];
-    }
-
-    // create a new list initially containing the results, if we are doing further filtering
-    // we'll set it to an empty list and build up the new filtered results.
-    let filteredResults: SearchResult[] = results;
-    if (honorsFilter || campusFilter != "") {
-      filteredResults = [];
-
-      // go through each Result, if it's a course: filter the sections.
-      results.forEach((curResult: SearchResult) => {
-        if (curResult.type === "class") {
-          // filter the sections for each result
-          curResult.sections = curResult.sections.filter(
-            (curSection: Section) => {
-              if (honorsFilter && !curSection.honors) {
-                return false;
-              }
-              if (campusFilter !== "" && curSection.campus !== campusFilter) {
-                return false;
-              }
-              return true;
-            }
-          );
-
-          // if the current class still has remaining sections after being filtered, add it to filtered results.
-          if (curResult.sections.length > 0) {
-            filteredResults.push(curResult);
-          }
-        }
-        // if the result is an employee just add it to results
-        else {
-          filteredResults.push(curResult);
-        }
-      });
-    }
+    const filteredResults = this.filterResults(filters, results);
 
     return {
       searchContent: filteredResults,
-      // the result count might differ if some classes get completely filtered out, so we set it to the
-      // length of filteredResults.
       resultCount: filteredResults.length,
       took: {
         total: Date.now() - start,
