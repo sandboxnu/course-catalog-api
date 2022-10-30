@@ -48,21 +48,21 @@ describe("getAllTermInfos", () => {
     expect(await bannerv9.getAllTermInfos("termslist")).toEqual([
       {
         host: "neu.edu",
-        maxEndDate: "-1",
+        maxEndDate: -1,
         subCollege: "NEU",
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
         host: "neu.edu",
-        maxEndDate: "-1",
+        maxEndDate: -1,
         subCollege: "LAW",
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
         host: "neu.edu",
-        maxEndDate: "-1",
+        maxEndDate: -1,
         subCollege: "CPS",
         termId: "1",
         text: "Summer 2022 Semester",
