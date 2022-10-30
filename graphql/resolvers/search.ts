@@ -20,12 +20,8 @@ function determineIfCurrentTerm(
   maxEndDate: number,
   resultSearch: SearchResult[],
   termId: number
-  //resultSearch: Employee | { Course; Section }
 ): boolean {
-  // Fall: 9/20
-  // if the greatest end date is smaller than where we are currently, don't have notifications
-  // otherwise put: if we are past the date of the semester, no notifications needed
-  // (e.g today is 9/20/22 semester ends 8/30/22) => no notifications
+  // (e.g today is 9/20/22 and the semester ends 8/30/22) => not a current term
   const date = new Date().getTime();
   const currentDate = Math.floor(date / 8.64e7);
   if (maxEndDate != null && maxEndDate != -1) {
