@@ -4,21 +4,21 @@ exports[`termListParser pulls out relevant data 1`] = `
 Array [
   Object {
     "host": "neu.edu",
-    "maxEndDate": -1, 
+    "maxEndDate": -1,
     "subCollege": "CPS",
     "termId": "202034",
     "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
-    "maxEndDate": -1, 
+    "maxEndDate": -1,
     "subCollege": "LAW",
     "termId": "202032",
     "text": "Spring 2020 Semester",
   },
   Object {
     "host": "neu.edu",
-    "maxEndDate": -1, 
+    "maxEndDate": -1,
     "subCollege": "NEU",
     "termId": "202030",
     "text": "Spring 2020 Semester",
