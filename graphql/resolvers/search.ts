@@ -47,7 +47,6 @@ function determineIfCurrentTerm(
     where: { termId: "" + termId },
     data: { maxEndDate },
   });
-  console.log(maxEndDate > currentDate);
   return maxEndDate > currentDate;
 }
 interface SearchArgs {
