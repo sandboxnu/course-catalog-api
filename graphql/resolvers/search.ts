@@ -2,6 +2,8 @@ import { identity, pickBy } from "lodash";
 import searcher from "../../services/searcher";
 import { Course, Employee } from "../../types/types";
 import { AggResults, SearchResult } from "../../types/searchTypes";
+import prisma from "../../services/prisma";
+import { TermInfo } from "@prisma/client";
 
 type SearchResultItem = Course | Employee;
 
@@ -15,22 +17,24 @@ interface SearchResultItemConnection {
   isCurrentTerm: boolean;
 }
 function determineIfCurrentTerm(
-  termId: number,
-  resultSearch: SearchResult[]
+  maxEndDate: number,
+  resultSearch: SearchResult[],
+  termId: number
   //resultSearch: Employee | { Course; Section }
 ): boolean {
   // Fall: 9/20
   // if the greatest end date is smaller than where we are currently, don't have notifications
   // otherwise put: if we are past the date of the semester, no notifications needed
   // (e.g today is 9/20/22 semester ends 8/30/22) => no notifications
-  const termIdStringify: String = termId.toString();
-  const termIdYear: Number = +termIdStringify.substring(0, 4);
-
   const date = new Date().getTime();
   const currentDate = Math.floor(date / 8.64e7);
+  if (maxEndDate != null && maxEndDate != -1) {
+    console.log("test");
+    console.log(maxEndDate > currentDate);
+    return maxEndDate > currentDate;
+  }
 
-  let maxEndDate: number = 0;
-  for (let result of resultSearch) {
+  for (const result of resultSearch) {
     if (result.type === "class") {
       if (
         result.sections != null &&
@@ -41,10 +45,12 @@ function determineIfCurrentTerm(
       }
     }
   }
-  if (maxEndDate < currentDate) {
-    return false;
-  }
-  return true;
+  prisma.termInfo.update({
+    where: { termId: "" + termId },
+    data: { maxEndDate },
+  });
+  console.log(maxEndDate > currentDate);
+  return maxEndDate > currentDate;
 }
 interface SearchArgs {
   termId: number;
@@ -84,6 +90,13 @@ const resolvers = {
         )
       );
 
+      const termInfo: TermInfo | null = await prisma.termInfo.findFirst({
+        where: { termId: "" + args.termId },
+      });
+      let maxEndDate: number = -1;
+      if (termInfo) {
+        maxEndDate = termInfo.maxEndDate;
+      }
       const hasNextPage = offset + first < results.resultCount;
       const nodes = results.searchContent.map((r) =>
         r.type === "employee"
@@ -92,8 +105,9 @@ const resolvers = {
       );
 
       const isCurrentTerm: boolean = determineIfCurrentTerm(
-        args.termId,
-        results.searchContent
+        maxEndDate,
+        results.searchContent,
+        args.termId
       );
       return {
         totalCount: results.resultCount,

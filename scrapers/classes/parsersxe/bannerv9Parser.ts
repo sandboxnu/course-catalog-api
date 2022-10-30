@@ -104,7 +104,6 @@ export class Bannerv9Parser {
     const existingIds: string[] = (
       await prisma.course.groupBy({ by: ["termId"] })
     ).map((t) => t.termId);
-
     // Get the TermInfo associated with each term ID
     return existingIds
       .map((termId) =>
@@ -162,6 +161,39 @@ export class Bannerv9Parser {
     );
   }
 
+  /**
+   * determines if a term has already ended.
+   * The functionality of this method is currently used to determine if we should show the button to add notifications
+   * @returns if a terms end date is before the current date
+   */
+  isArchivedTerm(
+    resultSearch: SearchResult[]
+    //resultSearch: Employee | { Course; Section }
+  ): boolean {
+    // Fall: 9/20
+    // if the greatest end date is smaller than where we are currently, don't have notifications
+    // otherwise put: if we are past the date of the semester, no notifications needed
+    // (e.g today is 9/20/22 semester ends 8/30/22) => no notifications
+    const date = new Date().getTime();
+    const currentDate = Math.floor(date / 8.64e7);
+
+    let maxEndDate = 0;
+    for (const result of resultSearch) {
+      if (result.type === "class") {
+        if (
+          result.sections != null &&
+          result.sections[0].meetings != null &&
+          result.sections[0].meetings[0].endDate > maxEndDate
+        ) {
+          maxEndDate = result.sections[0].meetings[0].endDate;
+        }
+      }
+    }
+    if (maxEndDate < currentDate) {
+      return false;
+    }
+    return true;
+  }
   /**
    * Scrape all the details of a specific class and associated sections
    * @param termId termId the class is in
