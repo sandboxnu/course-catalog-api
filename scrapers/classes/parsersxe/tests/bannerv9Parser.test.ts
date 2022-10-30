@@ -131,16 +131,19 @@ it("getCurrentTermInfos", async () => {
     await bannerv9.getCurrentTermInfos([
       {
         subCollege: "NEU",
+        maxEndDate: -1,
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
         subCollege: "LAW",
+        maxEndDate: -1,
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
         subCollege: "CPS",
+        maxEndDate: -1,
         termId: "1",
         text: "Summer 2022 Semester",
       },
@@ -148,11 +151,13 @@ it("getCurrentTermInfos", async () => {
   ).toEqual([
     {
       subCollege: "LAW",
+      maxEndDate: -1,
       termId: "2",
       text: "Summer 2022 Semester",
     },
     {
       subCollege: "CPS",
+      maxEndDate: -1,
       termId: "1",
       text: "Summer 2022 Semester",
     },
