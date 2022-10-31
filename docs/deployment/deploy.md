@@ -16,24 +16,6 @@ There are 3 types of deployment types for SearchNEU and the course-catalog API.
 - Run `./infrastructure/aws/redeploy prod`
   - This tags the latest `staging` Docker image with a `prod` tag and redeploys prod CCA using that image
 
-### Troubleshooting
-
-A good first step for troubleshoot involves line endings. Parts of the team develop on Windows, which uses `CR LF` line endings. The code is deployed in Linux, which uses `LF` line endings.
-
-Occasionally, this can cause issues (which are not well-explained).
-
-For example, having `CR LF` line endings in the `ENTRYPOINT` script can lead to an error:
-
-> `exec user process caused "no such file or directory"`
-
-As a simple first step, run the following command in the root directory of the repository (ie. `course-catalog-api`
-
-```bash
-find . -type f -print0 | xargs -0 dos2unix --
-```
-
-This will convert all line endings to `LF`. This is safe to run multiple times; it is safe to run if all files are `LF` already. This may help with random error codes, failed health checks, or other seemingly non-sensical errors.
-
 ## Terraform deployment
 
 Anytime you have an infrastructure change (as opposed to a code change), we need a Terraform deployment.
