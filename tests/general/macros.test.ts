@@ -16,7 +16,5 @@ it("some other stuff doesnt crash", () => {
 });
 
 it("logAmplitudeEvent should not crash", () => {
-  macros.logAmplitudeEvent("event_from_testing", {
-    a: 3,
-  } as any);
+  macros.logAmplitudeEvent("event_from_testing", { a: 3 } as any);
 });

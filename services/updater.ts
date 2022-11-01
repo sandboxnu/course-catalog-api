@@ -17,6 +17,8 @@ import { NotificationInfo } from "../types/notifTypes";
 
 import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
 
+const FAULTY_TERM_IDS = ["202225"];
+
 // ======= TYPES ======== //
 // A collection of structs for simpler querying of pre-scrape data
 interface OldData {
@@ -51,7 +53,17 @@ class Updater {
   constructor(termIds: string[]) {
     this.COURSE_MODEL = "course";
     this.SECTION_MODEL = "section";
-    this.SEMS_TO_UPDATE = termIds;
+    this.SEMS_TO_UPDATE = Updater.filterTermIds(termIds);
+  }
+
+  /**
+   * Filters the Banner term IDs that are given.
+   * Some terms (specifically, 202225) exist in Banner - but not fully.
+   * So, we get this term ID from the Banner endpoint which lists term IDs, but
+   * this will throw an error eventually (since this term has no sections associated with it in Banner).
+   */
+  static filterTermIds(termIds: string[]): string[] {
+    return termIds.filter((t) => !FAULTY_TERM_IDS.includes(t));
   }
 
   // TODO must call this in server
@@ -253,13 +265,15 @@ class Updater {
   }
 
   static getCampusFromTerm(term: string): string {
-    const campusIdentifier = term[5];
-    if (campusIdentifier === "0") {
-      return "NEU";
-    } else if (campusIdentifier === "2" || campusIdentifier === "8") {
-      return "LAW";
-    } else if (campusIdentifier === "4" || campusIdentifier === "5") {
-      return "CPS";
+    switch (term[5]) {
+      case "2":
+      case "8":
+        return "LAW";
+      case "4":
+      case "5":
+        return "CPS";
+      default:
+        return "NEU";
     }
   }
 

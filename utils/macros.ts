@@ -38,13 +38,13 @@ try {
 // {...} = the file
 let envVariables = null;
 
-enum EnvLevel {
+export enum EnvLevel {
   PROD,
   TEST,
   DEV,
 }
 
-enum LogLevel {
+export enum LogLevel {
   CRITICAL = -1,
   ERROR = 0,
   WARN = 1,
@@ -53,35 +53,30 @@ enum LogLevel {
   VERBOSE = 4,
 }
 
-function getLogLevel(input: string): LogLevel {
-  input = input ? input : "";
+export function getLogLevel(input: string): LogLevel {
+  input = input ? input.toUpperCase().trim() : "";
   return LogLevel[input as keyof typeof LogLevel] || LogLevel.INFO;
 }
 
-let environmentLevel = EnvLevel.DEV;
-// Set up the Macros.TEST, Macros.DEV, and Macros.PROD based on some env variables.
-const nodeEnv = process.env.NODE_ENV;
+export function getEnvLevel(): EnvLevel {
+  const nodeEnv = process.env.NODE_ENV;
 
-const isProdCI = process.env.CI && nodeEnv !== "test" && nodeEnv !== "dev";
-const isProd =
-  process.env.PROD ||
-  nodeEnv === "production" ||
-  nodeEnv === "prod" ||
-  isProdCI;
-const isDev = process.env.DEV || nodeEnv === "dev";
+  const isProdCI = process.env.CI && nodeEnv !== "test" && nodeEnv !== "dev";
+  const isProd = process.env.PROD || nodeEnv === "prod" || isProdCI;
+  const isDev = process.env.DEV || nodeEnv === "dev";
+  const isTest = process.env.TEST || nodeEnv === "test";
 
-if (isProd) {
-  environmentLevel = EnvLevel.PROD;
-} else if (isDev) {
-  environmentLevel = EnvLevel.DEV;
-} else if (nodeEnv === "test") {
-  environmentLevel = EnvLevel.TEST;
-} else {
-  console.log(`Unknown env! (${nodeEnv}) Setting to dev.`); // eslint-disable-line no-console
-  environmentLevel = EnvLevel.DEV;
+  if (isProd) {
+    return EnvLevel.PROD;
+  } else if (isDev) {
+    return EnvLevel.DEV;
+  } else if (isTest) {
+    return EnvLevel.TEST;
+  } else {
+    console.log(`Unknown env! (${nodeEnv}) Setting to dev.`); // eslint-disable-line no-console
+    return EnvLevel.DEV;
+  }
 }
-
-console.log(`Running in ${EnvLevel[environmentLevel]}`); // eslint-disable-line no-console
 
 class Macros {
   // Version of the schema for the data. Any changes in this schema will affect the data saved in the dev_data folder
@@ -95,12 +90,13 @@ class Macros {
   // Folder of the raw html cache for the requests.
   readonly REQUESTS_CACHE_DIR = "requests";
 
-  readonly logLevel: LogLevel;
   readonly dirname: string;
+  logLevel: LogLevel;
   private amplitude: Amplitude;
-  private rollbar: Rollbar;
+  private rollbar: Rollbar | null;
   private logger: Logger;
 
+  envLevel: EnvLevel;
   PROD: boolean;
   TEST: boolean;
   DEV: boolean;
@@ -108,9 +104,11 @@ class Macros {
   constructor() {
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
 
-    this.PROD = environmentLevel === EnvLevel.PROD;
-    this.TEST = environmentLevel === EnvLevel.TEST;
-    this.DEV = environmentLevel === EnvLevel.DEV;
+    this.envLevel = getEnvLevel();
+    console.log(`Running in ${EnvLevel[this.envLevel]}`); // eslint-disable-line no-console
+    this.PROD = this.envLevel === EnvLevel.PROD;
+    this.TEST = this.envLevel === EnvLevel.TEST;
+    this.DEV = this.envLevel === EnvLevel.DEV;
 
     // This is the same token in the frontend and the backend, and does not need to be kept private.
     this.amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
@@ -231,7 +229,8 @@ class Macros {
   // Takes an array of a bunch of thigs to log to rollbar
   // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
   // shouldExit - exit after logging.
-  logRollbarError(args: { stack: unknown }, shouldExit: boolean): void {
+  // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+  logRollbarError(args: any, shouldExit: boolean): void {
     // Don't log rollbar stuff outside of Prod
     if (!this.PROD) {
       return;

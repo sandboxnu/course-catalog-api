@@ -1,7 +1,6 @@
 import { ApolloServer, gql } from "apollo-server";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import macros from "../utils/macros";
-import prisma from "../services/prisma";
 
 import employeeTypeDef from "./typeDefs/employee";
 
@@ -62,6 +61,7 @@ const server = new ApolloServer({
     searchResolvers,
     termInfoResolvers,
   ],
+  debug: true,
 });
 
 if (require.main === module) {

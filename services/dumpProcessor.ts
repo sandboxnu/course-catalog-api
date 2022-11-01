@@ -14,7 +14,6 @@ import { populateES } from "../scripts/populateES";
 import {
   BulkUpsertInput,
   Dump,
-  Employee,
   Section,
   TransformFunction,
 } from "../types/types";
@@ -377,20 +376,6 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  processSection(secInfo: any): Prisma.SectionCreateInput {
-    const additionalProps = {
-      id: `${keys.getSectionHash(secInfo)}`,
-      classHash: keys.getClassHash(secInfo),
-      profs: { set: secInfo.profs || [] },
-    };
-    return _.omit({ ...secInfo, ...additionalProps }, [
-      "classId",
-      "termId",
-      "subject",
-      "host",
-    ]) as Prisma.SectionCreateInput;
-  }
-
   constituteSection(
     secInfo: Section,
     coveredTerms: Set<string>
@@ -421,6 +406,7 @@ class DumpProcessor {
 
 const instance = new DumpProcessor();
 
+/* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
 async function fromFile(termFilePath, empFilePath): Promise<void | null> {
   const termExists = await fs.pathExists(termFilePath);
   const empExists = await fs.pathExists(empFilePath);
@@ -435,6 +421,7 @@ async function fromFile(termFilePath, empFilePath): Promise<void | null> {
   await instance.main({ termDump: termDump, profDump: profDump });
 }
 
+/* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
 if (require.main === module) {
   // If called directly, attempt to index the dump in public dir
   const termFilePath = path.join(

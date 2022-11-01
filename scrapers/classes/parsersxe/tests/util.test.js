@@ -37,3 +37,31 @@ describe("parseTable", () => {
     expect(parsedTable).toMatchSnapshot();
   });
 });
+
+it("uniquifies", () => {
+  expect(util.uniquify(["1", "11"], "1")).toBe("12");
+});
+
+describe("parseTable", () => {
+  it("table without name/table", () => {
+    expect(util.parseTable([])).toEqual([]);
+    expect(
+      util.parseTable([
+        {
+          name: "not table",
+        },
+      ])
+    ).toEqual([]);
+  });
+
+  it("table with no rows", () => {
+    expect(
+      util.parseTable([
+        {
+          name: "table",
+          rows: [],
+        },
+      ])
+    ).toEqual([]);
+  });
+});

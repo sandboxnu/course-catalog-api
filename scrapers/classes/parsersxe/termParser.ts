@@ -252,13 +252,6 @@ class TermParser {
   }
 }
 
-/**
- * @callback TermParser~doRequest
- * @param {number} offset number of items to offset the request pagination
- * @param {number} pageSize number of items to get in the page
- * @returns An object with totalCount and items
- */
-
 const instance = new TermParser();
 
 if (require.main === module) {

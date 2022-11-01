@@ -2,13 +2,17 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import { createTestClient } from "apollo-server-testing";
 import { gql } from "apollo-server";
+import { GraphQLResponse } from "apollo-server-core";
+import { DocumentNode } from "graphql";
 import prisma from "../../services/prisma";
 import server from "../index";
 
-// there's a type-mismatch between apollo-server-testing and apollo-server: use `any`
-const { query } = createTestClient(server as any);
+const query = async (queryBody: {
+  query: string | DocumentNode;
+}): Promise<GraphQLResponse> => {
+  return server.executeOperation(queryBody);
+};
 
 beforeAll(async () => {
   await prisma.section.deleteMany({});
