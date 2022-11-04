@@ -213,14 +213,20 @@ class Updater {
 
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
-    const watchedCourses = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.followedCourse.findMany({
+    const watchedCoursesTerms = [];
+
+    for (const termId of this.SEMS_TO_UPDATE) {
+      watchedCoursesTerms.push(
+        await prisma.followedCourse.findMany({
           include: { course: true },
           where: { course: { termId } },
-        });
-      })
-    ).reduce((acc, val) => acc.concat(val), []);
+        })
+      );
+    }
+    const watchedCourses = watchedCoursesTerms.reduce(
+      (acc, val) => acc.concat(val),
+      []
+    );
 
     const watchedCourseLookup: Record<string, Course> = {};
     for (const s of watchedCourses) {
