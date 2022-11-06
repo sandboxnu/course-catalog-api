@@ -31,11 +31,13 @@ const termInfos: TermInfo[] = [
     termId: "123456",
     subCollege: "NEU",
     text: "This is some text",
+    maxEndDate: -1,
   },
   {
     termId: "654321",
     subCollege: "LAW",
     text: "This is some more text",
+    maxEndDate: -1,
   },
 ];
 
@@ -77,6 +79,7 @@ describe("with termInfos", () => {
         termId: "1",
         subCollege: "NEU",
         text: "hello",
+        maxEndDate: -1,
       },
     });
 
@@ -94,6 +97,7 @@ describe("with termInfos", () => {
         termId: "654321",
         subCollege: "fake college",
         text: "This is some more text",
+        maxEndDate: -1,
       },
     });
 
