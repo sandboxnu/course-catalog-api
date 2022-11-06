@@ -79,6 +79,7 @@ describe("main", () => {
     bannerv9.main([
       {
         subCollege: "CPS",
+        maxEndDate: -1,
         termId: "1",
         text: "Summer 2022 Semester",
       },

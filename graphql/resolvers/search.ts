@@ -19,7 +19,7 @@ interface SearchResultItemConnection {
 function determineIfCurrentTerm(
   maxEndDate: number,
   resultSearch: SearchResult[],
-  termId: number
+  termId: string
 ): boolean {
   // (e.g today is 9/20/22 and the semester ends 8/30/22) => not a current term
   const date = new Date().getTime();
@@ -40,7 +40,7 @@ function determineIfCurrentTerm(
     }
   }
   prisma.termInfo.update({
-    where: { termId: "" + termId },
+    where: { termId: termId },
     data: { maxEndDate },
   });
   return maxEndDate > currentDate;
@@ -91,11 +91,6 @@ const resolvers = {
         maxEndDate = termInfo.maxEndDate;
       }
       const hasNextPage = offset + first < results.resultCount;
-      const nodes = results.searchContent.map((r) =>
-        r.type === "employee"
-          ? r.employee
-          : { ...r.class, sections: r.sections }
-      );
 
       const isCurrentTerm: boolean = determineIfCurrentTerm(
         maxEndDate,
@@ -104,7 +99,11 @@ const resolvers = {
       );
       return {
         totalCount: results.resultCount,
-        nodes: nodes,
+        nodes: results.searchContent.map((r) =>
+          r.type === "employee"
+            ? r.employee
+            : { ...r.class, sections: r.sections }
+        ),
         pageInfo: {
           hasNextPage,
         },
