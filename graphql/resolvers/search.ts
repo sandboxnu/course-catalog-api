@@ -31,12 +31,22 @@ function determineIfCurrentTerm(
   for (const result of resultSearch) {
     if (result.type === "class") {
       if (
-        result.sections != null &&
-        result.sections[0].meetings != null &&
+        result != undefined &&
+        result.sections[0].meetings != undefined &&
+        result.sections[0].meetings[0] != undefined &&
+        result.sections[0].meetings[0].endDate != undefined &&
         result.sections[0].meetings[0].endDate > maxEndDate
       ) {
         maxEndDate = result.sections[0].meetings[0].endDate;
       }
+      //     result.sections != undefined &&
+      //     result.sections[0].meetings != undefined &&
+      //     result.sections[0].meetings[0].endDate != undefined &&
+      //     result.sections[0].meetings[0].endDate != null &&
+      //     result.sections[0].meetings[0].endDate > maxEndDate
+      //   ) {
+      //
+      //   }
     }
   }
   prisma.termInfo.update({

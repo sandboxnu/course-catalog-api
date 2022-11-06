@@ -3,11 +3,48 @@
 exports[`search resolver searches for blank in term gets results 1`] = `
 Object {
   "data": Object {
-    "search": null,
+    "search": Object {
+      "filterOptions": Object {
+        "campus": null,
+        "classType": Array [
+          Object {
+            "count": 10,
+            "value": "Lecture",
+          },
+        ],
+        "nupath": Array [
+          Object {
+            "count": 10,
+            "value": "Writing Intensive",
+          },
+        ],
+        "subject": null,
+      },
+      "nodes": Array [
+        Object {
+          "__typename": "ClassOccurrence",
+          "classAttributes": Array [],
+          "desc": "a class",
+          "lastUpdateTime": 20,
+          "name": "Fundamentals of Computer Science 1",
+          "optPrereqsFor": null,
+          "prereqsFor": null,
+          "sections": Array [
+            Object {
+              "crn": "1234",
+              "profs": Array [],
+            },
+          ],
+          "url": "url",
+        },
+      ],
+      "pageInfo": Object {
+        "hasNextPage": false,
+      },
+      "totalCount": 10,
+    },
   },
-  "errors": Array [
-    [GraphQLError: Cannot read properties of undefined (reading 'endDate')],
-  ],
+  "errors": undefined,
   "extensions": undefined,
   "http": Object {
     "headers": Headers {
