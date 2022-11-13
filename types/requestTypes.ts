@@ -15,7 +15,7 @@ export interface RequestPool {
   maxSockets: number;
   keepAlive: boolean;
   maxFreeSockets: number;
-  "https:false:ALL"?: http.Agent;
+  "https:false:ALL"?: https.Agent;
   "http:"?: http.Agent;
 }
 
