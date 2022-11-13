@@ -1,4 +1,3 @@
-import _ from "lodash";
 import Updater from "../../services/updater";
 import {
   Course as CourseType,
@@ -240,26 +239,12 @@ function createSection(
 ) {
   return prisma.section.create({
     data: {
-      ...(_.omit(sec, [
-        "classId",
-        "termId",
-        "subject",
-        "host",
-        "classAttributes",
-        "prettyUrl",
-        "desc",
-        "lastUpdateTime",
-        "maxCredits",
-        "minCredits",
-        "coreqs",
-        "prereqs",
-        "prereqsFor",
-        "optPrereqsFor",
-        "feeAmount",
-        "feeDescription",
-      ]) as Omit<SectionType, "lastUpdateTime">),
-      // The Prisma type clashes with 'lastUpdateType'. We remove it,
-      //  but lodash doesn't know that, so we make it
+      classType: sec.classType,
+      seatsCapacity: sec.seatsCapacity,
+      waitCapacity: sec.waitCapacity,
+      campus: sec.campus,
+      honors: sec.honors,
+      url: sec.url,
       id: Keys.getSectionHash(sec),
       crn: sec.crn,
       seatsRemaining,

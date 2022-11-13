@@ -219,7 +219,7 @@ describe("with classes", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
     // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });
@@ -287,7 +287,7 @@ describe("with sections", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
     // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });
@@ -351,7 +351,6 @@ describe("with updates", () => {
       sections: [],
       classes: [
         {
-          id: "neu.edu/202030/CS/3500",
           maxCredits: 4,
           minCredits: 4,
           host: "neu.edu",
@@ -363,7 +362,7 @@ describe("with updates", () => {
         },
       ],
       subjects: [],
-    };
+    } as any;
 
     // @ts-ignore, missing some props but it doesn't matter
     await dumpProcessor.main({ termDump: termDump });

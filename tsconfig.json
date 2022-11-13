@@ -4,7 +4,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "lib": ["dom", "es2021", "scripthost"],
+    "lib": ["es2021"],
     "skipLibCheck": true,
     "downlevelIteration": true
   },
