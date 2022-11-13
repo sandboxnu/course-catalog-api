@@ -4,9 +4,9 @@
     "noEmit": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "lib": ["es2020"],
-    "downlevelIteration": true,
-    "skipLibCheck": true
+    "lib": ["es2021"],
+    "skipLibCheck": true,
+    "downlevelIteration": true
   },
   "exclude": ["node_modules"]
 }
