@@ -454,7 +454,6 @@ class Request {
       }
     }
 
-    const retryCount = MAX_RETRY_COUNT;
     let tryCount = 0;
 
     const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
@@ -514,7 +513,7 @@ class Request {
         }
       },
       {
-        retries: retryCount,
+        retries: MAX_RETRY_COUNT,
         minTimeout: timeout,
         maxTimeout: timeout,
         factor: 1,
