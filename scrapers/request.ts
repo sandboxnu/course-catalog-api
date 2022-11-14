@@ -135,6 +135,15 @@ const DEFAULT_USER_AGENT =
 const RETRY_DELAY = 100;
 const RETRY_DELAY_DELTA = 150;
 
+const CACHE_SAFE_CONFIG_OPTIONS = [
+  "method",
+  "headers",
+  "url",
+  "cacheName",
+  "jar",
+  "cache",
+];
+
 const LAUNCH_TIME = moment();
 
 class Request {
@@ -368,9 +377,10 @@ class Request {
       return false;
     }
 
-    const listOfHeaders = Object.keys(config.headers);
+    const listOfHeaders = Object.keys(config.headers).filter(
+      (key) => key !== "Cookie"
+    );
 
-    _.pull(listOfHeaders, "Cookie");
     if (listOfHeaders.length > 0) {
       const configToLog = { ...config };
       configToLog.jar = null;
@@ -383,16 +393,8 @@ class Request {
       return false;
     }
 
-    const listOfConfigOptions = Object.keys(config);
-
-    _.pull(
-      listOfConfigOptions,
-      "method",
-      "headers",
-      "url",
-      "cacheName",
-      "jar",
-      "cache"
+    const listOfConfigOptions = Object.keys(config).filter((key) =>
+      CACHE_SAFE_CONFIG_OPTIONS.includes(key)
     );
 
     if (listOfConfigOptions.length > 0) {
@@ -452,7 +454,7 @@ class Request {
       }
     }
 
-    let retryCount = MAX_RETRY_COUNT;
+    const retryCount = MAX_RETRY_COUNT;
     let tryCount = 0;
 
     const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
