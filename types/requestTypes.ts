@@ -31,7 +31,6 @@ export interface CustomRequestConfig extends CoreOptions {
   cache?: boolean;
   cacheName?: string;
   headers?: Record<string, string>;
-  retryCount?: number;
   pool?: RequestPool;
 }
 

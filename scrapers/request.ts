@@ -273,8 +273,7 @@ class Request {
   private prepareRequestConfig(
     config: CustomRequestConfig
   ): NativeRequestConfig {
-    const urlParsed = new URI(config.url);
-    const hostname = urlParsed.hostname();
+    const hostname = new URI(config.url).hostname();
 
     const defaultConfig: Partial<NativeRequestConfig> = { headers: {} };
 
@@ -324,9 +323,8 @@ class Request {
   /**
    * Sets some configuration options, and sends a request for the given config.
    */
-  async fireRequest(config: CustomRequestConfig): Promise<Response> {
-    const urlParsed = new URI(config.url);
-    const hostname = urlParsed.hostname();
+  private async fireRequest(config: CustomRequestConfig): Promise<Response> {
+    const hostname = new URI(config.url).hostname();
     this.ensureAnalyticsObject(hostname);
     this.activeHostnames[hostname] = true;
 
@@ -334,38 +332,27 @@ class Request {
 
     macros.http("Firing request to", output.url);
 
-    // If there are not any open requests right now, start the interval
-    // Only start the logging interval on production on AWS, only start it on Travis
+    // If there are not any open requests right now, start the analytics interval
     if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
       clearInterval(this.timer);
       macros.http("Starting request analytics timer.");
       this.analytics[hostname].startTime = Date.now();
       this.timer = setInterval(() => this.logAnalytics(), 5000);
-      setTimeout(() => {
-        this.logAnalytics();
-      }, 0);
+      this.logAnalytics();
     }
 
     this.openRequests++;
-    let response: undefined | Response;
-    let error;
+
     try {
-      response = await request(output);
-    } catch (e) {
-      error = e;
-    }
-    this.openRequests--;
+      return await request(output);
+    } finally {
+      this.openRequests--;
 
-    if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
-      macros.http("Stopping request analytics timer.");
-      clearInterval(this.timer);
+      if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
+        macros.http("Stopping request analytics timer.");
+        clearInterval(this.timer);
+      }
     }
-
-    if (error) {
-      throw error;
-    }
-
-    return response;
   }
 
   /**
@@ -376,7 +363,7 @@ class Request {
    * varies based on the `POST` data, so we can't map only using the URL - it also needs to
    * take the `POST` data into account)
    */
-  safeToCacheByUrl(config: CustomRequestConfig): boolean {
+  private safeToCacheByUrl(config: CustomRequestConfig): boolean {
     if (config.method !== "GET") {
       return false;
     }
@@ -420,50 +407,52 @@ class Request {
   }
 
   /**
+   * Returns the cache key for this corresponding config.
+   * Allows us to cache responses from requests sent with this config
+   */
+  private getCacheKey(config: CustomRequestConfig): string | undefined {
+    if (this.safeToCacheByUrl(config)) {
+      return config.url;
+    } else {
+      // Make a new request without the cookies and the cookie jar.
+      const headersWithoutCookie = { ...config.headers };
+      headersWithoutCookie.Cookie = undefined;
+
+      const configToHash: Partial<NativeRequestConfig> = { ...config };
+      configToHash.headers = headersWithoutCookie;
+      configToHash.jar = undefined;
+
+      return objectHash(configToHash);
+    }
+  }
+
+  /**
    * Sends a request
    */
   async request(config: CustomRequestConfig): Promise<Response> {
     macros.http("Request hitting", config);
 
-    const urlParsed = new URI(config.url);
-    const hostname = urlParsed.hostname();
+    const hostname = new URI(config.url).hostname();
     this.ensureAnalyticsObject(hostname);
 
     let newKey: string | undefined;
 
     if (macros.DEV && config.cache) {
       // Skipping the hashing when it is not necessary significantly speeds this up.
-      // When everything was hashed, the call to objectHash function was the function with the most self-time in the profiler lol.
-      // Caching by url is faster, so log a warning if had to cache by hash.
-      if (this.safeToCacheByUrl(config)) {
-        newKey = config.url;
-      } else {
-        // Make a new request without the cookies and the cookie jar.
-        const headersWithoutCookie = { ...config.headers };
-        headersWithoutCookie.Cookie = undefined;
-
-        const configToHash: Partial<NativeRequestConfig> = { ...config };
-        configToHash.headers = headersWithoutCookie;
-        configToHash.jar = undefined;
-
-        newKey = objectHash(configToHash);
-      }
+      newKey = this.getCacheKey(config);
 
       const content = await cache.get(
         macros.REQUESTS_CACHE_DIR,
         config.cacheName,
         newKey
       );
+
       if (content) {
         return content as Response;
       }
     }
 
     let retryCount = MAX_RETRY_COUNT;
-    if (config.retryCount) {
-      retryCount = config.retryCount;
-    }
-
     let tryCount = 0;
 
     const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
@@ -471,17 +460,35 @@ class Request {
 
     return retry(
       async () => {
-        let response: undefined | Response;
         tryCount++;
+
         try {
           const requestStart = Date.now();
-          response = await this.fireRequest(config);
+          const response = await this.fireRequest(config);
           requestDuration = Date.now() - requestStart;
-          this.analytics[hostname].totalGoodRequests++;
-        } catch (err) {
-          // Most sites just give a ECONNRESET or ETIMEDOUT, but dccc also gives a EPROTO and ECONNREFUSED.
-          // This will retry for any error code.
 
+          this.analytics[hostname].totalGoodRequests++;
+
+          // Save the response to a file for development
+          if (macros.DEV && config.cache) {
+            await cache.set(
+              macros.REQUESTS_CACHE_DIR,
+              config.cacheName,
+              newKey,
+              response.toJSON(),
+              true
+            );
+          }
+
+          this.analytics[hostname].totalBytesDownloaded += response.body.length;
+          if (!macros.PROD) {
+            macros.http(
+              `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
+            );
+          }
+
+          return response;
+        } catch (err) {
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
             macros.error(
@@ -503,27 +510,6 @@ class Request {
 
           throw err;
         }
-
-        // Save the response to a file for development
-        if (macros.DEV && config.cache) {
-          await cache.set(
-            macros.REQUESTS_CACHE_DIR,
-            config.cacheName,
-            newKey,
-            response.toJSON(),
-            true
-          );
-        }
-
-        // Don't log this on travis because it causes more than 4 MB to be logged and travis will kill the job
-        this.analytics[hostname].totalBytesDownloaded += response.body.length;
-        if (!macros.PROD) {
-          macros.http(
-            `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
-          );
-        }
-
-        return response;
       },
       {
         retries: retryCount,
