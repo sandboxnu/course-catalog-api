@@ -16,44 +16,25 @@ interface SearchResultItemConnection {
   filterOptions: AggResults;
   isCurrentTerm: boolean;
 }
-function determineIfCurrentTerm(
-  maxEndDate: number,
-  resultSearch: SearchResult[],
-  termId: string
-): boolean {
-  // (e.g today is 9/20/22 and the semester ends 8/30/22) => not a current term
-  const date = new Date().getTime();
-  const currentDate = Math.floor(date / 8.64e7);
-  if (maxEndDate != null && maxEndDate != -1) {
-    return maxEndDate > currentDate;
-  }
-
+function determineIfCurrentTerm(maxEndDate: number): boolean {
+  const daysSinceEpoch = new Date().getTime();
+  const currentDate = Math.floor(daysSinceEpoch / (1000 * 60 * 60 * 24));
+  return maxEndDate > currentDate;
+}
+function determineMaxEndDate(resultSearch: SearchResult[]): number {
+  let maxEndDate = 0;
   for (const result of resultSearch) {
     if (result.type === "class") {
-      if (
-        result != undefined &&
-        result.sections[0].meetings != undefined &&
-        result.sections[0].meetings[0] != undefined &&
-        result.sections[0].meetings[0].endDate != undefined &&
-        result.sections[0].meetings[0].endDate > maxEndDate
-      ) {
-        maxEndDate = result.sections[0].meetings[0].endDate;
+      for (const section of result.sections) {
+        for (const meetings of section.meetings) {
+          if (meetings.endDate > maxEndDate) {
+            maxEndDate = meetings.endDate;
+          }
+        }
       }
-      //     result.sections != undefined &&
-      //     result.sections[0].meetings != undefined &&
-      //     result.sections[0].meetings[0].endDate != undefined &&
-      //     result.sections[0].meetings[0].endDate != null &&
-      //     result.sections[0].meetings[0].endDate > maxEndDate
-      //   ) {
-      //
-      //   }
     }
   }
-  prisma.termInfo.update({
-    where: { termId: termId },
-    data: { maxEndDate },
-  });
-  return maxEndDate > currentDate;
+  return maxEndDate;
 }
 interface SearchArgs {
   termId: string;
@@ -97,16 +78,21 @@ const resolvers = {
         where: { termId: "" + args.termId },
       });
       let maxEndDate = -1;
-      if (termInfo) {
+      if (termInfo?.maxEndDate == undefined) {
+        maxEndDate = determineMaxEndDate(results.searchContent);
+      } else {
         maxEndDate = termInfo.maxEndDate;
+        // maxEndDate = determineMaxEndDate(results.searchContent);
       }
+      console.log(maxEndDate);
+
+      await prisma.termInfo.update({
+        where: { termId: args.termId },
+        data: { maxEndDate },
+      });
       const hasNextPage = offset + first < results.resultCount;
 
-      const isCurrentTerm: boolean = determineIfCurrentTerm(
-        maxEndDate,
-        results.searchContent,
-        args.termId
-      );
+      const isCurrentTerm: boolean = determineIfCurrentTerm(maxEndDate);
       return {
         totalCount: results.resultCount,
         nodes: results.searchContent.map((r) =>
@@ -118,7 +104,7 @@ const resolvers = {
           hasNextPage,
         },
         filterOptions: results.aggregations,
-        isCurrentTerm: isCurrentTerm,
+        isCurrentTerm,
       };
     },
   },

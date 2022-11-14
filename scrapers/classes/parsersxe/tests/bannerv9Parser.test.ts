@@ -48,21 +48,18 @@ describe("getAllTermInfos", () => {
     expect(await bannerv9.getAllTermInfos("termslist")).toEqual([
       {
         host: "neu.edu",
-        maxEndDate: -1,
         subCollege: "NEU",
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
         host: "neu.edu",
-        maxEndDate: -1,
         subCollege: "LAW",
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
         host: "neu.edu",
-        maxEndDate: -1,
         subCollege: "CPS",
         termId: "1",
         text: "Summer 2022 Semester",
@@ -79,7 +76,6 @@ describe("main", () => {
     bannerv9.main([
       {
         subCollege: "CPS",
-        maxEndDate: -1,
         termId: "1",
         text: "Summer 2022 Semester",
       },
@@ -132,19 +128,16 @@ it("getCurrentTermInfos", async () => {
     await bannerv9.getCurrentTermInfos([
       {
         subCollege: "NEU",
-        maxEndDate: -1,
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
         subCollege: "LAW",
-        maxEndDate: -1,
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
         subCollege: "CPS",
-        maxEndDate: -1,
         termId: "1",
         text: "Summer 2022 Semester",
       },
@@ -152,13 +145,11 @@ it("getCurrentTermInfos", async () => {
   ).toEqual([
     {
       subCollege: "LAW",
-      maxEndDate: -1,
       termId: "2",
       text: "Summer 2022 Semester",
     },
     {
       subCollege: "CPS",
-      maxEndDate: -1,
       termId: "1",
       text: "Summer 2022 Semester",
     },
