@@ -24,7 +24,7 @@ function determineIfCurrentTerm(maxEndDate: number): boolean {
 function determineMaxEndDate(resultSearch: SearchResult[]): number {
   let maxEndDate = 0;
   for (const result of resultSearch) {
-    if (result.type === "class") {
+    if (result.type === "class" && result != undefined) {
       for (const section of result.sections) {
         for (const meetings of section.meetings) {
           if (meetings.endDate > maxEndDate) {
@@ -82,7 +82,6 @@ const resolvers = {
         maxEndDate = determineMaxEndDate(results.searchContent);
       } else {
         maxEndDate = termInfo.maxEndDate;
-        // maxEndDate = determineMaxEndDate(results.searchContent);
       }
       console.log(maxEndDate);
 
