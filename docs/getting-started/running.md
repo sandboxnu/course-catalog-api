@@ -6,11 +6,11 @@ Run these commands in order:
    - This will copy our templated `.env` file for your own use. Some of these environment variables are required for our codebase to work.
 1. `yarn install`
    - This command installs all of our dependencies, and it does so locally. In other words, these dependencies are only visible to this project.
-2. `yarn dev:docker`
+1. `yarn dev:docker`
    - This creates two Docker containers for us, which we'll use for running the backend. One is Postgres, a relational database, which we use for storing data. The other is Elasticsearch, which helps us return results for search query.
-3. `yarn db:migrate`
+1. `yarn db:migrate`
    - This does all the setup for our newly-created database, creating all the tables that we need to store our data
-4. `yarn db:refresh`
+1. `yarn db:refresh`
    - This generated a custom Prisma client for our project
    - **Prisma** is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) - it allows us to communicate with our database in a Javascript-based fashion, instead of executing raw SQL statements
 

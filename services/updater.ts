@@ -213,14 +213,20 @@ class Updater {
 
   // return a collection of data structures used for simplified querying of data
   async getOldData(): Promise<OldData> {
-    const watchedCourses = (
-      await pMap(this.SEMS_TO_UPDATE, (termId) => {
-        return prisma.followedCourse.findMany({
+    const watchedCoursesTerms = [];
+
+    for (const termId of this.SEMS_TO_UPDATE) {
+      watchedCoursesTerms.push(
+        await prisma.followedCourse.findMany({
           include: { course: true },
           where: { course: { termId } },
-        });
-      })
-    ).reduce((acc, val) => acc.concat(val), []);
+        })
+      );
+    }
+    const watchedCourses = watchedCoursesTerms.reduce(
+      (acc, val) => acc.concat(val),
+      []
+    );
 
     const watchedCourseLookup: Record<string, Course> = {};
     for (const s of watchedCourses) {
@@ -281,9 +287,9 @@ class Updater {
   async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
-    const dbResults: Record<string, any>[] = await prisma.$queryRawUnsafe(
+    const dbResults = (await prisma.$queryRawUnsafe(
       `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
-    );
+    )) as Record<string, any>[];
 
     return Object.assign(
       {},
