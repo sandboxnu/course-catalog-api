@@ -13,3 +13,7 @@ cache.zip
 logs/
 coverage/
 .idea/
+2021-22-cache/dev_data/v2/classes.cache.json
+2021-22-cache/requests/classParser.cache.msgpack
+2021-22-cache/requests/termParser.cache.msgpack
+2021-22-cache/requests/subjectAbberviationParser.cache.msgpack

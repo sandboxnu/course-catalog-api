@@ -23,12 +23,14 @@ function determineIfCurrentTerm(maxEndDate: number): boolean {
 }
 function determineMaxEndDate(resultSearch: SearchResult[]): number {
   let maxEndDate = 0;
-  for (const result of resultSearch) {
-    if (result.type === "class" && result != undefined) {
-      for (const section of result.sections) {
-        for (const meetings of section.meetings) {
-          if (meetings.endDate > maxEndDate) {
-            maxEndDate = meetings.endDate;
+  if (resultSearch) {
+    for (const result of resultSearch) {
+      if (result.type === "class") {
+        for (const section of result.sections) {
+          for (const meetings of section.meetings) {
+            if (meetings.endDate > maxEndDate) {
+              maxEndDate = meetings.endDate;
+            }
           }
         }
       }
@@ -80,15 +82,14 @@ const resolvers = {
       let maxEndDate = -1;
       if (termInfo?.maxEndDate == undefined) {
         maxEndDate = determineMaxEndDate(results.searchContent);
+        await prisma.termInfo.update({
+          where: { termId: args.termId },
+          data: { maxEndDate: maxEndDate },
+        });
       } else {
         maxEndDate = termInfo.maxEndDate;
       }
-      console.log(maxEndDate);
 
-      await prisma.termInfo.update({
-        where: { termId: args.termId },
-        data: { maxEndDate },
-      });
       const hasNextPage = offset + first < results.resultCount;
 
       const isCurrentTerm: boolean = determineIfCurrentTerm(maxEndDate);
