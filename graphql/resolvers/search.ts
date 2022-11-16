@@ -4,6 +4,7 @@ import { Course, Employee } from "../../types/types";
 import { AggResults, SearchResult } from "../../types/searchTypes";
 import prisma from "../../services/prisma";
 import { TermInfo } from "@prisma/client";
+import { RssHandler } from "htmlparser2";
 
 type SearchResultItem = Course | Employee;
 
@@ -17,12 +18,15 @@ interface SearchResultItemConnection {
   isCurrentTerm: boolean;
 }
 function determineIfCurrentTerm(maxEndDate: number): boolean {
+  if (maxEndDate == -1) {
+    return true;
+  }
   const daysSinceEpoch = new Date().getTime();
   const currentDate = Math.floor(daysSinceEpoch / (1000 * 60 * 60 * 24));
   return maxEndDate > currentDate;
 }
 function determineMaxEndDate(resultSearch: SearchResult[]): number {
-  let maxEndDate = 0;
+  let maxEndDate = -1;
   if (resultSearch) {
     for (const result of resultSearch) {
       if (result.type === "class") {
@@ -37,6 +41,12 @@ function determineMaxEndDate(resultSearch: SearchResult[]): number {
     }
   }
   return maxEndDate;
+}
+async function updateMaxEndDate(termIdString: string, maxEndDate: number) {
+  const updatedMaxEndDate = await prisma.termInfo.update({
+    where: { termId: termIdString },
+    data: { maxEndDate: maxEndDate },
+  });
 }
 interface SearchArgs {
   termId: string;
@@ -79,17 +89,13 @@ const resolvers = {
       const termInfo: TermInfo = await prisma.termInfo.findFirst({
         where: { termId: "" + args.termId },
       });
-      let maxEndDate = -1;
-      if (termInfo?.maxEndDate == undefined) {
-        maxEndDate = determineMaxEndDate(results.searchContent);
-        await prisma.termInfo.update({
-          where: { termId: args.termId },
-          data: { maxEndDate: maxEndDate },
-        });
-      } else {
-        maxEndDate = termInfo.maxEndDate;
-      }
+      const maxEndDate = determineMaxEndDate(results.searchContent);
+      // if (termInfo){
 
+      // }
+      // if (termInfo?.maxEndDate) {
+      //   updateMaxEndDate(args.termId, maxEndDate);
+      // }
       const hasNextPage = offset + first < results.resultCount;
 
       const isCurrentTerm: boolean = determineIfCurrentTerm(maxEndDate);
