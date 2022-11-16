@@ -90,12 +90,9 @@ const resolvers = {
         where: { termId: "" + args.termId },
       });
       const maxEndDate = determineMaxEndDate(results.searchContent);
-      // if (termInfo){
-
-      // }
-      // if (termInfo?.maxEndDate) {
-      //   updateMaxEndDate(args.termId, maxEndDate);
-      // }
+      if (termInfo) {
+        updateMaxEndDate(args.termId, maxEndDate);
+      }
       const hasNextPage = offset + first < results.resultCount;
 
       const isCurrentTerm: boolean = determineIfCurrentTerm(maxEndDate);
