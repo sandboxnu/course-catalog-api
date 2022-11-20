@@ -9,6 +9,10 @@ describe("termParser", () => {
     const mockReq = jest.fn();
     // Mock implementation just returns slices of the range [0,4]
     mockReq.mockImplementation((offset, pageSize) => {
+      // This func can potentially return false - helps w tests
+      if (pageSize === 1 && offset === 1) {
+        return false;
+      }
       return {
         items: _.range(offset, Math.min(5, offset + pageSize)),
         totalCount: 5,
@@ -16,6 +20,12 @@ describe("termParser", () => {
     });
     afterEach(() => {
       mockReq.mockClear();
+    });
+
+    it("should throw an Error if data is missing", async () => {
+      await expect(
+        TermParser.concatPagination(async (_x, _y) => false, 200)
+      ).rejects.toThrowError("Missing data");
     });
 
     it("should call the callback with appropriate args", async () => {
@@ -44,6 +54,14 @@ describe("termParser", () => {
         [2, 2],
         [4, 2],
       ]);
+    });
+
+    it("should throw an error if some data chunks return false", async () => {
+      // Any calls to the mock req of (1, 1) will return false
+      // This should trigger an error down the line, since data is missing
+      await expect(
+        TermParser.concatPagination(mockReq, 1)
+      ).rejects.toThrowError("Missing data");
     });
   });
 });

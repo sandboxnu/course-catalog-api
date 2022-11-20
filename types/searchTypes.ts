@@ -130,13 +130,16 @@ export type FilterInput = {
   [filterName: string]: EsValue;
 };
 
-interface FilterStruct<Input> {
-  validate: (input: Input) => boolean;
-  create: (input: Input) => LeafQuery;
+interface FilterStruct<Input, T extends Input = Input> {
+  validate(input: unknown): input is T;
+  create(input: T): LeafQuery;
   agg: AggProp;
 }
 
-export type EsFilterStruct = FilterStruct<EsValue>;
+export type EsFilterStruct<T extends EsValue = EsValue> = FilterStruct<
+  EsValue,
+  T
+>;
 
 export type FilterPrelude = Record<string, EsFilterStruct>;
 

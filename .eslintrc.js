@@ -53,6 +53,7 @@ module.exports = {
           },
         ],
         "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/ban-ts-comment": "warn",
       },
     },
   ],

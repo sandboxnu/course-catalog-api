@@ -1,4 +1,3 @@
-import _ from "lodash";
 import Updater from "../../services/updater";
 import {
   Course as CourseType,
@@ -208,9 +207,17 @@ beforeEach(async () => {
 
   await prisma.user.create({ data: USER_ONE });
   await prisma.user.create({ data: USER_TWO });
+  await prisma.termInfo.create({
+    data: {
+      termId: "202210",
+      subCollege: "NEU",
+      text: "description",
+    },
+  });
 });
 
 afterEach(async () => {
+  await prisma.termInfo.deleteMany({});
   await prisma.followedCourse.deleteMany({});
   await prisma.followedSection.deleteMany({});
   await prisma.user.deleteMany({});
@@ -232,24 +239,12 @@ function createSection(
 ) {
   return prisma.section.create({
     data: {
-      ..._.omit(sec, [
-        "classId",
-        "termId",
-        "subject",
-        "host",
-        "classAttributes",
-        "prettyUrl",
-        "desc",
-        "lastUpdateTime",
-        "maxCredits",
-        "minCredits",
-        "coreqs",
-        "prereqs",
-        "prereqsFor",
-        "optPrereqsFor",
-        "feeAmount",
-        "feeDescription",
-      ]),
+      classType: sec.classType,
+      seatsCapacity: sec.seatsCapacity,
+      waitCapacity: sec.waitCapacity,
+      campus: sec.campus,
+      honors: sec.honors,
+      url: sec.url,
       id: Keys.getSectionHash(sec),
       crn: sec.crn,
       seatsRemaining,
@@ -263,6 +258,19 @@ function createSection(
 }
 
 describe("Updater", () => {
+  it("gets the expected campus from term IDs", () => {
+    expect(Updater.getCampusFromTerm("202210")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("202230")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("unknown")).toBe("NEU");
+    expect(Updater.getCampusFromTerm("")).toBe("NEU");
+
+    expect(Updater.getCampusFromTerm("202235")).toBe("CPS");
+    expect(Updater.getCampusFromTerm("202234")).toBe("CPS");
+
+    expect(Updater.getCampusFromTerm("202222")).toBe("LAW");
+    expect(Updater.getCampusFromTerm("202228")).toBe("LAW");
+  });
+
   it("scrapes the right terms to update", async () => {
     const mockTermParser = jest.fn(async () => {
       return [];
@@ -687,5 +695,23 @@ describe("Updater", () => {
         FUNDIES_TWO_S3.waitRemaining
       );
     });
+  });
+
+  it("Creates an updater instance", async () => {
+    const updater = await Updater.create();
+    expect(updater.SEMS_TO_UPDATE).toEqual(["202210"]);
+
+    const updateEnv = process.env.UPDATE_ONLY_ONCE;
+    process.env.UPDATE_ONLY_ONCE = "true";
+
+    jest.spyOn(updater, "update").mockImplementationOnce(async () => {
+      // do nothing
+    });
+
+    await updater.start();
+
+    expect(updater.update).toHaveBeenCalled();
+
+    process.env.UPDATE_ONLY_ONCE = updateEnv;
   });
 });
