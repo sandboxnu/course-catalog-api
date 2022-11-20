@@ -17,7 +17,7 @@ export interface EsQuery {
   aggregations?: QueryAgg;
 }
 
-type EsValue = string | string[] | boolean | Range;
+export type EsValue = string | string[] | boolean | Range;
 
 export interface Range {
   min: number;

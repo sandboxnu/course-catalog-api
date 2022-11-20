@@ -35,6 +35,7 @@ import {
   SearchResult,
   CourseSearchResult,
   ParsedQuery,
+  EsValue,
 } from "../types/searchTypes";
 
 type CourseWithSections = Course & { sections: Section[] };
@@ -467,10 +468,17 @@ class Searcher {
     };
   }
 
+  /**
+   * Given a current section, determine whether it matches the corresponding honors and campus filters
+   * @param curSection the current section of a class
+   * @param honorsFilter do we filter sections by honors?
+   * @param campusFilter the campuses we are filtering by
+   * @returns does the current section match the specified filters?
+   */
   filterSection(
     curSection: Section,
-    honorsFilter: boolean,
-    campusFilter: string
+    honorsFilter: EsValue,
+    campusFilter: EsValue
   ): boolean {
     if (honorsFilter && !curSection.honors) {
       return false;
@@ -482,42 +490,39 @@ class Searcher {
     return true;
   }
 
+  /**
+   * filters search results by the honors or campus filters present
+   * @param filters the filters we are applying to the search results
+   * @param results the search results
+   * @returns the filtered search results
+   */
   filterResults(filters, results): SearchResult[] {
-    // Do extra filtering if Honors or Campus Filters are being applied since those filter sections,
-    // which ElasticSearch doesn't actually filter out.
-
     const validFilters = this.validateFilters(filters);
 
-    const honorsFilter: boolean = validFilters["honors"] ? true : false;
+    const honorsFilter = validFilters["honors"] ?? false;
 
-    const campusFilter: string = "" + (validFilters["campus"] ?? "");
+    const campusFilter = validFilters["campus"] ?? "";
 
-    // create a new list initially containing the results, if we are doing further filtering
-    // we'll set it to an empty list and build up the new filtered results.
-    let filteredResults: SearchResult[] = results;
-    if (honorsFilter || campusFilter !== "") {
-      filteredResults = [];
+    const filteredResults: SearchResult[] = [];
 
-      // go through each Result, if it's a course: filter the sections.
-      results.forEach((curResult: SearchResult) => {
-        if (curResult.type === "class") {
-          // filter the sections for each result
-          curResult.sections = curResult.sections.filter(
-            (curSection: Section) =>
-              this.filterSection(curSection, honorsFilter, campusFilter)
-          );
+    if (!honorsFilter && campusFilter === "") {
+      return results;
+    }
 
-          // if the current class still has remaining sections after being filtered, add it to filtered results.
-          if (curResult.sections.length > 0) {
-            filteredResults.push(curResult);
-          }
-        }
-        // if the result is an employee just add it to results
-        else {
+    results.forEach((curResult: SearchResult) => {
+      if (curResult.type === "class") {
+        curResult.sections = curResult.sections.filter((curSection: Section) =>
+          this.filterSection(curSection, honorsFilter, campusFilter)
+        );
+
+        if (curResult.sections.length > 0) {
           filteredResults.push(curResult);
         }
-      });
-    }
+      } else {
+        filteredResults.push(curResult);
+      }
+    });
+
     return filteredResults;
   }
 
