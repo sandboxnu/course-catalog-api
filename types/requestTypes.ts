@@ -1,4 +1,6 @@
 import { CoreOptions } from "request";
+import http from "http";
+import https from "https";
 
 export interface HostAnalytics {
   totalBytesDownloaded: number;
@@ -13,6 +15,8 @@ export interface RequestPool {
   maxSockets: number;
   keepAlive: boolean;
   maxFreeSockets: number;
+  "https:false:ALL"?: https.Agent;
+  "http:"?: http.Agent;
 }
 
 export interface AgentAnalytics {
@@ -27,9 +31,6 @@ export interface CustomRequestConfig extends CoreOptions {
   cache?: boolean;
   cacheName?: string;
   headers?: Record<string, string>;
-  retryCount?: number;
-  requiredInBody?: string[];
-  shortBodyWarning?: boolean;
   pool?: RequestPool;
 }
 
