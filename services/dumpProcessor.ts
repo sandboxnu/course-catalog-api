@@ -385,24 +385,23 @@ class DumpProcessor {
   static escapeSingleQuote(str: string): string {
     return str.replace(/'/g, "''");
   }
-  determineIsCurrentTerm(sections: Section[], termInfo: String): boolean {
-    // let maxEndDate = null;
-    // for (const section of sections) {
-    //   if (section.termId != termInfo) {
-    //     for (const meetings of section.meetings) {
-    //       if (meetings.endDate > maxEndDate) {
-    //         maxEndDate = meetings.endDate;
-    //       }
-    //     }
-    //   }
-    // }
-    // const daysSinceEpoch = new Date().getTime();
-    // const currentDate = Math.floor(daysSinceEpoch / (1000 * 60 * 60 * 24));
-    // if (maxEndDate == null) {
-    //   return true;
-    // }
-    // return maxEndDate > currentDate;
-    return false;
+  determineIsCurrentTerm(sections: Section[], termInfo: string): boolean {
+    let maxEndDate = -1;
+    for (const section of sections) {
+      if (section.termId == termInfo) {
+        for (const meetings of section.meetings) {
+          if (meetings.endDate > maxEndDate) {
+            maxEndDate = meetings.endDate;
+          }
+        }
+      }
+    }
+    const secondsSinceEpoch = new Date().getTime();
+    const currentDate = Math.floor(secondsSinceEpoch / (1000 * 60 * 60 * 24));
+    if (maxEndDate == -1) {
+      return true;
+    }
+    return maxEndDate >= currentDate;
   }
 }
 
