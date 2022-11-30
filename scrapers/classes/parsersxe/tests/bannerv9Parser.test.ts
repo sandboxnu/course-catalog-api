@@ -78,6 +78,7 @@ describe("main", () => {
         subCollege: "CPS",
         termId: "1",
         text: "Summer 2022 Semester",
+        isCurrentTerm: true,
       },
     ]);
     expect(bannerv9.scrapeTerms).toHaveBeenLastCalledWith(["1"]);
@@ -130,25 +131,30 @@ it("getCurrentTermInfos", async () => {
         subCollege: "NEU",
         termId: "3",
         text: "Fall 2022 Semester",
+        isCurrentTerm: true,
       },
       {
         subCollege: "LAW",
         termId: "2",
         text: "Summer 2022 Semester",
+        isCurrentTerm: true,
       },
       {
         subCollege: "CPS",
         termId: "1",
         text: "Summer 2022 Semester",
+        isCurrentTerm: true,
       },
     ])
   ).toEqual([
     {
+      isCurrentTerm: true,
       subCollege: "LAW",
       termId: "2",
       text: "Summer 2022 Semester",
     },
     {
+      isCurrentTerm: true,
       subCollege: "CPS",
       termId: "1",
       text: "Summer 2022 Semester",

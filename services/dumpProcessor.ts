@@ -17,6 +17,7 @@ import {
   Section,
   TransformFunction,
 } from "../types/types";
+import termDump from "../scrapers/classes/termDump";
 
 type Maybe<T> = T | null | undefined;
 
@@ -211,19 +212,24 @@ class DumpProcessor {
           termId: { notIn: termInfos.map((t) => t.termId) },
         },
       });
-
       // Upsert new term IDs, along with their names and sub college
       for (const { termId, subCollege, text } of termInfos) {
+        const isCurrentTerm = this.determineIsCurrentTerm(
+          termDump.sections,
+          termId
+        );
         await prisma.termInfo.upsert({
           where: { termId },
           update: {
             text,
             subCollege,
+            isCurrentTerm,
           },
           create: {
             termId,
             text,
             subCollege,
+            isCurrentTerm,
           },
         });
       }
@@ -378,6 +384,25 @@ class DumpProcessor {
 
   static escapeSingleQuote(str: string): string {
     return str.replace(/'/g, "''");
+  }
+  determineIsCurrentTerm(sections: Section[], termInfo: String): boolean {
+    // let maxEndDate = null;
+    // for (const section of sections) {
+    //   if (section.termId != termInfo) {
+    //     for (const meetings of section.meetings) {
+    //       if (meetings.endDate > maxEndDate) {
+    //         maxEndDate = meetings.endDate;
+    //       }
+    //     }
+    //   }
+    // }
+    // const daysSinceEpoch = new Date().getTime();
+    // const currentDate = Math.floor(daysSinceEpoch / (1000 * 60 * 60 * 24));
+    // if (maxEndDate == null) {
+    //   return true;
+    // }
+    // return maxEndDate > currentDate;
+    return false;
   }
 }
 

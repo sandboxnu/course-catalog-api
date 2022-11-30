@@ -9,6 +9,7 @@ const typeDef = gql`
     termId: String!
     subCollege: String!
     text: String!
+    isCurrentTerm: Boolean!
   }
 `;
 

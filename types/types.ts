@@ -150,7 +150,7 @@ export interface TermInfo {
   termId: string;
   subCollege: string;
   text: string;
-  maxEndDate?: number;
+  isCurrentTerm: boolean;
 }
 
 export interface CourseRef {
