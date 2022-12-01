@@ -31,11 +31,13 @@ const termInfos: TermInfo[] = [
     termId: "123456",
     subCollege: "NEU",
     text: "This is some text",
+    isCurrentTerm: true,
   },
   {
     termId: "654321",
     subCollege: "LAW",
     text: "This is some more text",
+    isCurrentTerm: true,
   },
 ];
 

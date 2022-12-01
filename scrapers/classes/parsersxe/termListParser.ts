@@ -24,6 +24,7 @@ class TermListParser {
         termId: term.code,
         text: text,
         subCollege: subCollege,
+        isCurrentTerm: true,
       };
     });
   }
