@@ -49,18 +49,21 @@ describe("getAllTermInfos", () => {
       {
         host: "neu.edu",
         subCollege: "NEU",
+        isCurrentTerm: true,
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
         host: "neu.edu",
         subCollege: "LAW",
+        isCurrentTerm: true,
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
         host: "neu.edu",
         subCollege: "CPS",
+        isCurrentTerm: true,
         termId: "1",
         text: "Summer 2022 Semester",
       },
