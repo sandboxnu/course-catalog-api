@@ -1,10 +1,7 @@
 import { identity, pickBy } from "lodash";
 import searcher from "../../services/searcher";
 import { Course, Employee } from "../../types/types";
-import { AggResults, SearchResult } from "../../types/searchTypes";
-import prisma from "../../services/prisma";
-import { TermInfo } from "@prisma/client";
-import { RssHandler } from "htmlparser2";
+import { AggResults } from "../../types/searchTypes";
 
 type SearchResultItem = Course | Employee;
 

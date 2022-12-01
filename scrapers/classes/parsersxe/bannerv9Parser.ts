@@ -109,6 +109,7 @@ export class Bannerv9Parser {
     const existingIds: string[] = (
       await prisma.course.groupBy({ by: ["termId"] })
     ).map((t) => t.termId);
+
     // Get the TermInfo associated with each term ID
     return existingIds
       .map((termId) =>

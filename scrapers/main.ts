@@ -24,6 +24,7 @@ class Main {
     const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
       allTermInfos
     );
+
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
     //  *Employee scraping takes SO MUCH less time (which is why we run it first)
     //    * So, not running scraping in parallel doesn't hurt us
@@ -37,6 +38,7 @@ class Main {
       destroy: true,
       currentTermInfos: currentTermInfos,
     });
+
     macros.log("Done scraping\n\n".green.underline);
   }
 }
