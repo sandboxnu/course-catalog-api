@@ -9,7 +9,7 @@ async function query(q: DocumentNode): Promise<GraphQLResponse> {
 
 describe("Searching for courses", () => {
   // https://trello.com/c/AFcdt4tt/106-display-one-search-result-with-a-course-code
-  test("searching for a single course returns it as a result", async () => {
+  test("searching for a single course returns only it as a result", async () => {
     const queries = ["CS2500", "cs2500", "cs 2500", "CS 2500"];
     for (const q of queries) {
       const res = await query(gql`
@@ -24,13 +24,51 @@ describe("Searching for courses", () => {
               }
           `);
 
-      const result = res.data?.search.nodes || [];
-      const names = result.map((node) => node.name);
-
-      expect(names.includes("Fundamentals of Computer Science 1")).toBeTruthy();
+      const result = res.data?.search.nodes ?? [];
+      expect(result.length).toBe(1);
+      expect(result[0].name).toBe("Fundamentals of Computer Science 1");
     }
   });
 
+  test("falls back to general search if the single-course search has a subject we don't know about", async () => {
+    const queries = ["AA2500", "aa2500", "aa 2500", "AA 2500"];
+    for (const q of queries) {
+      const res = await query(gql`
+            query {
+                search(termId: "202240", query: "${q}") {
+                  nodes {
+                    ... on ClassOccurrence {
+                      name
+                    }
+                  }
+                }
+              }
+          `);
+
+      const result = res.data?.search?.nodes;
+      expect(result.length).toBeGreaterThan(0);
+    }
+  });
+
+  test("searching for a single course returns nothing if it doesn't exactly match the course code", async () => {
+    const queries = ["CS3502", "cs3502", "cs 3502", "CS 3502"];
+    for (const q of queries) {
+      const res = await query(gql`
+            query {
+                search(termId: "202240", query: "${q}") {
+                  nodes {
+                    ... on ClassOccurrence {
+                      name
+                    }
+                  }
+                }
+              }
+          `);
+
+      const result = res.data?.search?.nodes;
+      expect(result.length).toBe(0);
+    }
+  });
   // https://trello.com/c/hjjm4QiT/184-common-keywords-no-longer-return-classes
   test("Course mappings work", async () => {
     const res = await query(gql`
