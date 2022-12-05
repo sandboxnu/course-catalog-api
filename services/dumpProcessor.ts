@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import _ from "lodash";
 import he from "he";
 import path from "path";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
@@ -40,55 +40,6 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
-    const courseTransforms = {
-      class_attributes: this.arrayTransform,
-      class_attributes_contents: this.arrayStrTransform,
-      class_id: this.strTransform,
-      coreqs: this.jsonTransform,
-      description: this.strTransform,
-      fee_amount: this.intTransform,
-      fee_description: this.strTransform,
-      host: this.strTransform,
-      id: this.strTransform,
-      // lastUpdateTime should be updated every time this course is inserted
-      last_update_time: () => "now()",
-      max_credits: this.intTransform,
-      min_credits: this.intTransform,
-      name: this.strTransform,
-      nupath: this.arrayTransform,
-      nupath_contents: this.arrayStrTransform,
-      opt_prereqs_for: this.jsonTransform,
-      prereqs: this.jsonTransform,
-      prereqs_for: this.jsonTransform,
-      pretty_url: this.strTransform,
-      subject: this.strTransform,
-      term_id: this.strTransform,
-      url: this.strTransform,
-    };
-
-    const courseCols = [
-      "class_attributes",
-      "class_id",
-      "coreqs",
-      "description",
-      "fee_amount",
-      "fee_description",
-      "host",
-      "id",
-      "last_update_time",
-      "max_credits",
-      "min_credits",
-      "name",
-      "nupath",
-      "opt_prereqs_for",
-      "prereqs",
-      "prereqs_for",
-      "pretty_url",
-      "subject",
-      "term_id",
-      "url",
-    ];
-
     const sectionTransforms = {
       class_hash: this.strTransform,
       class_type: this.strTransform,
@@ -357,7 +308,7 @@ class DumpProcessor {
       lastUpdateTime: new Date(classInfo.lastUpdateTime),
     };
 
-    const correctedQuery = {
+    const courseCreateInput = {
       ...classInfo,
       ...additionalProps,
       classAttributes: classInfo.classAttributes || [],
@@ -368,7 +319,9 @@ class DumpProcessor {
       optPrereqsFor: { ...classInfo.optPrereqsFor } as Prisma.InputJsonObject,
     };
 
-    return correctedQuery;
+    delete courseCreateInput["desc"];
+
+    return courseCreateInput;
   }
 
   constituteSection(
