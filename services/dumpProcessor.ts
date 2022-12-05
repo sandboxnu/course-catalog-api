@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import _ from "lodash";
 import he from "he";
 import path from "path";
-import { Prisma } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
@@ -17,6 +17,7 @@ import {
   Section,
   TransformFunction,
 } from "../types/types";
+import { ParsedCourseSR } from "../types/scraperTypes";
 
 type Maybe<T> = T | null | undefined;
 
@@ -125,7 +126,9 @@ class DumpProcessor {
       "wait_remaining",
     ];
 
-    const coveredTerms: Set<string> = new Set();
+    const coveredTerms: Set<string> = new Set(
+      termDump.classes.map((c) => c.termId)
+    );
 
     // We delete all of the professors, and insert anew
     // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
@@ -137,19 +140,7 @@ class DumpProcessor {
       macros.log("DumpProcessor: finished with profs");
     }
 
-    // First, we break the classes into groups of 2000 each. Each group will become 1 query
-    const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
-
-    for (const courses of groupedClasses) {
-      await prisma.$executeRawUnsafe(
-        this.bulkUpsert(
-          "courses",
-          courseCols,
-          courseTransforms,
-          courses.map((c) => this.constituteCourse(c, coveredTerms))
-        )
-      );
-    }
+    await this.bulkUpsertCourses(termDump.classes);
 
     macros.log("DumpProcessor: finished with courses");
 
@@ -168,7 +159,7 @@ class DumpProcessor {
 
     for (const sections of groupedSections) {
       await prisma.$executeRawUnsafe(
-        this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
+        this.bulkUpsertStr("sections", sectionCols, sectionTransforms, sections)
       );
     }
 
@@ -269,7 +260,31 @@ class DumpProcessor {
     await populateES();
   }
 
-  bulkUpsert(
+  /**
+   * Upserts the given courses using the `bulk` functions provided by Prisma.
+   * "Upsert" inserts the data if it doesn't exist yet, and updates it if it does.
+   *
+   * Prisma offers an `upsert` function, but not a `bulkUpsert` function.
+   * Running `upsert` on each piece of data takes a long time, so we want to parallize it.
+   * To do so, the easiest way is to delete the existing data, and inserting. This
+   * takes longer than a proper `bulkUpsert` would, but is faster than serial `upserts`.
+   * https://github.com/prisma/prisma/issues/4134
+   */
+  async bulkUpsertCourses(classes: ParsedCourseSR[]): Promise<void> {
+    const classInput = classes.map((c) => this.constituteCourse(c));
+    const ids = classInput.map((c) => c.id);
+
+    await prisma.$transaction([
+      prisma.course.deleteMany({
+        where: { id: { in: ids } },
+      }),
+      prisma.course.createMany({
+        data: classInput,
+      }),
+    ]);
+  }
+
+  bulkUpsertStr(
     tableName: string,
     columnNames: string[],
     valTransforms: Record<string, TransformFunction>,
@@ -328,17 +343,18 @@ class DumpProcessor {
     return val ? "TRUE" : "FALSE";
   }
 
-  constituteCourse(
-    classInfo: any,
-    coveredTerms: Set<string>
-  ): Prisma.CourseCreateInput {
-    coveredTerms.add(classInfo.termId);
-
+  /**
+   * Converts a {@link ParsedCourseSR} (which is our type definition for a parsed course)
+   * to a {@link Prisma.CourseCreateInput} (which is the input format used
+   * by Prisma to create a course).
+   */
+  constituteCourse(classInfo: ParsedCourseSR): Prisma.CourseCreateInput {
     const additionalProps = {
       id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
       maxCredits: Math.floor(classInfo.maxCredits),
+      lastUpdateTime: new Date(classInfo.lastUpdateTime),
     };
 
     const correctedQuery = {
@@ -346,11 +362,13 @@ class DumpProcessor {
       ...additionalProps,
       classAttributes: classInfo.classAttributes || [],
       nupath: classInfo.nupath || [],
+      coreqs: classInfo.coreqs as Prisma.InputJsonValue,
+      prereqs: classInfo.prereqs as Prisma.InputJsonValue,
+      prereqsFor: { ...classInfo.prereqsFor } as Prisma.InputJsonObject,
+      optPrereqsFor: { ...classInfo.optPrereqsFor } as Prisma.InputJsonObject,
     };
 
-    const { desc, ...finalCourse } = correctedQuery;
-
-    return finalCourse;
+    return correctedQuery;
   }
 
   constituteSection(
