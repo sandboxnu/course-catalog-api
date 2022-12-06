@@ -320,6 +320,7 @@ class DumpProcessor {
     };
 
     delete courseCreateInput["desc"];
+    delete courseCreateInput["college"];
 
     return courseCreateInput;
   }
