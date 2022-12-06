@@ -91,7 +91,12 @@ class DumpProcessor {
       macros.log("DumpProcessor: finished with profs");
     }
 
-    await this.bulkUpsertCourses(termDump.classes);
+    // We break the classes into groups of 2000 each. Each group will become 1 query
+    const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
+
+    for (const courses of groupedClasses) {
+      await this.bulkUpsertCourses(courses);
+    }
 
     macros.log("DumpProcessor: finished with courses");
 
