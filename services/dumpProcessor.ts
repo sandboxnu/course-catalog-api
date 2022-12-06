@@ -299,7 +299,7 @@ class DumpProcessor {
    * to a {@link Prisma.CourseCreateInput} (which is the input format used
    * by Prisma to create a course).
    */
-  constituteCourse(classInfo: ParsedCourseSR): Prisma.CourseCreateInput {
+  constituteCourse(classInfo: ParsedCourseSR): Exact<Prisma.CourseCreateInput> {
     const additionalProps = {
       id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,

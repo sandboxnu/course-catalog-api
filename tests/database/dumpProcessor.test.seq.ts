@@ -215,7 +215,6 @@ describe("with classes", () => {
           termId: "202030",
           subject: "CS",
           lastUpdateTime: 123456789,
-          honors: true,
         },
       ],
       subjects: [],
