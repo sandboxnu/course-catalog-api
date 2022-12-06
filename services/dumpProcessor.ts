@@ -305,7 +305,7 @@ class DumpProcessor {
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
       maxCredits: Math.floor(classInfo.maxCredits),
-      lastUpdateTime: new Date(classInfo.lastUpdateTime),
+      lastUpdateTime: new Date(),
     };
 
     const courseCreateInput = {
