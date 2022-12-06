@@ -93,7 +93,6 @@ class DumpProcessor {
 
     // We break the classes into groups of 2000 each. Each group will become 1 query
     const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
-
     for (const courses of groupedClasses) {
       await this.bulkUpsertCourses(courses);
     }
@@ -225,17 +224,17 @@ class DumpProcessor {
    * To do so, the easiest way is to delete the existing data, and inserting. This
    * takes longer than a proper `bulkUpsert` would, but is faster than serial `upserts`.
    * https://github.com/prisma/prisma/issues/4134
-   */
-  async bulkUpsertCourses(classes: ParsedCourseSR[]): Promise<void> {
-    const classInput = classes.map((c) => this.constituteCourse(c));
-    const ids = classInput.map((c) => c.id);
+   */ // TODO update
+  async bulkUpsertCourses(courses: ParsedCourseSR[]): Promise<void> {
+    const coursesToUpsert = courses.map((c) => this.constituteCourse(c));
+    const idsToUpsert = coursesToUpsert.map((c) => c.id);
 
     await prisma.$transaction([
       prisma.course.deleteMany({
-        where: { id: { in: ids } },
+        where: { id: { in: idsToUpsert } },
       }),
       prisma.course.createMany({
-        data: classInput,
+        data: coursesToUpsert,
       }),
     ]);
   }
