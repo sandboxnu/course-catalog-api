@@ -2,7 +2,7 @@ version: "2"
 
 services:
   postgresql:
-    image: postgres:11.1
+    image: postgres:11.17-bullseye
     ports:
       - 5432:5432
     volumes:
