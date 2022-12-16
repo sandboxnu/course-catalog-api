@@ -529,44 +529,43 @@ class RequestInput {
   cacheName: string;
   config: Partial<CustomRequestConfig>;
 
-  constructor(cacheName, config = {}) {
+  constructor(cacheName: string, config = {}) {
     this.cacheName = cacheName;
     this.config = config;
 
-    // Use the cache if it was not specified in the config
-    if (this.config.cache === undefined) {
-      this.config.cache = true;
-    }
+    // If not specified in the config, default to using the cache
+    this.config.cache ??= true;
   }
 
-  async request(config: PartialRequestConfig): Promise<Response> {
+  /**
+   * Sends a request to the given URL, with the given method and configuration.
+   */
+  private async request(
+    url: string,
+    config: Partial<CustomRequestConfig>,
+    method: "GET" | "POST"
+  ): Promise<Response> {
+    config.method = method;
+    config.url = url;
+    // FIXME remove, break the URL out of the config. Depends on `Request`
+
     const output = {};
-    config = this.standardizeInputConfig(config);
 
     // Use the fields from this.config that were not specified in cache.
-    Object.assign(output, this.config, config);
+    // Uses .assign() to avoid overwriting our this.config object
+    Object.assign(output, this.config, this.normalizeRequestConfig(config));
 
     return instance.request(output as CustomRequestConfig);
   }
 
-  standardizeInputConfig(
-    config: PartialRequestConfig | string,
-    method = "GET"
+  /**
+   * Standardizes a request configuration, adding headers and a cache name
+   * if necessary
+   */
+  normalizeRequestConfig(
+    config: Partial<CustomRequestConfig>
   ): CustomRequestConfig {
-    if (typeof config === "string") {
-      config = {
-        method: method,
-        url: config,
-      };
-    }
-
-    if (!config.headers) {
-      config.headers = {};
-    }
-
-    if (!config.method) {
-      config.method = method;
-    }
+    config.headers ??= {};
 
     if (macros.DEV) {
       if (this.cacheName) {
@@ -580,72 +579,36 @@ class RequestInput {
     return config as CustomRequestConfig;
   }
 
-  static get(config): Promise<Response> {
-    return new this(null).get(config);
+  /**
+   * Sends a GET request to the given URL, with the given configuration
+   */
+  async get(
+    url: string,
+    config?: Partial<CustomRequestConfig>
+  ): Promise<Response> {
+    return this.request(url, config ?? {}, "GET");
   }
 
-  // Helpers for get and post
-  async get(config: PartialRequestConfig | undefined): Promise<Response> {
-    if (!config) {
-      macros.error("Warning, request get called with no config");
-      return null;
-    }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "GET",
-      });
-    }
-
-    config.method = "GET";
-    return this.request(config);
-  }
-
-  async post(config: PartialRequestConfig): Promise<null | Response> {
+  /**
+   * Sends a POST request to the given URL, with the given configuration
+   */
+  async post(
+    url: string,
+    config: Partial<CustomRequestConfig>
+  ): Promise<Response> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
     }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "POST",
-      });
-    }
 
-    config.method = "POST";
-    return this.request(config);
+    return this.request(url, config, "POST");
   }
 
-  async head(config: PartialRequestConfig): Promise<null | Response> {
-    if (!config) {
-      macros.error("Warning, request head called with no config");
-      return null;
-    }
-    if (typeof config === "string") {
-      return this.request({
-        url: config,
-        method: "HEAD",
-      });
-    }
-
-    config.method = "HEAD";
-    return instance.request(config as CustomRequestConfig);
-  }
-
-  // Pass through methods to deal with cookies.
+  /**
+   * Pass-through method to get the cookie jar from our interal requests object
+   */
   jar(): CookieJar {
     return request.jar();
-  }
-
-  cookie(cookie): Cookie {
-    return request.cookie(cookie);
-  }
-
-  // Do a head request. If that fails, do a get request. If that fails, the site is down and return false
-  // need to turn off high retry count
-  async isPageUp(): Promise<void> {
-    throw new Error("This does not work yet");
   }
 }
 
