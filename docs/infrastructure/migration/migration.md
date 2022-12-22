@@ -99,7 +99,6 @@ Terraform needs access to an AWS user on your account in order to apply infrastr
              - **Do not add all of the secrets!**: the prod / staging secrets in the AWS Parameter Store that should NOT go in Terraform variables are the ones declared [here](https://github.com/sandboxnu/course-catalog-api/blob/master/infrastructure/terraform/modules/course-catalog-api/ecs.tf#L184-L194) (currently `elasticURL` and `DATABASE_URL` since their values are determined by AWS).
              - In `ecs.tf`, you'll see some of the logic for generating secrets
       - `cloudflare_zone_id` - open Cloudflare, and go to the `Overview` page. In the `API` section, find the `Zone ID` value.
-      - `aws_certificate_arn`
       - `aws_region` - set to `us-east-1` (or whatever your primary AWS region is)
     - Environment Variables
       - `sensitive`: `GITHUB_TOKEN` is a GitHub personal access token you have to generate. [Instructions here](https://docs.github.com/en/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)
