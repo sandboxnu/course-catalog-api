@@ -11,7 +11,7 @@ module "elasticsearch" {
   zone_awareness_enabled  = "false"
   availability_zone_count = 1
 
-  elasticsearch_version   = "7.1"
+  elasticsearch_version   = "7.10"
   instance_type           = "t2.small.elasticsearch"
   instance_count          = 1
   ebs_volume_size         = 20
