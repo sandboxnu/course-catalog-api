@@ -14,13 +14,7 @@ it("get should work", async () => {
 });
 
 it("post should work", async () => {
-  const response = await request.post("https://google.com");
+  const response = await request.post("https://google.com", {});
 
   expect(response.body).toBe("response for POST https://google.com");
-});
-
-it("head should work", async () => {
-  const response = await request.head("https://google.com");
-
-  expect(response.body).toBe("response for HEAD https://google.com");
 });

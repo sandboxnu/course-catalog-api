@@ -2,7 +2,7 @@ version: "2"
 
 services:
   postgresql:
-    image: postgres:11.5
+    image: postgres:11.17-bullseye
     ports:
       - 5432:5432
     volumes:
@@ -13,7 +13,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=
   es:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.0
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
     ports:
       - 9200:9200
     environment:

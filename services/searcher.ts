@@ -3,7 +3,10 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import { Course, Section } from "../types/types";
+import {
+  Course as PrismaCourse,
+  Section as PrismaSection,
+} from "@prisma/client";
 import prisma from "../services/prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
@@ -37,8 +40,10 @@ import {
   ParsedQuery,
   EsValue,
 } from "../types/searchTypes";
+import { SerializedCourse } from "../types/serializerTypes";
+import { Course, Section } from "../types/types";
 
-type CourseWithSections = Course & { sections: Section[] };
+type CourseWithSections = PrismaCourse & { sections: PrismaSection[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };
 
 class Searcher {
@@ -52,6 +57,11 @@ class Searcher {
 
   AGG_RES_SIZE: number;
 
+  /**
+   * Regex for matching a course-code (eg. "CS3500")
+   */
+  COURSE_CODE_PATTERN: RegExp;
+
   constructor() {
     this.elastic = elastic;
     this.subjects = {};
@@ -61,6 +71,7 @@ class Searcher {
       (f): f is EsAggFilterStruct => f.agg !== false
     );
     this.AGG_RES_SIZE = 1000;
+    this.COURSE_CODE_PATTERN = /^\s*([a-zA-Z]{2,4})\s*(\d{4})?\s*$/i;
   }
 
   static generateFilters(): FilterPrelude {
@@ -428,31 +439,48 @@ class Searcher {
     termId: string
   ): Promise<SingleSearchResult> {
     const start = Date.now();
-    const result = await prisma.course.findUnique({
-      where: { uniqueCourseProps: { classId, subject, termId } },
-      include: { sections: true },
-    });
-    const serializer = new HydrateCourseSerializer();
-    const showCourse = result && result.sections && result.sections.length > 0;
-    // don't show search result of course with no sections
-    const resultOutput: SSRSerializerOutput = (
-      showCourse ? await serializer.bulkSerialize([result]) : {}
-    ) as SSRSerializerOutput;
-    const results: SearchResult[] = Object.values(resultOutput);
+
+    const results = await this.getSearchResults(
+      subject + classId,
+      termId,
+      0,
+      9999,
+      {
+        subject: [subject],
+      }
+    );
+    const result = results?.output[0];
+
+    const hasSections = result?._source?.sections?.length > 0;
+    const subjectMatches = result?._source?.class?.subject === subject;
+    const codeMatches = result?._source?.class?.classId === classId;
+    // Only show this course
+    const showCourse = hasSections && subjectMatches && codeMatches;
+
+    let aggregations: AggResults;
+    let resultOutput: SearchResult[];
+
+    if (showCourse) {
+      resultOutput = await new HydrateSerializer().bulkSerialize([result]);
+
+      aggregations = this.getSingleResultAggs({
+        ...result._source?.class,
+        sections: result._source?.sections,
+      });
+    }
+
     return {
-      results,
+      results: resultOutput ?? [],
       resultCount: showCourse ? 1 : 0,
       took: 0,
       hydrateDuration: Date.now() - start,
-      aggregations: showCourse
-        ? this.getSingleResultAggs(result)
-        : {
-            nupath: [],
-            subject: [],
-            classType: [],
-            campus: [],
-            honors: [],
-          },
+      aggregations: aggregations ?? {
+        nupath: [],
+        subject: [],
+        classType: [],
+        campus: [],
+        honors: [],
+      },
     };
   }
 
@@ -543,23 +571,45 @@ class Searcher {
   ): Promise<SearchResults> {
     await this.initializeSubjects();
     const start = Date.now();
-    const searchResults = await this.getSearchResults(
-      query,
-      termId,
-      min,
-      max,
-      filters
-    );
-    const { took, aggregations } = searchResults;
-    const startHydrate = Date.now();
 
-    const results: SearchResult[] = await new HydrateSerializer().bulkSerialize(
-      searchResults.output
-    );
+    let results: SearchResult[];
+    let resultCount: number;
+    let took: number;
+    let hydrateDuration: number;
+    let aggregations: AggResults;
 
-    const hydrateDuration: number = Date.now() - startHydrate;
+    // if we know that the query is of the format of a course code, we want to return only one result
+    const isSingleCourse = query.match(this.COURSE_CODE_PATTERN);
 
-    const filteredResults = this.filterResults(filters, results);
+    const subject = isSingleCourse ? isSingleCourse[1].toUpperCase() : "";
+    const isSubjectValid = subject in this.subjects;
+
+    const courseCode = isSingleCourse ? isSingleCourse[2] : "";
+    const isCourseCodeValid = macros.isNumeric(courseCode);
+
+    if (isSingleCourse && isSubjectValid && isCourseCodeValid) {
+      const singleResult = await this.getOneSearchResult(
+        subject,
+        courseCode,
+        termId
+      );
+      ({ results, resultCount, took, hydrateDuration, aggregations } =
+        singleResult);
+    } else {
+      const searchResults = await this.getSearchResults(
+        query,
+        termId,
+        min,
+        max,
+        filters
+      );
+      ({ resultCount, took, aggregations } = searchResults);
+      const startHydrate = Date.now();
+      results = await new HydrateSerializer().bulkSerialize(
+        searchResults.output
+      );
+      hydrateDuration = Date.now() - startHydrate;
+    }
 
     return {
       searchContent: filteredResults,
