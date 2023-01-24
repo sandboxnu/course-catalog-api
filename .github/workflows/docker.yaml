@@ -15,7 +15,6 @@ jobs:
         env:
           POSTGRES_MULTIPLE_DATABASES: searchneu_dev
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: workflow_password
         ports:
           - 5432:5432
       elasticsearch:
