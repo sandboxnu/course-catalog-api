@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import { Course, Section } from "../types/types";
+import { Section } from "../types/types";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
@@ -11,7 +11,6 @@ import {
 import prisma from "../services/prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
-import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
 import macros from "../utils/macros";
 import {
   EsQuery,
@@ -40,7 +39,6 @@ import {
   ParsedQuery,
   EsValue,
 } from "../types/searchTypes";
-import { SerializedCourse } from "../types/serializerTypes";
 
 type CourseWithSections = PrismaCourse & { sections: PrismaSection[] };
 
