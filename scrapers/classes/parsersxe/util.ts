@@ -88,15 +88,13 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
 async function getCookiesForSearch(termId: string): Promise<req.CookieJar> {
   // first, get the cookies
   // https://jennydaman.gitlab.io/nubanned/dark.html#studentregistrationssb-clickcontinue-post
-  const clickContinue = await requestObj.post(
-    "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search?mode=search",
-    {
-      form: {
-        term: termId,
-      },
-      cache: false,
-    }
-  );
+  const clickContinue = await requestObj.post({
+    url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search?mode=search",
+    form: {
+      term: termId,
+    },
+    cache: false,
+  });
 
   if (clickContinue.body.regAllowed === false) {
     macros.error(

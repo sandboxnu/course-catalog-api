@@ -85,7 +85,8 @@ export class Bannerv9Parser {
    */
   async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get(termsUrl, {
+    const bannerTerms = await request.get({
+      url: termsUrl,
       json: true,
       cache: false,
     });

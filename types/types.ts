@@ -179,5 +179,3 @@ export type ArrayTransformFunction = (
 export type TransformFunction =
   | SingleTransformFunction
   | ArrayTransformFunction;
-
-export type EmptyObject = Record<string, never>;

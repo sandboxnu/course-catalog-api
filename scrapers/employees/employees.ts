@@ -55,7 +55,9 @@ class NeuEmployee {
   // Scrapes the source code to get the X-CSRF token.
   async queryXcsrfToken(): Promise<string> {
     return request
-      .get("https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js")
+      .get({
+        url: "https://nu.outsystemsenterprise.com/FSD/scripts/OutSystems.js",
+      })
       .then((resp) => {
         return resp.body.match(/"X-CSRFToken".*?="(.*?)"/i)[1];
       });
@@ -64,9 +66,9 @@ class NeuEmployee {
   // Queries the API module version from the API (needed for requests)
   async queryModuleVersion(): Promise<string> {
     return request
-      .get(
-        "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
-      )
+      .get({
+        url: "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo",
+      })
       .then((resp) => resp.body["versionToken"]);
   }
 
@@ -96,16 +98,14 @@ class NeuEmployee {
     };
 
     const response: EmployeeRequestResponse[] = await request
-      .post(
-        "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
-        {
-          body: employeeQuery,
-          json: true,
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
-        }
-      )
+      .post({
+        url: "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
+        body: employeeQuery,
+        json: true,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      })
       .then((r) => r.body.data.EmployeeDirectoryContact.List);
 
     this.people = this.parseApiResponse(response);

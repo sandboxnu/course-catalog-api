@@ -18,20 +18,18 @@ class SectionParser {
     classId: string
   ): Promise<false | Section[]> {
     const cookiejar = await util.getCookiesForSearch(termId);
-    const req = await requestObj.get(
-      "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
-      {
-        qs: {
-          txt_term: termId,
-          txt_subject: subject,
-          txt_courseNumber: classId,
-          pageOffset: 0,
-          pageMaxSize: 500,
-        },
-        jar: cookiejar,
-        json: true,
-      }
-    );
+    const req = await requestObj.get({
+      url: "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
+      qs: {
+        txt_term: termId,
+        txt_subject: subject,
+        txt_courseNumber: classId,
+        pageOffset: 0,
+        pageMaxSize: 500,
+      },
+      jar: cookiejar,
+      json: true,
+    });
 
     if (req.body.success) {
       return req.body.data.map((sr) => {

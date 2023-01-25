@@ -1,11 +1,6 @@
-Our scrapers in AWS are currently inactive, so we run our scrapes manually. This only needs to be done when classes for a new semester are released, or when a new environment is set up.
+Imagine this: the scrapers are broken in production, no one knows why, and you NEED to import a fresh scrape to the production database and ElasticSearch (sound familiar?). Here's how to do it.
 
-1. We prefer not running the actual scrape in production - instead, get a zip file of the cached information you want to insert
-
-- To get this information, you can either:
-  - Run the scrapers in your local environment
-  - Copy the information you need from the [Course Catalog cache](https://github.com/sandboxnu/course-catalog-api-cache)
-
+1. Have someone run the scrapers locally (assuming they work) and send you a zipped cache.
 2. Copy the zipped cache from your machine to the Jumphost. To do this, open up a terminal and run the following command:
 
 ```bash

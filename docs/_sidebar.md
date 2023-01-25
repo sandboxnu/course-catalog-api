@@ -18,6 +18,5 @@
   - [Jumphost](infrastructure/jumphost.md)
   - [Scraping in Prod](infrastructure/scraping.md)
   - [Migration](infrastructure/migration/migration.md)
-  - [Migrating the staging URL](infrastructure/migration/staging-migration.md)
 - [Deployment](deployment/deploy.md)
 - [Helpful Commands](helpful-commands.md)

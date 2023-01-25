@@ -220,5 +220,64 @@ describe("searcher", () => {
         });
       });
     });
+    describe("getOneSearchResult", () => {
+      it("Gets results for valid class", async () => {
+        expect(
+          await searcher.getOneSearchResult("CS", "2500", "202030")
+        ).toMatchObject({
+          results: [
+            {
+              class: {
+                id: "neu.edu/202030/CS/2500",
+                host: "neu.edu",
+                classId: "2500",
+                name: "Fundamentals of Computer Science 1",
+                termId: "202030",
+                subject: "CS",
+                lastUpdateTime: expect.anything(),
+              },
+            },
+          ],
+          resultCount: 1,
+          took: 0,
+          hydrateDuration: expect.anything(),
+          aggregations: {
+            nupath: [],
+            subject: [{ count: 1, value: "CS" }],
+            classType: [{ count: 1, value: "Lecture" }],
+          },
+        });
+      });
+      it("Gets 0 results for invalid course", async () => {
+        expect(
+          await searcher.getOneSearchResult("CS", "2504", "202030")
+        ).toMatchObject({
+          results: [],
+          resultCount: 0,
+          took: 0,
+          hydrateDuration: expect.anything(),
+          aggregations: {
+            nupath: [],
+            subject: [],
+            classType: [],
+          },
+        });
+      });
+      it("Gets 0 results for course with no sections", async () => {
+        expect(
+          await searcher.getOneSearchResult("CS", "2510", "202030")
+        ).toMatchObject({
+          results: [],
+          resultCount: 0,
+          took: 0,
+          hydrateDuration: expect.anything(),
+          aggregations: {
+            nupath: [],
+            subject: [],
+            classType: [],
+          },
+        });
+      });
+    });
   });
 });

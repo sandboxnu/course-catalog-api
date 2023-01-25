@@ -39,7 +39,7 @@ it("Creating indexes", async () => {
 });
 
 it("queries", async () => {
-  const aliasName = "e2e_employees_jason";
+  const aliasName = "employees2";
 
   // @ts-expect-error - we know the type is missing, that's the point
   client["indexes"][aliasName] = { mapping: employeeMap };

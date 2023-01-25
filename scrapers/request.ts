@@ -27,7 +27,8 @@ import {
   AmplitudeEvent,
   AgentAnalytics,
 } from "../types/requestTypes";
-import { EmptyObject } from "../types/types";
+import { IncomingMessage } from "http";
+import { Socket } from "net";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
@@ -129,73 +130,53 @@ dnsCache({
 });
 
 const MAX_RETRY_COUNT = 35;
-const DEFAULT_USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0";
+
 // These numbers are in ms.
 const RETRY_DELAY = 100;
 const RETRY_DELAY_DELTA = 150;
 
-const CACHE_SAFE_CONFIG_OPTIONS = [
-  "method",
-  "headers",
-  "url",
-  "cacheName",
-  "jar",
-  "cache",
-];
-
 const LAUNCH_TIME = moment();
 
 class Request {
-  /**
-   * The number of currently open requests
-   */
   openRequests: number;
-  /**
-   * A map of hostnames to their corresponding analytics object.
-   * Each hostname has its own unique analytics record.
-   */
   analytics: RequestAnalytics;
-  /**
-   * A map of hostnames to whether that hostname is active or not.
-   * A hostname is active if it had a request since the last analytics interval ran.
-   */
   activeHostnames: Record<string, boolean>;
-  /**
-   * The analytics timer object.
-   */
-  timer?: NodeJS.Timeout;
+  timer: null | NodeJS.Timeout;
 
   constructor() {
     this.openRequests = 0;
+
+    // Stuff for analytics on a per-hostname basis.
     this.analytics = {};
+
+    // Hostnames that had a request since the last call to onInterval.
     this.activeHostnames = {};
+
+    // Log the progress of things every 5 seconds
+    this.timer = null;
   }
 
-  /**
-   * Ensures that an analytics object exists for the given hostname,
-   * creating a new object if one doesn't already exist.
-   */
-  private ensureAnalyticsObject(hostname: string): void {
-    if (!(hostname in this.analytics)) {
-      this.analytics[hostname] = {
-        totalBytesDownloaded: 0,
-        totalErrors: 0,
-        totalGoodRequests: 0,
-        startTime: null,
-      };
+  ensureAnalyticsObject(hostname: string): void {
+    if (this.analytics[hostname]) {
+      return;
     }
+
+    this.analytics[hostname] = {
+      totalBytesDownloaded: 0,
+      totalErrors: 0,
+      totalGoodRequests: 0,
+      startTime: null,
+    };
   }
 
-  /**
-   * Gets analytics from a request pool's agent.
-   * When sending a request with an associated pool, `request` will search the pool for a custom agent.
-   * If no custom agent is found, a new agent will be created and added to the pool.
-   */
-  private getAnalyticsFromAgent(
+  getAnalyticsFromAgent(
     pool: RequestPool
-  ): EmptyObject | AgentAnalytics {
-    const agent = pool["https:false:ALL"] ?? pool["http:"];
+  ): Record<string, never> | AgentAnalytics {
+    let agent = pool["https:false:ALL"];
+
+    if (!agent) {
+      agent = pool["http:"];
+    }
 
     if (!agent) {
       macros.http("Agent is false,", pool);
@@ -208,61 +189,56 @@ class Request {
       maxSockets: pool.maxSockets,
     };
 
-    for (const arr of Object.values(agent.sockets)) {
+    const socketArrays: Socket[][] = Object.values(agent.sockets);
+    for (const arr of socketArrays) {
       moreAnalytics.socketCount += arr.length;
     }
 
-    for (const arr of Object.values(agent.requests)) {
+    const requestArrays: IncomingMessage[][] = Object.values(agent.requests);
+    for (const arr of requestArrays) {
       moreAnalytics.requestCount += arr.length;
     }
     return moreAnalytics;
   }
 
-  /**
-   * Logs all currently active hostname analytics objects.
-   * After this method runs, all hostnames are marked as inactive until they handle another request
-   */
-  private logHostnameAnalytics(): void {
-    const analyticsHostnames = Object.entries(this.analytics);
+  onInterval(): void {
+    const analyticsHostnames = Object.keys(this.analytics);
 
-    for (const [hostname, analytics] of analyticsHostnames) {
+    for (const hostname of analyticsHostnames) {
       if (!this.activeHostnames[hostname]) {
         continue;
       }
-      if (!(hostname in separateReqPools)) {
+      if (!separateReqPools[hostname]) {
         macros.http(hostname);
-        macros.http(JSON.stringify(analytics, null, 4));
+        macros.http(JSON.stringify(this.analytics[hostname], null, 4));
         continue;
       }
 
       const moreAnalytics = this.getAnalyticsFromAgent(
         separateReqPools[hostname]
       );
+
       const totalAnalytics: Partial<AmplitudeEvent> = {
         ...moreAnalytics,
-        ...analytics,
+        ...this.analytics[hostname],
       };
 
       macros.http(hostname);
       macros.http(JSON.stringify(totalAnalytics, null, 4));
 
+      // Also log the event to Amplitude.
       totalAnalytics.hostname = hostname;
       macros.logAmplitudeEvent("Scrapers", totalAnalytics as AmplitudeEvent);
     }
 
     this.activeHostnames = {};
-  }
-
-  /**
-   * Logs all of the analytics objects that exist in at the moment.
-   */
-  private logAnalytics(): void {
-    this.logHostnameAnalytics();
 
     // Shared pool
     const sharedPoolAnalytics: Partial<AmplitudeEvent> =
       this.getAnalyticsFromAgent(separateReqDefaultPool);
     macros.http(JSON.stringify(sharedPoolAnalytics, null, 4));
+
+    // Also upload it to Amplitude.
     sharedPoolAnalytics.hostname = "shared";
     macros.logAmplitudeEvent("Scrapers", sharedPoolAnalytics as AmplitudeEvent);
 
@@ -270,54 +246,69 @@ class Request {
       clearInterval(this.timer);
     }
 
+    // Log the current time.
     const currentTime = moment();
-    const uptime = moment.duration(moment().diff(LAUNCH_TIME)).asMinutes();
-    macros.http("Uptime:", uptime, `(${currentTime.format("h:mm:ss a")})`);
+    macros.http(
+      "Uptime:",
+      moment.duration(moment().diff(LAUNCH_TIME)).asMinutes(),
+      `(${currentTime.format("h:mm:ss a")})`
+    );
   }
 
-  /**
-   * Given a config, populates it with default values if those values
-   * are not already set.
-   */
-  private prepareRequestConfig(
-    config: CustomRequestConfig
-  ): NativeRequestConfig {
-    const hostname = new URI(config.url).hostname();
+  async fireRequest(config: CustomRequestConfig): Promise<Response> {
+    // Default to JSON for POST bodies
+    if (config.method === "POST" && !config.headers["Content-Type"]) {
+      config.headers["Content-Type"] = "application/json";
+    }
 
-    const defaultConfig: Partial<NativeRequestConfig> = { headers: {} };
+    const urlParsed = new URI(config.url);
+
+    const hostname = urlParsed.hostname();
+    this.ensureAnalyticsObject(hostname);
+    this.activeHostnames[hostname] = true;
+
+    // Setup the default config
+    // Change some settings from the default request settings for
+    const defaultConfig: Partial<NativeRequestConfig> = {
+      headers: {},
+    };
 
     // Default to JSON for POST bodies
     if (config.method === "POST") {
       defaultConfig.headers["Content-Type"] = "application/json";
     }
 
-    defaultConfig.pool = separateReqPools[hostname] ?? separateReqDefaultPool;
+    // Enable keep-alive to make sequential requests faster
+    if (separateReqPools[hostname]) {
+      defaultConfig.pool = separateReqPools[hostname];
+    } else {
+      defaultConfig.pool = separateReqDefaultPool;
+    }
 
-    // The timeout does not include the time the request is waiting for a socket.
+    // Fifteen min. This timeout does not include the time the request is waiting for a socket.
     // Just increased from 5 min to help with socket hang up errors.
     defaultConfig.timeout = 15 * 60 * 1000;
 
-    // Instead of just receiving the response body, also get all the headers,
-    // status codes, and other attached information
     defaultConfig.resolveWithFullResponse = true;
 
     // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
     // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
-    // Additionally, this is needed when doing application layer dns
-    // caching because the url no longer matches the url in the cert.
+    // Additionally, this is needed when doing application layer dns caching because the url no longer matches the url in the cert.
     defaultConfig.rejectUnauthorized = false;
     defaultConfig.requestCert = false;
     defaultConfig.ciphers = "ALL";
 
     // Set the host in the header to the hostname on the url.
-    // This is not done automatically because of the application layer
-    // dns caching (it would be set to the ip instead)
+    // This is not done automatically because of the application layer dns caching (it would be set to the ip instead)
     defaultConfig.headers.Host = hostname;
 
-    defaultConfig.headers["User-Agent"] = DEFAULT_USER_AGENT;
+    defaultConfig.headers["User-Agent"] =
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:24.0) Gecko/20100101 Firefox/24.0";
 
-    // Needed on some old sites that will redirect/block requests when this is not set
-    // when a user is requesting a page that is not the entry page of the site
+    //trololololol
+    //Needed on some old sites that will redirect/block requests when this is not set
+    //when a user is requesting a page that is not the entry page of the site
+    //temple, etc
     defaultConfig.headers.Referer = config.url;
 
     // Merge the default config and the input config
@@ -326,61 +317,62 @@ class Request {
     const output = { ...defaultConfig, ...config } as NativeRequestConfig;
     output.headers = { ...defaultConfig.headers, ...config.headers };
 
-    return output;
-  }
-
-  /**
-   * Sets some configuration options, and sends a request for the given config.
-   */
-  private async fireRequest(config: CustomRequestConfig): Promise<Response> {
-    const hostname = new URI(config.url).hostname();
-    this.ensureAnalyticsObject(hostname);
-    this.activeHostnames[hostname] = true;
-
-    const output = this.prepareRequestConfig(config);
-
     macros.http("Firing request to", output.url);
 
-    // If there are not any open requests right now, start the analytics interval
+    // If there are not any open requests right now, start the interval
+    // Only start the logging interval on production on AWS, only start it on Travis
     if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
       clearInterval(this.timer);
       macros.http("Starting request analytics timer.");
       this.analytics[hostname].startTime = Date.now();
-      this.timer = setInterval(() => this.logAnalytics(), 5000);
-      this.logAnalytics();
+      this.timer = setInterval(() => this.onInterval(), 5000);
+      setTimeout(() => {
+        this.onInterval();
+      }, 0);
     }
 
     this.openRequests++;
-
+    let response: undefined | Response;
+    let error;
     try {
-      return await request(output);
-    } finally {
-      this.openRequests--;
-
-      if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
-        macros.http("Stopping request analytics timer.");
-        clearInterval(this.timer);
-      }
+      response = await request(output);
+    } catch (e) {
+      error = e;
     }
+    this.openRequests--;
+
+    if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
+      macros.http("Stopping request analytics timer.");
+      clearInterval(this.timer);
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return response;
   }
 
-  /**
-   * Checks if the given config can use the URL as a cache key.
-   * If the only header is `Cookie`, the method is "get", and the only other
-   * item in the config is `url`, the URL can safely be used as a cache key
-   * (because the data is consistent. With a `POST` request [for example], the returned data
-   * varies based on the `POST` data, so we can't map only using the URL - it also needs to
-   * take the `POST` data into account)
-   */
-  private safeToCacheByUrl(config: CustomRequestConfig): boolean {
+  doAnyStringsInArray(array: string[], body: any): boolean {
+    for (let i = 0; i < array.length; i++) {
+      if (body.includes(array[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  safeToCacheByUrl(config: CustomRequestConfig): boolean {
     if (config.method !== "GET") {
       return false;
     }
 
-    const listOfHeaders = Object.keys(config.headers).filter(
-      (key) => key !== "Cookie"
-    );
+    // If the only header is Cookie and the only items in the config are url and method===get and headers,
+    // The request is safe to cache by just the url, and no hashing is required.
+    // The vast majority of requests follow these rules.
+    const listOfHeaders = Object.keys(config.headers);
 
+    _.pull(listOfHeaders, "Cookie");
     if (listOfHeaders.length > 0) {
       const configToLog = { ...config };
       configToLog.jar = null;
@@ -393,8 +385,17 @@ class Request {
       return false;
     }
 
-    const listOfConfigOptions = Object.keys(config).filter((key) =>
-      CACHE_SAFE_CONFIG_OPTIONS.includes(key)
+    const listOfConfigOptions = Object.keys(config);
+
+    _.pull(
+      listOfConfigOptions,
+      "method",
+      "headers",
+      "url",
+      "requiredInBody",
+      "cacheName",
+      "jar",
+      "cache"
     );
 
     if (listOfConfigOptions.length > 0) {
@@ -408,50 +409,47 @@ class Request {
     return true;
   }
 
-  /**
-   * Returns the cache key for this corresponding config.
-   * Allows us to cache responses from requests sent with this config
-   */
-  private getCacheKey(config: CustomRequestConfig): string | undefined {
-    if (this.safeToCacheByUrl(config)) {
-      return config.url;
-    } else {
-      // Make a new request without the cookies and the cookie jar.
-      const headersWithoutCookie = { ...config.headers };
-      headersWithoutCookie.Cookie = undefined;
-
-      const configToHash: Partial<NativeRequestConfig> = { ...config };
-      configToHash.headers = headersWithoutCookie;
-      configToHash.jar = undefined;
-
-      return objectHash(configToHash);
-    }
-  }
-
-  /**
-   * Sends a request
-   */
+  // Outputs a response object. Get the body of this object with ".body".
   async request(config: CustomRequestConfig): Promise<Response> {
     macros.http("Request hitting", config);
 
-    const hostname = new URI(config.url).hostname();
+    const urlParsed = new URI(config.url);
+    const hostname = urlParsed.hostname();
     this.ensureAnalyticsObject(hostname);
 
     let newKey: string | undefined;
 
     if (macros.DEV && config.cache) {
       // Skipping the hashing when it is not necessary significantly speeds this up.
-      newKey = this.getCacheKey(config);
+      // When everything was hashed, the call to objectHash function was the function with the most self-time in the profiler lol.
+      // Caching by url is faster, so log a warning if had to cache by hash.
+      if (this.safeToCacheByUrl(config)) {
+        newKey = config.url;
+      } else {
+        // Make a new request without the cookies and the cookie jar.
+        const headersWithoutCookie = { ...config.headers };
+        headersWithoutCookie.Cookie = undefined;
+
+        const configToHash: Partial<NativeRequestConfig> = { ...config };
+        configToHash.headers = headersWithoutCookie;
+        configToHash.jar = undefined;
+
+        newKey = objectHash(configToHash);
+      }
 
       const content = await cache.get(
         macros.REQUESTS_CACHE_DIR,
         config.cacheName,
         newKey
       );
-
       if (content) {
         return content as Response;
       }
+    }
+
+    let retryCount = MAX_RETRY_COUNT;
+    if (config.retryCount) {
+      retryCount = config.retryCount;
     }
 
     let tryCount = 0;
@@ -461,35 +459,17 @@ class Request {
 
     return retry(
       async () => {
+        let response: undefined | Response;
         tryCount++;
-
         try {
           const requestStart = Date.now();
-          const response = await this.fireRequest(config);
+          response = await this.fireRequest(config);
           requestDuration = Date.now() - requestStart;
-
           this.analytics[hostname].totalGoodRequests++;
-
-          // Save the response to a file for development
-          if (macros.DEV && config.cache) {
-            await cache.set(
-              macros.REQUESTS_CACHE_DIR,
-              config.cacheName,
-              newKey,
-              response.toJSON(),
-              true
-            );
-          }
-
-          this.analytics[hostname].totalBytesDownloaded += response.body.length;
-          if (!macros.PROD) {
-            macros.http(
-              `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
-            );
-          }
-
-          return response;
         } catch (err) {
+          // Most sites just give a ECONNRESET or ETIMEDOUT, but dccc also gives a EPROTO and ECONNREFUSED.
+          // This will retry for any error code.
+
           this.analytics[hostname].totalErrors++;
           if (!macros.PROD || tryCount > 5) {
             macros.error(
@@ -511,9 +491,47 @@ class Request {
 
           throw err;
         }
+
+        // Ensure that body contains given string.
+        if (
+          config.requiredInBody &&
+          !this.doAnyStringsInArray(config.requiredInBody, response.body)
+        ) {
+          macros.warn(
+            `Try#: ${tryCount} Warning, body did not contain specified text ${response.body.length} ${response.statusCode} ${this.openRequests} ${config.url}`
+          );
+          throw new Error("Body missing required text.");
+        }
+
+        if (response.body.length < 4000 && !config.shortBodyWarning === false) {
+          macros.warn(
+            `Warning, short body ${config.url} ${response.body} ${this.openRequests}`
+          );
+        }
+
+        // Save the response to a file for development
+        if (macros.DEV && config.cache) {
+          await cache.set(
+            macros.REQUESTS_CACHE_DIR,
+            config.cacheName,
+            newKey,
+            response.toJSON(),
+            true
+          );
+        }
+
+        // Don't log this on travis because it causes more than 4 MB to be logged and travis will kill the job
+        this.analytics[hostname].totalBytesDownloaded += response.body.length;
+        if (!macros.PROD) {
+          macros.http(
+            `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
+          );
+        }
+
+        return response;
       },
       {
-        retries: MAX_RETRY_COUNT,
+        retries: retryCount,
         minTimeout: timeout,
         maxTimeout: timeout,
         factor: 1,
@@ -529,43 +547,44 @@ class RequestInput {
   cacheName: string;
   config: Partial<CustomRequestConfig>;
 
-  constructor(cacheName: string, config = {}) {
+  constructor(cacheName, config = {}) {
     this.cacheName = cacheName;
     this.config = config;
 
-    // If not specified in the config, default to using the cache
-    this.config.cache ??= true;
+    // Use the cache if it was not specified in the config
+    if (this.config.cache === undefined) {
+      this.config.cache = true;
+    }
   }
 
-  /**
-   * Sends a request to the given URL, with the given method and configuration.
-   */
-  private async request(
-    url: string,
-    config: Partial<CustomRequestConfig>,
-    method: "GET" | "POST"
-  ): Promise<Response> {
-    config.method = method;
-    config.url = url;
-    // FIXME remove, break the URL out of the config. Depends on `Request`
-
+  async request(config: PartialRequestConfig): Promise<Response> {
     const output = {};
+    config = this.standardizeInputConfig(config);
 
     // Use the fields from this.config that were not specified in cache.
-    // Uses .assign() to avoid overwriting our this.config object
-    Object.assign(output, this.config, this.normalizeRequestConfig(config));
+    Object.assign(output, this.config, config);
 
     return instance.request(output as CustomRequestConfig);
   }
 
-  /**
-   * Standardizes a request configuration, adding headers and a cache name
-   * if necessary
-   */
-  normalizeRequestConfig(
-    config: Partial<CustomRequestConfig>
+  standardizeInputConfig(
+    config: PartialRequestConfig | string,
+    method = "GET"
   ): CustomRequestConfig {
-    config.headers ??= {};
+    if (typeof config === "string") {
+      config = {
+        method: method,
+        url: config,
+      };
+    }
+
+    if (!config.headers) {
+      config.headers = {};
+    }
+
+    if (!config.method) {
+      config.method = method;
+    }
 
     if (macros.DEV) {
       if (this.cacheName) {
@@ -579,36 +598,72 @@ class RequestInput {
     return config as CustomRequestConfig;
   }
 
-  /**
-   * Sends a GET request to the given URL, with the given configuration
-   */
-  async get(
-    url: string,
-    config?: Partial<CustomRequestConfig>
-  ): Promise<Response> {
-    return this.request(url, config ?? {}, "GET");
+  static get(config): Promise<Response> {
+    return new this(null).get(config);
   }
 
-  /**
-   * Sends a POST request to the given URL, with the given configuration
-   */
-  async post(
-    url: string,
-    config: Partial<CustomRequestConfig>
-  ): Promise<Response> {
+  // Helpers for get and post
+  async get(config: PartialRequestConfig | undefined): Promise<Response> {
+    if (!config) {
+      macros.error("Warning, request get called with no config");
+      return null;
+    }
+    if (typeof config === "string") {
+      return this.request({
+        url: config,
+        method: "GET",
+      });
+    }
+
+    config.method = "GET";
+    return this.request(config);
+  }
+
+  async post(config: PartialRequestConfig): Promise<null | Response> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
     }
+    if (typeof config === "string") {
+      return this.request({
+        url: config,
+        method: "POST",
+      });
+    }
 
-    return this.request(url, config, "POST");
+    config.method = "POST";
+    return this.request(config);
   }
 
-  /**
-   * Pass-through method to get the cookie jar from our interal requests object
-   */
+  async head(config: PartialRequestConfig): Promise<null | Response> {
+    if (!config) {
+      macros.error("Warning, request head called with no config");
+      return null;
+    }
+    if (typeof config === "string") {
+      return this.request({
+        url: config,
+        method: "HEAD",
+      });
+    }
+
+    config.method = "HEAD";
+    return instance.request(config as CustomRequestConfig);
+  }
+
+  // Pass through methods to deal with cookies.
   jar(): CookieJar {
     return request.jar();
+  }
+
+  cookie(cookie): Cookie {
+    return request.cookie(cookie);
+  }
+
+  // Do a head request. If that fails, do a get request. If that fails, the site is down and return false
+  // need to turn off high retry count
+  async isPageUp(): Promise<void> {
+    throw new Error("This does not work yet");
   }
 }
 
