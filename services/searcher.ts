@@ -2,7 +2,7 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import _, { filter } from "lodash";
+import _ from "lodash";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
@@ -10,6 +10,7 @@ import {
 import prisma from "../services/prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
+import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
 import macros from "../utils/macros";
 import {
   EsQuery,
@@ -573,7 +574,6 @@ class Searcher {
 
     let results: SearchResult[];
     let resultCount: number;
-
     let took: number;
     let hydrateDuration: number;
     let aggregations: AggResults;
@@ -609,13 +609,11 @@ class Searcher {
         searchResults.output
       );
       hydrateDuration = Date.now() - startHydrate;
-      results = this.filterResults(filters, searchResults);
-      resultCount = results.length;
     }
 
     return {
-      searchContent: results,
-      resultCount: resultCount,
+      searchContent: filteredResults,
+      resultCount: filteredResults.length,
       took: {
         total: Date.now() - start,
         hydrate: hydrateDuration,
