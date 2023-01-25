@@ -194,7 +194,6 @@ export interface SearchResults {
 
 export interface PartialResults {
   output: EsResult[];
-  resultCount: number;
   took: number;
   aggregations: AggResults;
 }
