@@ -1,8 +1,8 @@
 # domain record
 resource "cloudflare_record" "cname" {
-  count = length(var.domains)
+  count = length([var.api_domain, var.notifs_domain])
   zone_id = var.cloudflare_zone_id
-  name = var.domains[count.index]
+  name = [var.api_domain, var.notifs_domain][count.index]
   type = "CNAME"
   value = var.alb_dns_name
   proxied = true
@@ -19,7 +19,7 @@ resource "aws_lb_listener_rule" "host_based" {
 
   condition {
     host_header {
-      values = var.domains
+      values = [var.api_domain]
     }
   }
 }
@@ -35,7 +35,7 @@ resource "aws_lb_listener_rule" "notifs" {
 
   condition {
     host_header {
-      values = ["${module.label.stage == "staging" ? module.label.stage : ""}notifs.searchneu.com"]
+      values = [var.notifs_domain]
     }
   }
 }

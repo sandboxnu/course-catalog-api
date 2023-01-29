@@ -1,8 +1,3 @@
-locals {
-  api_domain         = "stagingapi.searchneu.com"
-  notifs_domain      = "stagingnotifs.searchneu.com"
-}
-
 module "staging" {
   source = "./modules/course-catalog-api"
 
@@ -16,9 +11,8 @@ module "staging" {
 
   alb_sg_id          = aws_security_group.lb.id
   alb_dns_name       = module.alb.this_lb_dns_name
-  api_domain         = local.api_domain
-  notifs_domain      = local.notifs_domain
-  domains            = [local.api_domain, local.notifs_domain] 
+  api_domain         = "stagingapi.searchneu.com"
+  notifs_domain      = "stagingnotifs.searchneu.com"
   cloudflare_zone_id = var.cloudflare_zone_id
 
   ecr_url = aws_ecr_repository.app.repository_url
