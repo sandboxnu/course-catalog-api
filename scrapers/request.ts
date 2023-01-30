@@ -7,23 +7,25 @@
 // That is generally a good idea, perhaps we could change over this file one day.
 /* eslint-disable max-classes-per-file */
 
-import request from "request-promise-native";
+// import request from "request-promise-native";
+import got, {
+  OptionsOfBufferResponseBody,
+  OptionsOfTextResponseBody,
+  OptionsOfUnknownResponseBody,
+  Response,
+} from "got";
 import URI from "urijs";
 import retry from "async-retry";
 import objectHash from "object-hash";
 import moment from "moment";
-import _ from "lodash";
 import dnsCache from "dnscache";
-
 import cache from "./cache";
 import macros from "../utils/macros";
-import { Cookie, CookieJar, Response } from "request";
+import { CookieJar } from "request";
 import {
-  NativeRequestConfig,
   RequestAnalytics,
   CustomRequestConfig,
   RequestPool,
-  PartialRequestConfig,
   AmplitudeEvent,
   AgentAnalytics,
 } from "../types/requestTypes";
@@ -281,33 +283,30 @@ class Request {
    */
   private prepareRequestConfig(
     config: CustomRequestConfig
-  ): NativeRequestConfig {
+  ): OptionsOfTextResponseBody {
     const hostname = new URI(config.url).hostname();
 
-    const defaultConfig: Partial<NativeRequestConfig> = { headers: {} };
+    const defaultConfig: Partial<OptionsOfTextResponseBody> = {
+      headers: {},
+    };
 
     // Default to JSON for POST bodies
     if (config.method === "POST") {
       defaultConfig.headers["Content-Type"] = "application/json";
     }
 
-    defaultConfig.pool = separateReqPools[hostname] ?? separateReqDefaultPool;
+    // TODO enable
+    // defaultConfig.pool = separateReqPools[hostname] ?? separateReqDefaultPool;
 
-    // The timeout does not include the time the request is waiting for a socket.
-    // Just increased from 5 min to help with socket hang up errors.
-    defaultConfig.timeout = 15 * 60 * 1000;
-
-    // Instead of just receiving the response body, also get all the headers,
-    // status codes, and other attached information
-    defaultConfig.resolveWithFullResponse = true;
+    // TODO - still necessary? (Old comment ->) Increased from 5 min to help with socket hang up errors.
+    defaultConfig.timeout = { request: 15 * 60 * 1000 };
 
     // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
     // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
     // Additionally, this is needed when doing application layer dns
     // caching because the url no longer matches the url in the cert.
-    defaultConfig.rejectUnauthorized = false;
-    defaultConfig.requestCert = false;
-    defaultConfig.ciphers = "ALL";
+    defaultConfig.https.rejectUnauthorized = false;
+    defaultConfig.https.ciphers = "ALL";
 
     // Set the host in the header to the hostname on the url.
     // This is not done automatically because of the application layer
@@ -323,10 +322,11 @@ class Request {
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
     // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
-    const output = { ...defaultConfig, ...config } as NativeRequestConfig;
-    output.headers = { ...defaultConfig.headers, ...config.headers };
-
-    return output;
+    return {
+      ...defaultConfig,
+      ...config,
+      headers: { ...defaultConfig.headers, ...config.headers },
+    };
   }
 
   /**
@@ -353,7 +353,7 @@ class Request {
     this.openRequests++;
 
     try {
-      return await request(output);
+      return await got(output.url, output);
     } finally {
       this.openRequests--;
 
@@ -383,7 +383,6 @@ class Request {
 
     if (listOfHeaders.length > 0) {
       const configToLog = { ...config };
-      configToLog.jar = null;
 
       macros.http(
         "Not caching by url b/c it has other headers",
@@ -420,9 +419,9 @@ class Request {
       const headersWithoutCookie = { ...config.headers };
       headersWithoutCookie.Cookie = undefined;
 
-      const configToHash: Partial<NativeRequestConfig> = { ...config };
+      const configToHash = { ...config };
       configToHash.headers = headersWithoutCookie;
-      configToHash.jar = undefined;
+      // TODO?? configToHash.jar = undefined;
 
       return objectHash(configToHash);
     }
@@ -450,7 +449,7 @@ class Request {
       );
 
       if (content) {
-        return content as Response;
+        return content as Response<string>;
       }
     }
 
@@ -476,15 +475,19 @@ class Request {
               macros.REQUESTS_CACHE_DIR,
               config.cacheName,
               newKey,
-              response.toJSON(),
+              response.body,
               true
             );
           }
 
-          this.analytics[hostname].totalBytesDownloaded += response.body.length;
+          const contentLength = Number.parseInt(
+            response.headers["content-length"],
+            10
+          );
+          this.analytics[hostname].totalBytesDownloaded += contentLength;
           if (!macros.PROD) {
             macros.http(
-              `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
+              `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`
             );
           }
 
@@ -544,7 +547,7 @@ class RequestInput {
     url: string,
     config: Partial<CustomRequestConfig>,
     method: "GET" | "POST"
-  ): Promise<Response> {
+  ): Promise<Response<string>> {
     config.method = method;
     config.url = url;
     // FIXME remove, break the URL out of the config. Depends on `Request`
@@ -585,7 +588,7 @@ class RequestInput {
   async get(
     url: string,
     config?: Partial<CustomRequestConfig>
-  ): Promise<Response> {
+  ): Promise<Response<string>> {
     return this.request(url, config ?? {}, "GET");
   }
 

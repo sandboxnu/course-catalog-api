@@ -40,7 +40,7 @@ class ClassParser {
     const req = await request.get(
       "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       {
-        qs: {
+        searchParams: {
           txt_term: termId,
           txt_subject: subject,
           txt_courseNumber: classId,

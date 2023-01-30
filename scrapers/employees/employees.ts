@@ -106,7 +106,7 @@ class NeuEmployee {
           },
         }
       )
-      .then((r) => r.body.data.EmployeeDirectoryContact.List);
+      .then((r) => r.body.EmployeeDirectoryContact.List);
 
     this.people = this.parseApiResponse(response);
   }
