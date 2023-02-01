@@ -33,11 +33,11 @@ variable "alb_dns_name" {
 }
 
 variable "api_domain" {
-  description = "domain for the API server"
+  description = "domain for the API server. ALB needs to already have certs for it"
 }
 
 variable "notifs_domain" {
-  description = "domain for the notification server"
+  description = "domain for the notification server. ALB needs to already have certs for it"
 }
 
 variable "cloudflare_zone_id" {
