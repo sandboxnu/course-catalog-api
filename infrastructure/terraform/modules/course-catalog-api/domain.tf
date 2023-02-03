@@ -1,8 +1,8 @@
 # domain record
 resource "cloudflare_record" "cname" {
-  count = length([var.api_domain, var.notifs_domain])
+  for_each = toset([var.api_domain, var.notifs_domain])
   zone_id = var.cloudflare_zone_id
-  name = [var.api_domain, var.notifs_domain][count.index]
+  name = each.key
   type = "CNAME"
   value = var.alb_dns_name
   proxied = true
