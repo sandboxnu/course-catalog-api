@@ -41,7 +41,7 @@ class NeuEmployee {
     );
 
     return {
-      id: email ? email : uuidv4(),
+      id: email ?? uuidv4(),
       name: `${employee.FirstName} ${employee.LastName}`,
       firstName: employee.FirstName,
       lastName: employee.LastName,
