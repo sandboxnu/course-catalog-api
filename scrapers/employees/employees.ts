@@ -19,7 +19,7 @@ class NeuEmployee {
   }
 
   /**
-   * The NEU API returns 'Not Avaiable' for some fields instead of making them null.
+   * The NEU API returns 'Not Available' for some fields instead of making them null.
    * Given an optional string, return null if the string is undefined or 'Not Available'
    */
   private parseOptionalParameter(parameter?: string): string | null {
