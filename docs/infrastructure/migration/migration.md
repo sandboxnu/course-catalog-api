@@ -10,6 +10,8 @@ We need to run this migration process for several reasons:
   - SearchNEU has inherent turnover as members graduate, and we want to make sure that the owner of the infrastructure is a current member
 - Our account runs out of AWS credits
 
+!> 🚨🚨🚨 **DO NOT DELETE THE OLD AWS ACCOUNT/ITS DATA** 🚨🚨🚨 until all migration steps have been followed, and the full functionality of the service has been checked!
+
 ## Create a new AWS account, and apply for AWS credits
 
 !> In the past, when we received new credits for our project, they had to be applied to a new account. **This may no longer be the case**; the AWS credit-approval process changes frequently. Before starting this process, talk to a member of eboard for a more up-to-date summary.
@@ -134,7 +136,30 @@ The migration will necessarily have some downtime, as our API wil be inaccessibl
      - If you get this error, try manually deleting all old AWS certificate DNS records in Cloudflare and re-running the plan.
        - The name is typically an alphanumeric string starting with an underscore (eg. `_a08bda128f1298acc`), and the value is also an underscore-prefixed alphanumeric string which ends with `acm-validations.aws`.
 2. On your machine, open a terminal and run `aws configure` to update your AWS CLI credentials. You'll get prompted for your access key ID and secret access key; fill them in with the appropriate values. Then you'll need to run the `push-image` and `redeploy` script in `./infrastructure/aws` to push new Docker images to the AWS ECR.
-3. If the scrapers are broken, follow the instructions in `documentation/production_scrape.md` to import a scrape into prod.
+3. Copy all database data from the old AWS account
+   - Although the class/section/professor data can be obtained from the scrapers, we also want to migrate user notification subscriptions.
+   - **Make sure to follow these steps seperately for the staging and production environments**
+     - In the OLD jumphost, run `pg_dump postgresql://<DATABASE_URL>/course-catalog-api > dump.sql`
+     - Copy this `dump.sql` file from the OLD jumphost to the NEW jumphost, using `scp`
+       - eg. `scp ./dump.sql user@host:/path/dump.sql`
+     - In the NEW jumphost, connect to the database using `psql`
+       - Create a `course-catalog-api` database using `CREATE DATABASE "course-catalog-api";` If it already exists, delete it using `DROP DATABASE "course-catalog-api";` before re-creating it.
+     - Disconnect from the database, but remain connected to the NEW jumphost (eg. exit `psql`)
+       - Run `psql postgresql://<DATABASE_URL>/course-catalog-api < dump.sql`
+       - This will execute all of the instructions inside the dump file
+
+You'll have to run this command ~3 times! The first few times, you may get errors such as this:
+
+```
+ERROR:  insert or update on table <NAME> violates foreign key constraint <KEY>
+DETAIL:  Key ... is not present in table <NAME>.
+```
+
+For example - the table `followed_sections` cannot be populated, because the `users` table has not yet been populated (so the foreign key doesn't exist).
+
+After running the command, ensure that all tables are populated as they should be!
+
+4. If the scrapers are broken, follow the instructions in `documentation/production_scrape.md` to import a scrape into prod.
 
 !> Don't forget to update the AWS user's permissions! After applying a Terraform plan, look at the logs and search for "DEBUG: Request". This will show you a list of all AWS actions used. Note that the names might not _exactly_ line up with the naming scheme used in AWS, but this can be easily Googled.
 
