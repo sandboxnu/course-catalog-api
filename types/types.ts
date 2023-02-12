@@ -61,7 +61,8 @@ export interface EmployeeRequestResponse {
   RecordNumber: string;
   LastName: string;
   FirstName: string;
-  PositionTitle: string;
+  LongPositionTitle?: string;
+  PositionTitle?: string;
   Department: string;
   PhoneNumber: string;
   CampusAddress: string;
