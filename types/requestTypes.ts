@@ -25,6 +25,7 @@ export interface AgentAnalytics {
   maxSockets: number;
 }
 
+// TODO remove this
 export interface CustomRequestConfig extends OptionsOfTextResponseBody {
   url: string;
   cache?: boolean;

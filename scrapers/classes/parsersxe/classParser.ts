@@ -36,7 +36,7 @@ class ClassParser {
     subject: string,
     classId: string
   ): Promise<false | ParsedCourseSR> {
-    const cookiejar = await util.getCookiesForSearch(termId);
+    const cookieJar = await util.getCookiesForSearch(termId);
     const req = await request.get(
       "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       {
@@ -51,12 +51,13 @@ class ClassParser {
           sortColumn: "subjectDescription",
           sortDirection: "asc",
         },
-        jar: cookiejar,
-        json: true,
+        cookieJar,
       }
     );
-    if (req.body.success && req.body.data && req.body.data[0]) {
-      return this.parseClassFromSearchResult(req.body.data[0], termId);
+    const body = JSON.parse(req.body);
+    // TODO — get rid of this pattern after removing retry work
+    if (body.success && body.data && body.data[0]) {
+      return this.parseClassFromSearchResult(body.data[0], termId);
     }
     return false;
   }

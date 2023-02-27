@@ -33,14 +33,13 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   const URL =
     "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearch/get_subject";
   const subjectUrl = `${URL}?searchTerm=&term=${termId}&offset=1&max=${MAX}`;
-  const response = await request.get(subjectUrl, {
-    json: true,
-  });
+  const response = await request.get(subjectUrl);
 
   if (response.statusCode !== 200) {
     macros.error(`Problem with request for subjects ${subjectUrl}`);
   }
-  return response.body;
+  // TODO remove
+  return JSON.parse(response.body);
 }
 
 function createDescriptionTable(

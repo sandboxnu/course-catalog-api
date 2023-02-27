@@ -63,11 +63,14 @@ class NeuEmployee {
 
   // Queries the API module version from the API (needed for requests)
   async queryModuleVersion(): Promise<string> {
-    return request
-      .get(
-        "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
-      )
-      .then((resp) => resp.body["versionToken"]);
+    return (
+      request
+        .get(
+          "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
+        )
+        // TODO
+        .then((resp) => JSON.parse(resp.body)["versionToken"])
+    );
   }
 
   /**
@@ -95,20 +98,21 @@ class NeuEmployee {
       },
     };
 
-    const response: EmployeeRequestResponse[] = await request
-      .post(
-        "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
-        {
-          body: employeeQuery,
-          json: true,
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
-        }
-      )
-      .then((r) => r.body.EmployeeDirectoryContact.List);
+    const response = await request.post(
+      "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
+      {
+        json: employeeQuery,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      }
+    );
+    // TODO — get rid of this pattern after removing retry work
+    const parsedResponse = JSON.parse(response.body);
+    const employees: EmployeeRequestResponse[] =
+      parsedResponse.EmployeeDirectoryContact.List;
 
-    this.people = this.parseApiResponse(response);
+    this.people = this.parseApiResponse(employees);
   }
 
   async main(): Promise<Employee[]> {

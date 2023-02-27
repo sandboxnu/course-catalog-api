@@ -8,12 +8,7 @@
 /* eslint-disable max-classes-per-file */
 
 // import request from "request-promise-native";
-import got, {
-  OptionsOfBufferResponseBody,
-  OptionsOfTextResponseBody,
-  OptionsOfUnknownResponseBody,
-  Response,
-} from "got";
+import got, { OptionsOfTextResponseBody, Options, Response } from "got";
 import URI from "urijs";
 import retry from "async-retry";
 import objectHash from "object-hash";
@@ -332,7 +327,9 @@ class Request {
   /**
    * Sets some configuration options, and sends a request for the given config.
    */
-  private async fireRequest(config: CustomRequestConfig): Promise<Response> {
+  private async fireRequest(
+    config: CustomRequestConfig
+  ): Promise<Response<string>> {
     const hostname = new URI(config.url).hostname();
     this.ensureAnalyticsObject(hostname);
     this.activeHostnames[hostname] = true;
@@ -430,7 +427,7 @@ class Request {
   /**
    * Sends a request
    */
-  async request(config: CustomRequestConfig): Promise<Response> {
+  async request(config: CustomRequestConfig): Promise<Response<string>> {
     macros.http("Request hitting", config);
 
     const hostname = new URI(config.url).hostname();
@@ -598,20 +595,13 @@ class RequestInput {
   async post(
     url: string,
     config: Partial<CustomRequestConfig>
-  ): Promise<Response> {
+  ): Promise<Response<string>> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
     }
 
     return this.request(url, config, "POST");
-  }
-
-  /**
-   * Pass-through method to get the cookie jar from our interal requests object
-   */
-  jar(): CookieJar {
-    return request.jar();
   }
 }
 
