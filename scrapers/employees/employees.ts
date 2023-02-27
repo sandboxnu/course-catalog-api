@@ -18,29 +18,45 @@ class NeuEmployee {
     this.people = [];
   }
 
-  parseParameter(parameter: string): string {
-    // The NEU API returns 'Not Avaiable' for some fields instead of making them null
-    return parameter.toLowerCase() !== "not available" ? parameter : null;
+  /**
+   * The NEU API returns 'Not Available' for some fields instead of making them null.
+   * Given an optional string, return null if the string is undefined or 'Not Available'
+   */
+  private parseOptionalParameter(parameter?: string): string | null {
+    if (!parameter || parameter.toLocaleLowerCase() === "not available") {
+      return null;
+    }
+    return parameter;
+  }
+
+  /**
+   * Given the raw data for one employee from NEU's API, convert it to our
+   * expected Employee type.
+   */
+  private parseEmployee(employee: EmployeeRequestResponse): Employee {
+    const email = this.parseOptionalParameter(employee.Email);
+    const primaryRole = this.parseOptionalParameter(employee.PositionTitle);
+    const longPrimaryRole = this.parseOptionalParameter(
+      employee.LongPositionTitle
+    );
+
+    return {
+      id: email ?? uuidv4(),
+      name: `${employee.FirstName} ${employee.LastName}`,
+      firstName: employee.FirstName,
+      lastName: employee.LastName,
+      primaryDepartment: employee.Department,
+      primaryRole: primaryRole ?? longPrimaryRole,
+      phone: this.parseOptionalParameter(employee.PhoneNumber),
+      email: email,
+      officeRoom: this.parseOptionalParameter(employee.CampusAddress),
+    };
   }
 
   parseApiResponse(response: EmployeeRequestResponse[]): Employee[] {
     return (
       response
-        .map((employee) => {
-          const email = this.parseParameter(employee.Email);
-
-          return {
-            id: email ? email : uuidv4(),
-            name: `${employee.FirstName} ${employee.LastName}`,
-            firstName: employee.FirstName,
-            lastName: employee.LastName,
-            primaryDepartment: employee.Department,
-            primaryRole: this.parseParameter(employee.PositionTitle),
-            phone: this.parseParameter(employee.PhoneNumber),
-            email: email,
-            officeRoom: this.parseParameter(employee.CampusAddress),
-          };
-        })
+        .map((employee) => this.parseEmployee(employee))
         // Northeastern likes testing in prod (don't we all)
         // As of 2022-03, they have 4 employees whose names are variations of "do not use"
         //    Do Not Use, Ed
