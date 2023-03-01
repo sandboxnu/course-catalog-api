@@ -174,7 +174,7 @@
     "pretty-quick": "^3.1.0",
     "prisma": "^4.5.0",
     "ts-jest": "^27.0.0",
-    "typescript": "^4.5.5",
+    "typescript": "^4.9.5",
     "yarn-deduplicate": "^4.0.0"
   },
   "jest": {
