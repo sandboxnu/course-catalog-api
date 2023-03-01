@@ -85,13 +85,13 @@ export class Bannerv9Parser {
    */
   async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTermsResponse = await request.get(termsUrl, {
+    const bannerTerms = await request.get(termsUrl, {
       cache: false,
     });
     // TODO — get rid of this pattern after removing retry work
-    const bannerTerms = JSON.parse(bannerTermsResponse.body);
+    const bannerTermsParsed = JSON.parse(bannerTerms.body);
 
-    const termList = TermListParser.serializeTermsList(bannerTerms.body);
+    const termList = TermListParser.serializeTermsList(bannerTermsParsed.body);
 
     // Sort by descending order (to get the most recent term IDs first)
     return termList.sort((a, b) => {

@@ -7,8 +7,7 @@
 // That is generally a good idea, perhaps we could change over this file one day.
 /* eslint-disable max-classes-per-file */
 
-// import request from "request-promise-native";
-import got, { OptionsOfTextResponseBody, Options, Response } from "got";
+import got, { OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
 import retry from "async-retry";
 import objectHash from "object-hash";
@@ -16,10 +15,9 @@ import moment from "moment";
 import dnsCache from "dnscache";
 import cache from "./cache";
 import macros from "../utils/macros";
-import { CookieJar } from "request";
 import {
   RequestAnalytics,
-  CustomRequestConfig,
+  CustomOptions,
   RequestPool,
   AmplitudeEvent,
   AgentAnalytics,
@@ -277,7 +275,7 @@ class Request {
    * are not already set.
    */
   private prepareRequestConfig(
-    config: CustomRequestConfig
+    config: CustomOptions
   ): OptionsOfTextResponseBody {
     const hostname = new URI(config.url).hostname();
 
@@ -327,9 +325,7 @@ class Request {
   /**
    * Sets some configuration options, and sends a request for the given config.
    */
-  private async fireRequest(
-    config: CustomRequestConfig
-  ): Promise<Response<string>> {
+  private async fireRequest(config: CustomOptions): Promise<Response<string>> {
     const hostname = new URI(config.url).hostname();
     this.ensureAnalyticsObject(hostname);
     this.activeHostnames[hostname] = true;
@@ -369,7 +365,7 @@ class Request {
    * varies based on the `POST` data, so we can't map only using the URL - it also needs to
    * take the `POST` data into account)
    */
-  private safeToCacheByUrl(config: CustomRequestConfig): boolean {
+  private safeToCacheByUrl(config: CustomOptions): boolean {
     if (config.method !== "GET") {
       return false;
     }
@@ -408,7 +404,7 @@ class Request {
    * Returns the cache key for this corresponding config.
    * Allows us to cache responses from requests sent with this config
    */
-  private getCacheKey(config: CustomRequestConfig): string | undefined {
+  private getCacheKey(config: CustomOptions): string | undefined {
     if (this.safeToCacheByUrl(config)) {
       return config.url;
     } else {
@@ -427,7 +423,7 @@ class Request {
   /**
    * Sends a request
    */
-  async request(config: CustomRequestConfig): Promise<Response<string>> {
+  async request(config: CustomOptions): Promise<Response<string>> {
     macros.http("Request hitting", config);
 
     const hostname = new URI(config.url).hostname();
@@ -527,7 +523,7 @@ const instance = new Request();
 
 class RequestInput {
   cacheName: string;
-  config: Partial<CustomRequestConfig>;
+  config: Partial<CustomOptions>;
 
   constructor(cacheName: string, config = {}) {
     this.cacheName = cacheName;
@@ -542,7 +538,7 @@ class RequestInput {
    */
   private async request(
     url: string,
-    config: Partial<CustomRequestConfig>,
+    config: Partial<CustomOptions>,
     method: "GET" | "POST"
   ): Promise<Response<string>> {
     config.method = method;
@@ -555,16 +551,14 @@ class RequestInput {
     // Uses .assign() to avoid overwriting our this.config object
     Object.assign(output, this.config, this.normalizeRequestConfig(config));
 
-    return instance.request(output as CustomRequestConfig);
+    return instance.request(output as CustomOptions);
   }
 
   /**
    * Standardizes a request configuration, adding headers and a cache name
    * if necessary
    */
-  normalizeRequestConfig(
-    config: Partial<CustomRequestConfig>
-  ): CustomRequestConfig {
+  normalizeRequestConfig(config: Partial<CustomOptions>): CustomOptions {
     config.headers ??= {};
 
     if (macros.DEV) {
@@ -576,7 +570,7 @@ class RequestInput {
       }
     }
 
-    return config as CustomRequestConfig;
+    return config as CustomOptions;
   }
 
   /**
@@ -584,7 +578,7 @@ class RequestInput {
    */
   async get(
     url: string,
-    config?: Partial<CustomRequestConfig>
+    config?: Partial<CustomOptions>
   ): Promise<Response<string>> {
     return this.request(url, config ?? {}, "GET");
   }
@@ -594,7 +588,7 @@ class RequestInput {
    */
   async post(
     url: string,
-    config: Partial<CustomRequestConfig>
+    config: Partial<CustomOptions>
   ): Promise<Response<string>> {
     if (!config) {
       macros.error("Warning, request post called with no config");

@@ -51,7 +51,7 @@ class ClassParser {
           sortColumn: "subjectDescription",
           sortDirection: "asc",
         },
-        cookieJar,
+        cookieJar: cookieJar,
       }
     );
     const body = JSON.parse(req.body);

@@ -164,7 +164,7 @@ class TermParser {
               pageOffset: offset,
               pageMaxSize: pageSize,
             },
-            cookieJar,
+            cookieJar: cookieJar,
           }
         );
         // TODO remove
@@ -198,7 +198,7 @@ class TermParser {
               pageOffset: offset,
               pageMaxSize: pageSize,
             },
-            cookieJar,
+            cookieJar: cookieJar,
           }
         );
         // TODO remove

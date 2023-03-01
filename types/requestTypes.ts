@@ -25,19 +25,13 @@ export interface AgentAnalytics {
   maxSockets: number;
 }
 
-// TODO remove this
-export interface CustomRequestConfig extends OptionsOfTextResponseBody {
+// TODO Remove this/simplify the options provided
+export interface CustomOptions extends OptionsOfTextResponseBody {
   url: string;
   cache?: boolean;
   cacheName?: string;
-  headers?: Record<string, string>;
   pool?: RequestPool;
 }
-
-// TODO remove
-export type PartialRequestConfig =
-  | (Partial<CustomRequestConfig> & { url: string })
-  | string;
 
 export type AmplitudeEvent = Partial<AgentAnalytics> & {
   totalBytesDownloaded?: number;

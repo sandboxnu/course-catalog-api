@@ -2,7 +2,6 @@ import $ from "cheerio";
 import _ from "lodash";
 import Request from "../../request";
 import macros from "../../../utils/macros";
-import req from "request";
 import { CookieJar } from "tough-cookie";
 
 const requestObj = new Request("util");
@@ -97,7 +96,7 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
         term: termId,
       },
       cache: false,
-      cookieJar,
+      cookieJar: cookieJar,
     }
   );
   // TODO remove

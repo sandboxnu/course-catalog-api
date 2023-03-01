@@ -28,7 +28,7 @@ class SectionParser {
           pageOffset: 0,
           pageMaxSize: 500,
         },
-        cookieJar,
+        cookieJar: cookieJar,
       }
     );
 
