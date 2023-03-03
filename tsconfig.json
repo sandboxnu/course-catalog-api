@@ -6,7 +6,9 @@
     "resolveJsonModule": true,
     "lib": ["es2021"],
     "skipLibCheck": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "module": "node16",
+    "moduleResolution": "node16"
   },
   "exclude": ["node_modules"]
 }
