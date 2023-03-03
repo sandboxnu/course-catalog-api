@@ -23,6 +23,10 @@ RUN rm -rf node_modules
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
     && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
+
+# Required for Prisma compatibility since Node 16.16
+RUN apk add --update --no-cache openssl1.1-compat
+
 ENV dbCertPath /app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
