@@ -15,7 +15,6 @@ jobs:
         env:
           POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD:
         ports:
           - 5432:5432
       elasticsearch:
@@ -62,7 +61,6 @@ jobs:
         env:
           POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD:
         ports:
           - 5432:5432
       elasticsearch:

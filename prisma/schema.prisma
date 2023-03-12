@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -46,15 +46,15 @@ model Major {
 }
 
 model Professor {
-  id                String   @id
+  id                String  @id
   name              String
   firstName         String  @map("first_name")
   lastName          String  @map("last_name")
-  primaryDepartment String?  @map("primary_department")
-  primaryRole       String?  @map("primary_role")
+  primaryDepartment String? @map("primary_department")
+  primaryRole       String? @map("primary_role")
   phone             String?
   email             String?
-  officeRoom        String?  @map("office_room")
+  officeRoom        String? @map("office_room")
 
   @@map("professors")
 }
