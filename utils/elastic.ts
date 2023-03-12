@@ -16,7 +16,7 @@ import {
 } from "../types/searchTypes";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
-import { ResponseError } from "@elastic/elasticsearch/lib/errors";
+import { ResponseError } from "@elastic/elasticsearch/lib/errors.js";
 
 const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";
