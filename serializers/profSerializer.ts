@@ -4,7 +4,7 @@
  */
 import _ from "lodash";
 import { Professor as PrismaProfessor } from "@prisma/client";
-import { SerializedProfessor } from "../types/serializerTypes";
+import { SerializedProfessor } from "../types/serializerTypes.js";
 
 class ProfSerializer<T extends Partial<PrismaProfessor>> {
   async bulkSerialize(

@@ -1,6 +1,6 @@
-import searcher from "../../services/searcher";
-import prisma from "../../services/prisma";
-import { LeafQuery, ParsedQuery } from "../../types/searchTypes";
+import searcher from "../../services/searcher.js";
+import prisma from "../../services/prisma.js";
+import { LeafQuery, ParsedQuery } from "../../types/searchTypes.js";
 
 beforeAll(async () => {
   searcher.subjects = {};

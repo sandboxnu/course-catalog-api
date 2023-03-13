@@ -1,5 +1,5 @@
-import prisma from "../../services/prisma";
-import notifs from "../../services/notificationsManager";
+import prisma from "../../services/prisma.js";
+import notifs from "../../services/notificationsManager.js";
 
 async function insertCourses(courseIds: string[]): Promise<void> {
   for (const course of courseIds) {

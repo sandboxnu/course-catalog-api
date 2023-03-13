@@ -6,11 +6,11 @@
  */
 import { Course, Professor } from "@prisma/client";
 
-import elastic from "../utils/elastic";
-import prisma from "../services/prisma";
-import ElasticCourseSerializer from "../serializers/elasticCourseSerializer";
-import ElasticProfSerializer from "../serializers/elasticProfSerializer";
-import macros from "../utils/macros";
+import elastic from "../utils/elastic.js";
+import prisma from "../services/prisma.js";
+import ElasticCourseSerializer from "../serializers/elasticCourseSerializer.js";
+import ElasticProfSerializer from "../serializers/elasticProfSerializer.js";
+import macros from "../utils/macros.js";
 
 export async function bulkUpsertCourses(
   courses: Course[]

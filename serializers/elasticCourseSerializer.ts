@@ -4,8 +4,8 @@
  */
 import _ from "lodash";
 
-import CourseSerializer from "./courseSerializer";
-import { ESCourse, ESSection } from "../types/serializerTypes";
+import CourseSerializer from "./courseSerializer.js";
+import { ESCourse, ESSection } from "../types/serializerTypes.js";
 
 class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
   courseProps(): string[] {

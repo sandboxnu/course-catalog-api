@@ -6,16 +6,16 @@
 import _ from "lodash";
 import pMap from "p-map";
 import moment from "moment";
-import Request from "../../request";
-import macros from "../../../utils/macros";
-import TermListParser from "./termListParser";
-import TermParser from "./termParser";
-import ClassParser from "./classParser";
-import SectionParser from "./sectionParser";
-import filters from "../../filters";
-import prisma from "../../../services/prisma";
-import { Section, TermInfo } from "../../../types/types";
-import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import Request from "../../request.js";
+import macros from "../../../utils/macros.js";
+import TermListParser from "./termListParser.js";
+import TermParser from "./termParser.js";
+import ClassParser from "./classParser.js";
+import SectionParser from "./sectionParser.js";
+import filters from "../../filters.js";
+import prisma from "../../../services/prisma.js";
+import { Section, TermInfo } from "../../../types/types.js";
+import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes.js";
 import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version

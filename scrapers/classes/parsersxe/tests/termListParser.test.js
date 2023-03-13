@@ -1,4 +1,4 @@
-import TermListParser from "../termListParser";
+import TermListParser from "../termListParser.js";
 
 describe("termListParser", () => {
   it("pulls out relevant data", () => {

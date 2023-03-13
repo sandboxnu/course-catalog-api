@@ -1,4 +1,4 @@
-import dumpProcessor from "../../services/dumpProcessor";
+import dumpProcessor from "../../services/dumpProcessor.js";
 import he from "he";
 
 describe("Entity decoding", () => {

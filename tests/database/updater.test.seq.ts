@@ -1,15 +1,15 @@
-import Updater from "../../services/updater";
+import Updater from "../../services/updater.js";
 import {
   Course as CourseType,
   Section as SectionType,
   Requisite,
-} from "../../types/types";
-import prisma from "../../services/prisma";
+} from "../../types/types.js";
+import prisma from "../../services/prisma.js";
 import { Prisma } from "@prisma/client";
-import Keys from "../../utils/keys";
-import dumpProcessor from "../../services/dumpProcessor";
-import termParser from "../../scrapers/classes/parsersxe/termParser";
-import elasticInstance from "../../utils/elastic";
+import Keys from "../../utils/keys.js";
+import dumpProcessor from "../../services/dumpProcessor.js";
+import termParser from "../../scrapers/classes/parsersxe/termParser.js";
+import elasticInstance from "../../utils/elastic.js";
 
 function processCourse(classInfo: any): Prisma.CourseCreateInput {
   const additionalProps = {

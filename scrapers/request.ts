@@ -15,8 +15,8 @@ import moment from "moment";
 import _ from "lodash";
 import dnsCache from "dnscache";
 
-import cache from "./cache";
-import macros from "../utils/macros";
+import cache from "./cache.js";
+import macros from "../utils/macros.js";
 import { Cookie, CookieJar, Response } from "request";
 import {
   NativeRequestConfig,
@@ -26,8 +26,8 @@ import {
   PartialRequestConfig,
   AmplitudeEvent,
   AgentAnalytics,
-} from "../types/requestTypes";
-import { EmptyObject } from "../types/types";
+} from "../types/requestTypes.js";
+import { EmptyObject } from "../types/types.js";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:

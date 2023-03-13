@@ -6,7 +6,7 @@ import fs from "fs-extra";
 import path from "path";
 import pMap from "p-map";
 import { Major, Prisma } from "@prisma/client";
-import prisma from "../services/prisma";
+import prisma from "../services/prisma.js";
 
 // In order to execute this module, you need a directory `data`
 // that contains the file `majors.json`. The JSON object in

@@ -1,5 +1,5 @@
-import ClassParser from "../classParser";
-import data from "./data/classParser.data";
+import ClassParser from "../classParser.js";
+import data from "./data/classParser.data.js";
 
 const simplePrereq = {
   type: "and",

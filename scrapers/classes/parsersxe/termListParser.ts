@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { TermInfo } from "../../../types/types";
+import { TermInfo } from "../../../types/types.js";
 
 class TermListParser {
   serializeTermsList(

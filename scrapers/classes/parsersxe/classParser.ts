@@ -5,14 +5,14 @@
 
 import he from "he";
 import cheerio from "cheerio";
-import keys from "../../../utils/keys";
-import Request from "../../request";
-import PrereqParser from "./prereqParser";
-import util from "./util";
-import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
-import macros from "../../../utils/macros";
-import { BooleanReq, CourseRef } from "../../../types/types";
-import { CourseSR, ParsedCourseSR } from "../../../types/scraperTypes";
+import keys from "../../../utils/keys.js";
+import Request from "../../request.js";
+import PrereqParser from "./prereqParser.js";
+import util from "./util.js";
+import { getSubjectAbbreviations } from "./subjectAbbreviationParser.js";
+import macros from "../../../utils/macros.js";
+import { BooleanReq, CourseRef } from "../../../types/types.js";
+import { CourseSR, ParsedCourseSR } from "../../../types/scraperTypes.js";
 
 const request = new Request("classParser");
 

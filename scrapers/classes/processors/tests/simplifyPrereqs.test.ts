@@ -1,5 +1,5 @@
-import simplifyRequirements from "../simplifyPrereqs";
-import { CourseReq } from "../../../../types/types";
+import simplifyRequirements from "../simplifyPrereqs.js";
+import { CourseReq } from "../../../../types/types.js";
 
 function C(s: string): CourseReq {
   return {

@@ -1,6 +1,6 @@
 import { gql } from "apollo-server";
-import prisma from "../../services/prisma";
-import server from "../../graphql/index";
+import prisma from "../../services/prisma.js";
+import server from "../../graphql/index.js";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
 

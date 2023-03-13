@@ -7,13 +7,13 @@
 import { Client } from "@elastic/elasticsearch";
 import pMap from "p-map";
 import _ from "lodash";
-import macros from "./macros";
+import macros from "./macros.js";
 import {
   EsBulkData,
   EsQuery,
   EsMultiResult,
   EsResult,
-} from "../types/searchTypes";
+} from "../types/searchTypes.js";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors.js";

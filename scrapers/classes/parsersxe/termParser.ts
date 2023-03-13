@@ -5,22 +5,22 @@
 
 import _ from "lodash";
 import pMap from "p-map";
-import keys from "../../../utils/keys";
-import macros from "../../../utils/macros";
-import Request from "../../request";
-import ClassParser from "./classParser";
-import SectionParser from "./sectionParser";
-import util from "./util";
-import { getSubjectDescriptions } from "./subjectAbbreviationParser";
-import filters from "../../filters";
+import keys from "../../../utils/keys.js";
+import macros from "../../../utils/macros.js";
+import Request from "../../request.js";
+import ClassParser from "./classParser.js";
+import SectionParser from "./sectionParser.js";
+import util from "./util.js";
+import { getSubjectDescriptions } from "./subjectAbbreviationParser.js";
+import filters from "../../filters.js";
 import {
   CourseSR,
   ParsedCourseSR,
   ParsedTermSR,
   SectionSR,
-} from "../../../types/scraperTypes";
-import { CourseRef, Section } from "../../../types/types";
-import { DoRequestReturn } from "../../../types/requestTypes";
+} from "../../../types/scraperTypes.js";
+import { CourseRef, Section } from "../../../types/types.js";
+import { DoRequestReturn } from "../../../types/requestTypes.js";
 import { MultiProgressBars } from "multi-progress-bars";
 
 const request = new Request("termParser");

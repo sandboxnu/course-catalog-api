@@ -4,13 +4,13 @@
  */
 
 import { User } from "@prisma/client";
-import twilioNotifyer from "../twilio/notifs";
-import macros from "../utils/macros";
+import twilioNotifyer from "../twilio/notifs.js";
+import macros from "../utils/macros.js";
 import {
   CourseNotificationInfo,
   NotificationInfo,
   SectionNotificationInfo,
-} from "../types/notifTypes";
+} from "../types/notifTypes.js";
 
 function generateCourseMessage(course: CourseNotificationInfo): string {
   const classCode = `${course.subject} ${course.courseId}`;

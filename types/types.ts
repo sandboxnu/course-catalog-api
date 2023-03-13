@@ -4,7 +4,7 @@
  */
 
 // A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
-import { ParsedTermSR } from "./scraperTypes";
+import { ParsedTermSR } from "./scraperTypes.js";
 import { Prisma } from "@prisma/client";
 
 export interface BackendMeeting {

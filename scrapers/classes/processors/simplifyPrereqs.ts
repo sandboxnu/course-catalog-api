@@ -8,7 +8,7 @@ import {
   isCourseReq,
   BooleanReq,
   isBooleanReq,
-} from "../../../types/types";
+} from "../../../types/types.js";
 
 //this is given the output of formatRequirements, where data.type and data.values exist
 //  if there is an or embedded in another or, merge them (and and's too)

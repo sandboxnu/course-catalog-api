@@ -1,4 +1,4 @@
-import elastic from "../../../utils/elastic";
+import elastic from "../../../utils/elastic.js";
 import classMap from "../../../scrapers/classes/classMapping.json";
 
 describe("elastic tests", () => {

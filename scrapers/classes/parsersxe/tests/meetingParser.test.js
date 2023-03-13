@@ -1,5 +1,5 @@
-import MeetingParser, { forTesting } from "../meetingParser";
-import data from "./data/meetingParser.data";
+import MeetingParser, { forTesting } from "../meetingParser.js";
+import data from "./data/meetingParser.data.js";
 
 const { hhmmToSeconds, mmddyyyyToDaysSinceEpoch } = forTesting;
 

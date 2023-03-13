@@ -3,11 +3,11 @@
  * See the license file in the root folder for details.
  */
 
-import macros from "../../../utils/macros";
-import keys from "../../../utils/keys";
-import simplifyRequirements from "./simplifyPrereqs";
-import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
-import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types";
+import macros from "../../../utils/macros.js";
+import keys from "../../../utils/keys.js";
+import simplifyRequirements from "./simplifyPrereqs.js";
+import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes.js";
+import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types.js";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.

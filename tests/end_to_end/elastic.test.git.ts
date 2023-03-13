@@ -1,5 +1,5 @@
 import classMap from "../../scrapers/classes/classMapping.json";
-import client from "../../utils/elastic";
+import client from "../../utils/elastic.js";
 import employeeMap from "../../scrapers/employees/employeeMapping.json";
 
 it("Connections", async () => {

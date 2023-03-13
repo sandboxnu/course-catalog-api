@@ -1,22 +1,22 @@
 import { ApolloServer, gql } from "apollo-server";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
-import macros from "../utils/macros";
+import macros from "../utils/macros.js";
 
-import employeeTypeDef from "./typeDefs/employee";
+import employeeTypeDef from "./typeDefs/employee.js";
 
-import searchResolvers from "./resolvers/search";
-import searchTypeDef from "./typeDefs/search";
+import searchResolvers from "./resolvers/search.js";
+import searchTypeDef from "./typeDefs/search.js";
 
-import classResolvers from "./resolvers/class";
-import classTypeDef from "./typeDefs/class";
-import classOccurrenceTypeDef from "./typeDefs/classOccurrence";
+import classResolvers from "./resolvers/class.js";
+import classTypeDef from "./typeDefs/class.js";
+import classOccurrenceTypeDef from "./typeDefs/classOccurrence.js";
 
-import majorResolvers from "./resolvers/major";
-import majorTypeDef from "./typeDefs/major";
-import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
+import majorResolvers from "./resolvers/major.js";
+import majorTypeDef from "./typeDefs/major.js";
+import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence.js";
 
-import termInfoResolvers from "./resolvers/termInfo";
-import termInfoTypeDef from "./typeDefs/termInfo";
+import termInfoResolvers from "./resolvers/termInfo.js";
+import termInfoTypeDef from "./typeDefs/termInfo.js";
 
 if (macros.PROD || process.env.ENABLE_NOTIFS) {
   require("../twilio/server");

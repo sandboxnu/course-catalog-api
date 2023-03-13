@@ -1,6 +1,6 @@
-import PrereqParser from "../prereqParser";
-import PrereqParserData from "./data/prereqParser.data";
-import { getSubjectAbbreviations } from "../subjectAbbreviationParser";
+import PrereqParser from "../prereqParser.js";
+import PrereqParserData from "./data/prereqParser.data.js";
+import { getSubjectAbbreviations } from "../subjectAbbreviationParser.js";
 
 jest.mock("../subjectAbbreviationParser");
 const subjectAbbreviationTable = getSubjectAbbreviations();

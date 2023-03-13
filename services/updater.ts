@@ -6,16 +6,16 @@
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
-import macros from "../utils/macros";
-import prisma from "./prisma";
-import keys from "../utils/keys";
-import dumpProcessor from "./dumpProcessor";
-import termParser from "../scrapers/classes/parsersxe/termParser";
-import { Section as ScrapedSection } from "../types/types";
-import { sendNotifications } from "./notifyer";
-import { NotificationInfo } from "../types/notifTypes";
+import macros from "../utils/macros.js";
+import prisma from "./prisma.js";
+import keys from "../utils/keys.js";
+import dumpProcessor from "./dumpProcessor.js";
+import termParser from "../scrapers/classes/parsersxe/termParser.js";
+import { Section as ScrapedSection } from "../types/types.js";
+import { sendNotifications } from "./notifyer.js";
+import { NotificationInfo } from "../types/notifTypes.js";
 
-import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
+import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser.js";
 
 const FAULTY_TERM_IDS = ["202225"];
 

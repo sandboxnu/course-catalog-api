@@ -3,10 +3,10 @@
  * See the license file in the root folder for details.
  */
 
-import prisma from "../../services/prisma";
-import dumpProcessor from "../../services/dumpProcessor";
-import elastic from "../../utils/elastic";
-import { TermInfo } from "../../types/types";
+import prisma from "../../services/prisma.js";
+import dumpProcessor from "../../services/dumpProcessor.js";
+import elastic from "../../utils/elastic.js";
+import { TermInfo } from "../../types/types.js";
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(null);
 

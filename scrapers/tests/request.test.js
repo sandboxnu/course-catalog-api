@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import Request from "../request";
+import Request from "../request.js";
 
 const request = new Request();
 

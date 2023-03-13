@@ -1,5 +1,5 @@
 import { gql } from "apollo-server";
-import server from "../../graphql/index";
+import server from "../../graphql/index.js";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
 

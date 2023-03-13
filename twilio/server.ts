@@ -3,9 +3,9 @@ import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import request from "request-promise-native";
-import twilioNotifyer from "./notifs";
-import notificationsManager from "../services/notificationsManager";
-import macros from "../utils/macros";
+import twilioNotifyer from "./notifs.js";
+import notificationsManager from "../services/notificationsManager.js";
+import macros from "../utils/macros.js";
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,

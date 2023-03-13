@@ -1,12 +1,12 @@
 import {
   instance as bannerv9,
   NUMBER_OF_TERMS_TO_UPDATE,
-} from "../bannerv9Parser";
-import filters from "../../../filters";
-import prisma from "../../../../services/prisma";
-import TermParser from "../termParser";
-import classParser from "../classParser";
-import sectionParser from "../sectionParser";
+} from "../bannerv9Parser.js";
+import filters from "../../../filters.js";
+import prisma from "../../../../services/prisma.js";
+import TermParser from "../termParser.js";
+import classParser from "../classParser.js";
+import sectionParser from "../sectionParser.js";
 
 describe("getTermsIds", () => {
   beforeEach(() => {

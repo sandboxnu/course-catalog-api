@@ -3,13 +3,13 @@
  * See the license file in the root folder for details.
  */
 
-import matchEmployees from "./employees/matchEmployees";
-import macros from "../utils/macros";
-import classes from "./classes/main";
-import dumpProcessor from "../services/dumpProcessor";
-import prisma from "../services/prisma";
-import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
-import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
+import matchEmployees from "./employees/matchEmployees.js";
+import macros from "../utils/macros.js";
+import classes from "./classes/main.js";
+import dumpProcessor from "../services/dumpProcessor.js";
+import prisma from "../services/prisma.js";
+import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser.js";
+import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls.js";
 import "colors";
 
 // Main file for scraping

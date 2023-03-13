@@ -8,12 +8,12 @@
  */
 
 import moment from "moment";
-import macros from "../../../utils/macros";
+import macros from "../../../utils/macros.js";
 import {
   BackendMeeting,
   FacultyMeetingTime,
   MeetingTime,
-} from "../../../types/types";
+} from "../../../types/types.js";
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3_600;

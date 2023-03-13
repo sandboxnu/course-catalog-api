@@ -1,5 +1,5 @@
-import cache from "../cache";
-import macros from "../../utils/macros";
+import cache from "../cache.js";
+import macros from "../../utils/macros.js";
 import path from "path";
 import fs from "fs-extra";
 

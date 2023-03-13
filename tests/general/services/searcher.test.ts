@@ -1,4 +1,4 @@
-import searcher from "../../../services/searcher";
+import searcher from "../../../services/searcher.js";
 
 function validateValues(
   filterKey: string,

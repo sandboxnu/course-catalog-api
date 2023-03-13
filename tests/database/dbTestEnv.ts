@@ -6,7 +6,7 @@ const { v4: uuid } = require("uuid");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);
 
-const prismaBinary = "./node_modules/.bin/prisma";
+const prismaBinary = "./node_modules/.bin/prisma.js";
 
 /**
  * Custom test environment for Nexus, Prisma and Postgres

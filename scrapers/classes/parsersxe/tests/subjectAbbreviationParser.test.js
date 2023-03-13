@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import * as subject from "../subjectAbbreviationParser";
+import * as subject from "../subjectAbbreviationParser.js";
 
 describe("subjectAbbreviationParser", () => {
   it("_createDescriptionTable builds mapping", () => {

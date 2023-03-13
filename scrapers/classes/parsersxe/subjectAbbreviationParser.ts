@@ -6,9 +6,9 @@
 
 import _ from "lodash";
 import he from "he";
-import macros from "../../../utils/macros";
-import Request from "../../request";
-import { SubjectDescription } from "../../../types/scraperTypes";
+import macros from "../../../utils/macros.js";
+import Request from "../../request.js";
+import { SubjectDescription } from "../../../types/scraperTypes.js";
 
 const request = new Request("subjectAbberviationParser");
 

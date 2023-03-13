@@ -2,9 +2,9 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import prisma from "../services/prisma";
-import HydrateCourseSerializer from "./hydrateCourseSerializer";
-import HydrateProfSerializer from "./hydrateProfSerializer";
+import prisma from "../services/prisma.js";
+import HydrateCourseSerializer from "./hydrateCourseSerializer.js";
+import HydrateProfSerializer from "./hydrateProfSerializer.js";
 import {
   Course as PrismaCourse,
   Professor as PrismaProfessor,
@@ -13,7 +13,7 @@ import {
   CourseSearchResult,
   ProfessorSearchResult,
   SearchResult,
-} from "../types/searchTypes";
+} from "../types/searchTypes.js";
 
 class HydrateSerializer {
   courseSerializer: HydrateCourseSerializer;

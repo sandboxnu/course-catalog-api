@@ -3,10 +3,10 @@
  * See the license file in the root folder for details.
  */
 
-import keys from "../../../utils/keys";
-import macros from "../../../utils/macros";
-import { isCourseReq, Requisite } from "../../../types/types";
-import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import keys from "../../../utils/keys.js";
+import macros from "../../../utils/macros.js";
+import { isCourseReq, Requisite } from "../../../types/types.js";
+import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes.js";
 
 /**
  * Adds the prerequisite-for field for classes that are a predecessor for other classes.

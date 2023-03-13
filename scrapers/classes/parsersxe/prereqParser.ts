@@ -5,9 +5,9 @@
 
 import _ from "lodash";
 import cheerio from "cheerio";
-import macros from "../../../utils/macros";
-import util from "./util";
-import { BooleanReq, CourseReq } from "../../../types/types";
+import macros from "../../../utils/macros.js";
+import util from "./util.js";
+import { BooleanReq, CourseReq } from "../../../types/types.js";
 
 class PrereqParser {
   /**

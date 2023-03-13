@@ -4,14 +4,14 @@
  */
 
 import _ from "lodash";
-import prisma from "../services/prisma";
-import { Course, Section } from "../types/types";
+import prisma from "../services/prisma.js";
+import { Course, Section } from "../types/types.js";
 import { Section as PrismaSection } from "@prisma/client";
 import {
   PrismaCourseWithSections,
   SerializedCourse,
   SerializedSection,
-} from "../types/serializerTypes";
+} from "../types/serializerTypes.js";
 
 /* The type of this class is complicated by the fact that this needs to support Course, and also
   a slim version of Course for elasticsearch.

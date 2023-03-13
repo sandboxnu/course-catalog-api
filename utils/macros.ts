@@ -6,16 +6,15 @@ import util from "util";
 import path from "path";
 import fs from "fs-extra";
 import Rollbar, { MaybeError } from "rollbar";
-import Amplitude from "amplitude";
+import { default as Amplitude, AmplitudeTrackResponse } from "amplitude";
+declare type Amplitude = import("amplitude").default;
 import dotenv from "dotenv";
-import { AmplitudeTrackResponse } from "amplitude/dist/responses";
-import { AmplitudeEvent } from "../types/requestTypes";
+import { AmplitudeEvent } from "../types/requestTypes.js";
 import "colors";
 import { createLogger, format, Logger, transports } from "winston";
 import "winston-daily-rotate-file";
 
 dotenv.config();
-
 // Collection of small functions that are used in many different places in the backend.
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
 // Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
@@ -111,6 +110,7 @@ class Macros {
     this.DEV = this.envLevel === EnvLevel.DEV;
 
     // This is the same token in the frontend and the backend, and does not need to be kept private.
+    // @ts-expect-error - should be upgraded to https://www.npmjs.com/package/amplitude-js
     this.amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
 
     this.rollbar =

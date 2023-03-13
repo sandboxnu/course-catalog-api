@@ -3,11 +3,11 @@
  * See the license file in the root folder for details.
  */
 
-import Request from "../../request";
-import util from "./util";
-import MeetingParser from "./meetingParser";
-import { SectionSR } from "../../../types/scraperTypes";
-import { Section } from "../../../types/types";
+import Request from "../../request.js";
+import util from "./util.js";
+import MeetingParser from "./meetingParser.js";
+import { SectionSR } from "../../../types/scraperTypes.js";
+import { Section } from "../../../types/types.js";
 
 const requestObj = new Request("sectionParser");
 

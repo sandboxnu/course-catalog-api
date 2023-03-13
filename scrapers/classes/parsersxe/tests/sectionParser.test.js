@@ -1,5 +1,5 @@
-import SectionParser from "../sectionParser";
-import data from "./data/sectionParser.data";
+import SectionParser from "../sectionParser.js";
+import data from "./data/sectionParser.data.js";
 
 beforeAll(() => {
   Date.now = jest.fn(() => 1578252414987);

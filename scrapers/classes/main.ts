@@ -6,17 +6,17 @@ import _ from "lodash";
 import URI from "urijs";
 import "colors";
 
-import cache from "../cache";
-import macros from "../../utils/macros";
+import cache from "../cache.js";
+import macros from "../../utils/macros.js";
 
 // Processors
-import markMissingRequisites from "./processors/markMissingRequisites";
-import addPrerequisiteFor from "./processors/addPrerequisiteFor";
+import markMissingRequisites from "./processors/markMissingRequisites.js";
+import addPrerequisiteFor from "./processors/addPrerequisiteFor.js";
 
 // Parsers
-import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
-import { ParsedTermSR } from "../../types/scraperTypes";
-import { TermInfo } from "../../types/types";
+import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser.js";
+import { ParsedTermSR } from "../../types/scraperTypes.js";
+import { TermInfo } from "../../types/types.js";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.

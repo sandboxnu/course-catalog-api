@@ -3,10 +3,10 @@
  * See the license file in the root folder for details.
  */
 
-import Request from "../request";
-import cache from "../cache";
-import macros from "../../utils/macros";
-import { Employee, EmployeeRequestResponse } from "../../types/types";
+import Request from "../request.js";
+import cache from "../cache.js";
+import macros from "../../utils/macros.js";
+import { Employee, EmployeeRequestResponse } from "../../types/types.js";
 import { v4 as uuidv4 } from "uuid";
 
 const request = new Request("Employees");

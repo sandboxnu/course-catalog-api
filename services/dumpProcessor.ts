@@ -7,16 +7,16 @@ import _ from "lodash";
 import he from "he";
 import path from "path";
 import { Prisma } from "@prisma/client";
-import prisma from "./prisma";
-import keys from "../utils/keys";
-import macros from "../utils/macros";
-import { populateES } from "../scripts/populateES";
+import prisma from "./prisma.js";
+import keys from "../utils/keys.js";
+import macros from "../utils/macros.js";
+import { populateES } from "../scripts/populateES.js";
 import {
   BulkUpsertInput,
   Dump,
   Section,
   TransformFunction,
-} from "../types/types";
+} from "../types/types.js";
 
 type Maybe<T> = T | null | undefined;
 

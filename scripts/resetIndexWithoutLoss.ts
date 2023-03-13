@@ -1,5 +1,5 @@
-import elastic from "../utils/elastic";
-import macros from "../utils/macros";
+import elastic from "../utils/elastic.js";
+import macros from "../utils/macros.js";
 
 if (require.main === module) {
   macros.log(

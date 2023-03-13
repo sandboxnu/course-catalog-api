@@ -6,10 +6,10 @@
 import fs from "fs-extra";
 import path from "path";
 
-import macros from "../../utils/macros";
-import neuEmployees from "./employees";
+import macros from "../../utils/macros.js";
+import neuEmployees from "./employees.js";
 import "colors";
-import { Employee } from "../../types/types";
+import { Employee } from "../../types/types.js";
 
 /*
 Originally, this module combined employee data from the CCIS, COE, CSSH, CAMD, and the overall Northeastern sites.

@@ -1,4 +1,4 @@
-import { FacultyMeetingTime, Requisite, Section } from "./types";
+import { FacultyMeetingTime, Requisite, Section } from "./types.js";
 
 export interface CourseSR {
   id: number;

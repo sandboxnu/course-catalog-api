@@ -3,7 +3,7 @@ import {
   Section as PrismaSection,
   Professor as PrismaProfessor,
 } from "@prisma/client";
-import { BackendMeeting } from "./types";
+import { BackendMeeting } from "./types.js";
 
 export interface PrismaCourseWithSections extends PrismaCourse {
   sections?: PrismaSection[];

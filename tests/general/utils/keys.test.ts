@@ -1,4 +1,4 @@
-import Keys from "../../../utils/keys";
+import Keys from "../../../utils/keys.js";
 
 describe("getHashWithKeysSlice", () => {
   it("no obj", () => {

@@ -1,8 +1,8 @@
 import { gql } from "apollo-server";
 import { mocked } from "jest-mock";
-import searcher from "../../services/searcher";
-import server from "../index";
-import { Course, Requisite, Section } from "../../types/types";
+import searcher from "../../services/searcher.js";
+import server from "../index.js";
+import { Course, Requisite, Section } from "../../types/types.js";
 import { DocumentNode } from "graphql";
 import { GraphQLResponse } from "apollo-server-core";
 

@@ -3,9 +3,9 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import CourseSerializer from "./courseSerializer";
-import { Course, Section } from "../types/types";
-import { SerializedSection } from "../types/serializerTypes";
+import CourseSerializer from "./courseSerializer.js";
+import { Course, Section } from "../types/types.js";
+import { SerializedSection } from "../types/serializerTypes.js";
 
 class HydrateCourseSerializer extends CourseSerializer<Course, Section> {
   courseProps(): string[] {

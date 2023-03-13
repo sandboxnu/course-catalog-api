@@ -1,7 +1,7 @@
 import $ from "cheerio";
 import _ from "lodash";
-import Request from "../../request";
-import macros from "../../../utils/macros";
+import Request from "../../request.js";
+import macros from "../../../utils/macros.js";
 import req from "request";
 
 const requestObj = new Request("util");

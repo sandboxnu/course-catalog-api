@@ -1,7 +1,7 @@
 import fs from "fs-extra";
 import path from "path";
 import cheerio from "cheerio";
-import util from "../util";
+import util from "../util.js";
 
 describe("parseTable", () => {
   it("pulls out right data", async () => {

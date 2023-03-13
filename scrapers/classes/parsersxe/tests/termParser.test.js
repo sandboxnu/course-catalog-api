@@ -1,5 +1,5 @@
 import _ from "lodash";
-import TermParser from "../termParser";
+import TermParser from "../termParser.js";
 
 describe("termParser", () => {
   // not worth testing parseTerm as it just maps other parsers over the results of requests

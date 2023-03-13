@@ -1,6 +1,6 @@
-import { NotificationInfo } from "../../types/notifTypes";
-import { sendNotifications } from "../../services/notifyer";
-import twilioNotifyer from "../../twilio/notifs";
+import { NotificationInfo } from "../../types/notifTypes.js";
+import { sendNotifications } from "../../services/notifyer.js";
+import twilioNotifyer from "../../twilio/notifs.js";
 import { User } from "@prisma/client";
 
 const mockSendNotificationText = jest.fn(() => {

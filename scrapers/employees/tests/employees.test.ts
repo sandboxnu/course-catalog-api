@@ -5,7 +5,7 @@
 
 import employeeData from "./data/employees/employee_results_BE.json";
 
-import employees from "../employees";
+import employees from "../employees.js";
 import { validate } from "uuid";
 
 // This should not be top-level, but we needed a workaround.

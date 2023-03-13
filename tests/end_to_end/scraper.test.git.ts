@@ -1,7 +1,7 @@
-import employees from "../../scrapers/employees/employees";
+import employees from "../../scrapers/employees/employees.js";
 import fs from "fs-extra";
-import macros from "../../utils/macros";
-import cache from "../../scrapers/cache";
+import macros from "../../utils/macros.js";
+import cache from "../../scrapers/cache.js";
 
 describe("scraping employees", () => {
   it("should be able to query the API and cache it", async () => {

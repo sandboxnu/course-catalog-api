@@ -8,7 +8,7 @@ import fs from "fs-extra";
 import msgpackImport from "msgpack5";
 import _ from "lodash";
 
-import macros from "../utils/macros";
+import macros from "../utils/macros.js";
 
 const msgpack = msgpackImport();
 
@@ -178,11 +178,11 @@ class Cache {
 
     if (optimizeForSpeed) {
       buffer = msgpack.encode(dataMap);
-      destinationFile += ".msgpack";
+      destinationFile += ".msgpack.js";
     } else {
       // Prettify the JSON when stringifying
       buffer = JSON.stringify(dataMap, null, 4);
-      destinationFile += ".json";
+      destinationFile += ".json.js";
     }
 
     const timeSpendEncoding = Date.now() - startTime;

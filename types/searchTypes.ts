@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { Employee, Course, Section } from "./types";
+import { Employee, Course, Section } from "./types.js";
 
 /****************** UTILS ******************/
 type OneOrMany<T> = T | T[];

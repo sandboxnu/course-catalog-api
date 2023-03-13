@@ -8,7 +8,7 @@ import macros, {
   getLogLevel,
   EnvLevel,
   getEnvLevel,
-} from "../../../utils/macros";
+} from "../../../utils/macros.js";
 
 afterEach(() => {
   jest.clearAllMocks();

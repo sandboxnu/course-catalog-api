@@ -6,9 +6,9 @@
 import path from "path";
 import fs from "fs-extra";
 
-import macros from "../../utils/macros";
-import keys from "../../utils/keys";
-import { ParsedTermSR } from "../../types/scraperTypes";
+import macros from "../../utils/macros.js";
+import keys from "../../utils/keys.js";
+import { ParsedTermSR } from "../../types/scraperTypes.js";
 
 // Creates the term dump of classes.
 

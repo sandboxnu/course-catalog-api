@@ -1,12 +1,12 @@
-import { twilioClient } from "../../twilio/client";
+import { twilioClient } from "../../twilio/client.js";
 jest.mock("../../twilio/client", () => ({
   twilioClient: jest.fn(),
 }));
 
-import notifs from "../../twilio/notifs";
+import notifs from "../../twilio/notifs.js";
 import express from "express";
-import macros from "../../utils/macros";
-import notificationsManager from "../../services/notificationsManager";
+import macros from "../../utils/macros.js";
+import notificationsManager from "../../services/notificationsManager.js";
 
 describe("TwilioNotifyer", () => {
   describe("checkVerificationCode", () => {

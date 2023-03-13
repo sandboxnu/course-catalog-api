@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import testData from "./testData";
-import markMissingRequisites from "../markMissingRequisites";
+import testData from "./testData.js";
+import markMissingRequisites from "../markMissingRequisites.js";
 
 it("can substitute one line", () => {
   const keyToRows = {
