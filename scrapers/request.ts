@@ -6,8 +6,7 @@
 // ESLint added some new rules that require one class per file.
 // That is generally a good idea, perhaps we could change over this file one day.
 /* eslint-disable max-classes-per-file */
-
-import got, { OptionsOfTextResponseBody, Response } from "got";
+import { OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
 import retry from "async-retry";
 import objectHash from "object-hash";
@@ -346,6 +345,7 @@ class Request {
     this.openRequests++;
 
     try {
+      const { default: got } = await import("got");
       return await got(output.url, output);
     } finally {
       this.openRequests--;
