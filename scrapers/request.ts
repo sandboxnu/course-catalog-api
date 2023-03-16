@@ -297,8 +297,9 @@ class Request {
     // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
     // Additionally, this is needed when doing application layer dns
     // caching because the url no longer matches the url in the cert.
+    defaultConfig.https = {};
     defaultConfig.https.rejectUnauthorized = false;
-    defaultConfig.https.ciphers = "ALL";
+    // defaultConfig.https.ciphers = "ALL";
 
     // Set the host in the header to the hostname on the url.
     // This is not done automatically because of the application layer
@@ -431,7 +432,7 @@ class Request {
 
     let newKey: string | undefined;
 
-    if (macros.DEV && config.cache) {
+    if (macros.DEV && config.cacheRequests) {
       // Skipping the hashing when it is not necessary significantly speeds this up.
       newKey = this.getCacheKey(config);
 
@@ -463,7 +464,7 @@ class Request {
           this.analytics[hostname].totalGoodRequests++;
 
           // Save the response to a file for development
-          if (macros.DEV && config.cache) {
+          if (macros.DEV && config.cacheRequests) {
             await cache.set(
               macros.REQUESTS_CACHE_DIR,
               config.cacheName,
@@ -530,7 +531,7 @@ class RequestInput {
     this.config = config;
 
     // If not specified in the config, default to using the cache
-    this.config.cache ??= true;
+    this.config.cacheRequests ??= true;
   }
 
   /**

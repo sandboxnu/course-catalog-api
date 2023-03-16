@@ -28,7 +28,8 @@ export interface AgentAnalytics {
 // TODO Remove this/simplify the options provided
 export interface CustomOptions extends OptionsOfTextResponseBody {
   url: string;
-  cache?: boolean;
+  // defaults to true
+  cacheRequests?: boolean;
   cacheName?: string;
   pool?: RequestPool;
 }

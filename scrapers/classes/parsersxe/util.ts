@@ -95,7 +95,7 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
       form: {
         term: termId,
       },
-      cache: false,
+      cacheRequests: false,
       cookieJar: cookieJar,
     }
   );

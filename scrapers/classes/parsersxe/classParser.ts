@@ -269,7 +269,7 @@ class ClassParser {
           subjectCode: subject,
           courseNumber: classId,
         },
-        cache: false,
+        cacheRequests: false,
       }
     );
   }
