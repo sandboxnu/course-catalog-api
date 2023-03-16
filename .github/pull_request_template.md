@@ -28,12 +28,20 @@ _Is there anything reviewers should note? Do we need to add something later? Any
 
 # Reviewers
 
-Pick one primary reviewer - the team member with the most relevant knowledge about the code area this PR touches.
+Primary reviewer:
 
-- The primary reviewer should **not** be one of the authors of the PR
-- If the primary reviewer is the project lead, _select two primary reviewers_
-  - Goal: facilitate knowledge transfer to other team members
-    **Primary**:
+- Pick one primary reviewer
+  - the team member with the most relevant knowledge about the code area this PR touches.
+  - **NOT** an author of the PR
+  - If the primary reviewer is the project lead, _select two primary reviewers_
+    - Goal: facilitate knowledge transfer to other team members
+  - Primary reviewers **are required to approve the PR** before it can be merged.
 
-Anyone who would benefit from reading the PR to learn.
+**Primary**:
+
+Secondary reviewers:
+
+- Pick as many as appropriate
+- Anyone who would benefit from reading the PR to learn.
+
 **Secondary**:
