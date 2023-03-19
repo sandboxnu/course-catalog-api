@@ -126,7 +126,7 @@ class NeuEmployee {
     // TODO — get rid of this pattern after removing retry work
     const parsedResponse = JSON.parse(response.body);
     const employees: EmployeeRequestResponse[] =
-      parsedResponse.EmployeeDirectoryContact.List;
+      parsedResponse?.data?.EmployeeDirectoryContact?.List;
 
     this.people = this.parseApiResponse(employees);
   }

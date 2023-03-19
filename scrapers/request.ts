@@ -347,7 +347,7 @@ class Request {
 
     try {
       const { default: got } = await import("got");
-      return await got(output.url, output);
+      return await got(output);
     } finally {
       this.openRequests--;
 
@@ -447,76 +447,58 @@ class Request {
       }
     }
 
-    let tryCount = 0;
+    try {
+      const requestStart = Date.now();
+      const response = await this.fireRequest(config);
+      const requestDuration = Date.now() - requestStart;
 
-    const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
-    let requestDuration: number | undefined;
+      this.analytics[hostname].totalGoodRequests++;
 
-    return retry(
-      async () => {
-        tryCount++;
-
-        try {
-          const requestStart = Date.now();
-          const response = await this.fireRequest(config);
-          requestDuration = Date.now() - requestStart;
-
-          this.analytics[hostname].totalGoodRequests++;
-
-          // Save the response to a file for development
-          if (macros.DEV && config.cacheRequests) {
-            await cache.set(
-              macros.REQUESTS_CACHE_DIR,
-              config.cacheName,
-              newKey,
-              response.body,
-              true
-            );
-          }
-
-          const contentLength = Number.parseInt(
-            response.headers["content-length"],
-            10
-          );
-          this.analytics[hostname].totalBytesDownloaded += contentLength;
-          if (!macros.PROD) {
-            macros.http(
-              `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`
-            );
-          }
-
-          return response;
-        } catch (err) {
-          this.analytics[hostname].totalErrors++;
-          if (!macros.PROD || tryCount > 5) {
-            macros.error(
-              `Try#: ${tryCount} Code: ${
-                err.statusCode ||
-                err.RequestError ||
-                err.Error ||
-                err.message ||
-                err
-              } Open request count: ${this.openRequests} Url: ${config.url}`
-            );
-          }
-
-          if (err.response) {
-            macros.verbose(err.response.body);
-          } else {
-            macros.verbose(err.message);
-          }
-
-          throw err;
-        }
-      },
-      {
-        retries: MAX_RETRY_COUNT,
-        minTimeout: timeout,
-        maxTimeout: timeout,
-        factor: 1,
-        randomize: true,
+      // Save the response to a file for development
+      if (macros.DEV && config.cacheRequests) {
+        await cache.set(
+          macros.REQUESTS_CACHE_DIR,
+          config.cacheName,
+          newKey,
+          response.body,
+          true
+        );
       }
-    );
+
+      const contentLength = Number.parseInt(
+        response.headers["content-length"],
+        10
+      );
+      this.analytics[hostname].totalBytesDownloaded += contentLength;
+      if (!macros.PROD) {
+        macros.http(
+          `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`
+        );
+      }
+
+      return response;
+    } catch (err) {
+      this.analytics[hostname].totalErrors++;
+      if (!macros.PROD) {
+        macros.error(
+          `Code: ${
+            err.statusCode ||
+            err.RequestError ||
+            err.Error ||
+            err.message ||
+            err
+          } Open request count: ${this.openRequests} Url: ${config.url}`
+        );
+      }
+
+      if (err.response) {
+        macros.verbose(err.response.body);
+      } else {
+        macros.verbose(err.message);
+      }
+
+      throw err;
+    }
   }
 }
 
