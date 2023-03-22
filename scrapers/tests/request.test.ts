@@ -4,14 +4,15 @@
  */
 
 import Request from "../request";
+// Give extra time to ensure that the initial DNS lookup works
+jest.setTimeout(10_000);
 
 const request = new Request("request_test", { cacheRequests: false });
 
-it.only("get should work", async () => {
+it("get should work", async () => {
   const response = await request.get("https://httpbin.org/get");
-  console.log(response);
 
-  expect(response).toBe("response for GET https://httpbin.org/get");
+  expect(JSON.parse(response.body)["url"]).toBe("https://httpbin.org/get");
 });
 
 it("post should work", async () => {

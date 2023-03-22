@@ -1,5 +1,20 @@
 /* eslint-disable no-underscore-dangle */
 import * as subject from "../subjectAbbreviationParser";
+import nock from "nock";
+
+nock(/.*/)
+  .get(/term=termsTest/)
+  .reply(200, [
+    {
+      code: "ACCT",
+      description: "Accounting",
+    },
+    {
+      code: "AVM",
+      description: "Adv Manufacturing System - CPS",
+    },
+  ])
+  .persist();
 
 describe("subjectAbbreviationParser", () => {
   it("_createDescriptionTable builds mapping", () => {
