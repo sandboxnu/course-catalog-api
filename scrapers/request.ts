@@ -6,9 +6,8 @@
 // ESLint added some new rules that require one class per file.
 // That is generally a good idea, perhaps we could change over this file one day.
 /* eslint-disable max-classes-per-file */
-import { OptionsOfTextResponseBody, Response } from "got";
+import { Agents, OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
-import retry from "async-retry";
 import objectHash from "object-hash";
 import moment from "moment";
 import dnsCache from "dnscache";
@@ -22,6 +21,8 @@ import {
   AgentAnalytics,
 } from "../types/requestTypes";
 import { EmptyObject } from "../types/types";
+import { Agent as HttpAgent } from "http";
+import { Agent as HttpsAgent } from "https";
 
 // This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
 // This file adds:
@@ -53,9 +54,12 @@ import { EmptyObject } from "../types/types";
 // set really low (256) which could interefere with this.
 // https://github.com/request/request
 const separateReqDefaultPool: RequestPool = {
-  maxSockets: 50,
-  keepAlive: true,
-  maxFreeSockets: 50,
+  options: {
+    maxSockets: 50,
+    keepAlive: true,
+    maxFreeSockets: 50,
+  },
+  agents: false,
 };
 
 // Specific limits for some sites. CCIS has active measures against one IP making too many requests
@@ -63,14 +67,16 @@ const separateReqDefaultPool: RequestPool = {
 // Some other schools' servers will crash/slow to a crawl if too many requests are sent too quickly.
 const separateReqPools: Record<string, RequestPool> = {
   "www.ccis.northeastern.edu": {
-    maxSockets: 8,
-    keepAlive: true,
-    maxFreeSockets: 8,
+    options: {
+      maxSockets: 8,
+      keepAlive: true,
+      maxFreeSockets: 8,
+    },
+    agents: false,
   },
   "www.khoury.northeastern.edu": {
-    maxSockets: 8,
-    keepAlive: true,
-    maxFreeSockets: 8,
+    options: { maxSockets: 8, keepAlive: true, maxFreeSockets: 8 },
+    agents: false,
   },
 
   // Needed for https://www.northeastern.edu/cssh/faculty
@@ -78,33 +84,42 @@ const separateReqPools: Record<string, RequestPool> = {
   // This is the server that was crashing when tons of requests were sent to /cssh
   // So only requests to /cssh would 500, and not all of northeastern.edu.
   "www.northeastern.edu": {
-    maxSockets: 25,
-    keepAlive: true,
-    maxFreeSockets: 25,
+    options: {
+      maxSockets: 25,
+      keepAlive: true,
+      maxFreeSockets: 25,
+    },
+    agents: false,
   },
 
-  "genisys.regent.edu": { maxSockets: 50, keepAlive: true, maxFreeSockets: 50 },
-  "prod-ssb-01.dccc.edu": {
-    maxSockets: 100,
-    keepAlive: true,
-    maxFreeSockets: 100,
+  "genisys.regent.edu": {
+    options: { maxSockets: 50, keepAlive: true, maxFreeSockets: 50 },
+    agents: false,
   },
-  "telaris.wlu.ca": { maxSockets: 400, keepAlive: true, maxFreeSockets: 400 },
+  "prod-ssb-01.dccc.edu": {
+    options: { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
+    agents: false,
+  },
+  "telaris.wlu.ca": {
+    options: { maxSockets: 400, keepAlive: true, maxFreeSockets: 400 },
+    agents: false,
+  },
   "myswat.swarthmore.edu": {
-    maxSockets: 1000,
-    keepAlive: true,
-    maxFreeSockets: 1000,
+    options: { maxSockets: 1000, keepAlive: true, maxFreeSockets: 1000 },
+    agents: false,
   },
   "bannerweb.upstate.edu": {
-    maxSockets: 200,
-    keepAlive: true,
-    maxFreeSockets: 200,
+    options: { maxSockets: 200, keepAlive: true, maxFreeSockets: 200 },
+    agents: false,
   },
 
   // Took 1hr and 15 min with 500 sockets and RETRY_DELAY set to 20000 and delta set to 15000.
   // Usually takes just under 1 hr at 1k sockets and the same timeouts.
   // Took around 20 min with timeouts set to 100ms and 150ms and 100 sockets.
-  "wl11gp.neu.edu": { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
+  "wl11gp.neu.edu": {
+    options: { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
+    agents: false,
+  },
 };
 
 // Enable the DNS cache. This module replaces the .lookup method on the built in dns module to cache lookups.
@@ -124,10 +139,7 @@ dnsCache({
 
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0";
-// These numbers are in ms.
-const RETRY_DELAY = 100;
-const RETRY_DELAY_DELTA = 150;
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0";
 
 const CACHE_SAFE_CONFIG_OPTIONS = [
   "method",
@@ -189,17 +201,17 @@ class Request {
   private getAnalyticsFromAgent(
     pool: RequestPool
   ): EmptyObject | AgentAnalytics {
-    const agent = pool["https:false:ALL"] ?? pool["http:"];
-
-    if (!agent) {
+    if (pool.agents === false) {
       macros.http("Agent is false,", pool);
       return {};
     }
 
+    const agent: HttpAgent | undefined = pool.agents.https ?? pool.agents.http;
+
     const moreAnalytics = {
       socketCount: 0,
       requestCount: 0,
-      maxSockets: pool.maxSockets,
+      maxSockets: agent?.maxSockets,
     };
 
     for (const arr of Object.values(agent.sockets)) {
@@ -270,6 +282,27 @@ class Request {
   }
 
   /**
+   * Ensures that the given hostname has an associated HTTP and HTTPS agent.
+   * Agents are responsible for managing connection persistence and reuse for HTTP clients, which
+   * helps make our requests more efficient.
+   *
+   * Got will automatically resolve the protocol and use the corresponding agent.
+   */
+  private prepareAgentsForHostname(hostname: string): Agents {
+    const pool = separateReqPools[hostname] ?? separateReqDefaultPool;
+
+    if (pool.agents === false) {
+      // TODO: is there a better way than just adding both? May be inefficient
+      pool.agents = {
+        http: new HttpAgent(pool.options),
+        https: new HttpsAgent(pool.options),
+      };
+    }
+
+    return pool.agents;
+  }
+
+  /**
    * Given a config, populates it with default values if those values
    * are not already set.
    */
@@ -279,7 +312,25 @@ class Request {
     const hostname = new URI(config.url).hostname();
 
     const defaultConfig: Partial<OptionsOfTextResponseBody> = {
-      headers: {},
+      headers: {
+        // Manually set the host - due to DNS caching, this might be overridden by the IP,
+        // so we want to manually set it (TODO - is this still true)
+        Host: hostname,
+        "User-Agent": DEFAULT_USER_AGENT,
+        // Needed on some old sites that will redirect/block requests when this is not set
+        // when a user is requesting a page that is not the entry page of the site
+        Referer: config.url,
+      },
+      // TODO - still necessary? (Old comment ->) Increased from 5 min to help with socket hang up errors.
+      timeout: { request: 15 * 60 * 1000 },
+      retry: { limit: MAX_RETRY_COUNT },
+      // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
+      // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
+      // Additionally, this is needed when doing application layer dns
+      // caching because the url no longer matches the url in the cert.
+      https: { rejectUnauthorized: false },
+      // TODO defaultConfig.https.ciphers = "ALL";
+      agent: this.prepareAgentsForHostname(hostname),
     };
 
     // Default to JSON for POST bodies
@@ -288,29 +339,6 @@ class Request {
     }
 
     // TODO enable
-    // defaultConfig.pool = separateReqPools[hostname] ?? separateReqDefaultPool;
-
-    // TODO - still necessary? (Old comment ->) Increased from 5 min to help with socket hang up errors.
-    defaultConfig.timeout = { request: 15 * 60 * 1000 };
-
-    // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
-    // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
-    // Additionally, this is needed when doing application layer dns
-    // caching because the url no longer matches the url in the cert.
-    defaultConfig.https = {};
-    defaultConfig.https.rejectUnauthorized = false;
-    // defaultConfig.https.ciphers = "ALL";
-
-    // Set the host in the header to the hostname on the url.
-    // This is not done automatically because of the application layer
-    // dns caching (it would be set to the ip instead)
-    defaultConfig.headers.Host = hostname;
-
-    defaultConfig.headers["User-Agent"] = DEFAULT_USER_AGENT;
-
-    // Needed on some old sites that will redirect/block requests when this is not set
-    // when a user is requesting a page that is not the entry page of the site
-    defaultConfig.headers.Referer = config.url;
 
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override

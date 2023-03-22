@@ -7,8 +7,9 @@ import Request from "../request";
 
 const request = new Request("request_test", { cacheRequests: false });
 
-it("get should work", async () => {
+it.only("get should work", async () => {
   const response = await request.get("https://httpbin.org/get");
+  console.log(response);
 
   expect(response).toBe("response for GET https://httpbin.org/get");
 });

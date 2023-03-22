@@ -1,6 +1,5 @@
 import http from "http";
-import https from "https";
-import { OptionsOfTextResponseBody } from "got";
+import { OptionsOfTextResponseBody, Agents } from "got";
 
 export interface HostAnalytics {
   totalBytesDownloaded: number;
@@ -12,11 +11,8 @@ export interface HostAnalytics {
 export type RequestAnalytics = Record<string, HostAnalytics>;
 
 export interface RequestPool {
-  maxSockets: number;
-  keepAlive: boolean;
-  maxFreeSockets: number;
-  "https:false:ALL"?: https.Agent;
-  "http:"?: http.Agent;
+  options: http.AgentOptions;
+  agents: Agents | false;
 }
 
 export interface AgentAnalytics {
