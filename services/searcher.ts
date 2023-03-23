@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 import _ from "lodash";
-import { Course, Section } from "../types/types";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
@@ -37,12 +36,14 @@ import {
   EsMultiResult,
   AggResults,
   SearchResult,
+  CourseSearchResult,
   ParsedQuery,
-  EsValue,
 } from "../types/searchTypes";
 import { SerializedCourse } from "../types/serializerTypes";
+import { Course, Section } from "../types/types";
 
 type CourseWithSections = PrismaCourse & { sections: PrismaSection[] };
+type SSRSerializerOutput = { [id: string]: CourseSearchResult };
 
 class Searcher {
   elastic: Elastic;
@@ -397,7 +398,6 @@ class Searcher {
       `${elastic.CLASS_ALIAS},${elastic.EMPLOYEE_ALIAS}`,
       queries
     );
-
     return this.parseResults(
       results.body.responses,
       Object.keys(this.aggFilters)
@@ -407,6 +407,7 @@ class Searcher {
   parseResults(results: EsResultBody[], filters: string[]): PartialResults {
     return {
       output: results[0].hits.hits,
+      resultCount: results[0].hits.total.value,
       took: results[0].took,
       aggregations: _.fromPairs(
         filters.map((filter, idx) => {
@@ -494,64 +495,6 @@ class Searcher {
   }
 
   /**
-   * Given a current section, determine whether it matches the corresponding honors and campus filters
-   * @param curSection the current section of a class
-   * @param honorsFilter do we filter sections by honors?
-   * @param campusFilter the campuses we are filtering by
-   * @returns does the current section match the specified filters?
-   */
-  filterSection(
-    curSection: Section,
-    honorsFilter: EsValue,
-    campusFilter: EsValue
-  ): boolean {
-    if (honorsFilter && !curSection.honors) {
-      return false;
-    }
-    if (campusFilter !== "" && curSection.campus !== campusFilter) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * filters search results by the honors or campus filters present
-   * @param filters the filters we are applying to the search results
-   * @param results the search results
-   * @returns the filtered search results
-   */
-  filterResults(filters, results): SearchResult[] {
-    const validFilters = this.validateFilters(filters);
-
-    const honorsFilter = validFilters["honors"] ?? false;
-
-    const campusFilter = validFilters["campus"] ?? "";
-
-    const filteredResults: SearchResult[] = [];
-
-    if (!honorsFilter && campusFilter === "") {
-      return results;
-    }
-
-    results.forEach((curResult: SearchResult) => {
-      if (curResult.type === "class") {
-        curResult.sections = curResult.sections.filter((curSection: Section) =>
-          this.filterSection(curSection, honorsFilter, campusFilter)
-        );
-
-        if (curResult.sections.length > 0) {
-          filteredResults.push(curResult);
-        }
-      } else {
-        filteredResults.push(curResult);
-      }
-    });
-
-    return filteredResults;
-  }
-
-  /**
    * Search for classes and employees
    * @param  {string}  query  The search to query for
    * @param  {string}  termId The termId to look within
@@ -570,6 +513,7 @@ class Searcher {
     const start = Date.now();
 
     let results: SearchResult[];
+    let resultCount: number;
     let took: number;
     let hydrateDuration: number;
     let aggregations: AggResults;
@@ -589,7 +533,8 @@ class Searcher {
         courseCode,
         termId
       );
-      ({ results, took, hydrateDuration, aggregations } = singleResult);
+      ({ results, resultCount, took, hydrateDuration, aggregations } =
+        singleResult);
     } else {
       const searchResults = await this.getSearchResults(
         query,
@@ -598,7 +543,7 @@ class Searcher {
         max,
         filters
       );
-      ({ took, aggregations } = searchResults);
+      ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
@@ -606,11 +551,9 @@ class Searcher {
       hydrateDuration = Date.now() - startHydrate;
     }
 
-    const filteredResults = this.filterResults(filters, results);
-
     return {
-      searchContent: filteredResults,
-      resultCount: filteredResults.length,
+      searchContent: results,
+      resultCount,
       took: {
         total: Date.now() - start,
         hydrate: hydrateDuration,
