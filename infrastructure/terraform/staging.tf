@@ -11,7 +11,8 @@ module "staging" {
 
   alb_sg_id          = aws_security_group.lb.id
   alb_dns_name       = module.alb.this_lb_dns_name
-  domains            = ["stagingapi.searchneu.com", "stagingnotifs.searchneu.com"] 
+  api_domain         = "stagingapi.searchneu.com"
+  notifs_domain      = "stagingnotifs.searchneu.com"
   cloudflare_zone_id = var.cloudflare_zone_id
 
   ecr_url = aws_ecr_repository.app.repository_url
