@@ -469,6 +469,7 @@ class Searcher {
 
     return {
       results: resultOutput ?? [],
+      resultCount: showCourse ? 1 : 0,
       took: 0,
       hydrateDuration: Date.now() - start,
       aggregations: aggregations ?? {
@@ -578,7 +579,7 @@ class Searcher {
     let took: number;
     let hydrateDuration: number;
     let aggregations: AggResults;
-
+    let resultCount = 0;
     // if we know that the query is of the format of a course code, we want to return only one result
     const isSingleCourse = query.match(this.COURSE_CODE_PATTERN);
 
@@ -594,7 +595,8 @@ class Searcher {
         courseCode,
         termId
       );
-      ({ results, took, hydrateDuration, aggregations } = singleResult);
+      ({ results, resultCount, took, hydrateDuration, aggregations } =
+        singleResult);
     } else {
       const searchResults = await this.getSearchResults(
         query,
@@ -603,7 +605,7 @@ class Searcher {
         max,
         filters
       );
-      ({ took, aggregations } = searchResults);
+      ({ took, resultCount, aggregations } = searchResults);
       const startHydrate = Date.now();
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
@@ -615,6 +617,7 @@ class Searcher {
 
     return {
       searchContent: filteredResults,
+      resultCount: resultCount,
       took: {
         total: Date.now() - start,
         hydrate: hydrateDuration,
