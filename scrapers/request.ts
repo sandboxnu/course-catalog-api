@@ -140,6 +140,9 @@ dnsCache({
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0";
+// These numbers are in ms.
+const RETRY_DELAY = 100;
+const RETRY_DELAY_DELTA = 150;
 
 const CACHE_SAFE_CONFIG_OPTIONS = [
   "method",
@@ -323,7 +326,12 @@ class Request {
       },
       // TODO - still necessary? (Old comment ->) Increased from 5 min to help with socket hang up errors.
       timeout: { request: 15 * 60 * 1000 },
-      retry: { limit: MAX_RETRY_COUNT },
+      retry: {
+        limit: MAX_RETRY_COUNT,
+        calculateDelay: () => {
+          return RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
+        },
+      },
       // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
       // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
       // Additionally, this is needed when doing application layer dns
@@ -332,13 +340,6 @@ class Request {
       // TODO defaultConfig.https.ciphers = "ALL";
       agent: this.prepareAgentsForHostname(hostname),
     };
-
-    // Default to JSON for POST bodies
-    if (config.method === "POST") {
-      defaultConfig.headers["Content-Type"] = "application/json";
-    }
-
-    // TODO enable
 
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
@@ -488,7 +489,10 @@ class Request {
           macros.REQUESTS_CACHE_DIR,
           config.cacheName,
           newKey,
-          response.body,
+          {
+            body: response.body,
+            statusCode: response.statusCode,
+          },
           true
         );
       }
@@ -515,7 +519,7 @@ class Request {
             err.Error ||
             err.message ||
             err
-          } Open request count: ${this.openRequests} Url: ${config.url}`
+          }. Open request count: ${this.openRequests}. URL: ${config.url}`
         );
       }
 
@@ -605,6 +609,9 @@ class RequestInput {
       macros.error("Warning, request post called with no config");
       return null;
     }
+
+    // Create a headers object if none exists
+    config.headers = config.headers ?? {};
 
     return this.request(url, config, "POST");
   }

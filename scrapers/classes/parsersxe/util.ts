@@ -105,7 +105,7 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
   if (body.regAllowed === false) {
     macros.error(
       `failed to get cookies (from clickContinue) for the term ${termId}`,
-      clickContinue
+      clickContinue.body
     );
   }
 
