@@ -183,7 +183,6 @@ export interface EsAggResults {
 /************* SEARCH RESULTS **************/
 export interface SearchResults {
   searchContent: SearchResult[];
-  resultCount: number;
   took: {
     total: number;
     hydrate: number;

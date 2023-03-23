@@ -407,6 +407,7 @@ class Searcher {
   parseResults(results: EsResultBody[], filters: string[]): PartialResults {
     return {
       output: results[0].hits.hits,
+      resultCount: results[0].hits.total.value,
       took: results[0].took,
       aggregations: _.fromPairs(
         filters.map((filter, idx) => {
@@ -455,7 +456,7 @@ class Searcher {
     const showCourse = hasSections && subjectMatches && codeMatches;
 
     let aggregations: AggResults;
-    let resultOutput: SearchResult[];
+    let resultOutput: SearchResult[] = [];
 
     if (showCourse) {
       resultOutput = await new HydrateSerializer().bulkSerialize([result]);
@@ -468,7 +469,6 @@ class Searcher {
 
     return {
       results: resultOutput ?? [],
-      resultCount: showCourse ? 1 : 0,
       took: 0,
       hydrateDuration: Date.now() - start,
       aggregations: aggregations ?? {
@@ -508,10 +508,15 @@ class Searcher {
     if (honorsFilter && !curSection.honors) {
       return false;
     }
-    if (campusFilter !== "" && curSection.campus !== campusFilter) {
-      return false;
-    }
 
+    if (Array.isArray(campusFilter)) {
+      if (
+        campusFilter.length > 0 &&
+        !campusFilter.includes(curSection.campus)
+      ) {
+        return false;
+      }
+    }
     return true;
   }
 
@@ -610,7 +615,6 @@ class Searcher {
 
     return {
       searchContent: filteredResults,
-      resultCount: filteredResults.length,
       took: {
         total: Date.now() - start,
         hydrate: hydrateDuration,

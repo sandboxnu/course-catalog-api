@@ -6,7 +6,6 @@ import { AggResults } from "../../types/searchTypes";
 type SearchResultItem = Course | Employee;
 
 interface SearchResultItemConnection {
-  totalCount: number;
   pageInfo: {
     hasNextPage: boolean;
   };
@@ -55,7 +54,6 @@ const resolvers = {
       const hasNextPage = offset + first < results.resultCount;
 
       return {
-        totalCount: results.resultCount,
         nodes: results.searchContent.map((r) =>
           r.type === "employee"
             ? r.employee
