@@ -36,7 +36,7 @@ jobs:
           node-version: "14.19"
       - uses: bahmutov/npm-install@v1
 
-      - run: yarn test --coverage
+      - run: yarn test --coverage --detectOpenHandles
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
