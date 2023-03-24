@@ -22,5 +22,7 @@ it("post should work", async () => {
     },
   });
 
-  expect(JSON.parse(response.body).data).toBe("arg1=data");
+  expect(JSON.parse(response.body).form).toEqual({
+    arg1: "data",
+  });
 });
