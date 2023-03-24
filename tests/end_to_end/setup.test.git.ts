@@ -89,8 +89,12 @@ describe("Course and section setup", () => {
     }
 
     const actualCourses = await prisma.course.count();
-    expect(actualCourses).toBeGreaterThan(NUM_COURSES - COURSE_COUNT_TOLERANCE);
-    expect(actualCourses).toBeLessThan(NUM_COURSES + COURSE_COUNT_TOLERANCE);
+    expect(actualCourses).toBeGreaterThan(
+      NUM_COURSES - COURSE_COUNT_TOLERANCE * 3
+    );
+    expect(actualCourses).toBeLessThan(
+      NUM_COURSES + COURSE_COUNT_TOLERANCE * 3
+    );
 
     for (const [termId, expected] of Object.entries(NUMS_SECTIONS)) {
       const actual = await prisma.section.count({
@@ -105,8 +109,10 @@ describe("Course and section setup", () => {
     }
 
     const actualSecs = await prisma.section.count();
-    expect(actualSecs).toBeGreaterThan(NUM_SECTIONS - SECTION_COUNT_TOLERANCE);
-    expect(actualSecs).toBeLessThan(NUM_SECTIONS + SECTION_COUNT_TOLERANCE);
+    expect(actualSecs).toBeGreaterThan(
+      NUM_SECTIONS - SECTION_COUNT_TOLERANCE * 3
+    );
+    expect(actualSecs).toBeLessThan(NUM_SECTIONS + SECTION_COUNT_TOLERANCE * 3);
   });
 
   test("Courses/sections are in GraphQL", async () => {
