@@ -18,6 +18,14 @@ const NUMS_SECTIONS = {
 const NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce((a, b) => a + b, 0);
 const NUM_COURSES = Object.values(NUMS_COURSES).reduce((a, b) => a + b, 0);
 
+/**
+ * As part of this test suite, we run the updater, which fetches live data from Banner.
+ * As a result, these counts will become innaccurate. If these counts ever deviate beyond these tolerances,
+ * maybe it's time we start using a new semester(s) for these tests.
+ */
+const COURSE_COUNT_TOLERANCE = 20;
+const SECTION_COUNT_TOLERANCE = 100;
+
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
 }
@@ -70,31 +78,35 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
-      expect(
-        await prisma.course.count({
-          where: {
+    for (const [termId, expected] of Object.entries(NUMS_COURSES)) {
+      const actual = await prisma.course.count({
+        where: {
+          termId: termId,
+        },
+      });
+      expect(actual).toBeGreaterThan(expected - COURSE_COUNT_TOLERANCE);
+      expect(actual).toBeLessThan(expected + COURSE_COUNT_TOLERANCE);
+    }
+
+    const actualCourses = await prisma.course.count();
+    expect(actualCourses).toBeGreaterThan(NUM_COURSES - COURSE_COUNT_TOLERANCE);
+    expect(actualCourses).toBeLessThan(NUM_COURSES + COURSE_COUNT_TOLERANCE);
+
+    for (const [termId, expected] of Object.entries(NUMS_SECTIONS)) {
+      const actual = await prisma.section.count({
+        where: {
+          course: {
             termId: termId,
           },
-        })
-      ).toBe(count);
+        },
+      });
+      expect(actual).toBeGreaterThan(expected - SECTION_COUNT_TOLERANCE);
+      expect(actual).toBeLessThan(expected + SECTION_COUNT_TOLERANCE);
     }
 
-    expect(await prisma.course.count()).toBe(NUM_COURSES);
-
-    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
-      expect(
-        await prisma.section.count({
-          where: {
-            course: {
-              termId: termId,
-            },
-          },
-        })
-      ).toBe(count);
-    }
-
-    expect(await prisma.section.count()).toBe(NUM_SECTIONS);
+    const actualSecs = await prisma.section.count();
+    expect(actualSecs).toBeGreaterThan(NUM_SECTIONS - SECTION_COUNT_TOLERANCE);
+    expect(actualSecs).toBeLessThan(NUM_SECTIONS + SECTION_COUNT_TOLERANCE);
   });
 
   test("Courses/sections are in GraphQL", async () => {
