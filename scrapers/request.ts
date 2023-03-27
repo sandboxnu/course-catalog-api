@@ -145,7 +145,7 @@ const DEFAULT_USER_AGENT =
 const RETRY_DELAY = 100;
 const RETRY_DELAY_DELTA = 150;
 
-const CACHE_UNSAFE_CONFIG_OPTIONS = [
+const CACHE_SAFE_CONFIG_OPTIONS = [
   "method",
   "headers",
   "url",
@@ -416,8 +416,8 @@ class Request {
       return false;
     }
 
-    const listOfConfigOptions = Object.keys(config).filter((key) =>
-      CACHE_UNSAFE_CONFIG_OPTIONS.includes(key)
+    const listOfConfigOptions = Object.keys(config).filter(
+      (key) => !CACHE_SAFE_CONFIG_OPTIONS.includes(key)
     );
 
     if (listOfConfigOptions.length > 0) {
