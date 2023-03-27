@@ -98,7 +98,7 @@ describe("Course and section setup", () => {
       ).map((x) => x.crn);
 
       console.log(crns.length);
-      console.log(new Array(new Set(crns)).length);
+      console.log(Array.from(new Set(crns)).length);
 
       expect(actual).toBe(expected);
     }
