@@ -151,7 +151,10 @@ const CACHE_SAFE_CONFIG_OPTIONS = [
   "url",
   "cacheName",
   "jar",
+  // We used to use 'cache' - however, our new requests library (got) conflicts with this.
+  // Keep this here for backwards compatibility with older caches.
   "cache",
+  "cacheRequests",
 ];
 
 const LAUNCH_TIME = moment();
