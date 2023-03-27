@@ -10,7 +10,6 @@ import { Agents, OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
 import objectHash from "object-hash";
 import moment from "moment";
-import dnsCache from "dnscache";
 import cache from "./cache";
 import macros from "../utils/macros";
 import {
@@ -131,11 +130,13 @@ const separateReqPools: Record<string, RequestPool> = {
 // https://stackoverflow.com/questions/35026131/node-override-request-ip-resolution
 // https://gitter.im/request/request
 // https://github.com/yahoo/dnscache
-dnsCache({
-  enable: true,
-  ttl: 999999999,
-  cachesize: 999999999,
-});
+
+// TODO add caching back
+// dnsCache({
+//   enable: true,
+//   ttl: 999999999,
+//   cachesize: 999999999,
+// });
 
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =

@@ -89,6 +89,16 @@ describe("Course and section setup", () => {
           },
         },
       });
+
+      // Temporary logging
+      console.log(
+        (
+          await prisma.section.findMany({
+            orderBy: { crn: "desc" },
+          })
+        ).map((x) => x.crn)
+      );
+
       expect(actual).toBe(expected);
     }
 
