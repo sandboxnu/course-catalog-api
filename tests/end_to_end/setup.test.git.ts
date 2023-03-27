@@ -91,13 +91,14 @@ describe("Course and section setup", () => {
       });
 
       // Temporary logging
-      console.log(
-        (
-          await prisma.section.findMany({
-            orderBy: { crn: "desc" },
-          })
-        ).map((x) => x.crn)
-      );
+      const crns = (
+        await prisma.section.findMany({
+          orderBy: { crn: "desc" },
+        })
+      ).map((x) => x.crn);
+
+      console.log(crns.length);
+      console.log(new Array(new Set(crns)).length);
 
       expect(actual).toBe(expected);
     }

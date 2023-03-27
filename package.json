@@ -87,7 +87,6 @@
     "core-js": "^3.0.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
-    "dnscache": "^1.0.1",
     "domutils": "^2.8.0",
     "dotenv": "^16.0.0",
     "eslint-plugin-deprecation": "^1.2.1",
