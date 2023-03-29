@@ -448,7 +448,7 @@ class Request {
       cookieJar: undefined,
     };
 
-    return objectHash(configToHash);
+    return objectHash(cleanConfig);
   }
 
   /**
