@@ -37,6 +37,7 @@ export async function sendNotifications(
   courseHashToUsers: Record<string, User[]>,
   sectionHashToUsers: Record<string, User[]>
 ): Promise<void> {
+  console.log(notificationInfo);
   if (
     notificationInfo.updatedCourses.length === 0 &&
     notificationInfo.updatedSections.length === 0

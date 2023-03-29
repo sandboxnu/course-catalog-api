@@ -12,6 +12,7 @@ import objectHash from "object-hash";
 import moment from "moment";
 import cache from "./cache";
 import macros from "../utils/macros";
+import dnsCache from "dnscache";
 import {
   RequestAnalytics,
   CustomOptions,
@@ -131,12 +132,11 @@ const separateReqPools: Record<string, RequestPool> = {
 // https://gitter.im/request/request
 // https://github.com/yahoo/dnscache
 
-// TODO add caching back
-// dnsCache({
-//   enable: true,
-//   ttl: 999999999,
-//   cachesize: 999999999,
-// });
+dnsCache({
+  enable: true,
+  ttl: 999999999,
+  cachesize: 999999999,
+});
 
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =
@@ -150,9 +150,10 @@ const CACHE_SAFE_CONFIG_OPTIONS = [
   "headers",
   "url",
   "cacheName",
-  "jar",
-  // We used to use 'cache' - however, our new requests library (got) conflicts with this.
+  // We used to use 'cache' and 'jar' - however, our new requests library (got) conflicts with this.
   // Keep this here for backwards compatibility with older caches.
+  "jar",
+  "cookieJar",
   "cache",
   "cacheRequests",
 ];
@@ -435,22 +436,31 @@ class Request {
   }
 
   /**
+   * TODO
+   */
+  private hashConfig(config: CustomOptions): string {
+    // Copy the headers, omitting the Cookie
+    const cleanHeaders = { ...config.headers, Cookie: undefined };
+
+    const cleanConfig = {
+      ...config,
+      headers: cleanHeaders,
+      cookieJar: undefined,
+    };
+
+    return objectHash(configToHash);
+  }
+
+  /**
    * Returns the cache key for this corresponding config.
    * Allows us to cache responses from requests sent with this config
    */
-  private getCacheKey(config: CustomOptions): string | undefined {
+  private getCacheKey(config: CustomOptions): string {
+    // Skipping the hashing when it is not necessary significantly speeds this up.
     if (this.safeToCacheByUrl(config)) {
       return config.url;
     } else {
-      // Make a new request without the cookies and the cookie jar.
-      const headersWithoutCookie = { ...config.headers };
-      headersWithoutCookie.Cookie = undefined;
-
-      const configToHash = { ...config };
-      configToHash.headers = headersWithoutCookie;
-      // TODO?? configToHash.jar = undefined;
-
-      return objectHash(configToHash);
+      return this.hashConfig(config);
     }
   }
 
@@ -466,7 +476,6 @@ class Request {
     let newKey: string | undefined;
 
     if (macros.DEV && config.cacheRequests) {
-      // Skipping the hashing when it is not necessary significantly speeds this up.
       newKey = this.getCacheKey(config);
 
       const content = await cache.get(
