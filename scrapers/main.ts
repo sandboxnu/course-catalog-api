@@ -17,6 +17,7 @@ import "colors";
 
 class Main {
   async main(): Promise<void> {
+    const start = Date.now();
     // Get the TermInfo information from Banner
     const allTermInfos = await bannerv9parser.getAllTermInfos(
       bannerv9CollegeUrls[0]
@@ -39,7 +40,13 @@ class Main {
       currentTermInfos: currentTermInfos,
     });
 
-    macros.log("Done scraping\n\n".green.underline);
+    const totalTime = Date.now() - start;
+
+    macros.log(
+      `Done scraping: took ${totalTime} ms (${(totalTime / 60000).toFixed(
+        2
+      )} minutes)\n\n`.green.underline
+    );
   }
 }
 
