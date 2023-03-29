@@ -3,20 +3,47 @@
 There are 3 types of deployment types for SearchNEU and the course-catalog API.
 
 1. Frontend-only: see the [documentation on the SearchNEU repo](https://github.com/sandboxnu/searchneu)
-2. Backend-only: See below. In short, you just need to create a new Docker image, push it to AWS, and run it in an AWS Elastic Container Service (ECS)
-3. Backend infrastructure changes: See below. In short - Terraform.
+2. Backend code-changes: This is the most common type of backend deploy
 
-## Deploying CCA changes
+- Essentially, this creates a new Docker image, pushes it to AWS, and runs it in an AWS Elastic Container Service (ECS)
+
+3. Backend infrastructure changes: this is only necessary if we change the infrastructure setup
+
+- eg. creating/modifying DNS or certificates, changing how much memory our services have, upgrading the PSQL version, etc.
+
+## Backend Code Deployment
+
+### Prerequisites
+
+- [Admin] Create an AWS account for the user.
+  - Ensure that _"Enable console access"_ is checked
+  - Assign the user to the **SearchNeuDev** group
+- [User] Log into the new account and change your password
+- Create an [access key ID and secret access key](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html#cli-configure-quickstart-creds-create)
+- Run [`aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) in your local terminal. Provide the newly-created access information.
+  - The other prompts should be left as the defaults
+
+### Steps
 
 - Run `./infrastructure/aws/push-image`
-  - This pushes a new Docker image to AWS ECR with the `staging` tag
-- Run `./infrastructure/aws/redeploy staging`
-  - This redeploys the staging CCA with the latest Docker image tagged with `staging`
-- Ensure that the staging API looks and operates as expected
-- Run `./infrastructure/aws/redeploy prod`
-  - This tags the latest `staging` Docker image with a `prod` tag and redeploys prod CCA using that image
 
-## Terraform deployment
+This runs `docker build` in your local environment, tags the resulting image, and pushes it up to AWS ECR (a registry for Docker images). This also tags the Docker image with the `staging` tag.
+
+We maintain two clusters (ie. groups) of ECS (Elastic Container Service) containers running in AWS — a staging group, and a production group. Whenever the staging group is restarted, it will use the Docker image with the `staging` tag as its source. However, instead of waiting for the staging group to redeploy itself (which would only happen when the container runs into an error and dies), we forcibly restart it in the next step.
+
+?> Occasionally, you may run into deployment issues where the image deployed to AWS doesn't accuratly reflect the state it should. The cause is currently unknown, but it's suspected to be a Docker caching issue. Try using `docker prune` to remove your current images and caches.<br/><br/>2023-02-13: @sebwittr is investigating.
+
+- Run `./infrastructure/aws/redeploy staging`
+
+This re-deploys the staging group in AWS, which will now use the latest Docker image tagged with `staging` (ie. the one you just built and pushed up to AWS)
+
+- Ensure that the staging API looks and operates as expected
+
+- Run `./infrastructure/aws/redeploy prod`
+
+This tags the latest `staging` Docker image with a `prod` tag and redeploys the production group using that image.
+
+## Backend Infrastructure Deployment
 
 Anytime you have an infrastructure change (as opposed to a code change), we need a Terraform deployment.
 

@@ -32,8 +32,12 @@ variable "alb_dns_name" {
   description = "alb dns name to setup cname to"
 }
 
-variable "domains" {
-  description = "domains to put this env on. ALB needs to already have certs for it"
+variable "api_domain" {
+  description = "domain for the API server. ALB needs to already have certs for it"
+}
+
+variable "notifs_domain" {
+  description = "domain for the notification server. ALB needs to already have certs for it"
 }
 
 variable "cloudflare_zone_id" {
