@@ -6,14 +6,14 @@ import { GraphQLResponse } from "apollo-server-core";
 
 const NUM_TERMIDS = 3;
 const NUMS_COURSES = {
-  "202240": 646,
-  "202250": 519,
-  "202260": 493,
+  "202240": 635,
+  "202250": 502,
+  "202260": 545,
 };
 const NUMS_SECTIONS = {
-  "202240": 840,
-  "202250": 1634,
-  "202260": 515,
+  "202240": 813,
+  "202250": 1380,
+  "202260": 650,
 };
 const NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce((a, b) => a + b, 0);
 const NUM_COURSES = Object.values(NUMS_COURSES).reduce((a, b) => a + b, 0);
