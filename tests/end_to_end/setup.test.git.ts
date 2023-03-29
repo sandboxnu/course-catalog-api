@@ -11,7 +11,7 @@ const NUMS_COURSES = {
   "202260": 545,
 };
 const NUMS_SECTIONS = {
-  "202240": 813,
+  "202240": 813 + 1, // There are 813 sections, but one additional section that we added during setup
   "202250": 1380,
   "202260": 650,
 };
