@@ -485,10 +485,7 @@ class Request {
         );
       }
 
-      const contentLength = Number.parseInt(
-        response.headers["content-length"],
-        10
-      );
+      const contentLength = response.rawBody.length;
       this.analytics[hostname].totalBytesDownloaded += contentLength;
       if (!macros.PROD) {
         macros.http(
