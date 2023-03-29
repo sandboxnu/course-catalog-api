@@ -2,7 +2,7 @@ import ClassParser from "../classParser";
 import data from "./data/classParser.data";
 import nock from "nock";
 
-nock(/.*/)
+const scope = nock("nubanner.neu.edu")
   .get(/term=termsTest/)
   .reply(200, [
     {
@@ -40,6 +40,7 @@ beforeAll(() => {
 
 afterAll(() => {
   jest.restoreAllMocks();
+  scope.persist(false);
 });
 
 jest.mock("../subjectAbbreviationParser");
