@@ -1,23 +1,4 @@
 import TermListParser from "../termListParser";
-import nock from "nock";
-
-nock(/.*/)
-  .get(/termslist$/)
-  .reply(200, [
-    {
-      code: "3",
-      description: "Fall 2022 Semester",
-    },
-    {
-      code: "1",
-      description: "Summer 2022 CPS Semester",
-    },
-    {
-      code: "2",
-      description: "Summer 2022 Law Semester",
-    },
-  ])
-  .persist();
 
 describe("termListParser", () => {
   it("pulls out relevant data", () => {

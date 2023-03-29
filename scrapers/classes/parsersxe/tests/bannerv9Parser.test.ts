@@ -9,7 +9,7 @@ import classParser from "../classParser";
 import sectionParser from "../sectionParser";
 import nock from "nock";
 
-nock(/.*/)
+const scope = nock("https://example.org")
   .get(/termslist$/)
   .reply(200, [
     {
@@ -26,6 +26,10 @@ nock(/.*/)
     },
   ])
   .persist();
+
+afterAll(() => {
+  scope.persist(false);
+});
 
 describe("getTermsIds", () => {
   beforeEach(() => {

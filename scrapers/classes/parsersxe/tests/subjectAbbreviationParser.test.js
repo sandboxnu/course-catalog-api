@@ -2,7 +2,7 @@
 import * as subject from "../subjectAbbreviationParser";
 import nock from "nock";
 
-nock(/.*/)
+const scope = nock("https://nubanner.neu.edu")
   .get(/term=termsTest/)
   .reply(200, [
     {
@@ -15,6 +15,10 @@ nock(/.*/)
     },
   ])
   .persist();
+
+afterAll(() => {
+  scope.persist(false);
+});
 
 describe("subjectAbbreviationParser", () => {
   it("_createDescriptionTable builds mapping", () => {
