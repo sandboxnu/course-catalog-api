@@ -92,27 +92,6 @@ const separateReqPools: Record<string, RequestPool> = {
     agents: false,
   },
 
-  "genisys.regent.edu": {
-    options: { maxSockets: 50, keepAlive: true, maxFreeSockets: 50 },
-    agents: false,
-  },
-  "prod-ssb-01.dccc.edu": {
-    options: { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
-    agents: false,
-  },
-  "telaris.wlu.ca": {
-    options: { maxSockets: 400, keepAlive: true, maxFreeSockets: 400 },
-    agents: false,
-  },
-  "myswat.swarthmore.edu": {
-    options: { maxSockets: 1000, keepAlive: true, maxFreeSockets: 1000 },
-    agents: false,
-  },
-  "bannerweb.upstate.edu": {
-    options: { maxSockets: 200, keepAlive: true, maxFreeSockets: 200 },
-    agents: false,
-  },
-
   // Took 1hr and 15 min with 500 sockets and RETRY_DELAY set to 20000 and delta set to 15000.
   // Usually takes just under 1 hr at 1k sockets and the same timeouts.
   // Took around 20 min with timeouts set to 100ms and 150ms and 100 sockets.
@@ -300,9 +279,7 @@ class Request {
     const pool = separateReqPools[hostname] ?? separateReqDefaultPool;
 
     if (pool.agents === false) {
-      // TODO: is there a better way than just adding both? May be inefficient
       pool.agents = {
-        http: new HttpAgent(pool.options),
         https: new HttpsAgent(pool.options),
       };
     }
@@ -337,12 +314,9 @@ class Request {
           return RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
         },
       },
-      // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
-      // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
-      // Additionally, this is needed when doing application layer dns
+      // Allow fallback to old depreciated insecure SSL ciphers. This is needed when doing application layer dns
       // caching because the url no longer matches the url in the cert.
       https: { rejectUnauthorized: false },
-      // TODO defaultConfig.https.ciphers = "ALL";
       agent: this.prepareAgentsForHostname(hostname),
     };
 
