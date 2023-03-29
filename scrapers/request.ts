@@ -436,10 +436,11 @@ class Request {
   }
 
   /**
-   * TODO
+   * Creates a hash for a given request config.
+   * Ideally, we'd want to skip this, since this call can be *relatively* expensive.
    */
   private hashConfig(config: CustomOptions): string {
-    // Copy the headers, omitting the Cookie
+    // We want to omit things that change frequently, but shouldn't affect caching
     const cleanHeaders = { ...config.headers, Cookie: undefined };
 
     const cleanConfig = {
