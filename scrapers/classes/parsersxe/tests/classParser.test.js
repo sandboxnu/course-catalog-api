@@ -2,7 +2,7 @@ import ClassParser from "../classParser";
 import data from "./data/classParser.data";
 import nock from "nock";
 
-const scope = nock("nubanner.neu.edu")
+const scope = nock("https://nubanner.neu.edu")
   .get(/term=termsTest/)
   .reply(200, [
     {
