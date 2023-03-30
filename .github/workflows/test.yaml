@@ -111,7 +111,7 @@ jobs:
         run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater | tee _updater.log
 
       - name: Ensure that we're using the cache, not sending live requests
-        run: ! cat _updater.log | egrep "Firing request.*ssb\/searchResults\/searchResults"
+        run: '! cat _updater.log | egrep "Firing request.*ssb\/searchResults\/searchResults"'
         # All requests to ssb/searchResults/searchResults should be going to the cache
         # We can detect this, because our requests library will log:
         #   "Firing request to <URL>" right before it sends a live request
