@@ -12,7 +12,6 @@ import objectHash from "object-hash";
 import moment from "moment";
 import cache from "./cache";
 import macros from "../utils/macros";
-import dnsCache from "dnscache";
 import {
   RequestAnalytics,
   CustomOptions,
@@ -23,36 +22,18 @@ import {
 import { EmptyObject } from "../types/types";
 import { Agent as HttpAgent } from "http";
 import { Agent as HttpsAgent } from "https";
+import CacheableLookup from "cacheable-lookup";
 
-// This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
-// This file adds:
-// Automatic retry, with a delay in between reqeusts.
-// Limit the max number of simultaneous requests (this used to be done with d3-queue, but is now done with agent.maxSockets)
-// Application layer DNS cacheing. The request library (and the built in http library) will do a separate DNS lookup for each request
-//    This DNS cacheing will do one DNS lookup per hostname (www.ccis.northeastern.edu, wl11gp.neu.edu) and cache the result.
-//    This however, does change the URL that is sent to the request library (hostname -> pre-fetched ip), which means that the https verificaton will be comparing
-//    the URL in the cert with the IP in the url, which will fail. Need to disable https verification for this to work.
-// Keep-alive connections. Keep TCP connections open between requests. This significantly speeds up scraping speeds (1hr -> 20min)
-// Ignore invalid HTTPS certificates and outdated ciphers. Some school sites have really old and outdated sites. We want to scrape them even if their https is misconfigured.
-// Saves all pages to disk in development so parsers are faster and don't need to hit actuall websites to test updates for scrapers
-// ignores request cookies when matching request for caching
-// see the request function for details about input (same as request input + some more stuff) and output (same as request 'response' object + more stuff)
+// What is this file?
+//    This is a wrapper around `got`, the request library we use.
+//    This sets default settings so that our scraping is a lot faster.
+//
+// What changes are made from the defaults?
+//    Automatic retries (with delays between requests)
+//    Limit the max number of simultaneous requests based on what's been determined to be optimal (via trial and error)
+//    DNS caching - this prevents us from doing a DNS lookup for every request, saving time.
 
-// Would it be worth to assume that these sites have a cache and hit all the subjects, and then hit all the classes, etc?
-// So assume that when you hit one subject it caches that subject and others nearby.
-
-// TODO:
-// Sometimes many different hostnames all point to the same IP. Need to limit requests by an IP basis and a hostname basis (COS).
-// Need to improve the cache. Would save everything in one object, but 268435440 (268 MB) is roughly the max limit of the output of JSON.stringify.
-// https://github.com/nodejs/node/issues/9489#issuecomment-279889904
-
-// This object must be created once per process
-// Attributes are added to this object when it is used
-// This is the total number of requests per host
-// If these numbers ever exceed 1024, might want to ensure that there are more file descriptors available on the OS for this process
-// than we are trying to request. Windows has no limit and travis has it set to 500k by default, but Mac OSX and Linux Desktop often have them
-// set really low (256) which could interefere with this.
-// https://github.com/request/request
+// This object contains the DEFAULT settings for each hostname.
 const separateReqDefaultPool: RequestPool = {
   options: {
     maxSockets: 50,
@@ -62,9 +43,8 @@ const separateReqDefaultPool: RequestPool = {
   agents: false,
 };
 
-// Specific limits for some sites. CCIS has active measures against one IP making too many requests
-// and will reject request if too many are made too quickly.
-// Some other schools' servers will crash/slow to a crawl if too many requests are sent too quickly.
+// This object contains the DEFAULT settings for SPECIFIC sites.
+// These limits were discovered by trial & error.
 const separateReqPools: Record<string, RequestPool> = {
   "www.ccis.northeastern.edu": {
     options: {
@@ -102,20 +82,7 @@ const separateReqPools: Record<string, RequestPool> = {
 };
 
 // Enable the DNS cache. This module replaces the .lookup method on the built in dns module to cache lookups.
-// The old way of doing DNS caching was to do a dns lookup of the domain before the request was made,
-// and then swap out the domain with the ip in the url. (And cache the dns lookup manually.)
-// Use this instead of swapping out the domain with the ip in the fireRequest function so the cookies still work.
-// (There was some problems with saving them because, according to request, the host was the ip, but the cookies were configured to match the domain)
-// It would be possible to go back to manual dns lookups and therefore manual cookie jar management if necessary (wouldn't be that big of a deal).
-// https://stackoverflow.com/questions/35026131/node-override-request-ip-resolution
-// https://gitter.im/request/request
-// https://github.com/yahoo/dnscache
-
-dnsCache({
-  enable: true,
-  ttl: 999999999,
-  cachesize: 999999999,
-});
+const DNS_CACHE = new CacheableLookup();
 
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =
@@ -129,11 +96,7 @@ const CACHE_SAFE_CONFIG_OPTIONS = [
   "headers",
   "url",
   "cacheName",
-  // We used to use 'cache' and 'jar' - however, our new requests library (got) conflicts with this.
-  // Keep this here for backwards compatibility with older caches.
-  "jar",
   "cookieJar",
-  "cache",
   "cacheRequests",
 ];
 
@@ -318,6 +281,7 @@ class Request {
       // caching because the url no longer matches the url in the cert.
       https: { rejectUnauthorized: false },
       agent: this.prepareAgentsForHostname(hostname),
+      dnsCache: DNS_CACHE,
     };
 
     // Merge the default config and the input config
@@ -384,12 +348,10 @@ class Request {
     );
 
     if (listOfHeaders.length > 0) {
-      const configToLog = { ...config };
-
       macros.http(
         "Not caching by url b/c it has other headers",
         listOfHeaders,
-        configToLog
+        { ...config }
       );
       return false;
     }
@@ -543,7 +505,6 @@ class RequestInput {
   ): Promise<Response<string>> {
     config.method = method;
     config.url = url;
-    // FIXME remove, break the URL out of the config. Depends on `Request`
 
     const output = {};
 

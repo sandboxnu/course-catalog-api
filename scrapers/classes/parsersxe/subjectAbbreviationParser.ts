@@ -38,7 +38,6 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   if (response.statusCode !== 200) {
     macros.error(`Problem with request for subjects ${subjectUrl}`);
   }
-  // TODO remove
   return JSON.parse(response.body);
 }
 

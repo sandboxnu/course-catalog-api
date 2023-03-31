@@ -21,7 +21,6 @@ export interface AgentAnalytics {
   maxSockets: number;
 }
 
-// TODO Remove this/simplify the options provided
 export interface CustomOptions extends OptionsOfTextResponseBody {
   url: string;
   // defaults to true

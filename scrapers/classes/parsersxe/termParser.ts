@@ -167,10 +167,10 @@ class TermParser {
             cookieJar: cookieJar,
           }
         );
-        // TODO remove
-        const body = JSON.parse(req.body);
-        if (body.success) {
-          return { items: body.data, totalCount: body.totalCount };
+
+        const bodyObj = JSON.parse(req.body);
+        if (bodyObj.success) {
+          return { items: bodyObj.data, totalCount: bodyObj.totalCount };
         }
         return false;
       })) as CourseSR[];
@@ -201,10 +201,10 @@ class TermParser {
             cookieJar: cookieJar,
           }
         );
-        // TODO remove
-        const body = JSON.parse(req.body);
-        if (body.success) {
-          return { items: body.data, totalCount: body.totalCount };
+
+        const bodyObj = JSON.parse(req.body);
+        if (bodyObj.success) {
+          return { items: bodyObj.data, totalCount: bodyObj.totalCount };
         }
         return false;
       })) as SectionSR[];

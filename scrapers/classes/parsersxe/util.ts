@@ -99,10 +99,10 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
       cookieJar: cookieJar,
     }
   );
-  // TODO remove
-  const body = JSON.parse(clickContinue.body);
 
-  if (body.regAllowed === false) {
+  const bodyObj = JSON.parse(clickContinue.body);
+
+  if (bodyObj.regAllowed === false) {
     macros.error(
       `failed to get cookies (from clickContinue) for the term ${termId}`,
       clickContinue.body

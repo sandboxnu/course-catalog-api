@@ -32,10 +32,9 @@ class SectionParser {
       }
     );
 
-    // TODO remove
-    const body = JSON.parse(req.body);
-    if (body.success) {
-      return body.data.map((sr) => {
+    const bodyObj = JSON.parse(req.body);
+    if (bodyObj.success) {
+      return bodyObj.data.map((sr) => {
         return this.parseSectionFromSearchResult(sr);
       });
     }

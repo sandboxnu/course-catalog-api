@@ -88,10 +88,9 @@ export class Bannerv9Parser {
     const bannerTerms = await request.get(termsUrl, {
       cacheRequests: false,
     });
-    // TODO — get rid of this pattern after removing retry work
-    const bannerTermsParsed = JSON.parse(bannerTerms.body);
 
-    const termList = TermListParser.serializeTermsList(bannerTermsParsed);
+    const bannerTermsObject = JSON.parse(bannerTerms.body);
+    const termList = TermListParser.serializeTermsList(bannerTermsObject);
 
     // Sort by descending order (to get the most recent term IDs first)
     return termList.sort((a, b) => {

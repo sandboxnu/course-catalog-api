@@ -79,14 +79,11 @@ class NeuEmployee {
 
   // Queries the API module version from the API (needed for requests)
   async queryModuleVersion(): Promise<string> {
-    return (
-      request
-        .get(
-          "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
-        )
-        // TODO
-        .then((resp) => JSON.parse(resp.body)["versionToken"])
-    );
+    return request
+      .get(
+        "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
+      )
+      .then((resp) => JSON.parse(resp.body)["versionToken"]);
   }
 
   /**
@@ -123,7 +120,7 @@ class NeuEmployee {
         },
       }
     );
-    // TODO — get rid of this pattern after removing retry work
+
     const parsedResponse = JSON.parse(response.body);
     const employees: EmployeeRequestResponse[] =
       parsedResponse?.data?.EmployeeDirectoryContact?.List;

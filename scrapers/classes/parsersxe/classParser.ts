@@ -54,10 +54,10 @@ class ClassParser {
         cookieJar: cookieJar,
       }
     );
-    const body = JSON.parse(req.body);
-    // TODO — get rid of this pattern after removing retry work
-    if (body.success && body.data && body.data[0]) {
-      return this.parseClassFromSearchResult(body.data[0], termId);
+    const bodyObj = JSON.parse(req.body);
+
+    if (bodyObj.success && bodyObj.data && bodyObj.data[0]) {
+      return this.parseClassFromSearchResult(bodyObj.data[0], termId);
     }
     return false;
   }
