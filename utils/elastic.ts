@@ -29,9 +29,9 @@ const BULKSIZE = 2000;
 const MAX_RETRY_ATTEMPTS = 5;
 /**
  * The multiplier (in ms) by which we increase the wait time in between succsessive retries.
- * This is an arbitrary number - 750 was chosen because it works.
+ * This is an arbitrary number - 1000 was chosen because 750 was failing for a bit, so we raised it a little.
  */
-const RETRY_TIME_MULTIPLIER = 750;
+const RETRY_TIME_MULTIPLIER = 1000;
 
 type ElasticIndex = {
   name: string;
@@ -257,13 +257,19 @@ export class Elastic {
           bulk.push({ index: { _id: id } });
           bulk.push(map[id]);
         }
-        // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
-        const res = await this.retryBulkQuery(indexName, bulk);
+        try {
+          // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
+          const res = await this.retryBulkQuery(indexName, bulk);
 
-        macros.log(
-          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
-        );
-        return res;
+          macros.log(
+            `indexed ${
+              chunkNum * BULKSIZE + chunk.length
+            } docs into ${indexName}`
+          );
+          return res;
+        } catch (e) {
+          macros.error(e);
+        }
       },
       { concurrency: 1 }
     );
