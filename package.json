@@ -176,43 +176,21 @@
     "typescript": "^4.5.5",
     "yarn-deduplicate": "^4.0.0"
   },
-  "jest": {
-    "testURL": "http://localhost/",
-    "testPathIgnorePatterns": [
-      "/node_modules/",
-      "/dist/"
-    ],
-    "moduleFileExtensions": [
-      "js",
-      "jsx",
-      "json",
-      "node",
-      "tsx",
-      "ts"
-    ],
-    "testMatch": [
-      "**/__tests__/**/*.[jt]s?(x)",
-      "**/?(*.)(spec|test).[jt]s?(x)"
-    ],
-    "moduleNameMapper": {
-      "__comment": "The css import needs to be an object that returns a string",
-      "__comment2": "but the svg and png imports need to be string themselves.",
-      "\\.(css|less|scss)$": "identity-obj-proxy",
-      "\\.(svg|png)$": "<rootDir>/frontend/components/tests/exportsAString.js"
-    }
-  },
-  "nodemonConfig": {
-    "ignore": [
-      "node_modules/*"
-    ],
-    "ext": "js,jsx,ts,tsx"
-  },
+  "about:husky": [
+    "Husky allows us to use git hooks - in other words, to execute an action every time a specific git action is taken.",
+    "Currently, we have a 'pre-commit' hook that runs whenever a user tries committing files, but before they are actually committed.",
+    "This hook runs `pretty` (to format the files), and `eslint` (to ensure we don't have bad code patters)",
+    "This only runs on the files that have been staged to be committed."
+  ],
   "husky": {
     "hooks": {
-      "__comment_1": "Runs prettier, and lint, only on the staged files",
       "pre-commit": "yarn pretty-quick --staged && yarn eslint --no-error-on-unmatched-pattern --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
     }
   },
+  "about:engines": [
+    "This helps us ensure that only specific versions of Node are used to run this project",
+    "Older versions may lead to unexpected errors due to dependency issues, etc."
+  ],
   "engines": {
     "node": ">=16"
   }
