@@ -16,6 +16,7 @@ COPY twilio /app/twilio
 COPY types /app/types
 COPY utils /app/utils
 COPY infrastructure/prod /app
+COPY babel.config.json /app
 
 RUN yarn build
 RUN rm -rf node_modules
