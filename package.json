@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sandboxnu/searchneu.git"
+    "url": "https://github.com/sandboxnu/course-catalog-api.git"
   },
   "main": "yarn prod",
   "_comment2": "Async adds about 30k to the final bundled output. There are smaller libraries that can also do async.retry (only thing that is being used in async)",
@@ -75,7 +75,6 @@
     "graphql-type-json": "^0.3.0",
     "he": "^1.2.0",
     "htmlparser2": "^7.2.0",
-    "identity-obj-proxy": "^3.0.0",
     "jsonwebtoken": "^9.0.0",
     "lodash": "^4.17.4",
     "moment": "^2.29.4",
