@@ -33,7 +33,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "19"
+          node-version: "16"
       - uses: bahmutov/npm-install@v1
 
       - run: yarn test --coverage
@@ -82,7 +82,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "19"
+          node-version: "16"
 
       - uses: bahmutov/npm-install@v1
 
