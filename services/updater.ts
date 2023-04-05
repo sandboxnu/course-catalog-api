@@ -113,6 +113,12 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    await sendNotifications(
+      notificationInfo,
+      courseHashToUsers,
+      sectionHashToUsers
+    );
+
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
@@ -127,12 +133,6 @@ class Updater {
       } ms.`
     );
     const totalTime = Date.now() - startTime;
-
-    await sendNotifications(
-      notificationInfo,
-      courseHashToUsers,
-      sectionHashToUsers
-    );
 
     macros.log(
       `${
