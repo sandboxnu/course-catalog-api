@@ -139,7 +139,7 @@ export interface Section {
   seatsRemaining: number;
   waitCapacity: number;
   waitRemaining: number;
-  lastUpdateTime: number;
+  lastUpdateTime: Date;
   campus: string;
   honors: boolean;
   url: string;

@@ -10,10 +10,6 @@ import { TermInfo } from "../../types/types";
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(null);
 
-beforeAll(() => {
-  dumpProcessor.CHUNK_SIZE = 2;
-});
-
 beforeEach(async () => {
   await prisma.professor.deleteMany({});
   await prisma.section.deleteMany({});

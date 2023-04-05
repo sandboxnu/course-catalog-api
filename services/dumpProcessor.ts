@@ -4,29 +4,15 @@
 
 import fs from "fs-extra";
 import _ from "lodash";
-import he from "he";
 import path from "path";
 import { Prisma } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import {
-  BulkUpsertInput,
-  Dump,
-  Section,
-  TransformFunction,
-} from "../types/types";
-
-type Maybe<T> = T | null | undefined;
+import { Dump, Section } from "../types/types";
 
 class DumpProcessor {
-  CHUNK_SIZE: number;
-
-  constructor() {
-    this.CHUNK_SIZE = 5;
-  }
-
   /**
    * @param termDump object containing all class and section data, normally acquired from scrapers
    * @param profDump object containing all professor data, normally acquired from scrapers
@@ -39,92 +25,7 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
-    const courseTransforms = {
-      class_attributes: this.arrayTransform,
-      class_attributes_contents: this.arrayStrTransform,
-      class_id: this.strTransform,
-      coreqs: this.jsonTransform,
-      description: this.strTransform,
-      fee_amount: this.intTransform,
-      fee_description: this.strTransform,
-      host: this.strTransform,
-      id: this.strTransform,
-      // lastUpdateTime should be updated every time this course is inserted
-      last_update_time: () => "now()",
-      max_credits: this.intTransform,
-      min_credits: this.intTransform,
-      name: this.strTransform,
-      nupath: this.arrayTransform,
-      nupath_contents: this.arrayStrTransform,
-      opt_prereqs_for: this.jsonTransform,
-      prereqs: this.jsonTransform,
-      prereqs_for: this.jsonTransform,
-      pretty_url: this.strTransform,
-      subject: this.strTransform,
-      term_id: this.strTransform,
-      url: this.strTransform,
-    };
-
-    const courseCols = [
-      "class_attributes",
-      "class_id",
-      "coreqs",
-      "description",
-      "fee_amount",
-      "fee_description",
-      "host",
-      "id",
-      "last_update_time",
-      "max_credits",
-      "min_credits",
-      "name",
-      "nupath",
-      "opt_prereqs_for",
-      "prereqs",
-      "prereqs_for",
-      "pretty_url",
-      "subject",
-      "term_id",
-      "url",
-    ];
-
-    const sectionTransforms = {
-      class_hash: this.strTransform,
-      class_type: this.strTransform,
-      crn: this.strTransform,
-      honors: this.boolTransform,
-      id: this.strTransform,
-      info: this.strTransform,
-      last_update_time: () => "now()",
-      meetings: this.jsonTransform,
-      campus: this.strTransform,
-      profs: this.arrayTransform,
-      profs_contents: this.arrayStrTransform,
-      seats_capacity: this.intTransform,
-      seats_remaining: this.intTransform,
-      url: this.strTransform,
-      wait_capacity: this.intTransform,
-      wait_remaining: this.intTransform,
-    };
-
-    const sectionCols = [
-      "class_hash",
-      "class_type",
-      "crn",
-      "honors",
-      "id",
-      "info",
-      "last_update_time",
-      "meetings",
-      "campus",
-      "profs",
-      "seats_capacity",
-      "seats_remaining",
-      "url",
-      "wait_capacity",
-      "wait_remaining",
-    ];
-
+    // TODO remove this
     const coveredTerms: Set<string> = new Set();
 
     // We delete all of the professors, and insert anew
@@ -137,18 +38,26 @@ class DumpProcessor {
       macros.log("DumpProcessor: finished with profs");
     }
 
-    // First, we break the classes into groups of 2000 each. Each group will become 1 query
-    const groupedClasses = _.chunk(Object.values(termDump.classes), 2000);
+    const processedCourses = termDump.classes.map((c) =>
+      this.constituteCourse(c, coveredTerms)
+    );
+    // Break the classes into groups of 2,000 each. Each group will be processed in parallel
+    // We can't process ALL classes in parallel because this may overwhelm the DB
+    const groupedCourses = _.chunk(processedCourses, 2000);
 
-    for (const courses of groupedClasses) {
-      await prisma.$executeRawUnsafe(
-        this.bulkUpsert(
-          "courses",
-          courseCols,
-          courseTransforms,
-          courses.map((c) => this.constituteCourse(c, coveredTerms))
-        )
-      );
+    for (const courses of groupedCourses) {
+      const upsertQueries = courses.map((course) => {
+        return prisma.course.upsert({
+          create: course,
+          update: course,
+          where: {
+            id: course.id,
+          },
+        });
+      });
+
+      // Execute in parallel
+      await Promise.all(upsertQueries);
     }
 
     macros.log("DumpProcessor: finished with courses");
@@ -163,13 +72,25 @@ class DumpProcessor {
       .map((section) => this.constituteSection(section, coveredTerms))
       .filter((s) => courseIds.has(s.classHash));
 
-    // First, we break the sections into groups of 2000 each. Each group will become 1 query
+    // Break the sections into groups of 2,000 each. Each group will be processed in parallel
+    // We can't process ALL sections in parallel because this may overwhelm the DB
     const groupedSections = _.chunk(processedSections, 2000);
 
     for (const sections of groupedSections) {
-      await prisma.$executeRawUnsafe(
-        this.bulkUpsert("sections", sectionCols, sectionTransforms, sections)
-      );
+      const upsertQueries = sections.map((section) => {
+        // Our type has a 'classHash', but Prisma doesn't & we have to remove it
+        const { classHash: _classHash, ...prismaSection } = section;
+        return prisma.section.upsert({
+          create: prismaSection,
+          update: prismaSection,
+          where: {
+            id: prismaSection.id,
+          },
+        });
+      });
+
+      // Execute in parallel
+      await Promise.all(upsertQueries);
     }
 
     macros.log("DumpProcessor: finished with sections");
@@ -269,65 +190,6 @@ class DumpProcessor {
     await populateES();
   }
 
-  bulkUpsert(
-    tableName: string,
-    columnNames: string[],
-    valTransforms: Record<string, TransformFunction>,
-    vals: BulkUpsertInput[]
-  ): string {
-    let query = `INSERT INTO ${tableName} (${columnNames.join(",")}) VALUES `;
-    query += vals
-      .map((val) => {
-        return `(${columnNames
-          .map((c) =>
-            valTransforms[c](val[this.toCamelCase(c)], c, valTransforms)
-          )
-          .join(",")})`;
-      })
-      .join(",");
-
-    query += ` ON CONFLICT (id) DO UPDATE SET ${columnNames
-      .map((c) => `${c} = excluded.${c}`)
-      .join(",")} WHERE ${tableName}.id = excluded.id;`;
-
-    return query;
-  }
-
-  strTransform(val: Maybe<string>): string {
-    const tempVal = val ? `'${DumpProcessor.escapeSingleQuote(val)}'` : "''";
-    return he.decode(tempVal);
-  }
-
-  arrayStrTransform(val: Maybe<string>): string {
-    return val ? `"${DumpProcessor.escapeSingleQuote(he.decode(val))}"` : "''";
-  }
-
-  intTransform(val: Maybe<number>): string {
-    return val || val === 0 ? `${val}` : "NULL";
-  }
-
-  arrayTransform(
-    val: Maybe<unknown[]>,
-    kind: string,
-    transforms: Record<string, TransformFunction>
-  ): string {
-    return val && val.length !== 0
-      ? `'{${val
-          .map((v) =>
-            transforms[`${kind}_contents`](v, `${kind}_contents`, transforms)
-          )
-          .join(",")}}'`
-      : "array[]::text[]";
-  }
-
-  jsonTransform(val: Maybe<unknown>): string {
-    return val ? `'${JSON.stringify(val)}'` : "'{}'";
-  }
-
-  boolTransform(val: Maybe<boolean>): string {
-    return val ? "TRUE" : "FALSE";
-  }
-
   constituteCourse(
     classInfo: any,
     coveredTerms: Set<string>
@@ -368,16 +230,6 @@ class DumpProcessor {
       "subject",
       "host",
     ]) as unknown as Prisma.SectionCreateInput & { classHash: string };
-  }
-
-  toCamelCase(str: string): string {
-    return str.replace(/(_[a-z])/g, (group) =>
-      group.toUpperCase().replace("_", "")
-    );
-  }
-
-  static escapeSingleQuote(str: string): string {
-    return str.replace(/'/g, "''");
   }
 }
 
