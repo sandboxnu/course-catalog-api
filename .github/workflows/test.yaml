@@ -86,9 +86,7 @@ jobs:
 
       - uses: bahmutov/npm-install@v1
 
-      - run: yarn add unzip
-
-      - run: unzip ./data/cache_2022_summer.zip
+      - run: mv ./data/cache_2022_summer ./cache
 
       - run: yarn db:migrate
 
