@@ -75,11 +75,13 @@ class DumpProcessor {
     // Break the sections into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL sections in parallel because this may overwhelm the DB
     const groupedSections = _.chunk(processedSections, 2000);
+    const updateTime = new Date();
 
     for (const sections of groupedSections) {
       const upsertQueries = sections.map((section) => {
         // Our type has a 'classHash', but Prisma doesn't & we have to remove it
         const { classHash: _classHash, ...prismaSection } = section;
+        prismaSection.lastUpdateTime = updateTime;
         return prisma.section.upsert({
           create: prismaSection,
           update: prismaSection,
