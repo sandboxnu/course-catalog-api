@@ -25,6 +25,7 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
+    const updateTime = new Date();
     // TODO remove this
     const coveredTerms: Set<string> = new Set();
 
@@ -47,6 +48,7 @@ class DumpProcessor {
 
     for (const courses of groupedCourses) {
       const upsertQueries = courses.map((course) => {
+        course.lastUpdateTime = updateTime;
         return prisma.course.upsert({
           create: course,
           update: course,
@@ -75,7 +77,6 @@ class DumpProcessor {
     // Break the sections into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL sections in parallel because this may overwhelm the DB
     const groupedSections = _.chunk(processedSections, 2000);
-    const updateTime = new Date();
 
     for (const sections of groupedSections) {
       const upsertQueries = sections.map((section) => {
