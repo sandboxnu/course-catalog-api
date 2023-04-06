@@ -7,6 +7,7 @@ import prisma from "../../services/prisma";
 import dumpProcessor from "../../services/dumpProcessor";
 import elastic from "../../utils/elastic";
 import { TermInfo } from "../../types/types";
+import { ParsedCourseSR } from "../../types/scraperTypes";
 
 jest.spyOn(elastic, "bulkIndexFromMap").mockResolvedValue(null);
 
@@ -185,7 +186,7 @@ describe("with classes", () => {
           optPrereqsFor: { type: "and", values: [] },
           classAttributes: ["fun intro"],
           lastUpdateTime: 123456789,
-        },
+        } as Partial<ParsedCourseSR>,
         {
           id: "neu.edu/202030/CS/2510",
           maxCredits: 4,
@@ -200,7 +201,7 @@ describe("with classes", () => {
           prereqsFor: { type: "and", values: [] },
           optPrereqsFor: { type: "and", values: [] },
           lastUpdateTime: 123456789,
-        },
+        } as Partial<ParsedCourseSR>,
         {
           id: "neu.edu/202030/CS/3500",
           maxCredits: 4,
@@ -211,8 +212,7 @@ describe("with classes", () => {
           termId: "202030",
           subject: "CS",
           lastUpdateTime: 123456789,
-          honors: true,
-        },
+        } as Partial<ParsedCourseSR>,
       ],
       subjects: [],
     } as any;

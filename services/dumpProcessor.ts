@@ -79,18 +79,18 @@ class DumpProcessor {
     const groupedSections = _.chunk(processedSections, 2000);
 
     for (const sections of groupedSections) {
-      const upsertQueries = sections.map((section) => {
-        // Our type has a 'classHash', but Prisma doesn't & we have to remove it
-        const { classHash: _classHash, ...prismaSection } = section;
-        prismaSection.lastUpdateTime = updateTime;
-        return prisma.section.upsert({
-          create: prismaSection,
-          update: prismaSection,
-          where: {
-            id: prismaSection.id,
-          },
-        });
-      });
+      const upsertQueries = sections.map(
+        (prismaSection: Prisma.SectionUncheckedCreateInput) => {
+          prismaSection.lastUpdateTime = updateTime;
+          return prisma.section.upsert({
+            create: prismaSection,
+            update: prismaSection,
+            where: {
+              id: prismaSection.id,
+            },
+          });
+        }
+      );
 
       // Execute in parallel
       await Promise.all(upsertQueries);
@@ -213,7 +213,9 @@ class DumpProcessor {
       nupath: classInfo.nupath || [],
     };
 
-    const { desc, ...finalCourse } = correctedQuery;
+    // Strip out the keys that Prisma doesn't recognize
+    // TODO - abstract this pattern as a util, remove lodash
+    const { desc, college, ...finalCourse } = correctedQuery;
 
     return finalCourse;
   }
@@ -221,7 +223,7 @@ class DumpProcessor {
   constituteSection(
     secInfo: Section,
     coveredTerms: Set<string>
-  ): Prisma.SectionCreateInput & { classHash: string } {
+  ): Prisma.SectionUncheckedCreateInput {
     coveredTerms.add(secInfo.termId);
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
@@ -232,7 +234,7 @@ class DumpProcessor {
       "termId",
       "subject",
       "host",
-    ]) as unknown as Prisma.SectionCreateInput & { classHash: string };
+    ]) as unknown as Prisma.SectionUncheckedCreateInput;
   }
 }
 

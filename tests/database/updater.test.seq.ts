@@ -1,9 +1,5 @@
 import Updater from "../../services/updater";
-import {
-  Course as CourseType,
-  Section as SectionType,
-  Requisite,
-} from "../../types/types";
+import { Course, Section, Requisite } from "../../types/types";
 import prisma from "../../services/prisma";
 import { Prisma } from "@prisma/client";
 import Keys from "../../utils/keys";
@@ -62,7 +58,7 @@ const defaultSectionProps = {
   meetings: [],
 };
 
-const FUNDIES_ONE: CourseType = {
+const FUNDIES_ONE: Course = {
   classId: "2500",
   name: "Fundamentals of Computer Science 1",
   termId: SEMS_TO_UPDATE[0],
@@ -70,7 +66,7 @@ const FUNDIES_ONE: CourseType = {
   ...defaultClassProps,
 };
 
-const FUNDIES_TWO: CourseType = {
+const FUNDIES_TWO: Course = {
   classId: "2510",
   name: "Fundamentals of Computer Science 2",
   termId: SEMS_TO_UPDATE[0],
@@ -78,7 +74,7 @@ const FUNDIES_TWO: CourseType = {
   ...defaultClassProps,
 };
 
-const PL: CourseType = {
+const PL: Course = {
   classId: "4400",
   name: "Principles of Programming Languages",
   termId: SEMS_TO_UPDATE[0],
@@ -86,7 +82,7 @@ const PL: CourseType = {
   ...defaultClassProps,
 };
 
-const FUNDIES_ONE_S1: SectionType = {
+const FUNDIES_ONE_S1: Section = {
   crn: "1234",
   classId: "2500",
   classType: "lecture",
@@ -96,11 +92,12 @@ const FUNDIES_ONE_S1: SectionType = {
   seatsRemaining: 1,
   waitCapacity: 0,
   waitRemaining: 0,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const FUNDIES_ONE_S2: SectionType = {
+const FUNDIES_ONE_S2: Section = {
   crn: "5678",
   classId: "2500",
   classType: "lecture",
@@ -110,11 +107,12 @@ const FUNDIES_ONE_S2: SectionType = {
   seatsRemaining: 5,
   waitCapacity: 10,
   waitRemaining: 5,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const FUNDIES_ONE_NEW_SECTION: SectionType = {
+const FUNDIES_ONE_NEW_SECTION: Section = {
   crn: "2468",
   classId: "2500",
   classType: "lecture",
@@ -124,11 +122,12 @@ const FUNDIES_ONE_NEW_SECTION: SectionType = {
   seatsRemaining: 5,
   waitCapacity: 10,
   waitRemaining: 5,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const FUNDIES_TWO_S1: SectionType = {
+const FUNDIES_TWO_S1: Section = {
   crn: "0248",
   classId: "2510",
   classType: "lecture",
@@ -138,11 +137,12 @@ const FUNDIES_TWO_S1: SectionType = {
   seatsRemaining: 0,
   waitCapacity: 10,
   waitRemaining: 3,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const FUNDIES_TWO_S2: SectionType = {
+const FUNDIES_TWO_S2: Section = {
   crn: "1357",
   classId: "2510",
   classType: "lecture",
@@ -152,11 +152,12 @@ const FUNDIES_TWO_S2: SectionType = {
   seatsRemaining: 1,
   waitCapacity: 0,
   waitRemaining: 0,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const FUNDIES_TWO_S3: SectionType = {
+const FUNDIES_TWO_S3: Section = {
   crn: "9753",
   classId: "2510",
   classType: "lecture",
@@ -166,11 +167,12 @@ const FUNDIES_TWO_S3: SectionType = {
   seatsRemaining: 10,
   waitCapacity: 0,
   waitRemaining: 0,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
-const PL_S1: SectionType = {
+const PL_S1: Section = {
   crn: "0987",
   classId: "4400",
   classType: "lecture",
@@ -180,7 +182,8 @@ const PL_S1: SectionType = {
   seatsRemaining: 25,
   waitCapacity: 0,
   waitRemaining: 0,
-  ...defaultClassProps,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
   ...defaultSectionProps,
 };
 
@@ -233,7 +236,7 @@ afterAll(async () => {
 });
 
 function createSection(
-  sec: SectionType,
+  sec: Section,
   seatsRemaining: number,
   waitRemaining: number
 ) {
@@ -648,6 +651,10 @@ describe("Updater", () => {
         return Promise.resolve();
       });
       await UPDATER.update();
+      const x = await prisma.section.findMany({
+        select: { id: true, classHash: true },
+      });
+      console.log(x);
       jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
 
       // updates in database
