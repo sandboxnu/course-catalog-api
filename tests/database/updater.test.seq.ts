@@ -651,10 +651,6 @@ describe("Updater", () => {
         return Promise.resolve();
       });
       await UPDATER.update();
-      const x = await prisma.section.findMany({
-        select: { id: true, classHash: true },
-      });
-      console.log(x);
       jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
 
       // updates in database
