@@ -5,12 +5,12 @@
 import fs from "fs-extra";
 import _ from "lodash";
 import path from "path";
-import { Prisma } from "@prisma/client";
+import { Prisma, TermInfo } from "@prisma/client";
 import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import { Dump, Section } from "../types/types";
+import { Dump, Employee, Section } from "../types/types";
 
 class DumpProcessor {
   /**
@@ -25,26 +25,68 @@ class DumpProcessor {
     destroy = false,
     currentTermInfos = null,
   }: Dump): Promise<void> {
-    const updateTime = new Date();
-    // TODO remove this
-    const coveredTerms: Set<string> = new Set();
-
-    // We delete all of the professors, and insert anew
-    // This gets rid of any stale entries (ie. former employees), since each scrape gets ALL employees (not just current term).
-    if (profDump.length > 1) {
-      await prisma.professor.deleteMany({});
-      await prisma.professor.createMany({
-        data: profDump,
-      });
-      macros.log("DumpProcessor: finished with profs");
-    }
+    await this.saveEmployeesToDatabase(profDump);
 
     const processedCourses = termDump.classes.map((c) =>
-      this.constituteCourse(c, coveredTerms)
+      this.constituteCourse(c)
     );
+    await this.saveCoursesToDatabase(processedCourses);
+
+    // FIXME this is a bad hack that will work
+    // TODO zachar - i'll remove this in a follow-up PR. Bad design, unecessary.
+    const courseIds: Set<string> = new Set(
+      (await prisma.course.findMany({ select: { id: true } })).map(
+        (elem) => elem.id
+      )
+    );
+    const processedSections = termDump.sections
+      .map((section) => this.constituteSection(section))
+      .filter((s) => courseIds.has(s.classHash));
+    await this.saveSectionsToDatabase(processedSections);
+
+    await this.saveSubjectsToDatabase(termDump.subjects);
+
+    await this.saveTermInfosToDatabase(currentTermInfos);
+
+    if (destroy) {
+      const termsToClean = new Set<string>(
+        termDump.sections.map((section) => section.termId)
+      );
+      await this.destroyOutdatedData(termsToClean);
+    }
+
+    await populateES();
+  }
+
+  /**
+   * If given a non-zero number of employees, delete all existing employee data
+   * and save the given data to the database.
+   *
+   * This gets rid of any stale entries (ie. former employees)
+   */
+  async saveEmployeesToDatabase(employees: Employee[]): Promise<void> {
+    if (employees.length > 0) {
+      await prisma.professor.deleteMany({});
+      await prisma.professor.createMany({
+        data: employees,
+      });
+      macros.log("Finished with employees");
+    }
+  }
+
+  /**
+   * Saves all course data to the database. This does NOT delete existing courses, but will
+   * overwrite the data if there is any new data for those courses.
+   *
+   * Performs a SQL upsert - insert if the course doesn't exist, update if it does.
+   */
+  async saveCoursesToDatabase(
+    courses: Prisma.CourseCreateInput[]
+  ): Promise<void> {
     // Break the classes into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL classes in parallel because this may overwhelm the DB
-    const groupedCourses = _.chunk(processedCourses, 2000);
+    const groupedCourses = _.chunk(courses, 2000);
+    const updateTime = new Date();
 
     for (const courses of groupedCourses) {
       const upsertQueries = courses.map((course) => {
@@ -62,58 +104,78 @@ class DumpProcessor {
       await Promise.all(upsertQueries);
     }
 
-    macros.log("DumpProcessor: finished with courses");
+    macros.log("Finished with courses");
+  }
 
-    // FIXME this is a bad hack that will work
-    const courseIds: Set<string> = new Set(
-      (await prisma.course.findMany({ select: { id: true } })).map(
-        (elem) => elem.id
-      )
-    );
-    const processedSections = termDump.sections
-      .map((section) => this.constituteSection(section, coveredTerms))
-      .filter((s) => courseIds.has(s.classHash));
+  /**
+   * Saves all section data to the database. This does NOT delete existing sections, but will
+   * overwrite the data if there is any new data for those sections.
+   *
+   * Performs a SQL upsert - insert if the section doesn't exist, update if it does.
+   */
+  async saveSectionsToDatabase(
+    sections: Prisma.SectionUncheckedCreateInput[]
+  ): Promise<void> {
+    const updateTime = new Date();
 
     // Break the sections into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL sections in parallel because this may overwhelm the DB
-    const groupedSections = _.chunk(processedSections, 2000);
+    const groupedSections = _.chunk(sections, 2000);
 
     for (const sections of groupedSections) {
-      const upsertQueries = sections.map(
-        (prismaSection: Prisma.SectionUncheckedCreateInput) => {
-          prismaSection.lastUpdateTime = updateTime;
-          return prisma.section.upsert({
-            create: prismaSection,
-            update: prismaSection,
-            where: {
-              id: prismaSection.id,
-            },
-          });
-        }
-      );
+      const upsertQueries = sections.map((prismaSection) => {
+        prismaSection.lastUpdateTime = updateTime;
+        return prisma.section.upsert({
+          create: prismaSection,
+          update: prismaSection,
+          where: {
+            id: prismaSection.id,
+          },
+        });
+      });
 
       // Execute in parallel
       await Promise.all(upsertQueries);
     }
 
-    macros.log("DumpProcessor: finished with sections");
+    macros.log("Finished with sections");
+    await this.updateSectionLastUpdateTime(sections);
+  }
 
+  /**
+   * Update the lastUpdateTime attribute on all given sections.
+   * We use this to track sections that haven't been updated in a while,
+   * which means that they're no longer on Banner & should be removed from our database.
+   */
+  async updateSectionLastUpdateTime(
+    sections: Prisma.SectionUncheckedCreateInput[]
+  ): Promise<void> {
     await prisma.course.updateMany({
-      where: { id: { in: processedSections.map((s) => s.classHash) } },
+      where: { id: { in: sections.map((s) => s.classHash) } },
       data: { lastUpdateTime: new Date() },
     });
 
-    macros.log("DumpProcessor: finished updating times");
+    macros.log("Finished updating times");
+  }
 
+  /**
+   * Saves all subject data to the database. This does NOT delete existing subjects, but will
+   * overwrite the data if there is any new data for those subjects.
+   *
+   * Performs a SQL upsert - insert if the subject doesn't exist, update if it does.
+   */
+  async saveSubjectsToDatabase(
+    subjects: Record<string, string>
+  ): Promise<void> {
     await Promise.all(
-      Object.entries(termDump.subjects).map(([key, value]) => {
+      Object.entries(subjects).map(([key, value]) => {
         return prisma.subject.upsert({
           where: {
             abbreviation: key,
           },
           create: {
             abbreviation: key,
-            description: value as string,
+            description: value,
           },
           update: {
             description: value,
@@ -122,12 +184,47 @@ class DumpProcessor {
       })
     );
 
-    macros.log("DumpProcessor: finished with subjects");
+    macros.log("Finished with subjects");
+  }
 
-    // Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
-    // (only run if the term infos are non-null)
-    if (currentTermInfos) {
-      const termInfos = currentTermInfos;
+  /**
+   * Destroys sections and courses which haven't been updated in over two days.
+   * This indicates that the data no longer exists in Banner - the course/section has been removed.
+   *
+   * This should be run AFTER each updater/scraper run (ie. don't delete the courses we've just scraped)
+   */
+  async destroyOutdatedData(termsToClean: Set<string>): Promise<void> {
+    const termsStr = Array.from(termsToClean).sort().join(", ");
+    macros.log(`Destroying old courses and sections for terms (${termsStr})`);
+
+    // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
+    // Two days ago (in milliseconds)
+    const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
+
+    // Delete old sections
+    await prisma.section.deleteMany({
+      where: {
+        course: {
+          termId: { in: Array.from(termsToClean) },
+        },
+        lastUpdateTime: { lt: twoDaysAgo },
+      },
+    });
+
+    // Delete old COURSES
+    await prisma.course.deleteMany({
+      where: {
+        termId: { in: Array.from(termsToClean) },
+        lastUpdateTime: { lt: twoDaysAgo },
+      },
+    });
+  }
+
+  /**
+   * Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+   */
+  async saveTermInfosToDatabase(termInfos: TermInfo[] | null): Promise<void> {
+    if (termInfos !== null) {
       // This deletes any termID which doesn't have associated course data
       //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
       await prisma.termInfo.deleteMany({
@@ -156,49 +253,11 @@ class DumpProcessor {
         .map((t) => t.termId)
         .sort()
         .join(", ");
-      macros.log(`DumpProcessor: finished with term IDs (${termsStr})`);
+      macros.log(`Finished with term IDs (${termsStr})`);
     }
-
-    if (destroy) {
-      const termsStr = Array.from(coveredTerms).sort().join(", ");
-      macros.log(
-        `DumpProcessor: destroying old courses and sections for terms (${termsStr})`
-      );
-
-      // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
-      // Two days ago (in milliseconds)
-      const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
-
-      // Delete old sections
-      await prisma.section.deleteMany({
-        where: {
-          course: {
-            termId: { in: Array.from(coveredTerms) },
-          },
-          lastUpdateTime: { lt: twoDaysAgo },
-        },
-      });
-
-      // Delete old COURSES
-      await prisma.course.deleteMany({
-        where: {
-          termId: { in: Array.from(coveredTerms) },
-          lastUpdateTime: { lt: twoDaysAgo },
-        },
-      });
-    }
-
-    macros.log("DumpProcessor: Finished cleaning up");
-
-    await populateES();
   }
 
-  constituteCourse(
-    classInfo: any,
-    coveredTerms: Set<string>
-  ): Prisma.CourseCreateInput {
-    coveredTerms.add(classInfo.termId);
-
+  constituteCourse(classInfo: any): Prisma.CourseCreateInput {
     const additionalProps = {
       id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,
@@ -220,11 +279,7 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  constituteSection(
-    secInfo: Section,
-    coveredTerms: Set<string>
-  ): Prisma.SectionUncheckedCreateInput {
-    coveredTerms.add(secInfo.termId);
+  constituteSection(secInfo: Section): Prisma.SectionUncheckedCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
