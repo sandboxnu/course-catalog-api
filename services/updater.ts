@@ -70,7 +70,7 @@ class Updater {
   start(): void {
     // 5 min if prod, 30 sec if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
-    const intervalTime = macros.PROD ? 300000 : 30000;
+    const intervalTime = macros.PROD ? 300_000 : 60_000;
 
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {
@@ -113,6 +113,12 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    await sendNotifications(
+      notificationInfo,
+      courseHashToUsers,
+      sectionHashToUsers
+    );
+
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
@@ -127,12 +133,6 @@ class Updater {
       } ms.`
     );
     const totalTime = Date.now() - startTime;
-
-    await sendNotifications(
-      notificationInfo,
-      courseHashToUsers,
-      sectionHashToUsers
-    );
 
     macros.log(
       `${
