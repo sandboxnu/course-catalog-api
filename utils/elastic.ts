@@ -257,19 +257,14 @@ export class Elastic {
           bulk.push({ index: { _id: id } });
           bulk.push(map[id]);
         }
-        try {
-          // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
-          const res = await this.retryBulkQuery(indexName, bulk);
+        // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
+        const res = await this.retryBulkQuery(indexName, bulk);
 
-          macros.log(
-            `indexed ${
-              chunkNum * BULKSIZE + chunk.length
-            } docs into ${indexName}`
-          );
-          return res;
-        } catch (e) {
-          macros.error(e);
-        }
+        macros.log(
+          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
+        );
+
+        return res;
       },
       { concurrency: 1 }
     );
@@ -324,6 +319,11 @@ export class Elastic {
         return await client.bulk({ index: indexName, body: bulk });
       } catch (e) {
         macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
+
+        if (i == MAX_RETRY_ATTEMPTS - 1) {
+          throw e;
+        }
+
         // If it's a 429, we'll get a ResponseError
         if (e instanceof ResponseError) {
           macros.warn("Request failed - retrying...");
