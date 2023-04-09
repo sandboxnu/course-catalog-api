@@ -318,6 +318,12 @@ class Request {
     this.openRequests++;
 
     try {
+      // got uses ESM. This is (ostensibly) the future of Node packages.
+      // However, some of our packages (like Jest) don't play nicely with ESM yet.
+      // I took a crack at it here, but after many dead ends decided to leave it for later
+      //  https://github.com/sandboxnu/course-catalog-api/pull/163
+      // More context from got:
+      //  https://github.com/sindresorhus/got/issues/2168#issuecomment-1295813029
       const { default: got } = await import("got");
       return await got(output);
     } finally {
