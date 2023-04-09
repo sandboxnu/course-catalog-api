@@ -47,7 +47,8 @@ export async function sendNotifications(
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
       .map((course) => {
         const courseMessage = generateCourseMessage(course);
-        return courseHashToUsers[course.courseHash].map((user) => {
+        const users = courseHashToUsers[course.courseHash] ?? [];
+        return users.map((user) => {
           return twilioNotifyer.sendNotificationText(
             user.phoneNumber,
             courseMessage
@@ -60,7 +61,8 @@ export async function sendNotifications(
       notificationInfo.updatedSections
         .map((section) => {
           const sectionMessage = generateSectionMessage(section);
-          return sectionHashToUsers[section.sectionHash].map((user) => {
+          const users = sectionHashToUsers[section.sectionHash] ?? [];
+          return users.map((user) => {
             return twilioNotifyer.sendNotificationText(
               user.phoneNumber,
               sectionMessage
