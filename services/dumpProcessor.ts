@@ -213,17 +213,19 @@ class DumpProcessor {
       });
 
       // Upsert new term IDs, along with their names and sub college
-      for (const { termId, subCollege, text } of termInfos) {
+      for (const { termId, subCollege, text, active } of termInfos) {
         await prisma.termInfo.upsert({
           where: { termId },
           update: {
             text,
             subCollege,
+            active,
           },
           create: {
             termId,
             text,
             subCollege,
+            active,
           },
         });
       }
