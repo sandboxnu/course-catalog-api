@@ -10,6 +10,7 @@ import {
   Section as PrismaSection,
 } from "@prisma/client";
 import { Course, Section } from "../../types/types";
+import { GraphQLError } from "graphql";
 
 const serializer = new HydrateCourseSerializer();
 
@@ -21,12 +22,24 @@ const getLatestClassOccurrence = async (
   subject: string,
   classId: string
 ): Promise<Course> => {
-  const results: PrismaCourse = await prisma.course.findFirst({
+  const result: PrismaCourse | null = await prisma.course.findFirst({
     where: { subject, classId },
     include: { sections: true },
     orderBy: { termId: "desc" },
   });
-  return serializeValues([results])[0];
+
+  if (result === null) {
+    throw new GraphQLError(
+      `We couldn't find any occurrences of a class with subject '${subject}' and class ID '${classId}'`,
+      {
+        extensions: {
+          code: "COURSE_NOT_FOUND",
+        },
+      }
+    );
+  }
+
+  return serializer.serializeCourse(result);
 };
 
 const getBulkClassOccurrences = async (
@@ -60,30 +73,63 @@ const getClassOccurrence = async (
   subject: string,
   classId: string
 ): Promise<Course> => {
-  const res: PrismaCourse = await prisma.course.findUnique({
+  const result: PrismaCourse | null = await prisma.course.findUnique({
     where: {
       uniqueCourseProps: { subject, classId, termId },
     },
     include: { sections: true },
   });
 
-  return serializeValues([res])[0];
+  if (result === null) {
+    throw new GraphQLError(
+      "We couldn't find a course matching the given term, subject, and class ID",
+      {
+        extensions: {
+          code: "COURSE_NOT_FOUND",
+        },
+      }
+    );
+  }
+
+  return serializer.serializeCourse(result);
 };
 
 const getClassOccurrenceById = async (id: string): Promise<Course> => {
-  const res: PrismaCourse = await prisma.course.findUnique({
+  const result: PrismaCourse | null = await prisma.course.findUnique({
     where: { id },
     include: { sections: true },
   });
 
-  return serializeValues([res])[0];
+  if (result === null) {
+    throw new GraphQLError(
+      `We couldn't find a course matching the hash '${id}'`,
+      {
+        extensions: {
+          code: "COURSE_NOT_FOUND",
+        },
+      }
+    );
+  }
+  return serializer.serializeCourse(result);
 };
 
 const getSectionById = async (id: string): Promise<Section> => {
-  const res: PrismaSection = await prisma.section.findUnique({
+  const result: PrismaSection | null = await prisma.section.findUnique({
     where: { id },
   });
-  const resSec: Section = serializer.serializeSection(res); // this mutates res
+
+  if (result === null) {
+    throw new GraphQLError(
+      `We couldn't find a section matching the hash '${id}'`,
+      {
+        extensions: {
+          code: "SECTION_NOT_FOUND",
+        },
+      }
+    );
+  }
+
+  const resSec: Section = serializer.serializeSection(result); // this mutates res
   const { termId, subject, classId } = keys.parseSectionHash(id);
 
   return { termId, subject, classId, ...resSec };
