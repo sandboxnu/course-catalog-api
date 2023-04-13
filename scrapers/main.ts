@@ -21,8 +21,11 @@ class Main {
     const allTermInfos = await bannerv9parser.getAllTermInfos(
       bannerv9CollegeUrls[0]
     );
+    // Filter out any past semesters
+    const activeTermInfos = allTermInfos.filter((t) => t.active);
+
     const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
-      allTermInfos
+      activeTermInfos
     );
 
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
