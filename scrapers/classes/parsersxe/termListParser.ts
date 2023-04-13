@@ -9,13 +9,11 @@ class TermListParser {
   serializeTermsList(
     termsFromBanner: { code: string; description: string }[]
   ): TermInfo[] {
-    const activeTerms = termsFromBanner.filter(
+    const activeTermInfos = termsFromBanner.filter(
       (term) => !term.description.includes("View Only")
     );
-    const minActiveCode = activeTerms.reduce((prev, cur) =>
-      prev.code < cur.code ? prev : cur
-    ).code;
-
+    const activeTermIds = activeTermInfos.map(t => t.code);
+    const minActiveTermId = Math.min(...activeTermIds);
     return termsFromBanner.map((term) => {
       const subCollege = this.determineSubCollegeName(term.description);
 
