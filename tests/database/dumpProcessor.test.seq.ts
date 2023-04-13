@@ -28,11 +28,13 @@ afterAll(async () => {
 
 const termInfos: TermInfo[] = [
   {
+    active: true,
     termId: "123456",
     subCollege: "NEU",
     text: "This is some text",
   },
   {
+    active: true,
     termId: "654321",
     subCollege: "LAW",
     text: "This is some more text",
@@ -74,6 +76,7 @@ describe("with termInfos", () => {
   it("deletes old termInfos", async () => {
     await prisma.termInfo.create({
       data: {
+        active: true,
         termId: "1",
         subCollege: "NEU",
         text: "hello",
@@ -91,6 +94,7 @@ describe("with termInfos", () => {
   it("updates existing termInfos", async () => {
     await prisma.termInfo.create({
       data: {
+        active: true,
         termId: "654321",
         subCollege: "fake college",
         text: "This is some more text",
