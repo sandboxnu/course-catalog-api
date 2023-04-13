@@ -12,7 +12,7 @@ class TermListParser {
     const activeTermInfos = termsFromBanner.filter(
       (term) => !term.description.includes("View Only")
     );
-    const activeTermIds = activeTermInfos.map(t => t.code);
+    const activeTermIds = activeTermInfos.map((t) => t.code);
     const minActiveTermId = Math.min(...activeTermIds);
     return termsFromBanner.map((term) => {
       const subCollege = this.determineSubCollegeName(term.description);
