@@ -320,7 +320,7 @@ export class Elastic {
       } catch (e) {
         macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
 
-        if (i == MAX_RETRY_ATTEMPTS - 1) {
+        if (i === MAX_RETRY_ATTEMPTS - 1) {
           throw e;
         }
 
