@@ -21,7 +21,6 @@ class Main {
     const allTermInfos = await bannerv9parser.getAllTermInfos(
       bannerv9CollegeUrls[0]
     );
-
     const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
       allTermInfos
     );
