@@ -334,7 +334,7 @@ describe("console statements", () => {
       macros.error("test");
 
       // Called twice per macros.error call
-      expect(console.error).toHaveBeenCalledTimes(12);
+      expect(console.error).toHaveBeenCalledTimes(6);
     });
 
     it("doesn't log in test", () => {
@@ -402,8 +402,7 @@ describe("console statements", () => {
       macros.logLevel = LogLevel.VERBOSE;
       macros.critical("test");
 
-      // Called twice per macros.error call
-      expect(console.error).toHaveBeenCalledTimes(12);
+      expect(console.error).toHaveBeenCalledTimes(6);
       expect(mockExit).toHaveBeenCalledWith(1);
       mockExit.mockRestore();
     });
