@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import _, { result } from "lodash";
+import _ from "lodash";
 import pMap from "p-map";
 import moment from "moment";
 import Request from "../../request";
