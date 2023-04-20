@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
+import _, { result } from "lodash";
 import pMap from "p-map";
 import moment from "moment";
 import Request from "../../request";
@@ -147,8 +147,12 @@ export class Bannerv9Parser {
         "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n"
     );
 
-    const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p, termsProgressBar);
+    const termData: ParsedTermSR[] = await pMap(termIds, async (p) => {
+      // In prod, we don't want to show the progres bar - it makes the logs too cluttered.
+      const progressBar = !macros.PROD ? termsProgressBar : null;
+      const result = await TermParser.parseTerm(p, progressBar);
+      macros.log(`Done with ${p}`);
+      return result;
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each
