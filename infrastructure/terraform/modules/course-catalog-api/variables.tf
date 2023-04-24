@@ -90,5 +90,7 @@ variable "scrape_cpu" {
 
 variable "scrape_memory" {
   description = "memory the scrapers should get"
-  default     = 6144
+  default     = 7168
+  # 04-2023: 6144 memory (6GB) was just BARELY too little, so I bumped it to 7. This may be worth taking a second look 
+  # at once #178 (Pranav's work) gets merged - we'll be able to scrape a smaller subset of terms, and might need less memory.
 }
