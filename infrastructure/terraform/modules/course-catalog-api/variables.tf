@@ -90,5 +90,5 @@ variable "scrape_cpu" {
 
 variable "scrape_memory" {
   description = "memory the scrapers should get"
-  default     = 3072
+  default     = 6144
 }
