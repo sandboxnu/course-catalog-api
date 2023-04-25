@@ -7,6 +7,29 @@ import prisma from "../../../../services/prisma";
 import TermParser from "../termParser";
 import classParser from "../classParser";
 import sectionParser from "../sectionParser";
+import nock from "nock";
+
+const scope = nock("https://example.org")
+  .get(/termslist$/)
+  .reply(200, [
+    {
+      code: "3",
+      description: "Fall 2022 Semester",
+    },
+    {
+      code: "1",
+      description: "Summer 2022 CPS Semester",
+    },
+    {
+      code: "2",
+      description: "Summer 2022 Law Semester",
+    },
+  ])
+  .persist();
+
+afterAll(() => {
+  scope.persist(false);
+});
 
 describe("getTermsIds", () => {
   beforeEach(() => {
@@ -45,7 +68,9 @@ describe("getTermsIds", () => {
 
 describe("getAllTermInfos", () => {
   it("serializes the term list", async () => {
-    expect(await bannerv9.getAllTermInfos("termslist")).toEqual([
+    expect(
+      await bannerv9.getAllTermInfos("https://example.org/termslist")
+    ).toEqual([
       {
         host: "neu.edu",
         subCollege: "NEU",

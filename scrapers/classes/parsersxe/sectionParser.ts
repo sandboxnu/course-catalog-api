@@ -17,24 +17,24 @@ class SectionParser {
     subject: string,
     classId: string
   ): Promise<false | Section[]> {
-    const cookiejar = await util.getCookiesForSearch(termId);
+    const cookieJar = await util.getCookiesForSearch(termId);
     const req = await requestObj.get(
       "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults",
       {
-        qs: {
+        searchParams: {
           txt_term: termId,
           txt_subject: subject,
           txt_courseNumber: classId,
           pageOffset: 0,
           pageMaxSize: 500,
         },
-        jar: cookiejar,
-        json: true,
+        cookieJar: cookieJar,
       }
     );
 
-    if (req.body.success) {
-      return req.body.data.map((sr) => {
+    const bodyObj = JSON.parse(req.body);
+    if (bodyObj.success) {
+      return bodyObj.data.map((sr) => {
         return this.parseSectionFromSearchResult(sr);
       });
     }

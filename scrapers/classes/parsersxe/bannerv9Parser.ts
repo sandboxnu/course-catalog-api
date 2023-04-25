@@ -19,7 +19,7 @@ import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version
-const request = new Request("bannerv9Parser", { cache: false });
+const request = new Request("bannerv9Parser", { cacheRequests: false });
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -86,11 +86,11 @@ export class Bannerv9Parser {
   async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
     const bannerTerms = await request.get(termsUrl, {
-      json: true,
-      cache: false,
+      cacheRequests: false,
     });
 
-    const termList = TermListParser.serializeTermsList(bannerTerms.body);
+    const bannerTermsObject = JSON.parse(bannerTerms.body);
+    const termList = TermListParser.serializeTermsList(bannerTermsObject);
 
     // Sort by descending order (to get the most recent term IDs first)
     return termList.sort((a, b) => {

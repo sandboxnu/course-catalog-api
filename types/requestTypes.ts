@@ -1,6 +1,5 @@
-import { CoreOptions } from "request";
 import http from "http";
-import https from "https";
+import { OptionsOfTextResponseBody, Agents } from "got";
 
 export interface HostAnalytics {
   totalBytesDownloaded: number;
@@ -12,11 +11,8 @@ export interface HostAnalytics {
 export type RequestAnalytics = Record<string, HostAnalytics>;
 
 export interface RequestPool {
-  maxSockets: number;
-  keepAlive: boolean;
-  maxFreeSockets: number;
-  "https:false:ALL"?: https.Agent;
-  "http:"?: http.Agent;
+  options: http.AgentOptions;
+  agents: Agents | false;
 }
 
 export interface AgentAnalytics {
@@ -25,28 +21,12 @@ export interface AgentAnalytics {
   maxSockets: number;
 }
 
-export interface CustomRequestConfig extends CoreOptions {
+export interface CustomOptions extends OptionsOfTextResponseBody {
   url: string;
-  method: string;
-  cache?: boolean;
+  // defaults to true
+  cacheRequests?: boolean;
   cacheName?: string;
-  headers?: Record<string, string>;
   pool?: RequestPool;
-}
-
-export type PartialRequestConfig =
-  | (Partial<CustomRequestConfig> & { url: string })
-  | string;
-
-export interface NativeRequestConfig extends CustomRequestConfig {
-  method: string;
-  headers: Record<string, string>;
-  pool: RequestPool;
-  timeout: number;
-  resolveWithFullResponse: boolean;
-  rejectUnauthorized: boolean;
-  requestCert: boolean;
-  ciphers: string;
 }
 
 export type AmplitudeEvent = Partial<AgentAnalytics> & {
