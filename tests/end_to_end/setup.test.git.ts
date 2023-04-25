@@ -6,14 +6,14 @@ import { GraphQLResponse } from "apollo-server-core";
 
 const NUM_TERMIDS = 3;
 const NUMS_COURSES = {
-  "202240": 646,
-  "202250": 519,
-  "202260": 493,
+  "202240": 635,
+  "202250": 502,
+  "202260": 545,
 };
 const NUMS_SECTIONS = {
-  "202240": 840,
-  "202250": 1634,
-  "202260": 515,
+  "202240": 813 + 1, // There are 813 sections, but one additional section that we added during setup
+  "202250": 1380,
+  "202260": 650,
 };
 const NUM_SECTIONS = Object.values(NUMS_SECTIONS).reduce((a, b) => a + b, 0);
 const NUM_COURSES = Object.values(NUMS_COURSES).reduce((a, b) => a + b, 0);
@@ -70,28 +70,27 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
-      expect(
-        await prisma.course.count({
-          where: {
-            termId: termId,
-          },
-        })
-      ).toBe(count);
+    for (const [termId, expected] of Object.entries(NUMS_COURSES)) {
+      const actual = await prisma.course.count({
+        where: {
+          termId: termId,
+        },
+      });
+      expect(actual).toBe(expected);
     }
 
     expect(await prisma.course.count()).toBe(NUM_COURSES);
 
-    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
-      expect(
-        await prisma.section.count({
-          where: {
-            course: {
-              termId: termId,
-            },
+    for (const [termId, expected] of Object.entries(NUMS_SECTIONS)) {
+      const actual = await prisma.section.count({
+        where: {
+          course: {
+            termId: termId,
           },
-        })
-      ).toBe(count);
+        },
+      });
+
+      expect(actual).toBe(expected);
     }
 
     expect(await prisma.section.count()).toBe(NUM_SECTIONS);

@@ -1,5 +1,24 @@
 /* eslint-disable no-underscore-dangle */
 import * as subject from "../subjectAbbreviationParser";
+import nock from "nock";
+
+const scope = nock("https://nubanner.neu.edu")
+  .get(/term=termsTest/)
+  .reply(200, [
+    {
+      code: "ACCT",
+      description: "Accounting",
+    },
+    {
+      code: "AVM",
+      description: "Adv Manufacturing System - CPS",
+    },
+  ])
+  .persist();
+
+afterAll(() => {
+  scope.persist(false);
+});
 
 describe("subjectAbbreviationParser", () => {
   it("_createDescriptionTable builds mapping", () => {

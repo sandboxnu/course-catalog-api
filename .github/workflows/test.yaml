@@ -9,6 +9,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     services:
       postgres:
         image: postgres:11.5
@@ -30,13 +31,13 @@ jobs:
       NODE_COVERALLS_DEBUG: 1
     steps:
       - uses: actions/checkout@v2
-      - name: install node v14.19
+      - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "14.19"
+          node-version: "16"
       - uses: bahmutov/npm-install@v1
 
-      - run: yarn test --coverage
+      - run: yarn test --coverage --detectOpenHandles
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -79,16 +80,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: install node v14.19
+      - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "14.19"
+          node-version: "16"
 
       - uses: bahmutov/npm-install@v1
 
-      - run: yarn add unzip
-
-      - run: unzip ./data/cache_2022_summer.zip
+      - run: mv ./data/cache_2022_summer ./cache
 
       - run: yarn db:migrate
 
@@ -108,7 +107,17 @@ jobs:
           psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
             "INSERT INTO sections (class_hash, id, crn, last_update_time) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/987654321', '987654321', '1999-04-03 18:34:35.882');"
 
-      - run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater
+      - name: Run the updater ONLY ONCE, so that it removes the newly-inserted section with an outdated lastUpdateTime
+        run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater | tee _updater.log
+
+      - name: Ensure that we're using the cache, not sending live requests
+        run: '! cat _updater.log | egrep "Firing request.*ssb\/searchResults\/searchResults"'
+        # All requests to ssb/searchResults/searchResults should be going to the cache
+        # We can detect this, because our requests library will log:
+        #   "Firing request to <URL>" right before it sends a live request
+        # We search the _updater.log (which is the output from running the updater),
+        #   and the "!" INVERTS the result (so, if we find it, the grep command will fail).
+        # If we are sending live requests, this should fail.
 
       - run: yarn dev > _dev_api.log &
 

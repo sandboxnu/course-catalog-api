@@ -1,5 +1,20 @@
 import ClassParser from "../classParser";
 import data from "./data/classParser.data";
+import nock from "nock";
+
+const scope = nock("https://nubanner.neu.edu")
+  .get(/term=termsTest/)
+  .reply(200, [
+    {
+      code: "ACCT",
+      description: "Accounting",
+    },
+    {
+      code: "AVM",
+      description: "Adv Manufacturing System - CPS",
+    },
+  ])
+  .persist();
 
 const simplePrereq = {
   type: "and",
@@ -17,10 +32,15 @@ beforeAll(() => {
   jest
     .spyOn(ClassParser, "getAttributes")
     .mockReturnValue(["innovation", "bizz"]);
+  jest.spyOn(ClassParser, "getFees").mockReturnValue({
+    amount: null,
+    description: "",
+  });
 });
 
 afterAll(() => {
   jest.restoreAllMocks();
+  scope.persist(false);
 });
 
 jest.mock("../subjectAbbreviationParser");

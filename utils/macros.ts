@@ -298,7 +298,6 @@ class Macros {
       );
 
       console.error("Check the /logs directory for more detail: ", ...fullArgs); // eslint-disable-line no-console
-      console.trace(); // eslint-disable-line no-console
     }
 
     if (this.PROD) {
