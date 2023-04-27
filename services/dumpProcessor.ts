@@ -28,7 +28,7 @@ class DumpProcessor {
     await this.saveEmployeesToDatabase(profDump);
 
     const processedCourses = termDump.classes.map((c) =>
-      this.constituteCourse(c)
+      this.convertCourseToDatabaseFormat(c)
     );
     await this.saveCoursesToDatabase(processedCourses);
 
@@ -40,7 +40,7 @@ class DumpProcessor {
       )
     );
     const processedSections = termDump.sections
-      .map((section) => this.constituteSection(section))
+      .map((section) => this.convertSectionToDatabaseFormat(section))
       .filter((s) => courseIds.has(s.classHash));
     await this.saveSectionsToDatabase(processedSections);
 
@@ -188,39 +188,6 @@ class DumpProcessor {
   }
 
   /**
-   * Destroys sections and courses which haven't been updated in over two days.
-   * This indicates that the data no longer exists in Banner - the course/section has been removed.
-   *
-   * This should be run AFTER each updater/scraper run (ie. don't delete the courses we've just scraped)
-   */
-  async destroyOutdatedData(termsToClean: Set<string>): Promise<void> {
-    const termsStr = Array.from(termsToClean).sort().join(", ");
-    macros.log(`Destroying old courses and sections for terms (${termsStr})`);
-
-    // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
-    // Two days ago (in milliseconds)
-    const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
-
-    // Delete old sections
-    await prisma.section.deleteMany({
-      where: {
-        course: {
-          termId: { in: Array.from(termsToClean) },
-        },
-        lastUpdateTime: { lt: twoDaysAgo },
-      },
-    });
-
-    // Delete old COURSES
-    await prisma.course.deleteMany({
-      where: {
-        termId: { in: Array.from(termsToClean) },
-        lastUpdateTime: { lt: twoDaysAgo },
-      },
-    });
-  }
-
-  /**
    * Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
    */
   async saveTermInfosToDatabase(termInfos: TermInfo[] | null): Promise<void> {
@@ -257,7 +224,44 @@ class DumpProcessor {
     }
   }
 
-  constituteCourse(classInfo: any): Prisma.CourseCreateInput {
+  /**
+   * Destroys sections and courses which haven't been updated in over two days.
+   * This indicates that the data no longer exists in Banner - the course/section has been removed.
+   *
+   * This should be run AFTER each updater/scraper run (ie. don't delete the courses we've just scraped)
+   */
+  async destroyOutdatedData(termsToClean: Set<string>): Promise<void> {
+    const termsStr = Array.from(termsToClean).sort().join(", ");
+    macros.log(`Destroying old courses and sections for terms (${termsStr})`);
+
+    // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
+    // Two days ago (in milliseconds)
+    const twoDaysAgo = new Date(new Date().getTime() - 48 * 60 * 60 * 1000);
+
+    // Delete old sections
+    await prisma.section.deleteMany({
+      where: {
+        course: {
+          termId: { in: Array.from(termsToClean) },
+        },
+        lastUpdateTime: { lt: twoDaysAgo },
+      },
+    });
+
+    // Delete old COURSES
+    await prisma.course.deleteMany({
+      where: {
+        termId: { in: Array.from(termsToClean) },
+        lastUpdateTime: { lt: twoDaysAgo },
+      },
+    });
+  }
+
+  /**
+   * Converts one of our course types to a type compatible with the format required by Prisma.
+   * The converted course is ready for insertion to our database.
+   */
+  convertCourseToDatabaseFormat(classInfo: any): Prisma.CourseCreateInput {
     const additionalProps = {
       id: `${keys.getClassHash(classInfo)}`,
       description: classInfo.desc,
@@ -279,7 +283,13 @@ class DumpProcessor {
     return finalCourse;
   }
 
-  constituteSection(secInfo: Section): Prisma.SectionUncheckedCreateInput {
+  /**
+   * Converts one of our section types to a type compatible with the format required by Prisma.
+   * The converted section is ready for insertion to our database.
+   */
+  convertSectionToDatabaseFormat(
+    secInfo: Section
+  ): Prisma.SectionUncheckedCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
