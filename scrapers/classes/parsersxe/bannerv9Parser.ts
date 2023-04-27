@@ -19,7 +19,7 @@ import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version
-const request = new Request("bannerv9Parser", { cache: false });
+const request = new Request("bannerv9Parser", { cacheRequests: false });
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -86,11 +86,11 @@ export class Bannerv9Parser {
   async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
     const bannerTerms = await request.get(termsUrl, {
-      json: true,
-      cache: false,
+      cacheRequests: false,
     });
 
-    const termList = TermListParser.serializeTermsList(bannerTerms.body);
+    const bannerTermsObject = JSON.parse(bannerTerms.body);
+    const termList = TermListParser.serializeTermsList(bannerTermsObject);
 
     // Sort by descending order (to get the most recent term IDs first)
     return termList.sort((a, b) => {
@@ -147,8 +147,12 @@ export class Bannerv9Parser {
         "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n"
     );
 
-    const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p, termsProgressBar);
+    const termData: ParsedTermSR[] = await pMap(termIds, async (p) => {
+      // In prod, we don't want to show the progres bar - it makes the logs too cluttered.
+      const progressBar = !macros.PROD ? termsProgressBar : null;
+      const result = await TermParser.parseTerm(p, progressBar);
+      macros.log(`Done with ${p}`);
+      return result;
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each

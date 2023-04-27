@@ -36,11 +36,11 @@ class ClassParser {
     subject: string,
     classId: string
   ): Promise<false | ParsedCourseSR> {
-    const cookiejar = await util.getCookiesForSearch(termId);
+    const cookieJar = await util.getCookiesForSearch(termId);
     const req = await request.get(
       "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/courseSearchResults/courseSearchResults",
       {
-        qs: {
+        searchParams: {
           txt_term: termId,
           txt_subject: subject,
           txt_courseNumber: classId,
@@ -51,12 +51,13 @@ class ClassParser {
           sortColumn: "subjectDescription",
           sortDirection: "asc",
         },
-        jar: cookiejar,
-        json: true,
+        cookieJar: cookieJar,
       }
     );
-    if (req.body.success && req.body.data && req.body.data[0]) {
-      return this.parseClassFromSearchResult(req.body.data[0], termId);
+    const bodyObj = JSON.parse(req.body);
+
+    if (bodyObj.success && bodyObj.data && bodyObj.data[0]) {
+      return this.parseClassFromSearchResult(bodyObj.data[0], termId);
     }
     return false;
   }
@@ -268,7 +269,7 @@ class ClassParser {
           subjectCode: subject,
           courseNumber: classId,
         },
-        cache: false,
+        cacheRequests: false,
       }
     );
   }
