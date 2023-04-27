@@ -68,7 +68,7 @@ class Updater {
 
   // TODO must call this in server
   start(): void {
-    // 5 min if prod, 30 sec if dev.
+    // 5 min if prod, 1 min if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300_000 : 60_000;
 
