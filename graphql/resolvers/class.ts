@@ -65,6 +65,7 @@ const getAllClassOccurrences = async (
     include: { sections: true },
     orderBy: { termId: "desc" },
   });
+
   return serializeValues(results);
 };
 
@@ -82,7 +83,7 @@ const getClassOccurrence = async (
 
   if (result === null) {
     throw new GraphQLError(
-      "We couldn't find a course matching the given term, subject, and class ID",
+      `We couldn't find a course matching the term '${termId}', subject '${subject}', and class ID '${classId}'`,
       {
         extensions: {
           code: "COURSE_NOT_FOUND",

@@ -4,7 +4,7 @@
  */
 import { gql } from "apollo-server";
 import { GraphQLResponse } from "apollo-server-core";
-import { DocumentNode } from "graphql";
+import { DocumentNode, GraphQLError } from "graphql";
 import prisma from "../../services/prisma";
 import server from "../index";
 
@@ -149,6 +149,130 @@ describe("class query", () => {
       `,
     });
     expect(res).toMatchSnapshot();
+  });
+});
+
+describe("returns errors for non-existant classes", () => {
+  it("returns error for missing class", async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2510") {
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors?.length).toBe(1);
+    expect(res?.errors?.[0]).toEqual(
+      new GraphQLError(
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
+      )
+    );
+  });
+
+  it("does not throw errors for missing bulk classes", async () => {
+    const res = await query({
+      query: gql`
+        query bulkClass {
+          bulkClasses(
+            input: [
+              { subject: "CS", classId: "2510" }
+              { subject: "CS", classId: "2511" }
+            ]
+          ) {
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors).toBeUndefined();
+    // This doesn't throw an error - it just omits any classes for which we have no data
+    expect(res?.data).toEqual({
+      bulkClasses: [],
+    });
+  });
+
+  it("returns an error for allOccurrences", async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2510") {
+            allOccurrences {
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors?.length).toBe(1);
+    expect(res?.errors?.[0]).toEqual(
+      new GraphQLError(
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
+      )
+    );
+  });
+
+  it("returns an error for occurrence", async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          class(subject: "CS", classId: "2500") {
+            occurrence(termId: "202310") {
+              name
+            }
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors?.length).toBe(1);
+    expect(res?.errors?.[0]).toEqual(
+      new GraphQLError(
+        "We couldn't find a course matching the term '202310', subject 'CS', and class ID '2500'"
+      )
+    );
+  });
+
+  it("returns an error for classByHash", async () => {
+    const res = await query({
+      query: gql`
+        query class {
+          classByHash(hash: "neu.edu/202310/CS/2500") {
+            name
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors?.length).toBe(1);
+    expect(res?.errors?.[0]).toEqual(
+      new GraphQLError(
+        "We couldn't find a course matching the hash 'neu.edu/202310/CS/2500'"
+      )
+    );
+  });
+
+  it("returns an error for sectionByHash", async () => {
+    const res = await query({
+      query: gql`
+        query section {
+          sectionByHash(hash: "neu.edu/201830/CS/2500/123456") {
+            seatsRemaining
+          }
+        }
+      `,
+    });
+
+    expect(res?.errors?.length).toBe(1);
+    expect(res?.errors?.[0]).toEqual(
+      new GraphQLError(
+        "We couldn't find a section matching the hash 'neu.edu/201830/CS/2500/123456'"
+      )
+    );
   });
 });
 
