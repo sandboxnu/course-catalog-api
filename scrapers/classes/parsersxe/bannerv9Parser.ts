@@ -22,14 +22,14 @@ import { MultiProgressBars } from "multi-progress-bars";
 const request = new Request("bannerv9Parser", { cacheRequests: false });
 
 /*
-At most, there are 8 terms that we want to update - if we're in the spring & summer semesters have been posted
-- Undergrad: Summer (Full, I, and II)
-- CPS: spring (quarter), summer (semester & quarter)
-- Law: spring (quarter), summer (semester)
+At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
+- Undergrad: Spring, summer (Full, I, and II)
+- CPS: spring (semester & quarter), summer (semester & quarter)
+- Law: spring (semester & quarter), summer (semester & quarter)
 
 However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
-export const NUMBER_OF_TERMS_TO_UPDATE = 8;
+export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
