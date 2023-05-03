@@ -163,7 +163,7 @@ export interface Dump {
   termDump?: ParsedTermSR;
   profDump?: Employee[];
   destroy?: boolean;
-  allTermInfos?: TermInfo[];
+  currentTermInfos?: TermInfo[];
 }
 
 export type BulkUpsertInput =

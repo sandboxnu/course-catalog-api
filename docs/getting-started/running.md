@@ -20,7 +20,10 @@ Run these commands in order:
    - Normally, this command would scrape Northeastern's course catalog for course data.
      - If you have installed the cache (see "Cache structure"), this command will just populate our database with the cached data. No network calls will be made.
      - If not, this will scrape Northeastern's live Banner API.
-6. `yarn dev`
+6. `yarn scrape`
+   - You read that right - re-run the scrape command.
+   - The second pass-through is necessary to create the table for the term IDs (every term/semester has a unique Northeastern ID). We only store the term IDs for which we have course data, so we need one pass to actually gather the course data, and one to populate the term IDs by comparing against the course data we now how.
+7. `yarn dev`
    - This command starts our GraphQL API. You should be able to access it at [`localhost:4000`](http://localhost:4000/) to see the GraphQL playground
 
 ?> Mac users may get a message along the lines of `Port 5000 already in use`. There's a process called `Control Center` running on that port; it's the AirPlay server. This can be disabled by turning off "AirPlay Receiver" in the "Sharing" System Preference.

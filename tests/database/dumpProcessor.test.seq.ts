@@ -36,51 +36,6 @@ const termInfos: TermInfo[] = [
   },
 ];
 
-it("getallTermInfos", async () => {
-  prisma.course.groupBy = jest.fn().mockReturnValueOnce([
-    {
-      termId: "4",
-    },
-    {
-      termId: "2",
-    },
-    {
-      termId: "1",
-    },
-  ]);
-
-  expect(
-    await dumpProcessor.getTermInfosWithData([
-      {
-        subCollege: "NEU",
-        termId: "3",
-        text: "Fall 2022 Semester",
-      },
-      {
-        subCollege: "LAW",
-        termId: "2",
-        text: "Summer 2022 Semester",
-      },
-      {
-        subCollege: "CPS",
-        termId: "1",
-        text: "Summer 2022 Semester",
-      },
-    ])
-  ).toEqual([
-    {
-      subCollege: "LAW",
-      termId: "2",
-      text: "Summer 2022 Semester",
-    },
-    {
-      subCollege: "CPS",
-      termId: "1",
-      text: "Summer 2022 Semester",
-    },
-  ]);
-});
-
 it("does not create records if dump is empty", async () => {
   const prevCounts = Promise.all([
     prisma.professor.count(),
@@ -108,7 +63,7 @@ describe("with termInfos", () => {
     await dumpProcessor.main({
       termDump: { classes: [], sections: [], subjects: {} },
       profDump: [],
-      allTermInfos: termInfos,
+      currentTermInfos: termInfos,
     });
     expect(await prisma.termInfo.count()).toEqual(2);
   });
@@ -125,7 +80,7 @@ describe("with termInfos", () => {
     await dumpProcessor.main({
       termDump: { classes: [], sections: [], subjects: {} },
       profDump: [],
-      allTermInfos: termInfos,
+      currentTermInfos: termInfos,
     });
     expect(await prisma.termInfo.count()).toEqual(2);
   });
@@ -152,7 +107,7 @@ describe("with termInfos", () => {
     await dumpProcessor.main({
       termDump: { classes: [], sections: [], subjects: {} },
       profDump: [],
-      allTermInfos: termInfos,
+      currentTermInfos: termInfos,
     });
 
     expect(await prisma.termInfo.count()).toEqual(2);

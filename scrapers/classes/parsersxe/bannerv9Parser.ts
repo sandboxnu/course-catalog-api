@@ -99,6 +99,25 @@ export class Bannerv9Parser {
   }
 
   /**
+   * Given a list of all TermInfos, this function returns only those TermInfos for which we have data
+   * @param {*} allTermInfos A list of ALL term infos queried from Banner (ie. not filtered)
+   */
+  async getCurrentTermInfos(allTermInfos: TermInfo[]): Promise<TermInfo[]> {
+    // Get a list of termIDs (not termInfos!!) for which we already have data
+    //  (ie. terms we've scraped, and that actually have data stored)
+    const existingIds: string[] = (
+      await prisma.course.groupBy({ by: ["termId"] })
+    ).map((t) => t.termId);
+
+    // Get the TermInfo associated with each term ID
+    return existingIds
+      .map((termId) =>
+        allTermInfos.find((termInfo) => termInfo.termId === termId)
+      )
+      .filter((termInfo) => termInfo !== undefined);
+  }
+
+  /**
    * Scrape all the class data in a set of terms
    * @param termIds array of terms to scrape in
    * @returns Object {classes, sections} where classes is a list of class data
