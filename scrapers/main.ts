@@ -22,9 +22,6 @@ class Main {
     const allTermInfos = await bannerv9parser.getAllTermInfos(
       bannerv9CollegeUrls[0]
     );
-    const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
-      allTermInfos
-    );
 
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
     //  *Employee scraping takes SO MUCH less time (which is why we run it first)
@@ -37,7 +34,7 @@ class Main {
       termDump: termDump,
       profDump: mergedEmployees,
       destroy: true,
-      currentTermInfos: currentTermInfos,
+      allTermInfos: allTermInfos,
     });
 
     const totalTime = Date.now() - start;

@@ -136,51 +136,6 @@ describe("main", () => {
   });
 });
 
-it("getCurrentTermInfos", async () => {
-  prisma.course.groupBy = jest.fn().mockReturnValueOnce([
-    {
-      termId: "4",
-    },
-    {
-      termId: "2",
-    },
-    {
-      termId: "1",
-    },
-  ]);
-
-  expect(
-    await bannerv9.getCurrentTermInfos([
-      {
-        subCollege: "NEU",
-        termId: "3",
-        text: "Fall 2022 Semester",
-      },
-      {
-        subCollege: "LAW",
-        termId: "2",
-        text: "Summer 2022 Semester",
-      },
-      {
-        subCollege: "CPS",
-        termId: "1",
-        text: "Summer 2022 Semester",
-      },
-    ])
-  ).toEqual([
-    {
-      subCollege: "LAW",
-      termId: "2",
-      text: "Summer 2022 Semester",
-    },
-    {
-      subCollege: "CPS",
-      termId: "1",
-      text: "Summer 2022 Semester",
-    },
-  ]);
-});
-
 describe("scrapeTerms", () => {
   it("merges term datas", async () => {
     // @ts-expect-error -- don't care about the types here

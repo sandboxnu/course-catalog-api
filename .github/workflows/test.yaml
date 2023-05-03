@@ -93,8 +93,6 @@ jobs:
 
       - run: yarn db:refresh
 
-      # We have to run yarn scrape twice, in order to populate the termInfos table
-      - run: yarn scrape
       - run: yarn scrape
 
       ### Test removing outdated classes
