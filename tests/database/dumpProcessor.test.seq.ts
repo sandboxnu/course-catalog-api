@@ -37,7 +37,7 @@ const termInfos: TermInfo[] = [
 ];
 
 it("getallTermInfos", async () => {
-  prisma.course.groupBy = jest.fn().mockReturnValueOnce([
+  const fakeResult = [
     {
       termId: "4",
     },
@@ -47,7 +47,12 @@ it("getallTermInfos", async () => {
     {
       termId: "1",
     },
-  ]);
+  ];
+  // @ts-ignore - Prisma has a hard time convincing itself that this is correctly typed
+  const spy = jest
+    .spyOn(prisma.course, "groupBy")
+    // @ts-ignore - ditto
+    .mockResolvedValueOnce(fakeResult);
 
   expect(
     await dumpProcessor.getTermInfosWithData([
@@ -79,6 +84,8 @@ it("getallTermInfos", async () => {
       text: "Summer 2022 Semester",
     },
   ]);
+
+  spy.mockRestore();
 });
 
 it("does not create records if dump is empty", async () => {
@@ -103,13 +110,45 @@ it("does not create records if dump is empty", async () => {
   ).toEqual(prevCounts);
 });
 
+function createDummyCourseForTermId(termId: string): ParsedCourseSR {
+  return {
+    termId,
+    host: "me",
+    subject: "FAKE",
+    classId: "101",
+    name: "Fundamentals of Computer Science 3",
+    classAttributes: [],
+    nupath: [],
+    desc: "fake course",
+    url: "http://example.org",
+    prettyUrl: "HtTp://eXaMpLe.OrG",
+    maxCredits: 0,
+    minCredits: 2009,
+    lastUpdateTime: 0,
+    college: "Harvard University",
+    feeAmount: Number.MAX_SAFE_INTEGER,
+    feeDescription: "giving day :)",
+  };
+}
+
 describe("with termInfos", () => {
   it("creates termInfos", async () => {
+    expect(await prisma.termInfo.count()).toEqual(0);
+
+    const newClasses = termInfos.map((info) =>
+      createDummyCourseForTermId(info.termId)
+    );
+
     await dumpProcessor.main({
-      termDump: { classes: [], sections: [], subjects: {} },
+      termDump: {
+        classes: newClasses,
+        sections: [],
+        subjects: {},
+      },
       profDump: [],
       allTermInfos: termInfos,
     });
+
     expect(await prisma.termInfo.count()).toEqual(2);
   });
 
@@ -127,7 +166,8 @@ describe("with termInfos", () => {
       profDump: [],
       allTermInfos: termInfos,
     });
-    expect(await prisma.termInfo.count()).toEqual(2);
+
+    expect(await prisma.termInfo.count()).toEqual(0);
   });
 
   it("updates existing termInfos", async () => {
@@ -149,8 +189,12 @@ describe("with termInfos", () => {
       )?.subCollege
     ).toBe("fake college");
 
+    const newClasses = termInfos.map((info) =>
+      createDummyCourseForTermId(info.termId)
+    );
+
     await dumpProcessor.main({
-      termDump: { classes: [], sections: [], subjects: {} },
+      termDump: { classes: newClasses, sections: [], subjects: {} },
       profDump: [],
       allTermInfos: termInfos,
     });
