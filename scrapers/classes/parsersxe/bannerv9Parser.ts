@@ -86,12 +86,9 @@ export class Bannerv9Parser {
    */
   async getAllTermInfos(): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get(
-      "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=200&searchTerm=",
-      {
-        cacheRequests: false,
-      }
-    );
+    const bannerTerms = await request.get(Bannerv9Parser.BANNER_TERMS_URL, {
+      cacheRequests: false,
+    });
 
     const bannerTermsObject = JSON.parse(bannerTerms.body);
     const termList = TermListParser.serializeTermsList(bannerTermsObject);
