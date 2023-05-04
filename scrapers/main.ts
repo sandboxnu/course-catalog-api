@@ -33,7 +33,7 @@ class Main {
     await dumpProcessor.main({
       termDump: termDump,
       profDump: mergedEmployees,
-      destroy: true,
+      deleteOutdatedData: true,
       allTermInfos: allTermInfos,
     });
 

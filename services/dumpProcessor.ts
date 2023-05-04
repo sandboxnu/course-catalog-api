@@ -22,7 +22,7 @@ class DumpProcessor {
   async main({
     termDump = { classes: [], sections: [], subjects: {} },
     profDump = [],
-    destroy = false,
+    deleteOutdatedData = false,
     allTermInfos = null,
   }: Dump): Promise<void> {
     await this.saveEmployeesToDatabase(profDump);
@@ -48,7 +48,10 @@ class DumpProcessor {
 
     await this.saveTermInfosToDatabase(allTermInfos);
 
-    if (destroy) {
+    if (deleteOutdatedData) {
+      // We only want to delete outdated data for the term IDs we're currently updating
+      // eg. we don't want to touch older, archived terms which aren't being updated
+      //    (since they haven't been updated in a while)
       const termsToClean = new Set<string>(
         termDump.sections.map((section) => section.termId)
       );
@@ -188,40 +191,33 @@ class DumpProcessor {
   }
 
   /**
-   * Returns only those {@link TermInfo}s which currently have related data in the database.
+   * Returns only those term IDs which currently have related data in the database.
    *
-   * Related data mainly means a section/course in that term.
+   * Related data (for the most part) means a section/course in that term.
    */
-  async getTermInfosWithData(allTermInfos: TermInfo[]): Promise<TermInfo[]> {
+  async getTermIdsWithData(): Promise<string[]> {
     // Get a list of termIDs (not termInfos!!) for which we already have data
-    const termIdsWithData: string[] = (
-      await prisma.course.groupBy({ by: ["termId"] })
-    ).map((t) => t.termId);
+    const termIdsWithData = await prisma.course.groupBy({ by: ["termId"] });
 
-    return allTermInfos.filter((termInfo) =>
-      termIdsWithData.includes(termInfo.termId)
-    );
+    return termIdsWithData.map((t) => t.termId);
   }
 
   /**
-   * Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+   * Given a list of {@link TermInfo}s, add/update all {@link TermInfo}s which already have
+   * data in the database (as determined by {@link DumpProcessor.getTermIdsWithData})
    *
-   * TODO: This should really be replaced with a relation in PSQL/Prisma. We shouldn't be doing this manually.
+   * ie. Only save/update those {@link TermInfo}s for which we have class/section data already saved.
    */
   async saveTermInfosToDatabase(termInfos: TermInfo[] | null): Promise<void> {
     if (termInfos === null) {
       return;
     }
 
-    const termInfosWithData = await this.getTermInfosWithData(termInfos);
+    const termIdsWithData = await this.getTermIdsWithData();
 
-    // This deletes any termID which doesn't have associated course data
-    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
-    await prisma.termInfo.deleteMany({
-      where: {
-        termId: { notIn: termInfosWithData.map((t) => t.termId) },
-      },
-    });
+    const termInfosWithData = termInfos.filter((t) =>
+      termIdsWithData.includes(t.termId)
+    );
 
     // Upsert new term IDs, along with their names and sub college
     for (const { termId, subCollege, text } of termInfosWithData) {
@@ -277,8 +273,15 @@ class DumpProcessor {
         lastUpdateTime: { lt: twoDaysAgo },
       },
     });
-  }
 
+    // This deletes any termID which doesn't have associated course data
+    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+    await prisma.termInfo.deleteMany({
+      where: {
+        termId: { notIn: await this.getTermIdsWithData() },
+      },
+    });
+  }
   /**
    * Converts one of our course types to a type compatible with the format required by Prisma.
    * The converted course is ready for insertion to our database.

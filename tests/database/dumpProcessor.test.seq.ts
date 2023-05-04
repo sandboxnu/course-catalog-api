@@ -36,58 +36,6 @@ const termInfos: TermInfo[] = [
   },
 ];
 
-it("getallTermInfos", async () => {
-  const fakeResult = [
-    {
-      termId: "4",
-    },
-    {
-      termId: "2",
-    },
-    {
-      termId: "1",
-    },
-  ];
-  // @ts-ignore - Prisma has a hard time convincing itself that this is correctly typed
-  const spy = jest
-    .spyOn(prisma.course, "groupBy")
-    // @ts-ignore - ditto
-    .mockResolvedValueOnce(fakeResult);
-
-  expect(
-    await dumpProcessor.getTermInfosWithData([
-      {
-        subCollege: "NEU",
-        termId: "3",
-        text: "Fall 2022 Semester",
-      },
-      {
-        subCollege: "LAW",
-        termId: "2",
-        text: "Summer 2022 Semester",
-      },
-      {
-        subCollege: "CPS",
-        termId: "1",
-        text: "Summer 2022 Semester",
-      },
-    ])
-  ).toEqual([
-    {
-      subCollege: "LAW",
-      termId: "2",
-      text: "Summer 2022 Semester",
-    },
-    {
-      subCollege: "CPS",
-      termId: "1",
-      text: "Summer 2022 Semester",
-    },
-  ]);
-
-  spy.mockRestore();
-});
-
 it("does not create records if dump is empty", async () => {
   const prevCounts = Promise.all([
     prisma.professor.count(),

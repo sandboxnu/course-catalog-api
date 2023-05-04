@@ -162,7 +162,7 @@ export interface CourseRef {
 export interface Dump {
   termDump?: ParsedTermSR;
   profDump?: Employee[];
-  destroy?: boolean;
+  deleteOutdatedData?: boolean;
   allTermInfos?: TermInfo[];
 }
 

@@ -124,7 +124,7 @@ class Updater {
 
     await dumpProcessor.main({
       termDump: { sections, classes: [], subjects: {} },
-      destroy: true,
+      deleteOutdatedData: true,
     });
 
     macros.log(
