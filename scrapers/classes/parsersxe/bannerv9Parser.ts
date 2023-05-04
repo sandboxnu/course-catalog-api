@@ -35,6 +35,9 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  * Top level parser. Exposes nice interface to rest of app.
  */
 export class Bannerv9Parser {
+  static BANNER_TERMS_URL =
+    "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=200&searchTerm=";
+
   getTermsIds(termIds: string[]): string[] {
     const termsStr = process.env.TERMS_TO_SCRAPE;
 
@@ -79,15 +82,16 @@ export class Bannerv9Parser {
   }
 
   /**
-   * Get the list of all available terms given the starting url
-   * @param termsUrl the starting url to find the terms with v9
-   * @returns List of {termId, description}
+   * Get the list of all available terms and their data
    */
-  async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
+  async getAllTermInfos(): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get(termsUrl, {
-      cacheRequests: false,
-    });
+    const bannerTerms = await request.get(
+      "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=200&searchTerm=",
+      {
+        cacheRequests: false,
+      }
+    );
 
     const bannerTermsObject = JSON.parse(bannerTerms.body);
     const termList = TermListParser.serializeTermsList(bannerTermsObject);
@@ -198,9 +202,7 @@ export class Bannerv9Parser {
 
   // Just a convenient test method, if you want to
   async test(): Promise<void> {
-    const numTerms = 20;
-    const url = `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${numTerms}&searchTerm=`;
-    const termInfos = await this.getAllTermInfos(url);
+    const termInfos = await this.getAllTermInfos();
     const output = await this.main(termInfos);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").writeFileSync(

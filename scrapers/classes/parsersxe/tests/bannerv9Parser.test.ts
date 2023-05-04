@@ -1,5 +1,6 @@
 import {
   instance as bannerv9,
+  Bannerv9Parser,
   NUMBER_OF_TERMS_TO_UPDATE,
 } from "../bannerv9Parser";
 import filters from "../../../filters";
@@ -9,8 +10,8 @@ import classParser from "../classParser";
 import sectionParser from "../sectionParser";
 import nock from "nock";
 
-const scope = nock("https://example.org")
-  .get(/termslist$/)
+const scope = nock(/neu\.edu/)
+  .get(/getTerms/)
   .reply(200, [
     {
       code: "3",
@@ -68,9 +69,7 @@ describe("getTermsIds", () => {
 
 describe("getAllTermInfos", () => {
   it("serializes the term list", async () => {
-    expect(
-      await bannerv9.getAllTermInfos("https://example.org/termslist")
-    ).toEqual([
+    expect(await bannerv9.getAllTermInfos()).toEqual([
       {
         host: "neu.edu",
         subCollege: "NEU",
