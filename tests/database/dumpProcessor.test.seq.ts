@@ -112,10 +112,30 @@ describe("with termInfos", () => {
     await dumpProcessor.main({
       termDump: { classes: [], sections: [], subjects: {} },
       profDump: [],
+      deleteOutdatedData: true,
       allTermInfos: termInfos,
     });
 
     expect(await prisma.termInfo.count()).toEqual(0);
+  });
+
+  it("doesn't delete old termInfos if deleteOutdatedData is false", async () => {
+    await prisma.termInfo.create({
+      data: {
+        termId: "1",
+        subCollege: "NEU",
+        text: "hello",
+      },
+    });
+
+    await dumpProcessor.main({
+      termDump: { classes: [], sections: [], subjects: {} },
+      profDump: [],
+      deleteOutdatedData: false,
+      allTermInfos: termInfos,
+    });
+
+    expect(await prisma.termInfo.count()).toEqual(1);
   });
 
   it("updates existing termInfos", async () => {

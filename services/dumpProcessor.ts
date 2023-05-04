@@ -52,9 +52,13 @@ class DumpProcessor {
       // We only want to delete outdated data for the term IDs we're currently updating
       // eg. we don't want to touch older, archived terms which aren't being updated
       //    (since they haven't been updated in a while)
+      const termsWithSections = termDump.sections.map((s) => s.termId);
+      const termsWithCourses = termDump.classes.map((c) => c.termId);
+
       const termsToClean = new Set<string>(
-        termDump.sections.map((section) => section.termId)
+        termsWithSections.concat(termsWithCourses)
       );
+
       await this.destroyOutdatedData(termsToClean);
     }
 
