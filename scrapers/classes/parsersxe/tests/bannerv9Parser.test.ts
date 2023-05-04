@@ -1,6 +1,5 @@
 import {
   instance as bannerv9,
-  Bannerv9Parser,
   NUMBER_OF_TERMS_TO_UPDATE,
 } from "../bannerv9Parser";
 import filters from "../../../filters";
@@ -183,7 +182,7 @@ it("getCurrentTermInfos", async () => {
 describe("scrapeTerms", () => {
   it("merges term datas", async () => {
     // @ts-expect-error -- don't care about the types here
-    TermParser.parseTerm = jest.fn((p, _p) => {
+    TermParser.parseTerm = jest.fn((p) => {
       const subjects = {};
       subjects[p] = p;
       return {
