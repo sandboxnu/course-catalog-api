@@ -9,7 +9,6 @@ import classes from "./classes/main";
 import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
 import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
-import bannerv9CollegeUrls from "./classes/bannerv9CollegeUrls";
 import "colors";
 
 // Main file for scraping
@@ -19,9 +18,7 @@ class Main {
   async main(): Promise<void> {
     const start = Date.now();
     // Get the TermInfo information from Banner
-    const allTermInfos = await bannerv9parser.getAllTermInfos(
-      bannerv9CollegeUrls[0]
-    );
+    const allTermInfos = await bannerv9parser.getAllTermInfos();
     const currentTermInfos = await bannerv9parser.getCurrentTermInfos(
       allTermInfos
     );
@@ -31,7 +28,7 @@ class Main {
     //    * So, not running scraping in parallel doesn't hurt us
     //  * It would make logging a mess (are the logs from employee scraping, or from class scraping?)
     const mergedEmployees = await matchEmployees.main();
-    const termDump = await classes.main(["neu"], allTermInfos);
+    const termDump = await classes.main(allTermInfos);
 
     await dumpProcessor.main({
       termDump: termDump,
