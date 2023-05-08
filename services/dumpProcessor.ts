@@ -321,8 +321,11 @@ class DumpProcessor {
   convertCourseToDatabaseFormat(
     classInfo: ParsedCourseSR
   ): Prisma.CourseCreateInput {
+    // Strip out the keys that Prisma doesn't recognize
+    const { desc: _desc, college: _college, ...cleanClassInfo } = classInfo;
+
     return {
-      ...classInfo,
+      ...cleanClassInfo,
       id: keys.getClassHash(classInfo),
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
@@ -394,8 +397,17 @@ class DumpProcessor {
   convertSectionToDatabaseFormat(
     secInfo: Section
   ): Prisma.SectionUncheckedCreateInput {
+    // Strip out the keys that Prisma doesn't recognize
+    const {
+      classId: _classId,
+      termId: _termId,
+      subject: _subject,
+      host: _host,
+      ...cleanSecInfo
+    } = secInfo;
+
     return {
-      ...secInfo,
+      ...cleanSecInfo,
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
       meetings: this.convertBackendMeetingsToDatabaseFormat(secInfo.meetings),
