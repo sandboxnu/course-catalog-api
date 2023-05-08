@@ -333,10 +333,10 @@ class DumpProcessor {
       prereqs: this.convertRequisiteToNullableDatabaseFormat(classInfo.prereqs),
       coreqs: this.convertRequisiteToNullableDatabaseFormat(classInfo.coreqs),
       optPrereqsFor: this.convertRequisitesToNullableDatabaseFormat(
-        classInfo.optPrereqsFor.values
+        classInfo.optPrereqsFor?.values ?? []
       ),
       prereqsFor: this.convertRequisitesToNullableDatabaseFormat(
-        classInfo.prereqsFor.values
+        classInfo.prereqsFor?.values ?? []
       ),
       lastUpdateTime: new Date(classInfo.lastUpdateTime),
     };
