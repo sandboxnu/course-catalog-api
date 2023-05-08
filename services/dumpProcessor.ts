@@ -10,7 +10,15 @@ import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import { Dump, Employee, Section } from "../types/types";
+import {
+  BackendMeeting,
+  Dump,
+  Employee,
+  MeetingTime,
+  Requisite,
+  Section,
+} from "../types/types";
+import { ParsedCourseSR } from "../types/scraperTypes";
 
 class DumpProcessor {
   /**
@@ -258,29 +266,125 @@ class DumpProcessor {
   }
 
   /**
+   * Converts a {@link Requisite} to a format compatible with Prisma.
+   *
+   * Currently, this function does little. It's essentially a way to tell Typescript, "yeah, they're the same types".
+   * However, this is useful because it allows us to easily change the format of the requisite in the future.
+   */
+  private convertRequisiteToDatabaseFormat(
+    req: Requisite
+  ): Prisma.InputJsonValue {
+    if (typeof req === "string") {
+      return req;
+    } else if ("classId" in req) {
+      return req;
+    } else {
+      return {
+        ...req,
+        values: req.values.map((val) =>
+          this.convertRequisiteToDatabaseFormat(val)
+        ),
+      };
+    }
+  }
+
+  /**
+   * Converts an optional {@link Requisite} to a format compatible with Prisma.
+   */
+  private convertRequisiteToNullableDatabaseFormat(
+    req: Requisite | undefined
+  ): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+    if (req === undefined) {
+      return Prisma.DbNull;
+    }
+
+    return this.convertRequisiteToDatabaseFormat(req);
+  }
+
+  /**
+   * Converts an array of {@link Requisite}s to a format compatible with Prisma.
+   */
+  private convertRequisitesToNullableDatabaseFormat(
+    reqs?: Requisite[]
+  ): Prisma.InputJsonArray {
+    if (reqs === undefined) {
+      return [];
+    }
+
+    return reqs.map((val) => this.convertRequisiteToDatabaseFormat(val));
+  }
+
+  /**
    * Converts one of our course types to a type compatible with the format required by Prisma.
    * The converted course is ready for insertion to our database.
    */
-  convertCourseToDatabaseFormat(classInfo: any): Prisma.CourseCreateInput {
-    const additionalProps = {
-      id: `${keys.getClassHash(classInfo)}`,
+  convertCourseToDatabaseFormat(
+    classInfo: ParsedCourseSR
+  ): Prisma.CourseCreateInput {
+    return {
+      ...classInfo,
+      id: keys.getClassHash(classInfo),
       description: classInfo.desc,
       minCredits: Math.floor(classInfo.minCredits),
       maxCredits: Math.floor(classInfo.maxCredits),
+      prereqs: this.convertRequisiteToNullableDatabaseFormat(classInfo.prereqs),
+      coreqs: this.convertRequisiteToNullableDatabaseFormat(classInfo.coreqs),
+      optPrereqsFor: this.convertRequisitesToNullableDatabaseFormat(
+        classInfo.optPrereqsFor.values
+      ),
+      prereqsFor: this.convertRequisitesToNullableDatabaseFormat(
+        classInfo.prereqsFor.values
+      ),
+      lastUpdateTime: new Date(classInfo.lastUpdateTime),
     };
+  }
 
-    const correctedQuery = {
-      ...classInfo,
-      ...additionalProps,
-      classAttributes: classInfo.classAttributes || [],
-      nupath: classInfo.nupath || [],
-    };
+  /**
+   * Converts a {@link MeetingTime} to a format compatible with Prisma.
+   *
+   * This doesn't do much at the moment, but it's useful for future-proofing.
+   */
+  private convertMeetingTimeToDatabaseFormat(
+    meeting: MeetingTime
+  ): Prisma.InputJsonObject {
+    return { ...meeting };
+  }
 
-    // Strip out the keys that Prisma doesn't recognize
-    // TODO - abstract this pattern as a util, remove lodash
-    const { desc, college, ...finalCourse } = correctedQuery;
+  /**
+   * Converts a single {@link BackendMeeting} to a format compatible with Prisma.
+   */
+  private convertBackendMeetingToDatabaseFormat(
+    meeting: BackendMeeting
+  ): Prisma.InputJsonObject {
+    // Essentially, this takes a object with keys and values, and replaces every value with fn(value).
+    // That `fn`, in this case, is the `convertMeetingTimeToDatabaseFormat` function.
+    const times: Prisma.InputJsonObject = Object.fromEntries(
+      // `entries` takes an object and converts it to an array of [key, value] pairs.
+      // `fromEntries` does the opposite
+      // So, we convert to entries, transform the values, then convert back to an object
+      Object.entries(meeting.times).map(([key, val]) => {
+        return [
+          key,
+          val.map((v) => this.convertMeetingTimeToDatabaseFormat(v)),
+        ];
+      })
+    );
+    return { ...meeting, times };
+  }
 
-    return finalCourse;
+  /**
+   * Converts a {@link BackendMeeting} array to a format compatible with Prisma.
+   */
+  private convertBackendMeetingsToDatabaseFormat(
+    meetings?: BackendMeeting[]
+  ): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+    if (meetings === undefined) {
+      return Prisma.DbNull;
+    }
+
+    return meetings.map((val) =>
+      this.convertBackendMeetingToDatabaseFormat(val)
+    );
   }
 
   /**
@@ -290,16 +394,13 @@ class DumpProcessor {
   convertSectionToDatabaseFormat(
     secInfo: Section
   ): Prisma.SectionUncheckedCreateInput {
-    const additionalProps = {
+    return {
+      ...secInfo,
       id: `${keys.getSectionHash(secInfo)}`,
       classHash: keys.getClassHash(secInfo),
+      meetings: this.convertBackendMeetingsToDatabaseFormat(secInfo.meetings),
+      lastUpdateTime: new Date(secInfo.lastUpdateTime),
     };
-    return _.omit({ ...secInfo, ...additionalProps }, [
-      "classId",
-      "termId",
-      "subject",
-      "host",
-    ]) as unknown as Prisma.SectionUncheckedCreateInput;
   }
 }
 
