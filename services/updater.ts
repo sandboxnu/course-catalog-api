@@ -128,12 +128,50 @@ class Updater {
     );
   }
 
+  /**
+   * Given a list of sections, check if they have corresponding classes already in Prisma.
+   *
+   * If not, those classes have not been scraped yet, and we want to ignore these sections for now.
+   */
+  private async filterSectionsWithExistingClasses(
+    sections: ScrapedSection[]
+  ): Promise<{
+    hasExistingClass: ScrapedSection[];
+    missingClass: ScrapedSection[];
+  }> {
+    const courseIds: Set<string> = new Set(
+      (await prisma.course.findMany({ select: { id: true } })).map(
+        (elem) => elem.id
+      )
+    );
+
+    const hasExistingClass = [];
+    const missingClass = [];
+
+    for (const section of sections) {
+      if (courseIds.has(keys.getClassHash(section))) {
+        hasExistingClass.push(section);
+      } else {
+        missingClass.push(section);
+      }
+    }
+
+    return { hasExistingClass, missingClass };
+  }
+
   private async saveDataToDatabase(sections: ScrapedSection[]): Promise<void> {
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
+    const { hasExistingClass, missingClass } =
+      await this.filterSectionsWithExistingClasses(sections);
+
+    if (missingClass.length > 0) {
+      macros.warn("We found sections with no corresponding classes.");
+    }
+
     await dumpProcessor.main({
-      termDump: { sections, classes: [], subjects: {} },
+      termDump: { sections: hasExistingClass, classes: [], subjects: {} },
       destroy: true,
     });
 

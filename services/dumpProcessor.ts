@@ -32,16 +32,9 @@ class DumpProcessor {
     );
     await this.saveCoursesToDatabase(processedCourses);
 
-    // FIXME this is a bad hack that will work
-    // TODO zachar - i'll remove this in a follow-up PR. Bad design, unecessary.
-    const courseIds: Set<string> = new Set(
-      (await prisma.course.findMany({ select: { id: true } })).map(
-        (elem) => elem.id
-      )
+    const processedSections = termDump.sections.map((section) =>
+      this.convertSectionToDatabaseFormat(section)
     );
-    const processedSections = termDump.sections
-      .map((section) => this.convertSectionToDatabaseFormat(section))
-      .filter((s) => courseIds.has(s.classHash));
     await this.saveSectionsToDatabase(processedSections);
 
     await this.saveSubjectsToDatabase(termDump.subjects);
@@ -287,19 +280,28 @@ class DumpProcessor {
    * Converts one of our section types to a type compatible with the format required by Prisma.
    * The converted section is ready for insertion to our database.
    */
-  convertSectionToDatabaseFormat(
-    secInfo: Section
-  ): Prisma.SectionUncheckedCreateInput {
+  convertSectionToDatabaseFormat(secInfo: Section): Prisma.SectionCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
-      classHash: keys.getClassHash(secInfo),
+      course: {
+        // This links our section with the course matching the given info.
+        // This requires that the course already exists! We check this earlier on.
+        // If not, this will error.
+        connect: {
+          uniqueCourseProps: {
+            classId: secInfo.classId,
+            termId: secInfo.termId,
+            subject: secInfo.subject,
+          },
+        },
+      } as Prisma.CourseCreateNestedOneWithoutSectionsInput,
     };
     return _.omit({ ...secInfo, ...additionalProps }, [
       "classId",
       "termId",
       "subject",
       "host",
-    ]) as unknown as Prisma.SectionUncheckedCreateInput;
+    ]) as unknown as Prisma.SectionCreateInput;
   }
 }
 
