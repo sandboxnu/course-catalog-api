@@ -9,8 +9,8 @@ import classParser from "../classParser";
 import sectionParser from "../sectionParser";
 import nock from "nock";
 
-const scope = nock("https://example.org")
-  .get(/termslist$/)
+const scope = nock(/neu\.edu/)
+  .get(/getTerms/)
   .reply(200, [
     {
       code: "3",
@@ -68,9 +68,7 @@ describe("getTermsIds", () => {
 
 describe("getAllTermInfos", () => {
   it("serializes the term list", async () => {
-    expect(
-      await bannerv9.getAllTermInfos("https://example.org/termslist")
-    ).toEqual([
+    expect(await bannerv9.getAllTermInfos()).toEqual([
       {
         host: "neu.edu",
         subCollege: "NEU",
@@ -139,7 +137,7 @@ describe("main", () => {
 describe("scrapeTerms", () => {
   it("merges term datas", async () => {
     // @ts-expect-error -- don't care about the types here
-    TermParser.parseTerm = jest.fn((p, _p) => {
+    TermParser.parseTerm = jest.fn((p) => {
       const subjects = {};
       subjects[p] = p;
       return {
