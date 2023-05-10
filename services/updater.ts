@@ -91,12 +91,10 @@ class Updater {
     }
   }
 
-  // Update classes and sections users and notify users if seats have opened up
-  async update(): Promise<void> {
-    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
-
-    const startTime = Date.now();
-
+  /**
+   * Scrapes section data from Banner
+   */
+  private async scrapeDataToUpdate(): Promise<ScrapedSection[]> {
     // scrape everything
     const sections: ScrapedSection[] = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
@@ -105,6 +103,16 @@ class Updater {
     ).reduce((acc, val) => acc.concat(val), []);
 
     macros.log(`scraped ${sections.length} sections`);
+
+    return sections;
+  }
+
+  /**
+   * Sends notifications to users about sections/classes which now have seats open.
+   */
+  private async sendUserNotifications(
+    sections: ScrapedSection[]
+  ): Promise<void> {
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.COURSE_MODEL
@@ -118,7 +126,9 @@ class Updater {
       courseHashToUsers,
       sectionHashToUsers
     );
+  }
 
+  private async saveDataToDatabase(sections: ScrapedSection[]): Promise<void> {
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
@@ -132,8 +142,27 @@ class Updater {
         Date.now() - dumpProcessorStartTime
       } ms.`
     );
-    const totalTime = Date.now() - startTime;
+  }
 
+  /**
+   * Updates frequently-changing data from sections (eg. seat count).
+   * Does not update class data that doesn't change often, like the title and description!
+   *
+   * Notifies users if seats have opened up.
+   */
+  async update(): Promise<void> {
+    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
+
+    const startTime = Date.now();
+
+    // Scrape the data
+    const sections = await this.scrapeDataToUpdate();
+    // Send out notifications
+    await this.sendUserNotifications(sections);
+    // Save the data in our database
+    await this.saveDataToDatabase(sections);
+
+    const totalTime = Date.now() - startTime;
     macros.log(
       `${
         "Done running updater onInterval".underline.green
