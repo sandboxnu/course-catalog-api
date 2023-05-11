@@ -36,6 +36,7 @@ class DumpProcessor {
       this.convertSectionToDatabaseFormat(section)
     );
     await this.saveSectionsToDatabase(processedSections);
+    await this.updateSectionsLastUpdateTime(termDump.sections);
 
     await this.saveSubjectsToDatabase(termDump.subjects);
 
@@ -132,7 +133,6 @@ class DumpProcessor {
     }
 
     macros.log("Finished with sections");
-    await this.updateSectionLastUpdateTime(sections);
   }
 
   /**
@@ -140,9 +140,7 @@ class DumpProcessor {
    * We use this to track sections that haven't been updated in a while,
    * which means that they're no longer on Banner & should be removed from our database.
    */
-  async updateSectionLastUpdateTime(
-    sections: Prisma.SectionCreateInput[]
-  ): Promise<void> {
+  async updateSectionsLastUpdateTime(sections: Section[]): Promise<void> {
     await prisma.course.updateMany({
       where: { id: { in: sections.map((s) => keys.getClassHash(s)) } },
       data: { lastUpdateTime: new Date() },
