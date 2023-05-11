@@ -652,7 +652,6 @@ describe("Updater", () => {
       });
       await UPDATER.update();
       jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
-      console.log(await prisma.course.findMany({ select: { id: true } }));
 
       // updates in database
       const fundies1SectionsUpdated = await prisma.section.findMany({
