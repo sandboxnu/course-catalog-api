@@ -494,7 +494,10 @@ describe("Updater", () => {
     let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
       FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
+      // Fundies I shouldn't be deleted when updating
+      FUNDIES_ONE_COURSE.lastUpdateTime = new Date();
       FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
+      FUNDIES_TWO_COURSE.lastUpdateTime = new Date();
       await prisma.course.create({
         data: FUNDIES_ONE_COURSE,
       });

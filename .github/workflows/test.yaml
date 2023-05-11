@@ -98,10 +98,6 @@ jobs:
       - run: yarn scrape
 
       ### Test removing outdated classes
-      - run: |-
-          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
-            "INSERT INTO courses (id) VALUES ('neu.edu/202240/CS/2501');"
-
       # Add two sections - one which shouldn't be removed, one which should
       - run: |-
           psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
