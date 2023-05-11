@@ -107,7 +107,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the section doesn't exist, update if it does.
    */
   async saveSectionsToDatabase(
-    sections: Prisma.SectionUncheckedCreateInput[]
+    sections: Prisma.SectionCreateInput[]
   ): Promise<void> {
     const updateTime = new Date();
 
@@ -141,10 +141,10 @@ class DumpProcessor {
    * which means that they're no longer on Banner & should be removed from our database.
    */
   async updateSectionLastUpdateTime(
-    sections: Prisma.SectionUncheckedCreateInput[]
+    sections: Prisma.SectionCreateInput[]
   ): Promise<void> {
     await prisma.course.updateMany({
-      where: { id: { in: sections.map((s) => s.classHash) } },
+      where: { id: { in: sections.map((s) => keys.getClassHash(s)) } },
       data: { lastUpdateTime: new Date() },
     });
 

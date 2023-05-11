@@ -494,10 +494,7 @@ describe("Updater", () => {
     let FUNDIES_TWO_COURSE;
     beforeEach(async () => {
       FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
-      // Fundies I shouldn't be deleted when updating
-      FUNDIES_ONE_COURSE.lastUpdateTime = new Date();
       FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
-      FUNDIES_TWO_COURSE.lastUpdateTime = new Date();
       await prisma.course.create({
         data: FUNDIES_ONE_COURSE,
       });
@@ -655,6 +652,7 @@ describe("Updater", () => {
       });
       await UPDATER.update();
       jest.spyOn(elasticInstance, "bulkIndexFromMap").mockRestore();
+      console.log(await prisma.course.findMany({ select: { id: true } }));
 
       // updates in database
       const fundies1SectionsUpdated = await prisma.section.findMany({
