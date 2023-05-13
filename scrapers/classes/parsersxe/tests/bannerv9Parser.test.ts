@@ -7,6 +7,29 @@ import prisma from "../../../../services/prisma";
 import TermParser from "../termParser";
 import classParser from "../classParser";
 import sectionParser from "../sectionParser";
+import nock from "nock";
+
+const scope = nock(/neu\.edu/)
+  .get(/getTerms/)
+  .reply(200, [
+    {
+      code: "3",
+      description: "Fall 2022 Semester",
+    },
+    {
+      code: "1",
+      description: "Summer 2022 CPS Semester",
+    },
+    {
+      code: "2",
+      description: "Summer 2022 Law Semester",
+    },
+  ])
+  .persist();
+
+afterAll(() => {
+  scope.persist(false);
+});
 
 describe("getTermsIds", () => {
   beforeEach(() => {
@@ -45,7 +68,7 @@ describe("getTermsIds", () => {
 
 describe("getAllTermInfos", () => {
   it("serializes the term list", async () => {
-    expect(await bannerv9.getAllTermInfos("termslist")).toEqual([
+    expect(await bannerv9.getAllTermInfos()).toEqual([
       {
         active: true,
         host: "neu.edu",
@@ -168,7 +191,7 @@ it("getCurrentTermInfos", async () => {
 describe("scrapeTerms", () => {
   it("merges term datas", async () => {
     // @ts-expect-error -- don't care about the types here
-    TermParser.parseTerm = jest.fn((p, _p) => {
+    TermParser.parseTerm = jest.fn((p) => {
       const subjects = {};
       subjects[p] = p;
       return {

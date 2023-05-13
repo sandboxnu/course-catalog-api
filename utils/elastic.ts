@@ -29,9 +29,9 @@ const BULKSIZE = 2000;
 const MAX_RETRY_ATTEMPTS = 5;
 /**
  * The multiplier (in ms) by which we increase the wait time in between succsessive retries.
- * This is an arbitrary number - 750 was chosen because it works.
+ * This is an arbitrary number - 1000 was chosen because 750 was failing for a bit, so we raised it a little.
  */
-const RETRY_TIME_MULTIPLIER = 750;
+const RETRY_TIME_MULTIPLIER = 1000;
 
 type ElasticIndex = {
   name: string;
@@ -263,6 +263,7 @@ export class Elastic {
         macros.log(
           `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
         );
+
         return res;
       },
       { concurrency: 1 }
@@ -318,6 +319,11 @@ export class Elastic {
         return await client.bulk({ index: indexName, body: bulk });
       } catch (e) {
         macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
+
+        if (i === MAX_RETRY_ATTEMPTS - 1) {
+          throw e;
+        }
+
         // If it's a 429, we'll get a ResponseError
         if (e instanceof ResponseError) {
           macros.warn("Request failed - retrying...");

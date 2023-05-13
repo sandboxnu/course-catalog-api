@@ -68,9 +68,9 @@ class Updater {
 
   // TODO must call this in server
   start(): void {
-    // 5 min if prod, 30 sec if dev.
+    // 5 min if prod, 1 min if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
-    const intervalTime = macros.PROD ? 300000 : 30000;
+    const intervalTime = macros.PROD ? 300_000 : 60_000;
 
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {
@@ -91,12 +91,10 @@ class Updater {
     }
   }
 
-  // Update classes and sections users and notify users if seats have opened up
-  async update(): Promise<void> {
-    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
-
-    const startTime = Date.now();
-
+  /**
+   * Scrapes section data from Banner
+   */
+  private async scrapeDataToUpdate(): Promise<ScrapedSection[]> {
     // scrape everything
     const sections: ScrapedSection[] = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
@@ -105,6 +103,16 @@ class Updater {
     ).reduce((acc, val) => acc.concat(val), []);
 
     macros.log(`scraped ${sections.length} sections`);
+
+    return sections;
+  }
+
+  /**
+   * Sends notifications to users about sections/classes which now have seats open.
+   */
+  private async sendUserNotifications(
+    sections: ScrapedSection[]
+  ): Promise<void> {
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.COURSE_MODEL
@@ -113,6 +121,14 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    await sendNotifications(
+      notificationInfo,
+      courseHashToUsers,
+      sectionHashToUsers
+    );
+  }
+
+  private async saveDataToDatabase(sections: ScrapedSection[]): Promise<void> {
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
@@ -126,14 +142,27 @@ class Updater {
         Date.now() - dumpProcessorStartTime
       } ms.`
     );
+  }
+
+  /**
+   * Updates frequently-changing data from sections (eg. seat count).
+   * Does not update class data that doesn't change often, like the title and description!
+   *
+   * Notifies users if seats have opened up.
+   */
+  async update(): Promise<void> {
+    macros.log(`Updating terms: ${this.SEMS_TO_UPDATE.join(", ")}`);
+
+    const startTime = Date.now();
+
+    // Scrape the data
+    const sections = await this.scrapeDataToUpdate();
+    // Send out notifications
+    await this.sendUserNotifications(sections);
+    // Save the data in our database
+    await this.saveDataToDatabase(sections);
+
     const totalTime = Date.now() - startTime;
-
-    await sendNotifications(
-      notificationInfo,
-      courseHashToUsers,
-      sectionHashToUsers
-    );
-
     macros.log(
       `${
         "Done running updater onInterval".underline.green

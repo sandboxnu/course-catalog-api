@@ -2,7 +2,7 @@ import $ from "cheerio";
 import _ from "lodash";
 import Request from "../../request";
 import macros from "../../../utils/macros";
-import req from "request";
+import { CookieJar } from "tough-cookie";
 
 const requestObj = new Request("util");
 
@@ -85,7 +85,8 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
   return ret;
 }
 
-async function getCookiesForSearch(termId: string): Promise<req.CookieJar> {
+async function getCookiesForSearch(termId: string): Promise<CookieJar> {
+  const cookieJar = new CookieJar();
   // first, get the cookies
   // https://jennydaman.gitlab.io/nubanned/dark.html#studentregistrationssb-clickcontinue-post
   const clickContinue = await requestObj.post(
@@ -94,25 +95,27 @@ async function getCookiesForSearch(termId: string): Promise<req.CookieJar> {
       form: {
         term: termId,
       },
-      cache: false,
+      cacheRequests: false,
+      cookieJar: cookieJar,
     }
   );
 
-  if (clickContinue.body.regAllowed === false) {
+  const bodyObj = JSON.parse(clickContinue.body);
+
+  if (bodyObj.regAllowed === false) {
     macros.error(
       `failed to get cookies (from clickContinue) for the term ${termId}`,
-      clickContinue
+      clickContinue.body
     );
   }
 
-  const cookiejar: req.CookieJar = requestObj.jar();
   for (const cookie of clickContinue.headers["set-cookie"]) {
-    cookiejar.setCookie(
+    cookieJar.setCookie(
       cookie,
       "https://nubanner.neu.edu/StudentRegistrationSsb/"
     );
   }
-  return cookiejar;
+  return cookieJar;
 }
 
 export default {

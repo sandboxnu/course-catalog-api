@@ -19,7 +19,7 @@ import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import { MultiProgressBars } from "multi-progress-bars";
 
 // Only used to query the term IDs, so we never want to use a cached version
-const request = new Request("bannerv9Parser", { cache: false });
+const request = new Request("bannerv9Parser", { cacheRequests: false });
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -35,6 +35,9 @@ export const NUMBER_OF_TERMS_TO_UPDATE = 12;
  * Top level parser. Exposes nice interface to rest of app.
  */
 export class Bannerv9Parser {
+  static BANNER_TERMS_URL =
+    "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=200&searchTerm=";
+
   getTermsIds(termIds: string[]): string[] {
     const termsStr = process.env.TERMS_TO_SCRAPE;
 
@@ -79,18 +82,16 @@ export class Bannerv9Parser {
   }
 
   /**
-   * Get the list of all available terms given the starting url
-   * @param termsUrl the starting url to find the terms with v9
-   * @returns List of {termId, description}
+   * Get the list of all available terms and their data
    */
-  async getAllTermInfos(termsUrl: string): Promise<TermInfo[]> {
+  async getAllTermInfos(): Promise<TermInfo[]> {
     // Query the Banner URL to get a list of the terms & parse
-    const bannerTerms = await request.get(termsUrl, {
-      json: true,
-      cache: false,
+    const bannerTerms = await request.get(Bannerv9Parser.BANNER_TERMS_URL, {
+      cacheRequests: false,
     });
 
-    const termList = TermListParser.serializeTermsList(bannerTerms.body);
+    const bannerTermsObject = JSON.parse(bannerTerms.body);
+    const termList = TermListParser.serializeTermsList(bannerTermsObject);
 
     // Sort by descending order (to get the most recent term IDs first)
     return termList.sort((a, b) => {
@@ -147,8 +148,12 @@ export class Bannerv9Parser {
         "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n"
     );
 
-    const termData: ParsedTermSR[] = await pMap(termIds, (p) => {
-      return TermParser.parseTerm(p, termsProgressBar);
+    const termData: ParsedTermSR[] = await pMap(termIds, async (p) => {
+      // In prod, we don't want to show the progres bar - it makes the logs too cluttered.
+      const progressBar = !macros.PROD ? termsProgressBar : null;
+      const result = await TermParser.parseTerm(p, progressBar);
+      macros.log(`Done with ${p}`);
+      return result;
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each
@@ -194,9 +199,7 @@ export class Bannerv9Parser {
 
   // Just a convenient test method, if you want to
   async test(): Promise<void> {
-    const numTerms = 20;
-    const url = `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${numTerms}&searchTerm=`;
-    const termInfos = await this.getAllTermInfos(url);
+    const termInfos = await this.getAllTermInfos();
     const output = await this.main(termInfos);
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").writeFileSync(

@@ -83,7 +83,7 @@ class NeuEmployee {
       .get(
         "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
       )
-      .then((resp) => resp.body["versionToken"]);
+      .then((resp) => JSON.parse(resp.body)["versionToken"]);
   }
 
   /**
@@ -111,20 +111,21 @@ class NeuEmployee {
       },
     };
 
-    const response: EmployeeRequestResponse[] = await request
-      .post(
-        "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
-        {
-          body: employeeQuery,
-          json: true,
-          headers: {
-            "X-CSRFToken": csrfToken,
-          },
-        }
-      )
-      .then((r) => r.body.data.EmployeeDirectoryContact.List);
+    const response = await request.post(
+      "https://nu.outsystemsenterprise.com/FSD/screenservices/FSD/MainFlow/Name/ActionGetContactsByName_NonSpecificType",
+      {
+        json: employeeQuery,
+        headers: {
+          "X-CSRFToken": csrfToken,
+        },
+      }
+    );
 
-    this.people = this.parseApiResponse(response);
+    const parsedResponse = JSON.parse(response.body);
+    const employees: EmployeeRequestResponse[] =
+      parsedResponse?.data?.EmployeeDirectoryContact?.List;
+
+    this.people = this.parseApiResponse(employees);
   }
 
   async main(): Promise<Employee[]> {

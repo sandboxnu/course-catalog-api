@@ -70,28 +70,27 @@ describe("TermID setup", () => {
 
 describe("Course and section setup", () => {
   test("courses/sections are in the database", async () => {
-    for (const [termId, count] of Object.entries(NUMS_COURSES)) {
-      expect(
-        await prisma.course.count({
-          where: {
-            termId: termId,
-          },
-        })
-      ).toBe(count);
+    for (const [termId, expected] of Object.entries(NUMS_COURSES)) {
+      const actual = await prisma.course.count({
+        where: {
+          termId: termId,
+        },
+      });
+      expect(actual).toBe(expected);
     }
 
     expect(await prisma.course.count()).toBe(NUM_COURSES);
 
-    for (const [termId, count] of Object.entries(NUMS_SECTIONS)) {
-      expect(
-        await prisma.section.count({
-          where: {
-            course: {
-              termId: termId,
-            },
+    for (const [termId, expected] of Object.entries(NUMS_SECTIONS)) {
+      const actual = await prisma.section.count({
+        where: {
+          course: {
+            termId: termId,
           },
-        })
-      ).toBe(count);
+        },
+      });
+
+      expect(actual).toBe(expected);
     }
 
     expect(await prisma.section.count()).toBe(NUM_SECTIONS);

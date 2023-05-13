@@ -6,77 +6,57 @@
 // ESLint added some new rules that require one class per file.
 // That is generally a good idea, perhaps we could change over this file one day.
 /* eslint-disable max-classes-per-file */
-
-import request from "request-promise-native";
+import { Agents, OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
-import retry from "async-retry";
 import objectHash from "object-hash";
 import moment from "moment";
-import _ from "lodash";
-import dnsCache from "dnscache";
-
 import cache from "./cache";
 import macros from "../utils/macros";
-import { Cookie, CookieJar, Response } from "request";
 import {
-  NativeRequestConfig,
   RequestAnalytics,
-  CustomRequestConfig,
+  CustomOptions,
   RequestPool,
-  PartialRequestConfig,
   AmplitudeEvent,
   AgentAnalytics,
 } from "../types/requestTypes";
 import { EmptyObject } from "../types/types";
+import { Agent as HttpAgent } from "http";
+import { Agent as HttpsAgent } from "https";
+import CacheableLookup from "cacheable-lookup";
 
-// This file is a transparent wrapper around the request library that changes some default settings so scraping is a lot faster.
-// This file adds:
-// Automatic retry, with a delay in between reqeusts.
-// Limit the max number of simultaneous requests (this used to be done with d3-queue, but is now done with agent.maxSockets)
-// Application layer DNS cacheing. The request library (and the built in http library) will do a separate DNS lookup for each request
-//    This DNS cacheing will do one DNS lookup per hostname (www.ccis.northeastern.edu, wl11gp.neu.edu) and cache the result.
-//    This however, does change the URL that is sent to the request library (hostname -> pre-fetched ip), which means that the https verificaton will be comparing
-//    the URL in the cert with the IP in the url, which will fail. Need to disable https verification for this to work.
-// Keep-alive connections. Keep TCP connections open between requests. This significantly speeds up scraping speeds (1hr -> 20min)
-// Ignore invalid HTTPS certificates and outdated ciphers. Some school sites have really old and outdated sites. We want to scrape them even if their https is misconfigured.
-// Saves all pages to disk in development so parsers are faster and don't need to hit actuall websites to test updates for scrapers
-// ignores request cookies when matching request for caching
-// see the request function for details about input (same as request input + some more stuff) and output (same as request 'response' object + more stuff)
+// What is this file?
+//    This is a wrapper around `got`, the request library we use.
+//    This sets default settings so that our scraping is a lot faster.
+//
+// What changes are made from the defaults?
+//    Automatic retries (with delays between requests)
+//    Limit the max number of simultaneous requests based on what's been determined to be optimal (via trial and error)
+//    DNS caching - this prevents us from doing a DNS lookup for every request, saving time.
 
-// Would it be worth to assume that these sites have a cache and hit all the subjects, and then hit all the classes, etc?
-// So assume that when you hit one subject it caches that subject and others nearby.
-
-// TODO:
-// Sometimes many different hostnames all point to the same IP. Need to limit requests by an IP basis and a hostname basis (COS).
-// Need to improve the cache. Would save everything in one object, but 268435440 (268 MB) is roughly the max limit of the output of JSON.stringify.
-// https://github.com/nodejs/node/issues/9489#issuecomment-279889904
-
-// This object must be created once per process
-// Attributes are added to this object when it is used
-// This is the total number of requests per host
-// If these numbers ever exceed 1024, might want to ensure that there are more file descriptors available on the OS for this process
-// than we are trying to request. Windows has no limit and travis has it set to 500k by default, but Mac OSX and Linux Desktop often have them
-// set really low (256) which could interefere with this.
-// https://github.com/request/request
+// This object contains the DEFAULT settings for each hostname.
 const separateReqDefaultPool: RequestPool = {
-  maxSockets: 50,
-  keepAlive: true,
-  maxFreeSockets: 50,
+  options: {
+    maxSockets: 50,
+    keepAlive: true,
+    maxFreeSockets: 50,
+  },
+  agents: false,
 };
 
-// Specific limits for some sites. CCIS has active measures against one IP making too many requests
-// and will reject request if too many are made too quickly.
-// Some other schools' servers will crash/slow to a crawl if too many requests are sent too quickly.
+// This object contains the DEFAULT settings for SPECIFIC sites.
+// These limits were discovered by trial & error.
 const separateReqPools: Record<string, RequestPool> = {
   "www.ccis.northeastern.edu": {
-    maxSockets: 8,
-    keepAlive: true,
-    maxFreeSockets: 8,
+    options: {
+      maxSockets: 8,
+      keepAlive: true,
+      maxFreeSockets: 8,
+    },
+    agents: false,
   },
   "www.khoury.northeastern.edu": {
-    maxSockets: 8,
-    keepAlive: true,
-    maxFreeSockets: 8,
+    options: { maxSockets: 8, keepAlive: true, maxFreeSockets: 8 },
+    agents: false,
   },
 
   // Needed for https://www.northeastern.edu/cssh/faculty
@@ -84,53 +64,29 @@ const separateReqPools: Record<string, RequestPool> = {
   // This is the server that was crashing when tons of requests were sent to /cssh
   // So only requests to /cssh would 500, and not all of northeastern.edu.
   "www.northeastern.edu": {
-    maxSockets: 25,
-    keepAlive: true,
-    maxFreeSockets: 25,
-  },
-
-  "genisys.regent.edu": { maxSockets: 50, keepAlive: true, maxFreeSockets: 50 },
-  "prod-ssb-01.dccc.edu": {
-    maxSockets: 100,
-    keepAlive: true,
-    maxFreeSockets: 100,
-  },
-  "telaris.wlu.ca": { maxSockets: 400, keepAlive: true, maxFreeSockets: 400 },
-  "myswat.swarthmore.edu": {
-    maxSockets: 1000,
-    keepAlive: true,
-    maxFreeSockets: 1000,
-  },
-  "bannerweb.upstate.edu": {
-    maxSockets: 200,
-    keepAlive: true,
-    maxFreeSockets: 200,
+    options: {
+      maxSockets: 25,
+      keepAlive: true,
+      maxFreeSockets: 25,
+    },
+    agents: false,
   },
 
   // Took 1hr and 15 min with 500 sockets and RETRY_DELAY set to 20000 and delta set to 15000.
   // Usually takes just under 1 hr at 1k sockets and the same timeouts.
   // Took around 20 min with timeouts set to 100ms and 150ms and 100 sockets.
-  "wl11gp.neu.edu": { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
+  "wl11gp.neu.edu": {
+    options: { maxSockets: 100, keepAlive: true, maxFreeSockets: 100 },
+    agents: false,
+  },
 };
 
 // Enable the DNS cache. This module replaces the .lookup method on the built in dns module to cache lookups.
-// The old way of doing DNS caching was to do a dns lookup of the domain before the request was made,
-// and then swap out the domain with the ip in the url. (And cache the dns lookup manually.)
-// Use this instead of swapping out the domain with the ip in the fireRequest function so the cookies still work.
-// (There was some problems with saving them because, according to request, the host was the ip, but the cookies were configured to match the domain)
-// It would be possible to go back to manual dns lookups and therefore manual cookie jar management if necessary (wouldn't be that big of a deal).
-// https://stackoverflow.com/questions/35026131/node-override-request-ip-resolution
-// https://gitter.im/request/request
-// https://github.com/yahoo/dnscache
-dnsCache({
-  enable: true,
-  ttl: 999999999,
-  cachesize: 999999999,
-});
+const DNS_CACHE = new CacheableLookup();
 
 const MAX_RETRY_COUNT = 35;
 const DEFAULT_USER_AGENT =
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:53.0) Gecko/20100101 Firefox/53.0";
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/110.0";
 // These numbers are in ms.
 const RETRY_DELAY = 100;
 const RETRY_DELAY_DELTA = 150;
@@ -140,8 +96,8 @@ const CACHE_SAFE_CONFIG_OPTIONS = [
   "headers",
   "url",
   "cacheName",
-  "jar",
-  "cache",
+  "cookieJar",
+  "cacheRequests",
 ];
 
 const LAUNCH_TIME = moment();
@@ -195,17 +151,17 @@ class Request {
   private getAnalyticsFromAgent(
     pool: RequestPool
   ): EmptyObject | AgentAnalytics {
-    const agent = pool["https:false:ALL"] ?? pool["http:"];
-
-    if (!agent) {
+    if (pool.agents === false) {
       macros.http("Agent is false,", pool);
       return {};
     }
 
+    const agent: HttpAgent | undefined = pool.agents.https ?? pool.agents.http;
+
     const moreAnalytics = {
       socketCount: 0,
       requestCount: 0,
-      maxSockets: pool.maxSockets,
+      maxSockets: agent?.maxSockets,
     };
 
     for (const arr of Object.values(agent.sockets)) {
@@ -276,63 +232,72 @@ class Request {
   }
 
   /**
+   * Ensures that the given hostname has an associated HTTP and HTTPS agent.
+   * Agents are responsible for managing connection persistence and reuse for HTTP clients, which
+   * helps make our requests more efficient.
+   *
+   * Got will automatically resolve the protocol and use the corresponding agent.
+   */
+  private prepareAgentsForHostname(hostname: string): Agents {
+    const pool = separateReqPools[hostname] ?? separateReqDefaultPool;
+
+    if (pool.agents === false) {
+      pool.agents = {
+        https: new HttpsAgent(pool.options),
+      };
+    }
+
+    return pool.agents;
+  }
+
+  /**
    * Given a config, populates it with default values if those values
    * are not already set.
    */
   private prepareRequestConfig(
-    config: CustomRequestConfig
-  ): NativeRequestConfig {
+    config: CustomOptions
+  ): OptionsOfTextResponseBody {
     const hostname = new URI(config.url).hostname();
 
-    const defaultConfig: Partial<NativeRequestConfig> = { headers: {} };
-
-    // Default to JSON for POST bodies
-    if (config.method === "POST") {
-      defaultConfig.headers["Content-Type"] = "application/json";
-    }
-
-    defaultConfig.pool = separateReqPools[hostname] ?? separateReqDefaultPool;
-
-    // The timeout does not include the time the request is waiting for a socket.
-    // Just increased from 5 min to help with socket hang up errors.
-    defaultConfig.timeout = 15 * 60 * 1000;
-
-    // Instead of just receiving the response body, also get all the headers,
-    // status codes, and other attached information
-    defaultConfig.resolveWithFullResponse = true;
-
-    // Allow fallback to old depreciated insecure SSL ciphers. Some school websites are really old  :/
-    // We don't really care abouzt security (hence the rejectUnauthorized: false), and will accept anything.
-    // Additionally, this is needed when doing application layer dns
-    // caching because the url no longer matches the url in the cert.
-    defaultConfig.rejectUnauthorized = false;
-    defaultConfig.requestCert = false;
-    defaultConfig.ciphers = "ALL";
-
-    // Set the host in the header to the hostname on the url.
-    // This is not done automatically because of the application layer
-    // dns caching (it would be set to the ip instead)
-    defaultConfig.headers.Host = hostname;
-
-    defaultConfig.headers["User-Agent"] = DEFAULT_USER_AGENT;
-
-    // Needed on some old sites that will redirect/block requests when this is not set
-    // when a user is requesting a page that is not the entry page of the site
-    defaultConfig.headers.Referer = config.url;
+    const defaultConfig: Partial<OptionsOfTextResponseBody> = {
+      headers: {
+        // Manually set the host - due to DNS caching, this might be overridden by the IP,
+        // so we want to manually set it (TODO - is this still true)
+        Host: hostname,
+        "User-Agent": DEFAULT_USER_AGENT,
+        // Needed on some old sites that will redirect/block requests when this is not set
+        // when a user is requesting a page that is not the entry page of the site
+        Referer: config.url,
+      },
+      // TODO - still necessary? (Old comment ->) Increased from 5 min to help with socket hang up errors.
+      timeout: { request: 15 * 60 * 1000 },
+      retry: {
+        limit: MAX_RETRY_COUNT,
+        calculateDelay: () => {
+          return RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
+        },
+      },
+      // Allow fallback to old depreciated insecure SSL ciphers. This is needed when doing application layer dns
+      // caching because the url no longer matches the url in the cert.
+      https: { rejectUnauthorized: false },
+      agent: this.prepareAgentsForHostname(hostname),
+      dnsCache: DNS_CACHE,
+    };
 
     // Merge the default config and the input config
     // Need to merge headers and output separately because config.headers object would totally override
     // defaultConfig.headers if merged as one object (Object.assign does shallow merge and not deep merge)
-    const output = { ...defaultConfig, ...config } as NativeRequestConfig;
-    output.headers = { ...defaultConfig.headers, ...config.headers };
-
-    return output;
+    return {
+      ...defaultConfig,
+      ...config,
+      headers: { ...defaultConfig.headers, ...config.headers },
+    };
   }
 
   /**
    * Sets some configuration options, and sends a request for the given config.
    */
-  private async fireRequest(config: CustomRequestConfig): Promise<Response> {
+  private async fireRequest(config: CustomOptions): Promise<Response<string>> {
     const hostname = new URI(config.url).hostname();
     this.ensureAnalyticsObject(hostname);
     this.activeHostnames[hostname] = true;
@@ -353,7 +318,14 @@ class Request {
     this.openRequests++;
 
     try {
-      return await request(output);
+      // got uses ESM. This is (ostensibly) the future of Node packages.
+      // However, some of our packages (like Jest) don't play nicely with ESM yet.
+      // I took a crack at it here, but after many dead ends decided to leave it for later
+      //  https://github.com/sandboxnu/course-catalog-api/pull/163
+      // More context from got:
+      //  https://github.com/sindresorhus/got/issues/2168#issuecomment-1295813029
+      const { default: got } = await import("got");
+      return await got(output);
     } finally {
       this.openRequests--;
 
@@ -372,7 +344,7 @@ class Request {
    * varies based on the `POST` data, so we can't map only using the URL - it also needs to
    * take the `POST` data into account)
    */
-  private safeToCacheByUrl(config: CustomRequestConfig): boolean {
+  private safeToCacheByUrl(config: CustomOptions): boolean {
     if (config.method !== "GET") {
       return false;
     }
@@ -382,19 +354,16 @@ class Request {
     );
 
     if (listOfHeaders.length > 0) {
-      const configToLog = { ...config };
-      configToLog.jar = null;
-
       macros.http(
         "Not caching by url b/c it has other headers",
         listOfHeaders,
-        configToLog
+        { ...config }
       );
       return false;
     }
 
-    const listOfConfigOptions = Object.keys(config).filter((key) =>
-      CACHE_SAFE_CONFIG_OPTIONS.includes(key)
+    const listOfConfigOptions = Object.keys(config).filter(
+      (key) => !CACHE_SAFE_CONFIG_OPTIONS.includes(key)
     );
 
     if (listOfConfigOptions.length > 0) {
@@ -409,29 +378,39 @@ class Request {
   }
 
   /**
+   * Creates a hash for a given request config.
+   * Ideally, we'd want to skip this, since this call can be *relatively* expensive.
+   */
+  private hashConfig(config: CustomOptions): string {
+    // We want to omit things that change frequently, but shouldn't affect caching
+    const cleanHeaders = { ...config.headers, Cookie: undefined };
+
+    const cleanConfig = {
+      ...config,
+      headers: cleanHeaders,
+      cookieJar: undefined,
+    };
+
+    return objectHash(cleanConfig);
+  }
+
+  /**
    * Returns the cache key for this corresponding config.
    * Allows us to cache responses from requests sent with this config
    */
-  private getCacheKey(config: CustomRequestConfig): string | undefined {
+  private getCacheKey(config: CustomOptions): string {
+    // Skipping the hashing when it is not necessary significantly speeds this up.
     if (this.safeToCacheByUrl(config)) {
       return config.url;
     } else {
-      // Make a new request without the cookies and the cookie jar.
-      const headersWithoutCookie = { ...config.headers };
-      headersWithoutCookie.Cookie = undefined;
-
-      const configToHash: Partial<NativeRequestConfig> = { ...config };
-      configToHash.headers = headersWithoutCookie;
-      configToHash.jar = undefined;
-
-      return objectHash(configToHash);
+      return this.hashConfig(config);
     }
   }
 
   /**
    * Sends a request
    */
-  async request(config: CustomRequestConfig): Promise<Response> {
+  async request(config: CustomOptions): Promise<Response<string>> {
     macros.http("Request hitting", config);
 
     const hostname = new URI(config.url).hostname();
@@ -439,8 +418,7 @@ class Request {
 
     let newKey: string | undefined;
 
-    if (macros.DEV && config.cache) {
-      // Skipping the hashing when it is not necessary significantly speeds this up.
+    if (macros.DEV && config.cacheRequests) {
       newKey = this.getCacheKey(config);
 
       const content = await cache.get(
@@ -450,76 +428,62 @@ class Request {
       );
 
       if (content) {
-        return content as Response;
+        return content as Response<string>;
       }
     }
 
-    let tryCount = 0;
+    try {
+      const requestStart = Date.now();
+      const response = await this.fireRequest(config);
+      const requestDuration = Date.now() - requestStart;
 
-    const timeout = RETRY_DELAY + Math.round(Math.random() * RETRY_DELAY_DELTA);
-    let requestDuration: number | undefined;
+      this.analytics[hostname].totalGoodRequests++;
 
-    return retry(
-      async () => {
-        tryCount++;
-
-        try {
-          const requestStart = Date.now();
-          const response = await this.fireRequest(config);
-          requestDuration = Date.now() - requestStart;
-
-          this.analytics[hostname].totalGoodRequests++;
-
-          // Save the response to a file for development
-          if (macros.DEV && config.cache) {
-            await cache.set(
-              macros.REQUESTS_CACHE_DIR,
-              config.cacheName,
-              newKey,
-              response.toJSON(),
-              true
-            );
-          }
-
-          this.analytics[hostname].totalBytesDownloaded += response.body.length;
-          if (!macros.PROD) {
-            macros.http(
-              `Parsed ${response.body.length} in ${requestDuration} ms from ${config.url}`
-            );
-          }
-
-          return response;
-        } catch (err) {
-          this.analytics[hostname].totalErrors++;
-          if (!macros.PROD || tryCount > 5) {
-            macros.error(
-              `Try#: ${tryCount} Code: ${
-                err.statusCode ||
-                err.RequestError ||
-                err.Error ||
-                err.message ||
-                err
-              } Open request count: ${this.openRequests} Url: ${config.url}`
-            );
-          }
-
-          if (err.response) {
-            macros.verbose(err.response.body);
-          } else {
-            macros.verbose(err.message);
-          }
-
-          throw err;
-        }
-      },
-      {
-        retries: MAX_RETRY_COUNT,
-        minTimeout: timeout,
-        maxTimeout: timeout,
-        factor: 1,
-        randomize: true,
+      // Save the response to a file for development
+      if (macros.DEV && config.cacheRequests) {
+        await cache.set(
+          macros.REQUESTS_CACHE_DIR,
+          config.cacheName,
+          newKey,
+          {
+            body: response.body,
+            statusCode: response.statusCode,
+          },
+          true
+        );
       }
-    );
+
+      const contentLength = response.rawBody.length;
+      this.analytics[hostname].totalBytesDownloaded += contentLength;
+      if (!macros.PROD) {
+        macros.http(
+          `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`
+        );
+      }
+
+      return response;
+    } catch (err) {
+      this.analytics[hostname].totalErrors++;
+      if (!macros.PROD) {
+        macros.error(
+          `Code: ${
+            err.statusCode ||
+            err.RequestError ||
+            err.Error ||
+            err.message ||
+            err
+          }. Open request count: ${this.openRequests}. URL: ${config.url}`
+        );
+      }
+
+      if (err.response) {
+        macros.verbose(err.response.body);
+      } else {
+        macros.verbose(err.message);
+      }
+
+      throw err;
+    }
   }
 }
 
@@ -527,14 +491,14 @@ const instance = new Request();
 
 class RequestInput {
   cacheName: string;
-  config: Partial<CustomRequestConfig>;
+  config: Partial<CustomOptions>;
 
   constructor(cacheName: string, config = {}) {
     this.cacheName = cacheName;
     this.config = config;
 
     // If not specified in the config, default to using the cache
-    this.config.cache ??= true;
+    this.config.cacheRequests ??= true;
   }
 
   /**
@@ -542,12 +506,11 @@ class RequestInput {
    */
   private async request(
     url: string,
-    config: Partial<CustomRequestConfig>,
+    config: Partial<CustomOptions>,
     method: "GET" | "POST"
-  ): Promise<Response> {
+  ): Promise<Response<string>> {
     config.method = method;
     config.url = url;
-    // FIXME remove, break the URL out of the config. Depends on `Request`
 
     const output = {};
 
@@ -555,16 +518,14 @@ class RequestInput {
     // Uses .assign() to avoid overwriting our this.config object
     Object.assign(output, this.config, this.normalizeRequestConfig(config));
 
-    return instance.request(output as CustomRequestConfig);
+    return instance.request(output as CustomOptions);
   }
 
   /**
    * Standardizes a request configuration, adding headers and a cache name
    * if necessary
    */
-  normalizeRequestConfig(
-    config: Partial<CustomRequestConfig>
-  ): CustomRequestConfig {
+  normalizeRequestConfig(config: Partial<CustomOptions>): CustomOptions {
     config.headers ??= {};
 
     if (macros.DEV) {
@@ -576,7 +537,7 @@ class RequestInput {
       }
     }
 
-    return config as CustomRequestConfig;
+    return config as CustomOptions;
   }
 
   /**
@@ -584,8 +545,8 @@ class RequestInput {
    */
   async get(
     url: string,
-    config?: Partial<CustomRequestConfig>
-  ): Promise<Response> {
+    config?: Partial<CustomOptions>
+  ): Promise<Response<string>> {
     return this.request(url, config ?? {}, "GET");
   }
 
@@ -594,21 +555,17 @@ class RequestInput {
    */
   async post(
     url: string,
-    config: Partial<CustomRequestConfig>
-  ): Promise<Response> {
+    config: Partial<CustomOptions>
+  ): Promise<Response<string>> {
     if (!config) {
       macros.error("Warning, request post called with no config");
       return null;
     }
 
-    return this.request(url, config, "POST");
-  }
+    // Create a headers object if none exists
+    config.headers = config.headers ?? {};
 
-  /**
-   * Pass-through method to get the cookie jar from our interal requests object
-   */
-  jar(): CookieJar {
-    return request.jar();
+    return this.request(url, config, "POST");
   }
 }
 

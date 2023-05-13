@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 // tests/nexus-test-environment.js
+import dotenv from "dotenv";
 const { Client } = require("pg");
 const NodeEnvironment = require("jest-environment-node");
 const { v4: uuid } = require("uuid");
@@ -17,7 +18,8 @@ class PrismaTestEnvironment extends NodeEnvironment {
     // Generate a unique schema identifier for this test context
     this.schema = `test_${uuid()}`;
     // Generate the pg connection string for the test schema
-    this.databaseUrl = `postgres://postgres@localhost:5432/searchneu_test?schema=${this.schema}`;
+    dotenv.config();
+    this.databaseUrl = `postgresql://postgres:${process.env.POSTGRES_PASSWORD}@localhost:5432/searchneu_test?schema=${this.schema}`;
   }
 
   async setup() {
