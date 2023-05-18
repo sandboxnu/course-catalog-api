@@ -162,8 +162,8 @@ export interface CourseRef {
 export interface Dump {
   termDump?: ParsedTermSR;
   profDump?: Employee[];
-  destroy?: boolean;
-  currentTermInfos?: TermInfo[];
+  deleteOutdatedData?: boolean;
+  allTermInfos?: TermInfo[];
 }
 
 export type BulkUpsertInput =
