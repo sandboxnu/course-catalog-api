@@ -26,7 +26,11 @@ class AddPrerequisiteFor {
    *
    * @param termDump the termDump of the semester.
    */
-  go(termDump: ParsedTermSR): void {
+  go(termDump: ParsedTermSR, classMap?: Record<string, ParsedCourseSR>): void {
+    if (classMap !== undefined) {
+      this.classMap = classMap;
+    }
+
     // Maps the class objects first
     for (const aClass of termDump.classes) {
       const key = keys.getClassHash(aClass);

@@ -41,7 +41,14 @@ export class MarkMissingRequisites {
     return prereqs;
   }
 
-  go(termDump: ParsedTermSR): ParsedCourseSR[] {
+  go(
+    termDump: ParsedTermSR,
+    classMap?: Record<string, ParsedCourseSR>
+  ): ParsedCourseSR[] {
+    if (classMap !== undefined) {
+      this.classMap = classMap;
+    }
+
     // Create a course mapping
     for (const aClass of termDump.classes) {
       const key = keys.getClassHash(aClass);

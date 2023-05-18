@@ -11,11 +11,13 @@ import prisma from "./prisma";
 import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
+import classParser from "../scrapers/classes/parsersxe/classParser";
 import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 
 import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
+import { ParsedCourseSR } from "../types/scraperTypes";
 
 const FAULTY_TERM_IDS = ["202225"];
 
@@ -29,6 +31,8 @@ interface OldData {
 
 // the types of models/records that a user can follow
 type ModelName = "course" | "section";
+
+type ClassParserInfo = { termId: string; subject: string; classId: string };
 
 class Updater {
   COURSE_MODEL: ModelName;
@@ -159,6 +163,72 @@ class Updater {
     return { hasExistingClass, missingClass };
   }
 
+  /**
+   * Given an array of {@link ScrapedSection}s, return a list of the classes associated with these sections.
+   * Do not include duplicates; each class should only be included once.
+   */
+  private getCorrespondingClasses(
+    sections: ScrapedSection[]
+  ): ClassParserInfo[] {
+    const missingClasses = new Map<string, ClassParserInfo>();
+
+    for (const section of sections) {
+      missingClasses[keys.getClassHash(section)] = {
+        termId: section.termId,
+        subject: section.subject,
+        classId: section.classId,
+      };
+    }
+
+    return Object.values(missingClasses);
+  }
+
+  private async processClasses(classes: ParsedCourseSR[]) {
+    // Create the classMap from data in Prisma
+    // No need to combine that classMap with the classes we have?
+    // Run processors
+    // Return the dump
+    // Tests:
+    // Try running with only one section, missing class (jest mock the scrape)
+    //  The class and section will both be saved in psql
+    //  Its prereqs should all be marked as missing
+    // Two sections, same class
+    //    Class and sectionS will all be saved
+    //    Prereqs should be marked as missing
+    // Two sections, two classes
+    //  Class and sectionS will all be saved
+    //  Prereqs should be marked as missing, except for the two classes
+    //  Ensure that prereqsFor works on both classes (make it a circular dependency for shits and giggles)
+    // Docker test — delete CS3500 and ensure the class is missing in Prisma
+    //  Run the updater, make sure it exists again
+  }
+
+  /**
+   * Given a list of {@link ScrapedSection}s, scrape all of their associated classes.
+   */
+  private async scrapeCorrespondingClasses(
+    sections: ScrapedSection[]
+  ): Promise<ParsedCourseSR[]> {
+    // Determine which classes to scrape
+    const missingClasses = this.getCorrespondingClasses(sections);
+
+    const classes = await pMap(
+      missingClasses,
+      async ({ termId, subject, classId }) =>
+        classParser.parseClass(termId, subject, classId),
+      { concurrency: 500 }
+    );
+
+    const filteredClasses = classes.filter(
+      (c): c is ParsedCourseSR => c !== false
+    );
+
+    return filteredClasses;
+  }
+
+  /**
+   * Save the scraped sections to the database.
+   */
   private async saveDataToDatabase(sections: ScrapedSection[]): Promise<void> {
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
@@ -166,12 +236,14 @@ class Updater {
     const { hasExistingClass, missingClass } =
       await this.filterSectionsWithExistingClasses(sections);
 
+    let classes: ParsedCourseSR[] = [];
     if (missingClass.length > 0) {
       macros.warn("We found sections with no corresponding classes.");
+      classes = await this.scrapeCorrespondingClasses(sections);
     }
 
     await dumpProcessor.main({
-      termDump: { sections: hasExistingClass, classes: [], subjects: {} },
+      termDump: { sections: hasExistingClass, classes, subjects: {} },
       destroy: true,
     });
 

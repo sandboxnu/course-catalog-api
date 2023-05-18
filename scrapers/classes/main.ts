@@ -13,7 +13,7 @@ import addPrerequisiteFor from "./processors/addPrerequisiteFor";
 
 // Parsers
 import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
-import { ParsedTermSR } from "../../types/scraperTypes";
+import { ParsedCourseSR, ParsedTermSR } from "../../types/scraperTypes";
 import { TermInfo } from "../../types/types";
 
 // This is the main entry point for scraping classes
@@ -27,10 +27,13 @@ class Main {
   /**
    * Standardize the data we get back from Banner, to ensure it matches our expectations.
    */
-  runProcessors(dump: ParsedTermSR): ParsedTermSR {
+  runProcessors(
+    dump: ParsedTermSR,
+    classMap?: Record<string, ParsedCourseSR>
+  ): ParsedTermSR {
     // Run the processors, sequentially
-    markMissingRequisites.go(dump);
-    addPrerequisiteFor.go(dump);
+    markMissingRequisites.go(dump, classMap);
+    addPrerequisiteFor.go(dump, classMap);
 
     return dump;
   }
