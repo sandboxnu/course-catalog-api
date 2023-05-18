@@ -32,17 +32,11 @@ class DumpProcessor {
     );
     await this.saveCoursesToDatabase(processedCourses);
 
-    // FIXME this is a bad hack that will work
-    // TODO zachar - i'll remove this in a follow-up PR. Bad design, unecessary.
-    const courseIds: Set<string> = new Set(
-      (await prisma.course.findMany({ select: { id: true } })).map(
-        (elem) => elem.id
-      )
+    const processedSections = termDump.sections.map((section) =>
+      this.convertSectionToDatabaseFormat(section)
     );
-    const processedSections = termDump.sections
-      .map((section) => this.convertSectionToDatabaseFormat(section))
-      .filter((s) => courseIds.has(s.classHash));
     await this.saveSectionsToDatabase(processedSections);
+    await this.updateSectionsLastUpdateTime(termDump.sections);
 
     await this.saveSubjectsToDatabase(termDump.subjects);
 
@@ -121,7 +115,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the section doesn't exist, update if it does.
    */
   async saveSectionsToDatabase(
-    sections: Prisma.SectionUncheckedCreateInput[]
+    sections: Prisma.SectionCreateInput[]
   ): Promise<void> {
     const updateTime = new Date();
 
@@ -146,7 +140,6 @@ class DumpProcessor {
     }
 
     macros.log("Finished with sections");
-    await this.updateSectionLastUpdateTime(sections);
   }
 
   /**
@@ -154,11 +147,9 @@ class DumpProcessor {
    * We use this to track sections that haven't been updated in a while,
    * which means that they're no longer on Banner & should be removed from our database.
    */
-  async updateSectionLastUpdateTime(
-    sections: Prisma.SectionUncheckedCreateInput[]
-  ): Promise<void> {
+  async updateSectionsLastUpdateTime(sections: Section[]): Promise<void> {
     await prisma.course.updateMany({
-      where: { id: { in: sections.map((s) => s.classHash) } },
+      where: { id: { in: sections.map((s) => keys.getClassHash(s)) } },
       data: { lastUpdateTime: new Date() },
     });
 
@@ -316,19 +307,28 @@ class DumpProcessor {
    * Converts one of our section types to a type compatible with the format required by Prisma.
    * The converted section is ready for insertion to our database.
    */
-  convertSectionToDatabaseFormat(
-    secInfo: Section
-  ): Prisma.SectionUncheckedCreateInput {
+  convertSectionToDatabaseFormat(secInfo: Section): Prisma.SectionCreateInput {
     const additionalProps = {
       id: `${keys.getSectionHash(secInfo)}`,
-      classHash: keys.getClassHash(secInfo),
+      course: {
+        // This links our section with the course matching the given info.
+        // This requires that the course already exists! We check this earlier on.
+        // If not, this will error.
+        connect: {
+          uniqueCourseProps: {
+            classId: secInfo.classId,
+            termId: secInfo.termId,
+            subject: secInfo.subject,
+          },
+        },
+      } as Prisma.CourseCreateNestedOneWithoutSectionsInput,
     };
     return _.omit({ ...secInfo, ...additionalProps }, [
       "classId",
       "termId",
       "subject",
       "host",
-    ]) as unknown as Prisma.SectionUncheckedCreateInput;
+    ]) as unknown as Prisma.SectionCreateInput;
   }
 }
 
