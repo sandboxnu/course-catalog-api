@@ -25,13 +25,13 @@ class DumpProcessor {
    * @param termDump object containing all class and section data, normally acquired from scrapers
    * @param profDump object containing all professor data, normally acquired from scrapers
    * @param destroy determines if courses that haven't been updated for the last two days will be removed from the database
-   * @param currentTermInfos the term infos for which we have data
+   * @param allTermInfos Every {@link TermInfo} we know about, even if we don't have data for them
    */
   async main({
     termDump = { classes: [], sections: [], subjects: {} },
     profDump = [],
-    destroy = false,
-    currentTermInfos = null,
+    deleteOutdatedData = false,
+    allTermInfos = null,
   }: Dump): Promise<void> {
     await this.saveEmployeesToDatabase(profDump);
 
@@ -40,26 +40,27 @@ class DumpProcessor {
     );
     await this.saveCoursesToDatabase(processedCourses);
 
-    // FIXME this is a bad hack that will work
-    // TODO zachar - i'll remove this in a follow-up PR. Bad design, unecessary.
-    const courseIds: Set<string> = new Set(
-      (await prisma.course.findMany({ select: { id: true } })).map(
-        (elem) => elem.id
-      )
+    const processedSections = termDump.sections.map((section) =>
+      this.convertSectionToDatabaseFormat(section)
     );
-    const processedSections = termDump.sections
-      .map((section) => this.convertSectionToDatabaseFormat(section))
-      .filter((s) => courseIds.has(s.classHash));
     await this.saveSectionsToDatabase(processedSections);
+    await this.updateSectionsLastUpdateTime(termDump.sections);
 
     await this.saveSubjectsToDatabase(termDump.subjects);
 
-    await this.saveTermInfosToDatabase(currentTermInfos);
+    await this.saveTermInfosToDatabase(allTermInfos);
 
-    if (destroy) {
+    if (deleteOutdatedData) {
+      // We only want to delete outdated data for the term IDs we're currently updating
+      // eg. we don't want to touch older, archived terms which aren't being updated
+      //    (since they haven't been updated in a while)
+      const termsWithSections = termDump.sections.map((s) => s.termId);
+      const termsWithCourses = termDump.classes.map((c) => c.termId);
+
       const termsToClean = new Set<string>(
-        termDump.sections.map((section) => section.termId)
+        termsWithSections.concat(termsWithCourses)
       );
+
       await this.destroyOutdatedData(termsToClean);
     }
 
@@ -122,7 +123,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the section doesn't exist, update if it does.
    */
   async saveSectionsToDatabase(
-    sections: Prisma.SectionUncheckedCreateInput[]
+    sections: Prisma.SectionCreateInput[]
   ): Promise<void> {
     const updateTime = new Date();
 
@@ -147,7 +148,6 @@ class DumpProcessor {
     }
 
     macros.log("Finished with sections");
-    await this.updateSectionLastUpdateTime(sections);
   }
 
   /**
@@ -155,11 +155,9 @@ class DumpProcessor {
    * We use this to track sections that haven't been updated in a while,
    * which means that they're no longer on Banner & should be removed from our database.
    */
-  async updateSectionLastUpdateTime(
-    sections: Prisma.SectionUncheckedCreateInput[]
-  ): Promise<void> {
+  async updateSectionsLastUpdateTime(sections: Section[]): Promise<void> {
     await prisma.course.updateMany({
-      where: { id: { in: sections.map((s) => s.classHash) } },
+      where: { id: { in: sections.map((s) => keys.getClassHash(s)) } },
       data: { lastUpdateTime: new Date() },
     });
 
@@ -196,40 +194,55 @@ class DumpProcessor {
   }
 
   /**
-   * Updates the termInfo table - adds/updates current terms, and deletes old terms for which we don't have data
+   * Returns only those term IDs which currently have related data in the database.
+   *
+   * Related data (for the most part) means a section/course in that term.
+   */
+  async getTermIdsWithData(): Promise<string[]> {
+    // Get a list of termIDs (not termInfos!!) for which we already have data
+    const termIdsWithData = await prisma.course.groupBy({ by: ["termId"] });
+
+    return termIdsWithData.map((t) => t.termId);
+  }
+
+  /**
+   * Given a list of {@link TermInfo}s, add/update all {@link TermInfo}s which already have
+   * data in the database (as determined by {@link DumpProcessor.getTermIdsWithData})
+   *
+   * ie. Only save/update those {@link TermInfo}s for which we have class/section data already saved.
    */
   async saveTermInfosToDatabase(termInfos: TermInfo[] | null): Promise<void> {
-    if (termInfos !== null) {
-      // This deletes any termID which doesn't have associated course data
-      //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
-      await prisma.termInfo.deleteMany({
-        where: {
-          termId: { notIn: termInfos.map((t) => t.termId) },
+    if (termInfos === null) {
+      return;
+    }
+
+    const termIdsWithData = await this.getTermIdsWithData();
+
+    const termInfosWithData = termInfos.filter((t) =>
+      termIdsWithData.includes(t.termId)
+    );
+
+    // Upsert new term IDs, along with their names and sub college
+    for (const { termId, subCollege, text } of termInfosWithData) {
+      await prisma.termInfo.upsert({
+        where: { termId },
+        update: {
+          text,
+          subCollege,
+        },
+        create: {
+          termId,
+          text,
+          subCollege,
         },
       });
-
-      // Upsert new term IDs, along with their names and sub college
-      for (const { termId, subCollege, text } of termInfos) {
-        await prisma.termInfo.upsert({
-          where: { termId },
-          update: {
-            text,
-            subCollege,
-          },
-          create: {
-            termId,
-            text,
-            subCollege,
-          },
-        });
-      }
-
-      const termsStr = termInfos
-        .map((t) => t.termId)
-        .sort()
-        .join(", ");
-      macros.log(`Finished with term IDs (${termsStr})`);
     }
+
+    const termsStr = termInfosWithData
+      .map((t) => t.termId)
+      .sort()
+      .join(", ");
+    macros.log(`Finished with term IDs (${termsStr})`);
   }
 
   /**
@@ -263,8 +276,15 @@ class DumpProcessor {
         lastUpdateTime: { lt: twoDaysAgo },
       },
     });
-  }
 
+    // This deletes any termID which doesn't have associated course data
+    //    For example - if we once had data for a term, but have since deleted it, this would remove that termID from the DB
+    await prisma.termInfo.deleteMany({
+      where: {
+        termId: { notIn: await this.getTermIdsWithData() },
+      },
+    });
+  }
   /**
    * Converts a {@link Requisite} to a format compatible with Prisma.
    *
@@ -394,9 +414,7 @@ class DumpProcessor {
    * Converts one of our section types to a type compatible with the format required by Prisma.
    * The converted section is ready for insertion to our database.
    */
-  convertSectionToDatabaseFormat(
-    secInfo: Section
-  ): Prisma.SectionUncheckedCreateInput {
+  convertSectionToDatabaseFormat(secInfo: Section): Prisma.SectionCreateInput {
     // Strip out the keys that Prisma doesn't recognize
     const {
       classId: _classId,
@@ -409,9 +427,20 @@ class DumpProcessor {
     return {
       ...cleanSecInfo,
       id: `${keys.getSectionHash(secInfo)}`,
-      classHash: keys.getClassHash(secInfo),
       meetings: this.convertBackendMeetingsToDatabaseFormat(secInfo.meetings),
       lastUpdateTime: new Date(secInfo.lastUpdateTime),
+      course: {
+        // This links our section with the course matching the given info.
+        // This requires that the course already exists! We check this earlier on.
+        // If not, this will error.
+        connect: {
+          uniqueCourseProps: {
+            classId: secInfo.classId,
+            termId: secInfo.termId,
+            subject: secInfo.subject,
+          },
+        },
+      } as Prisma.CourseCreateNestedOneWithoutSectionsInput,
     };
   }
 }
