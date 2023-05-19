@@ -54,6 +54,13 @@ module.exports = {
         ],
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/ban-ts-comment": "warn",
+        // We disable the base rule so it doesn't interfere w/ the TS one
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          // Ignore this rule for variables starting with an underscore (eg. _ignoreme)
+          { varsIgnorePattern: "^_" },
+        ],
       },
     },
   ],
