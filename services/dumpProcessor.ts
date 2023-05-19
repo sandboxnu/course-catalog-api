@@ -16,7 +16,10 @@ import {
   Section,
   convertSectionToPrismaType,
 } from "../types/types";
-import { ParsedCourseSR } from "../types/scraperTypes";
+import {
+  ParsedCourseSR,
+  convertCourseToPrismaType,
+} from "../types/scraperTypes";
 
 class DumpProcessor {
   /**
@@ -34,7 +37,7 @@ class DumpProcessor {
     await this.saveEmployeesToDatabase(profDump);
 
     const processedCourses = termDump.classes.map((c) =>
-      convertCourseToDatabaseFormat(c)
+      convertCourseToPrismaType(c)
     );
     await this.saveCoursesToDatabase(processedCourses);
 
@@ -315,6 +318,3 @@ if (require.main === module) {
 }
 
 export default instance;
-function convertCourseToDatabaseFormat(c: ParsedCourseSR): any {
-  throw new Error("Function not implemented.");
-}
