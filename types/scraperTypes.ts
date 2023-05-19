@@ -1,4 +1,13 @@
-import { FacultyMeetingTime, Requisite, Section } from "./types";
+import { Prisma } from "@prisma/client";
+import {
+  FacultyMeetingTime,
+  Requisite,
+  Section,
+  convertRequisiteToNullablePrismaType,
+  convertRequisiteToPrismaType,
+} from "./types";
+import { Course as PrismaCourse } from "@prisma/client";
+import keys from "../utils/keys";
 
 export interface CourseSR {
   id: number;
@@ -25,13 +34,41 @@ export interface CourseSR {
   anySections?: boolean;
 }
 
+/**
+ * Converts one of our course types to a type compatible with the format required by Prisma.
+ * The converted course is ready for insertion to our database.
+ */
+export function convertCourseToPrismaType(
+  classInfo: ParsedCourseSR
+): Prisma.CourseCreateInput {
+  // Strip out the keys that Prisma doesn't recognize
+  const { desc: _desc, college: _college, ...cleanClassInfo } = classInfo;
+
+  return {
+    ...cleanClassInfo,
+    id: keys.getClassHash(classInfo),
+    description: classInfo.desc,
+    minCredits: Math.floor(classInfo.minCredits),
+    maxCredits: Math.floor(classInfo.maxCredits),
+    prereqs: convertRequisiteToNullablePrismaType(classInfo.prereqs),
+    coreqs: convertRequisiteToNullablePrismaType(classInfo.coreqs),
+    optPrereqsFor: (classInfo.optPrereqsFor?.values ?? []).map((val) =>
+      convertRequisiteToPrismaType(val)
+    ),
+    prereqsFor: (classInfo.prereqsFor?.values ?? []).map((val) =>
+      convertRequisiteToPrismaType(val)
+    ),
+    lastUpdateTime: new Date(classInfo.lastUpdateTime),
+  };
+}
+
 export interface ParsedCourseSR {
   host: string;
   termId: string;
   subject: string;
   classId: string;
   classAttributes: string[];
-  nupath: any[];
+  nupath: string[];
   desc: string;
   prettyUrl: string;
   name: string;

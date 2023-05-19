@@ -10,7 +10,16 @@ import prisma from "./prisma";
 import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import { Dump, Employee, Section } from "../types/types";
+import {
+  Dump,
+  Employee,
+  Section,
+  convertSectionToPrismaType,
+} from "../types/types";
+import {
+  ParsedCourseSR,
+  convertCourseToPrismaType,
+} from "../types/scraperTypes";
 
 class DumpProcessor {
   /**
@@ -28,12 +37,12 @@ class DumpProcessor {
     await this.saveEmployeesToDatabase(profDump);
 
     const processedCourses = termDump.classes.map((c) =>
-      this.convertCourseToDatabaseFormat(c)
+      convertCourseToPrismaType(c)
     );
     await this.saveCoursesToDatabase(processedCourses);
 
     const processedSections = termDump.sections.map((section) =>
-      this.convertSectionToDatabaseFormat(section)
+      convertSectionToPrismaType(section)
     );
     await this.saveSectionsToDatabase(processedSections);
     await this.updateSectionsLastUpdateTime(termDump.sections);
@@ -276,59 +285,6 @@ class DumpProcessor {
         termId: { notIn: await this.getTermIdsWithData() },
       },
     });
-  }
-  /**
-   * Converts one of our course types to a type compatible with the format required by Prisma.
-   * The converted course is ready for insertion to our database.
-   */
-  convertCourseToDatabaseFormat(classInfo: any): Prisma.CourseCreateInput {
-    const additionalProps = {
-      id: `${keys.getClassHash(classInfo)}`,
-      description: classInfo.desc,
-      minCredits: Math.floor(classInfo.minCredits),
-      maxCredits: Math.floor(classInfo.maxCredits),
-    };
-
-    const correctedQuery = {
-      ...classInfo,
-      ...additionalProps,
-      classAttributes: classInfo.classAttributes || [],
-      nupath: classInfo.nupath || [],
-    };
-
-    // Strip out the keys that Prisma doesn't recognize
-    // TODO - abstract this pattern as a util, remove lodash
-    const { desc, college, ...finalCourse } = correctedQuery;
-
-    return finalCourse;
-  }
-
-  /**
-   * Converts one of our section types to a type compatible with the format required by Prisma.
-   * The converted section is ready for insertion to our database.
-   */
-  convertSectionToDatabaseFormat(secInfo: Section): Prisma.SectionCreateInput {
-    const additionalProps = {
-      id: `${keys.getSectionHash(secInfo)}`,
-      course: {
-        // This links our section with the course matching the given info.
-        // This requires that the course already exists! We check this earlier on.
-        // If not, this will error.
-        connect: {
-          uniqueCourseProps: {
-            classId: secInfo.classId,
-            termId: secInfo.termId,
-            subject: secInfo.subject,
-          },
-        },
-      } as Prisma.CourseCreateNestedOneWithoutSectionsInput,
-    };
-    return _.omit({ ...secInfo, ...additionalProps }, [
-      "classId",
-      "termId",
-      "subject",
-      "host",
-    ]) as unknown as Prisma.SectionCreateInput;
   }
 }
 

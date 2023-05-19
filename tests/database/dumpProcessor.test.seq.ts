@@ -312,7 +312,7 @@ describe("with sections", () => {
           campus: "Boston",
           honors: false,
           crn: "12345",
-          meetings: {},
+          meetings: [],
         },
         {
           host: "neu.edu",
@@ -324,7 +324,7 @@ describe("with sections", () => {
           campus: "Online",
           honors: false,
           crn: "23456",
-          meetings: {},
+          meetings: [],
         },
         {
           host: "neu.edu",
@@ -336,7 +336,7 @@ describe("with sections", () => {
           campus: "Seattle, WA",
           honors: false,
           crn: "34567",
-          meetings: {},
+          meetings: [],
         },
       ],
       subjects: [],
@@ -387,7 +387,7 @@ describe("with updates", () => {
         campus: "Boston",
         honors: false,
         crn: "34567",
-        meetings: {},
+        meetings: [],
       },
     });
 

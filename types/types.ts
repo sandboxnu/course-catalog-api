@@ -3,10 +3,53 @@
  * See the license file in the root folder for details.
  */
 
-// A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
 import { ParsedTermSR } from "./scraperTypes";
 import { Prisma } from "@prisma/client";
+import keys from "../utils/keys";
 
+/**
+ * Converts a {@link MeetingTime} to a format compatible with Prisma.
+ *
+ * This doesn't do much at the moment, but it's useful for future-proofing.
+ */
+function convertMeetingTimeToPrismaType(
+  meeting: MeetingTime
+): Prisma.InputJsonObject {
+  return { ...meeting };
+}
+
+/**
+ * Converts a single {@link BackendMeeting} to a format compatible with Prisma.
+ */
+export function convertBackendMeetingToPrismaType(
+  meeting: BackendMeeting
+): Prisma.InputJsonObject {
+  // Essentially, this takes a object with keys and values, and replaces every value with fn(value).
+  // That `fn`, in this case, is the `convertMeetingTimeToDatabaseFormat` function.
+  const times: Prisma.InputJsonObject = Object.fromEntries(
+    // `entries` takes an object and converts it to an array of [key, value] pairs.
+    // `fromEntries` does the opposite
+    // So, we convert to entries, transform the values, then convert back to an object
+    Object.entries(meeting.times).map(([key, val]) => {
+      return [key, val.map((v) => convertMeetingTimeToPrismaType(v))];
+    })
+  );
+  return { ...meeting, times };
+}
+
+/**
+ * Converts a {@link BackendMeeting} array to a format compatible with Prisma.
+ */
+export function convertBackendMeetingsToPrismaType(
+  meetings?: BackendMeeting[]
+): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+  if (meetings === undefined) {
+    return Prisma.DbNull;
+  }
+
+  return meetings.map((val) => convertBackendMeetingToPrismaType(val));
+}
+// A block of meetings, ex: "Tuesdays+Fridays, 9:50-11:30am"
 export interface BackendMeeting {
   startDate: number;
   endDate: number;
@@ -105,19 +148,53 @@ export interface Course {
   sections?: Section[];
 }
 
+/**
+ * Converts an optional {@link Requisite} to a format compatible with Prisma.
+ */
+export function convertRequisiteToNullablePrismaType(
+  req: Requisite | undefined
+): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
+  if (req === undefined) {
+    return Prisma.DbNull;
+  }
+
+  return convertRequisiteToPrismaType(req);
+}
+
+/**
+ * Converts a {@link Requisite} to a format compatible with Prisma.
+ *
+ * Currently, this function does little. It's essentially a way to tell Typescript, "yeah, they're the same types".
+ * However, this is useful because it allows us to easily change the format of the requisite in the future.
+ */
+export function convertRequisiteToPrismaType(
+  req: Requisite
+): Prisma.InputJsonValue {
+  if (typeof req === "string") {
+    return req;
+  } else if ("classId" in req) {
+    return req;
+  } else {
+    return {
+      ...req,
+      values: req.values.map((val) => convertRequisiteToPrismaType(val)),
+    };
+  }
+}
+
 // A co or pre requisite object.
 export type Requisite = string | BooleanReq | CourseReq;
 
-export interface BooleanReq {
+export type BooleanReq = {
   type: "and" | "or";
   values: Requisite[];
-}
+};
 
-export interface CourseReq {
+export type CourseReq = {
   classId: string;
   subject: string;
   missing?: true;
-}
+};
 
 export function isBooleanReq(req: Requisite): req is BooleanReq {
   return (req as BooleanReq).type !== undefined;
@@ -125,6 +202,42 @@ export function isBooleanReq(req: Requisite): req is BooleanReq {
 
 export function isCourseReq(req: Requisite): req is CourseReq {
   return (req as CourseReq).classId !== undefined;
+}
+
+/**
+ * Converts one of our section types to a type compatible with the format required by Prisma.
+ * The converted section is ready for insertion to our database.
+ */
+export function convertSectionToPrismaType(
+  secInfo: Section
+): Prisma.SectionCreateInput {
+  // Strip out the keys that Prisma doesn't recognize
+  const {
+    classId: _classId,
+    termId: _termId,
+    subject: _subject,
+    host: _host,
+    ...cleanSecInfo
+  } = secInfo;
+
+  return {
+    ...cleanSecInfo,
+    id: `${keys.getSectionHash(secInfo)}`,
+    meetings: convertBackendMeetingsToPrismaType(secInfo.meetings),
+    lastUpdateTime: new Date(secInfo.lastUpdateTime),
+    course: {
+      // This links our section with the course matching the given info.
+      // This requires that the course already exists! We check this earlier on.
+      // If not, this will error.
+      connect: {
+        uniqueCourseProps: {
+          classId: secInfo.classId,
+          termId: secInfo.termId,
+          subject: secInfo.subject,
+        },
+      },
+    } as Prisma.CourseCreateNestedOneWithoutSectionsInput,
+  };
 }
 
 // A section of a course
