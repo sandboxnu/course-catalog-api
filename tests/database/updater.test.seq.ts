@@ -1,13 +1,20 @@
 import Updater from "../../services/updater";
-import { Course, Section, Requisite } from "../../types/types";
+import {
+  Course,
+  Section,
+  Requisite,
+  convertBackendMeetingsToPrismaType,
+} from "../../types/types";
+import { ParsedCourseSR } from "../../types/scraperTypes";
 import prisma from "../../services/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, Course as PrismaCourse } from "@prisma/client";
 import Keys from "../../utils/keys";
 import dumpProcessor from "../../services/dumpProcessor";
 import termParser from "../../scrapers/classes/parsersxe/termParser";
 import elasticInstance from "../../utils/elastic";
+import classParser from "../../scrapers/classes/parsersxe/classParser";
 
-function processCourse(classInfo: any): Prisma.CourseCreateInput {
+function processCourse(classInfo: Course): Prisma.CourseCreateInput {
   const additionalProps = {
     id: `${Keys.getClassHash(classInfo)}`,
     description: classInfo.desc,
@@ -20,10 +27,10 @@ function processCourse(classInfo: any): Prisma.CourseCreateInput {
     ...classInfo,
     ...additionalProps,
     classAttributes: { set: classInfo.classAttributes || [] },
-    nupath: { set: classInfo.nupath || [] },
+    nupath: { set: [] },
   };
 
-  const { desc, ...finalCourse } = correctedQuery;
+  const { desc: _d, sections: _s, ...finalCourse } = correctedQuery;
 
   return finalCourse;
 }
@@ -72,6 +79,10 @@ const FUNDIES_TWO: Course = {
   termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   ...defaultClassProps,
+  prereqs: {
+    classId: "2500",
+    subject: "CS",
+  },
 };
 
 const PL: Course = {
@@ -80,6 +91,19 @@ const PL: Course = {
   termId: SEMS_TO_UPDATE[0],
   subject: "CS",
   ...defaultClassProps,
+  prereqs: {
+    type: "and",
+    values: [
+      {
+        classId: "2510",
+        subject: "CS",
+      },
+      {
+        classId: "9999",
+        subject: "FAKE",
+      },
+    ],
+  },
 };
 
 const FUNDIES_ONE_S1: Section = {
@@ -191,9 +215,9 @@ const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
 const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
 
 const UPDATER: Updater = new Updater(SEMS_TO_UPDATE);
-const mockSendNotification = jest.fn(() => {
-  return Promise.resolve();
-});
+// const mockSendNotification = jest.fn(() => {
+//   return Promise.resolve();
+// });
 
 beforeEach(async () => {
   jest.clearAllMocks();
@@ -235,12 +259,12 @@ afterAll(async () => {
   jest.useRealTimers();
 });
 
-function createSection(
+async function createSection(
   sec: Section,
   seatsRemaining: number,
   waitRemaining: number
-) {
-  return prisma.section.create({
+): Promise<void> {
+  await prisma.section.create({
     data: {
       classType: sec.classType,
       seatsCapacity: sec.seatsCapacity,
@@ -253,7 +277,7 @@ function createSection(
       seatsRemaining,
       waitRemaining,
       info: "",
-      meetings: sec.meetings as any,
+      meetings: convertBackendMeetingsToPrismaType(sec.meetings),
       profs: { set: sec.profs },
       course: { connect: { id: Keys.getClassHash(sec) } },
     },
@@ -716,5 +740,140 @@ describe("Updater", () => {
     expect(updater.update).toHaveBeenCalled();
 
     process.env.UPDATE_ONLY_ONCE = updateEnv;
+  });
+
+  describe("Scrapes missing classes", () => {
+    let FUNDIES_ONE_COURSE;
+
+    const getCourse = async (course: Course): Promise<PrismaCourse | null> => {
+      return await prisma.course.findFirst({
+        where: { id: { equals: Keys.getClassHash(course) } },
+      });
+    };
+
+    const isCourseInDB = async (course: Course): Promise<boolean> => {
+      return (await getCourse(course)) !== null;
+    };
+
+    beforeEach(async () => {
+      jest.spyOn(dumpProcessor, "main").mockRestore();
+      jest.spyOn(elasticInstance, "bulkIndexFromMap").mockImplementation(() => {
+        return Promise.resolve();
+      });
+
+      FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
+      await prisma.course.create({
+        data: FUNDIES_ONE_COURSE,
+      });
+
+      jest
+        .spyOn(classParser, "parseClass")
+        .mockImplementation(async (termId, subject, classId) => {
+          if (
+            subject === FUNDIES_TWO.subject &&
+            classId === FUNDIES_TWO.classId
+          ) {
+            return { ...FUNDIES_TWO, termId } as ParsedCourseSR;
+          } else if (subject === PL.subject && classId === PL.classId) {
+            return { ...PL, termId } as ParsedCourseSR;
+          } else {
+            throw `Only ${FUNDIES_TWO.subject}${FUNDIES_TWO.classId} should be used in these tests - something's wrong (${termId}/${subject}/${classId})`;
+          }
+        });
+    });
+
+    it("Scrapes a missing class corresponding to a section", async () => {
+      jest
+        .spyOn(termParser, "parseSections")
+        .mockImplementation(async (termId) => {
+          const sections = [FUNDIES_ONE_S1, FUNDIES_TWO_S1, FUNDIES_TWO_S2];
+          return sections.filter((section) => section.termId === termId);
+        });
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(false);
+      await UPDATER.update();
+      // After running the updater, the class should exist
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(true);
+      expect(classParser.parseClass).toHaveBeenCalledWith(
+        FUNDIES_TWO_S1.termId,
+        FUNDIES_TWO_S1.subject,
+        FUNDIES_TWO_S1.classId
+      );
+      expect((await prisma.section.findMany()).length).toBe(3);
+
+      // Ensure that all the prerequisites are NOT marked as missing
+      const fundies2 = await getCourse(FUNDIES_TWO);
+
+      expect(fundies2?.prereqs?.["values"]).toEqual([
+        { classId: FUNDIES_ONE.classId, subject: FUNDIES_ONE.subject },
+      ]);
+
+      const fundies1 = await getCourse(FUNDIES_ONE);
+
+      expect(fundies1?.prereqsFor).toEqual([
+        { classId: FUNDIES_TWO.classId, subject: FUNDIES_TWO.subject },
+      ]);
+    });
+
+    it("Scrapes all missing classes", async () => {
+      jest
+        .spyOn(termParser, "parseSections")
+        .mockImplementation(async (termId) => {
+          const sections = [FUNDIES_ONE_S1, FUNDIES_TWO_S1, PL_S1];
+          return sections.filter((section) => section.termId === termId);
+        });
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(false);
+      expect(await isCourseInDB(PL)).toBe(false);
+
+      await UPDATER.update();
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(true);
+      expect(await isCourseInDB(PL)).toBe(true);
+
+      expect((await prisma.section.findMany()).length).toBe(3);
+
+      const fundies1 = await getCourse(FUNDIES_ONE);
+
+      expect(fundies1?.prereqsFor).toEqual([
+        { classId: FUNDIES_TWO.classId, subject: FUNDIES_TWO.subject },
+      ]);
+
+      const fundies2 = await getCourse(FUNDIES_TWO);
+
+      expect(fundies2?.prereqs?.["values"]).toEqual([
+        { classId: FUNDIES_ONE.classId, subject: FUNDIES_ONE.subject },
+      ]);
+      expect(fundies2?.prereqsFor).toEqual([
+        { classId: PL.classId, subject: PL.subject },
+      ]);
+
+      const pl = await getCourse(PL);
+      expect(pl?.prereqs?.["values"]).toEqual([
+        { classId: FUNDIES_TWO.classId, subject: FUNDIES_TWO.subject },
+        { classId: "9999", subject: "FAKE", missing: true },
+      ]);
+      expect(pl?.prereqsFor).toEqual([]);
+    });
+
+    it("will not save sections if their corresponding classes couldn't be scraped", async () => {
+      jest
+        .spyOn(classParser, "parseClass")
+        .mockImplementation(async () => false);
+
+      jest
+        .spyOn(termParser, "parseSections")
+        .mockImplementation(async (termId) => {
+          const sections = [FUNDIES_ONE_S1, FUNDIES_TWO_S1];
+          return sections.filter((section) => section.termId === termId);
+        });
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(false);
+
+      await UPDATER.update();
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(false);
+      expect((await prisma.section.findMany()).length).toBe(1);
+    });
   });
 });

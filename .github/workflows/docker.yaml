@@ -87,3 +87,22 @@ jobs:
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }' \
             -v --silent --stderr - | grep "Amit Shesh"
+
+      - name: Delete the CS3500 course
+        run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "DELETE FROM courses WHERE subject = 'CS' and class_id = '3500';"
+
+      # Basically an inverse grep - it tries SELECT-ing the CS3500 class, and expects the name ("Object") to NOT be present
+      - name: Ensure CS3500 no longer exists in our database
+        run: |-
+          ! psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"
+
+      - name: Run the updater ONLY ONCE, so that it scrapes missing classes
+        run: UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 yarn updater
+
+      - name: Ensure CS3500 is back in our database
+        run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"

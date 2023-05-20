@@ -6,7 +6,7 @@
 import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
-import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import { ParsedCourseSR } from "../../../types/scraperTypes";
 import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
@@ -41,24 +41,19 @@ export class MarkMissingRequisites {
     return prereqs;
   }
 
-  go(
-    termDump: ParsedTermSR,
-    classMap?: Record<string, ParsedCourseSR>
-  ): ParsedCourseSR[] {
-    if (classMap !== undefined) {
-      this.classMap = classMap;
-    }
-
+  /**
+   * Marks missing requisites - are all of our prereq/coreqs real classes that we know about?
+   * eg. Algo (CS3000) used to be CS1500, and NEU _still_ uses that code in a bunch of spots. Should be marked as missing
+   */
+  go(classes: ParsedCourseSR[]): void {
     // Create a course mapping
-    for (const aClass of termDump.classes) {
+    for (const aClass of classes) {
       const key = keys.getClassHash(aClass);
       this.classMap[key] = aClass;
     }
 
-    const updatedClasses: ParsedCourseSR[] = [];
-
     // loop through classes to update, and get the new data from all the classes
-    for (const aClass of termDump.classes) {
+    for (const aClass of classes) {
       if (aClass.prereqs) {
         const prereqs = this.updatePrereqs(
           aClass.prereqs,
@@ -81,10 +76,9 @@ export class MarkMissingRequisites {
       }
 
       if (aClass.coreqs || aClass.prereqs) {
-        updatedClasses.push(aClass);
+        aClass.modifiedInProcessor = true;
       }
     }
-    return updatedClasses;
   }
 }
 

@@ -27,15 +27,11 @@ class Main {
   /**
    * Standardize the data we get back from Banner, to ensure it matches our expectations.
    */
-  runProcessors(
-    dump: ParsedTermSR,
-    classMap?: Record<string, ParsedCourseSR>
-  ): ParsedTermSR {
+  runProcessors(courses: ParsedCourseSR[]): void {
+    courses.map((c) => (c.modifiedInProcessor = false));
     // Run the processors, sequentially
-    markMissingRequisites.go(dump, classMap);
-    addPrerequisiteFor.go(dump, classMap);
-
-    return dump;
+    markMissingRequisites.go(courses);
+    addPrerequisiteFor.go(courses);
   }
 
   /**
@@ -56,10 +52,10 @@ class Main {
     }
 
     macros.log("Scraping classes...".blue.underline);
-    const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
+    const dump = await bannerv9Parser.main(termInfos);
     macros.log("Done scraping classes\n\n".green.underline);
 
-    const dump = this.runProcessors(bannerv9ParserOutput);
+    this.runProcessors(dump.classes);
 
     // We don't overwrite cache on custom scrape - cache should always represent a full scrape
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
