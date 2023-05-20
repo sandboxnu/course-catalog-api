@@ -45,15 +45,19 @@ class Updater {
 
   // produce a new Updater instance
   static async create(): Promise<Updater> {
+    const termsStr = process.env.TERMS_TO_SCRAPE;
+
+    if (termsStr) {
+      return new this(termsStr.split(","));
+    }
+
     // Get term IDs from our database
     const termInfos = await prisma.termInfo.findMany({
       orderBy: { termId: "desc" },
       take: NUMBER_OF_TERMS_TO_UPDATE,
     });
 
-    const termIds: string[] = termInfos.map((t) => t.termId);
-
-    return new this(termIds);
+    return new this(termInfos.map((t) => t.termId));
   }
 
   // The constructor should never be directly called - use .create()
