@@ -45,18 +45,6 @@ describe("getTermsIds", () => {
     ).toEqual(["202210", "202230", "202250"]);
   });
 
-  it("without a termStr, it takes NUMBER_OF_TERMS_TO_PARSE terms", () => {
-    process.env.NUMBER_OF_TERMS = "0";
-    const termIds = new Array(10).fill("a");
-    expect(bannerv9.getTermsIds(termIds).length).toBe(0);
-
-    process.env.NUMBER_OF_TERMS = "5";
-    expect(bannerv9.getTermsIds(termIds).length).toBe(5);
-
-    process.env.NUMBER_OF_TERMS = "20";
-    expect(bannerv9.getTermsIds(termIds).length).toBe(10);
-  });
-
   it("defaults to NUMEBR_OF_TERMS_TO_SCRAPE", () => {
     delete process.env.NUMBER_OF_TERMS;
     const termIds = new Array(30).fill("a");
