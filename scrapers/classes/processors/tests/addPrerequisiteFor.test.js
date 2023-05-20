@@ -87,6 +87,7 @@ describe("addPrerequisiteForFor tests", () => {
 
   const cs2500Parsed = {
     ...JSON.parse(JSON.stringify(cs2500)),
+    modifiedInProcessor: true,
     optPrereqsFor: {
       values: [],
     },
@@ -102,6 +103,7 @@ describe("addPrerequisiteForFor tests", () => {
 
   const cs3000Parsed = {
     ...JSON.parse(JSON.stringify(cs3000)),
+    modifiedInProcessor: true,
     optPrereqsFor: {
       values: [
         {
@@ -144,7 +146,7 @@ describe("addPrerequisiteForFor tests", () => {
   };
 
   it("should parse prereqs", () => {
-    addPrerequisiteFor.go(termDump);
+    addPrerequisiteFor.go(termDump.classes);
     expect(termDump).toEqual({
       classes: [cs2500Parsed, cs3000Parsed, engw3302Parsed, cs1234Parsed],
       sections: [],
