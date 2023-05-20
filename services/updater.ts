@@ -258,6 +258,11 @@ class Updater {
 
     const { missingClass: missingClassInitial } =
       await this.filterSectionsWithExistingClasses(sections);
+    macros.warn(
+      `Missing sections: ${missingClassInitial.map((s) =>
+        keys.getSectionHash(s)
+      )}`
+    );
 
     const newClasses = await this.getCorrespondingClasses(missingClassInitial);
     const newClassIds = new Set(newClasses.map((c) => keys.getClassHash(c)));
