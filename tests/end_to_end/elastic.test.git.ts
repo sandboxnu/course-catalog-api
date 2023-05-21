@@ -41,8 +41,10 @@ it("Creating indexes", async () => {
 it("queries", async () => {
   const aliasName = "e2e_employees_jason";
 
-  // @ts-expect-error - we know the type is missing, that's the point
-  client["indexes"][aliasName] = { mapping: employeeMap };
+  client["indexes"][aliasName] = {
+    name: `${aliasName}_blue`,
+    mapping: employeeMap,
+  };
 
   const id = "Jason Jason";
   await client.bulkIndexFromMap(aliasName, {
