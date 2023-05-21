@@ -815,6 +815,30 @@ describe("Updater", () => {
       ]);
     });
 
+    it("will not scrape missing classes with termIDs which aren't already saved", async () => {
+      jest
+        .spyOn(termParser, "parseSections")
+        .mockImplementation(async (termId) => {
+          if (termId === FUNDIES_TWO_S1.termId) {
+            return [FUNDIES_TWO_S1];
+          } else if (termId === SEMS_TO_UPDATE[1]) {
+            // This term has no classes saved, so this section should be ignored
+            return [{ ...PL_S1, termId: SEMS_TO_UPDATE[1] }];
+          } else {
+            return [];
+          }
+        });
+
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(false);
+      expect(await isCourseInDB(PL)).toBe(false);
+      await UPDATER.update();
+      // After running the updater, the class should exist
+      expect(await isCourseInDB(FUNDIES_TWO)).toBe(true);
+      expect(await isCourseInDB(PL)).toBe(false);
+
+      expect((await prisma.section.findMany()).length).toBe(1);
+    });
+
     it("Scrapes all missing classes", async () => {
       jest
         .spyOn(termParser, "parseSections")

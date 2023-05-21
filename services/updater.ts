@@ -176,18 +176,29 @@ class Updater {
   /**
    * Given an array of {@link ScrapedSection}s, return a list of the classes associated with these sections.
    * Do not include duplicates; each class should only be included once.
+   *
+   * This function only returns classes which have a valid term ID - in other words, a term ID that we have already scraped.
+   * So, if a new term is released on Banner and we haven't scraped it yet, we ignore those classes. It isn't the updater's job
+   * to scrape new terms - that's the job of the scraper.
    */
-  private getCorrespondingClassInfo(
+  private async getCorrespondingClassInfo(
     sections: ScrapedSection[]
-  ): ClassParserInfo[] {
+  ): Promise<ClassParserInfo[]> {
     const missingClasses = new Map<string, ClassParserInfo>();
 
+    const validTermInfos = await prisma.termInfo.findMany({
+      select: { termId: true },
+    });
+    const validTermIds = validTermInfos.map((t) => t.termId);
+
     for (const section of sections) {
-      missingClasses[keys.getClassHash(section)] = {
-        termId: section.termId,
-        subject: section.subject,
-        classId: section.classId,
-      };
+      if (validTermIds.includes(section.termId)) {
+        missingClasses[keys.getClassHash(section)] = {
+          termId: section.termId,
+          subject: section.subject,
+          classId: section.classId,
+        };
+      }
     }
 
     return Object.values(missingClasses);
@@ -227,7 +238,7 @@ class Updater {
     sections: ScrapedSection[]
   ): Promise<ParsedCourseSR[]> {
     // Determine which classes to scrape
-    const missingClasses = this.getCorrespondingClassInfo(sections);
+    const missingClasses = await this.getCorrespondingClassInfo(sections);
 
     const classes = await pMap(
       missingClasses,
