@@ -14,8 +14,7 @@ import termParser from "../scrapers/classes/parsersxe/termParser";
 import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
-
-import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/classes/parsersxe/bannerv9Parser";
+import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/main";
 
 const FAULTY_TERM_IDS = ["202225"];
 

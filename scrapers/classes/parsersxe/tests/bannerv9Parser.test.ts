@@ -1,7 +1,4 @@
-import {
-  instance as bannerv9,
-  NUMBER_OF_TERMS_TO_UPDATE,
-} from "../bannerv9Parser";
+import { instance as bannerv9 } from "../bannerv9Parser";
 import filters from "../../../filters";
 import prisma from "../../../../services/prisma";
 import TermParser from "../termParser";
@@ -29,41 +26,6 @@ const scope = nock(/neu\.edu/)
 
 afterAll(() => {
   scope.persist(false);
-});
-
-describe("getTermsIds", () => {
-  beforeEach(() => {
-    process.env.TERMS_TO_SCRAPE = "";
-  });
-
-  it("returns the termsStr if and only if they're in the terms list", () => {
-    process.env.TERMS_TO_SCRAPE = "202210,202230,202250";
-    expect(bannerv9.getTermsIds([])).toEqual([]);
-    expect(bannerv9.getTermsIds(["202210"])).toEqual(["202210"]);
-    expect(
-      bannerv9.getTermsIds(["202210", "202230", "202250", "1234"])
-    ).toEqual(["202210", "202230", "202250"]);
-  });
-
-  it("without a termStr, it takes NUMBER_OF_TERMS_TO_PARSE terms", () => {
-    process.env.NUMBER_OF_TERMS = "0";
-    const termIds = new Array(10).fill("a");
-    expect(bannerv9.getTermsIds(termIds).length).toBe(0);
-
-    process.env.NUMBER_OF_TERMS = "5";
-    expect(bannerv9.getTermsIds(termIds).length).toBe(5);
-
-    process.env.NUMBER_OF_TERMS = "20";
-    expect(bannerv9.getTermsIds(termIds).length).toBe(10);
-  });
-
-  it("defaults to NUMEBR_OF_TERMS_TO_SCRAPE", () => {
-    delete process.env.NUMBER_OF_TERMS;
-    const termIds = new Array(30).fill("a");
-    expect(bannerv9.getTermsIds(termIds).length).toBe(
-      NUMBER_OF_TERMS_TO_UPDATE
-    );
-  });
 });
 
 describe("getAllTermInfos", () => {
@@ -96,13 +58,7 @@ describe("main", () => {
     const originalScrape = bannerv9.scrapeTerms;
     bannerv9.scrapeTerms = jest.fn();
     process.env.TERMS_TO_SCRAPE = "1";
-    bannerv9.main([
-      {
-        subCollege: "CPS",
-        termId: "1",
-        text: "Summer 2022 Semester",
-      },
-    ]);
+    bannerv9.main(["1"]);
     expect(bannerv9.scrapeTerms).toHaveBeenLastCalledWith(["1"]);
 
     delete process.env.TERMS_TO_SCRAPE;

@@ -17,19 +17,8 @@ import prisma from "../../../services/prisma";
 import { Section, TermInfo } from "../../../types/types";
 import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
 import { MultiProgressBars } from "multi-progress-bars";
-
 // Only used to query the term IDs, so we never want to use a cached version
 const request = new Request("bannerv9Parser", { cacheRequests: false });
-
-/*
-At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
-- Undergrad: Spring, summer (Full, I, and II)
-- CPS: spring (semester & quarter), summer (semester & quarter)
-- Law: spring (semester & quarter), summer (semester & quarter)
-
-However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
-*/
-export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 /**
  * Top level parser. Exposes nice interface to rest of app.
@@ -38,34 +27,7 @@ export class Bannerv9Parser {
   static BANNER_TERMS_URL =
     "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=200&searchTerm=";
 
-  getTermsIds(termIds: string[]): string[] {
-    const termsStr = process.env.TERMS_TO_SCRAPE;
-
-    if (termsStr) {
-      const terms = termsStr.split(",").filter((termId) => {
-        if (!termIds.includes(termId) && termId !== null) {
-          macros.warn(
-            `${termId} not in list of term IDs from Banner! Skipping`
-          );
-        }
-        return termIds.includes(termId);
-      });
-
-      macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
-      return terms;
-    }
-
-    const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
-    const numTerms = isNaN(rawNumTerms)
-      ? NUMBER_OF_TERMS_TO_UPDATE
-      : rawNumTerms;
-
-    return termIds.slice(0, numTerms);
-  }
-
-  async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
-    const termIds = this.getTermsIds(termInfos.map((t) => t.termId));
-
+  async main(termIds: string[]): Promise<ParsedTermSR> {
     macros.log(`Scraping terms: ${termIds.join(", ")}`);
 
     // If scrapers are simplified then this logic would ideally be moved closer to the scraper "entry-point"
@@ -181,7 +143,7 @@ export class Bannerv9Parser {
   // Just a convenient test method, if you want to
   async test(): Promise<void> {
     const termInfos = await this.getAllTermInfos();
-    const output = await this.main(termInfos);
+    const output = await this.main(termInfos.map((t) => t.termId));
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").writeFileSync(
       "parsersxe.json",
