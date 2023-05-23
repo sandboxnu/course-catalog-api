@@ -25,11 +25,13 @@ const scope = nock(/neu\.edu/)
   .persist();
 
 beforeEach(() => {
-  process.env.CUSTOM_SCRAPE = undefined;
+  delete process.env.CUSTOM_SCRAPE;
 });
 
 afterAll(() => {
   scope.persist(false);
+  delete process.env.CUSTOM_SCRAPE;
+  delete process.env.TERMS_TO_SCRAPE;
 });
 
 describe("getAllTermInfos", () => {
