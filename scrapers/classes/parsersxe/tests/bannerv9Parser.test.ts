@@ -24,7 +24,7 @@ const scope = nock(/neu\.edu/)
   ])
   .persist();
 
-afterEach(() => {
+beforeEach(() => {
   process.env.CUSTOM_SCRAPE = undefined;
 });
 
@@ -58,11 +58,11 @@ describe("getAllTermInfos", () => {
 });
 
 describe("main", () => {
-  it("customer termIds", () => {
+  it("customer termIds", async () => {
     const originalScrape = bannerv9.scrapeTerms;
     bannerv9.scrapeTerms = jest.fn();
     process.env.TERMS_TO_SCRAPE = "1";
-    bannerv9.main(["1"]);
+    await bannerv9.main(["1"]);
     expect(bannerv9.scrapeTerms).toHaveBeenLastCalledWith(["1"]);
 
     delete process.env.TERMS_TO_SCRAPE;
