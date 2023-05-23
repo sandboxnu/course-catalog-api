@@ -41,8 +41,10 @@ it("Creating indexes", async () => {
 it("queries", async () => {
   const aliasName = "e2e_employees_jason";
 
-  // @ts-expect-error - we know the type is missing, that's the point
-  client["indexes"][aliasName] = { mapping: employeeMap };
+  client["indexes"][aliasName] = {
+    name: `${aliasName}_blue`,
+    mapping: employeeMap,
+  };
 
   const id = "Jason Jason";
   await client.bulkIndexFromMap(aliasName, {
@@ -59,15 +61,18 @@ it("queries", async () => {
 
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  const getId = async () => {
+  const getId = async (): Promise<string> => {
     // @ts-expect-error - body type is inaccurate
-    return client.query(aliasName, 0, 10, { query: { match_all: {} } });
+    const resp = await client.query(aliasName, 0, 10, {
+      query: { match_all: {} },
+    });
+    return resp?.body?.hits?.hits?.[0]?.["_id"] ?? "";
   };
 
-  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
+  expect(await getId()).toBe(id);
 
   await client.resetIndexWithoutLoss();
   await new Promise((resolve) => setTimeout(resolve, 1_000)); // We need a little pause for the indexing
 
-  expect((await getId()).body.hits.hits[0]["_id"]).toBe(id);
+  expect(await getId()).toBe(id);
 }, 40_000);
