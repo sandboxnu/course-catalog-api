@@ -24,6 +24,10 @@ const scope = nock(/neu\.edu/)
   ])
   .persist();
 
+afterEach(() => {
+  process.env.CUSTOM_SCRAPE = undefined;
+});
+
 afterAll(() => {
   scope.persist(false);
 });

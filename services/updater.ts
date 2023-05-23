@@ -115,7 +115,7 @@ class Updater {
       })
     ).reduce((acc, val) => acc.concat(val), []);
 
-    let sections: ScrapedSection[];
+    let sections = scrapedSections;
 
     if (process.env.CUSTOM_SCRAPE) {
       // If we are doing a custom scrape, filter sections
