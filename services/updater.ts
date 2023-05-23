@@ -22,6 +22,7 @@ import {
 } from "../types/scraperTypes";
 import processor from "../scrapers/classes/main";
 import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/main";
+import filters from "../scrapers/filters";
 
 const FAULTY_TERM_IDS = ["202225"];
 
@@ -108,11 +109,23 @@ class Updater {
    */
   private async scrapeDataToUpdate(): Promise<ScrapedSection[]> {
     // scrape everything
-    const sections: ScrapedSection[] = (
+    const scrapedSections: ScrapedSection[] = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
         return termParser.parseSections(termId);
       })
     ).reduce((acc, val) => acc.concat(val), []);
+
+    let sections: ScrapedSection[];
+
+    if (process.env.CUSTOM_SCRAPE) {
+      // If we are doing a custom scrape, filter sections
+      sections = scrapedSections.filter(
+        (s) =>
+          filters.campus(s.campus) &&
+          filters.subject(s.subject) &&
+          filters.courseNumber(parseInt(s.classId))
+      );
+    }
 
     macros.log(`scraped ${sections.length} sections`);
 
@@ -274,7 +287,9 @@ class Updater {
     const { missingClass: missingClassInitial } =
       await this.filterSectionsWithExistingClasses(sections);
     macros.warn(
-      `Missing sections: ${missingClassInitial.map((s) =>
+      `${
+        missingClassInitial.length
+      } missing sections: ${missingClassInitial.map((s) =>
         keys.getSectionHash(s)
       )}`
     );

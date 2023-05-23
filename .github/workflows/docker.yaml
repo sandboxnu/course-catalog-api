@@ -100,7 +100,14 @@ jobs:
               "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"
 
       - name: Run the updater ONLY ONCE, so that it scrapes missing classes
-        run: docker exec test sh -c "LOG_LEVEL=VERBOSE UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 yarn prod:updater"
+        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 yarn prod:updater"
+        # This should take 5 minutes MAX.
+        # In the scrape step, we used `CUSTOM_SCRAPE=true`. That limits what courses are being scraped - see `scrapers/filter` for more details.
+        #   We need to use that here as well.
+        #   Since we ran a custom scrape, we're missing a lot of classes. If we ran the updater without the custom restrictions, it'd
+        #     attempt to scrape ALL of the missing classes. Instead, we'll only be scraping one.
+        #   SO - this'll only scrape ~800 sections and ~1 class.
+        timeout-minutes: 5
 
       - name: Ensure CS3500 is back in our database
         run: |-
