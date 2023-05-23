@@ -14,7 +14,6 @@ import addPrerequisiteFor from "./processors/addPrerequisiteFor";
 // Parsers
 import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
 import { ParsedTermSR } from "../../types/scraperTypes";
-import { TermInfo } from "../../types/types";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.
@@ -38,7 +37,7 @@ class Main {
   /**
    * The main entrypoint for scraping courses.
    */
-  async main(termInfos: TermInfo[]): Promise<ParsedTermSR> {
+  async main(termIds: string[]): Promise<ParsedTermSR> {
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {
       const cached = await cache.get(
         macros.DEV_DATA_DIR,
@@ -53,7 +52,7 @@ class Main {
     }
 
     macros.log("Scraping classes...".blue.underline);
-    const bannerv9ParserOutput = await bannerv9Parser.main(termInfos);
+    const bannerv9ParserOutput = await bannerv9Parser.main(termIds);
     macros.log("Done scraping classes\n\n".green.underline);
 
     const dump = this.runProcessors(bannerv9ParserOutput);
