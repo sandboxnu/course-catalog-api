@@ -27,12 +27,11 @@ class Main {
       const unfilteredTermIds = termsToScrapeStr.split(",");
 
       const terms = unfilteredTermIds.filter((termId) => {
-        if (!termIds.includes(termId) && termId !== null) {
-          macros.warn(
-            `"${termId}" not in list of term IDs from Banner! Skipping`
-          );
+        const keep = termIds.includes(termId);
+        if (!keep && termId !== null) {
+          macros.warn(`"${termId}" not in given list - skipping`);
         }
-        return termIds.includes(termId);
+        return keep;
       });
 
       macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
