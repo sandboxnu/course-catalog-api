@@ -12,7 +12,7 @@ module "elasticsearch" {
   availability_zone_count = 1
 
   elasticsearch_version   = "7.10"
-  instance_type           = "t2.small.elasticsearch"
+  instance_type           = "t3.small.elasticsearch"
   instance_count          = 1
   ebs_volume_size         = 20
   encrypt_at_rest_enabled = "false"

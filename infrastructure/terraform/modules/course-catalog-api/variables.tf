@@ -80,7 +80,7 @@ variable "webapp_cpu" {
 
 variable "webapp_memory" {
   description = "memory the webapp should get"
-  default     = 1024
+  default     = 3072
 }
 
 variable "scrape_cpu" {
