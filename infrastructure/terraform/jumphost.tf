@@ -25,7 +25,7 @@ resource "aws_key_pair" "default" {
 # Instance
 resource "aws_instance" "jumphost" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.nano"
+  instance_type = "t3.nano"
 
   key_name = aws_key_pair.default.key_name
   subnet_id              = aws_subnet.public[0].id
