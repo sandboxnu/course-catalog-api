@@ -13,7 +13,7 @@ import addPrerequisiteFor from "./processors/addPrerequisiteFor";
 
 // Parsers
 import { instance as bannerv9Parser } from "./parsersxe/bannerv9Parser";
-import { ParsedTermSR } from "../../types/scraperTypes";
+import { ParsedCourseSR, ParsedTermSR } from "../../types/scraperTypes";
 
 // This is the main entry point for scraping classes
 // This file calls into the first Banner v8 parser, the processors, and hopefully soon, the v9 parsers too.
@@ -26,12 +26,11 @@ class Main {
   /**
    * Standardize the data we get back from Banner, to ensure it matches our expectations.
    */
-  runProcessors(dump: ParsedTermSR): ParsedTermSR {
+  runProcessors(courses: ParsedCourseSR[]): void {
+    courses.map((c) => (c.modifiedInProcessor = false));
     // Run the processors, sequentially
-    markMissingRequisites.go(dump);
-    addPrerequisiteFor.go(dump);
-
-    return dump;
+    markMissingRequisites.go(courses);
+    addPrerequisiteFor.go(courses);
   }
 
   /**
@@ -52,10 +51,10 @@ class Main {
     }
 
     macros.log("Scraping classes...".blue.underline);
-    const bannerv9ParserOutput = await bannerv9Parser.main(termIds);
+    const dump = await bannerv9Parser.main(termIds);
     macros.log("Done scraping classes\n\n".green.underline);
 
-    const dump = this.runProcessors(bannerv9ParserOutput);
+    this.runProcessors(dump.classes);
 
     // We don't overwrite cache on custom scrape - cache should always represent a full scrape
     if (macros.DEV && !process.env.CUSTOM_SCRAPE) {

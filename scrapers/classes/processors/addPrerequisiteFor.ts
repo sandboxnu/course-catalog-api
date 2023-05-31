@@ -6,7 +6,7 @@
 import keys from "../../../utils/keys";
 import macros from "../../../utils/macros";
 import { isCourseReq, Requisite } from "../../../types/types";
-import { ParsedCourseSR, ParsedTermSR } from "../../../types/scraperTypes";
+import { ParsedCourseSR } from "../../../types/scraperTypes";
 
 /**
  * Adds the prerequisite-for field for classes that are a predecessor for other classes.
@@ -23,12 +23,10 @@ class AddPrerequisiteFor {
 
   /**
    * Creates a class hashmap based on the term dump, then links the course data
-   *
-   * @param termDump the termDump of the semester.
    */
-  go(termDump: ParsedTermSR): void {
+  go(classes: ParsedCourseSR[]): void {
     // Maps the class objects first
-    for (const aClass of termDump.classes) {
+    for (const aClass of classes) {
       const key = keys.getClassHash(aClass);
       this.classMap[key] = aClass;
 
@@ -39,14 +37,14 @@ class AddPrerequisiteFor {
     }
 
     // After all class objects are mapped, it associated prerequisite relationships
-    for (const aClass of termDump.classes) {
+    for (const aClass of classes) {
       if (aClass.prereqs) {
         this.parsePrereqs(aClass, aClass.prereqs, true);
       }
     }
 
     // After the relations are mapped, we sort the classes
-    for (const aClass of termDump.classes) {
+    for (const aClass of classes) {
       this.sortPrereqs(aClass);
     }
   }
@@ -88,6 +86,8 @@ class AddPrerequisiteFor {
         macros.error("Unable to find ref for", hash, req, mainClass);
         return;
       }
+
+      nodeRef["modifiedInProcessor"] = true;
 
       const classData = {
         subject: mainClass.subject,

@@ -39,7 +39,7 @@ it("Creating indexes", async () => {
 });
 
 it("queries", async () => {
-  const aliasName = "e2e_employees_jason";
+  const aliasName = "e2e-employees-jason";
 
   client["indexes"][aliasName] = {
     name: `${aliasName}_blue`,

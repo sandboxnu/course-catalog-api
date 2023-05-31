@@ -22,7 +22,8 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 
 However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
 */
-export const NUMBER_OF_TERMS_TO_UPDATE = 12;
+const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
+export const NUMBER_OF_TERMS_TO_UPDATE = isNaN(rawNumTerms) ? 12 : rawNumTerms;
 
 class Main {
   getTermIdsToScrape(termIds: string[]): string[] {
