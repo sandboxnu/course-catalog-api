@@ -41,8 +41,8 @@ it("Creating indexes", async () => {
 it("queries", async () => {
   const aliasName = "e2e-employees-jason";
 
+  // @ts-expect-error - type doesn't match, that's OK
   client["indexes"][aliasName] = {
-    name: `${aliasName}_blue`,
     mapping: employeeMap,
   };
 
