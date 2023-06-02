@@ -87,3 +87,29 @@ jobs:
             -X POST -H 'content-type: application/json' \
             --data '{ "query": "query { search(termId: \"202140\", query:\"Amit Shesh\") { nodes { ... on Employee { name } } } }" }' \
             -v --silent --stderr - | grep "Amit Shesh"
+
+      - name: Delete the CS3500 course
+        run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "DELETE FROM courses WHERE subject = 'CS' and class_id = '3500';"
+
+      # Basically an inverse grep - it tries SELECT-ing the CS3500 class, and expects the name ("Object") to NOT be present
+      - name: Ensure CS3500 no longer exists in our database
+        run: |-
+          ! psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"
+
+      - name: Run the updater ONLY ONCE, so that it scrapes missing classes
+        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 yarn prod:updater"
+        # This should take 5 minutes MAX.
+        # In the scrape step, we used `CUSTOM_SCRAPE=true`. That limits what courses are being scraped - see `scrapers/filter` for more details.
+        #   We need to use that here as well.
+        #   Since we ran a custom scrape, we're missing a lot of classes. If we ran the updater without the custom restrictions, it'd
+        #     attempt to scrape ALL of the missing classes. Instead, we'll only be scraping one.
+        #   SO - this'll only scrape ~800 sections and ~1 class.
+        timeout-minutes: 5
+
+      - name: Ensure CS3500 is back in our database
+        run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+              "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"

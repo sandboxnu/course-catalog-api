@@ -42,7 +42,12 @@ export function convertCourseToPrismaType(
   classInfo: ParsedCourseSR
 ): Prisma.CourseCreateInput {
   // Strip out the keys that Prisma doesn't recognize
-  const { desc: _desc, college: _college, ...cleanClassInfo } = classInfo;
+  const {
+    desc: _desc,
+    college: _college,
+    modifiedInProcessor: _m,
+    ...cleanClassInfo
+  } = classInfo;
 
   return {
     ...cleanClassInfo,
@@ -59,6 +64,26 @@ export function convertCourseToPrismaType(
       convertRequisiteToPrismaType(val)
     ),
     lastUpdateTime: new Date(classInfo.lastUpdateTime),
+  };
+}
+
+/**
+ * Converts one of our course types to a type compatible with the format required by Prisma.
+ * The converted course is ready for insertion to our database.
+ */
+export function convertCourseFromPrismaType(
+  classInfo: PrismaCourse
+): ParsedCourseSR {
+  return {
+    ...classInfo,
+    desc: classInfo.description,
+    college: "",
+    lastUpdateTime: classInfo.lastUpdateTime.getUTCDate(),
+    // TODO: 2023-05, this shouldn't be just cast blindly (but I don't have time to do it rn ;)
+    prereqs: classInfo.prereqs as Requisite,
+    coreqs: classInfo.coreqs as Requisite,
+    prereqsFor: classInfo.prereqsFor as unknown as PrereqsFor,
+    optPrereqsFor: classInfo.optPrereqsFor as unknown as PrereqsFor,
   };
 }
 
@@ -79,6 +104,7 @@ export interface ParsedCourseSR {
   college: string;
   feeAmount: number;
   feeDescription: string;
+  modifiedInProcessor?: boolean;
   prereqs?: Requisite;
   coreqs?: Requisite;
   optPrereqsFor?: PrereqsFor;

@@ -97,7 +97,7 @@ it("can insert a missing if cant find in db", () => {
 it("go should work", async () => {
   const termDump = await testData.loadTermDump();
 
-  markMissingRequisites.go(termDump);
+  markMissingRequisites.go(termDump.classes);
 
   // Find the class that we are checking
   let matchCount = 0;
@@ -168,14 +168,14 @@ it("can swap coreqs", async () => {
     sections: [],
   };
 
-  markMissingRequisites.go(termDump);
+  markMissingRequisites.go(termDump.classes);
   expect(termDump.classes[0].coreqs.values[0].classId).toBe("016");
 });
 
 it("can simplify", async () => {
   const termDump = await testData.loadTermDump();
 
-  markMissingRequisites.go(termDump);
+  markMissingRequisites.go(termDump.classes);
 
   // Find the class that we are checking
   let matchCount = 0;

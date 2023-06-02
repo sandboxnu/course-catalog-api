@@ -11,9 +11,16 @@ import prisma from "./prisma";
 import keys from "../utils/keys";
 import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
+import classParser from "../scrapers/classes/parsersxe/classParser";
 import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
+import {
+  ParsedCourseSR,
+  convertCourseFromPrismaType,
+} from "../types/scraperTypes";
+import processor from "../scrapers/classes/main";
+import filters from "../scrapers/filters";
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -22,7 +29,6 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 - Law: spring (semester & quarter), summer (semester & quarter)
 
 TODO - once #178 is merged, we should switch to that! Only update the active terms.
-
 */
 export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
@@ -39,6 +45,8 @@ interface OldData {
 // the types of models/records that a user can follow
 type ModelName = "course" | "section";
 
+type ClassParserInfo = { termId: string; subject: string; classId: string };
+
 class Updater {
   COURSE_MODEL: ModelName;
   SECTION_MODEL: ModelName;
@@ -46,15 +54,19 @@ class Updater {
 
   // produce a new Updater instance
   static async create(): Promise<Updater> {
+    const termsStr = process.env.TERMS_TO_SCRAPE;
+
+    if (termsStr) {
+      return new this(termsStr.split(","));
+    }
+
     // Get term IDs from our database
     const termInfos = await prisma.termInfo.findMany({
       orderBy: { termId: "desc" },
       take: NUMBER_OF_TERMS_TO_UPDATE,
     });
 
-    const termIds: string[] = termInfos.map((t) => t.termId);
-
-    return new this(termIds);
+    return new this(termInfos.map((t) => t.termId));
   }
 
   // The constructor should never be directly called - use .create()
@@ -105,11 +117,23 @@ class Updater {
    */
   private async scrapeDataToUpdate(): Promise<ScrapedSection[]> {
     // scrape everything
-    const sections: ScrapedSection[] = (
+    const scrapedSections: ScrapedSection[] = (
       await pMap(this.SEMS_TO_UPDATE, (termId) => {
         return termParser.parseSections(termId);
       })
     ).reduce((acc, val) => acc.concat(val), []);
+
+    let sections = scrapedSections;
+
+    if (process.env.CUSTOM_SCRAPE) {
+      // If we are doing a custom scrape, filter sections
+      sections = scrapedSections.filter(
+        (s) =>
+          filters.campus(s.campus) &&
+          filters.subject(s.subject) &&
+          filters.courseNumber(parseInt(s.classId))
+      );
+    }
 
     macros.log(`scraped ${sections.length} sections`);
 
@@ -143,7 +167,8 @@ class Updater {
    * If not, those classes have not been scraped yet, and we want to ignore these sections for now.
    */
   private async filterSectionsWithExistingClasses(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
+    additionalExistingCourseIds?: Set<string>
   ): Promise<{
     hasExistingClass: ScrapedSection[];
     missingClass: ScrapedSection[];
@@ -158,7 +183,8 @@ class Updater {
     const missingClass = [];
 
     for (const section of sections) {
-      if (courseIds.has(keys.getClassHash(section))) {
+      const hash = keys.getClassHash(section);
+      if (courseIds.has(hash) || additionalExistingCourseIds?.has(hash)) {
         hasExistingClass.push(section);
       } else {
         missingClass.push(section);
@@ -168,19 +194,140 @@ class Updater {
     return { hasExistingClass, missingClass };
   }
 
+  /**
+   * Given an array of {@link ScrapedSection}s, return a list of the classes associated with these sections.
+   * Do not include duplicates; each class should only be included once.
+   *
+   * This function only returns classes which have a valid term ID - in other words, a term ID that we have already scraped.
+   * So, if a new term is released on Banner and we haven't scraped it yet, we ignore those classes. It isn't the updater's job
+   * to scrape new terms - that's the job of the scraper.
+   */
+  private async getCorrespondingClassInfo(
+    sections: ScrapedSection[]
+  ): Promise<ClassParserInfo[]> {
+    const missingClasses = new Map<string, ClassParserInfo>();
+
+    const validTermInfos = await prisma.termInfo.findMany({
+      select: { termId: true },
+    });
+    const validTermIds = validTermInfos.map((t) => t.termId);
+
+    for (const section of sections) {
+      if (validTermIds.includes(section.termId)) {
+        missingClasses[keys.getClassHash(section)] = {
+          termId: section.termId,
+          subject: section.subject,
+          classId: section.classId,
+        };
+      }
+    }
+
+    return Object.values(missingClasses);
+  }
+
+  /**
+   * Given a list of classes, run the processors on them. This standardizes how we handle prereqs, among other things
+   */
+  private async processClasses(
+    classes: ParsedCourseSR[]
+  ): Promise<ParsedCourseSR[]> {
+    const termIds = classes.map((c) => c.termId);
+    const otherPrismaClasses = await prisma.course.findMany({
+      where: { termId: { in: termIds } },
+    });
+    const otherClasses = otherPrismaClasses.map((c) =>
+      convertCourseFromPrismaType(c)
+    );
+
+    const allClasses = classes.concat(otherClasses);
+
+    processor.runProcessors(allClasses);
+
+    // We only return the classes that have been newly scraped, OR that were modified in the processor
+    // eg. If we scrape a new class (say, CS2510) which has a prereq on an existing class (CS2500),
+    //  now CS2500's "prereqsFor" will be updated, and we should re-insert it into the database
+    return allClasses.filter(
+      (c) => c.modifiedInProcessor || classes.includes(c)
+    );
+  }
+
+  /**
+   * Given a list of {@link ScrapedSection}s, scrape all of their associated classes.
+   * The returned classes are UNPROCESSED (see {@link Updater.processClasses})
+   */
+  private async scrapeCorrespondingClasses(
+    sections: ScrapedSection[]
+  ): Promise<ParsedCourseSR[]> {
+    // Determine which classes to scrape
+    const missingClasses = await this.getCorrespondingClassInfo(sections);
+
+    const classes = await pMap(
+      missingClasses,
+      async ({ termId, subject, classId }) =>
+        classParser.parseClass(termId, subject, classId),
+      { concurrency: 500 }
+    );
+
+    const filteredClasses = classes.filter(
+      (c): c is ParsedCourseSR => c !== false
+    );
+
+    return filteredClasses;
+  }
+
+  /**
+   * Given a list of {@link ScrapedSection}s, scrapes AND processes all of their associated classes.
+   */
+  private async getCorrespondingClasses(
+    sections: ScrapedSection[]
+  ): Promise<ParsedCourseSR[]> {
+    const classes = await this.scrapeCorrespondingClasses(sections);
+    return this.processClasses(classes);
+  }
+
+  /**
+   * Save the scraped sections to the database.
+   */
   private async saveDataToDatabase(sections: ScrapedSection[]): Promise<void> {
     const dumpProcessorStartTime = Date.now();
     macros.log("Running dump processor");
 
-    const { hasExistingClass, missingClass } =
+    const { missingClass: missingClassInitial } =
       await this.filterSectionsWithExistingClasses(sections);
+    macros.warn(
+      `${
+        missingClassInitial.length
+      } missing sections: ${missingClassInitial.map((s) =>
+        keys.getSectionHash(s)
+      )}`
+    );
 
-    if (missingClass.length > 0) {
-      macros.warn("We found sections with no corresponding classes.");
+    const newClasses = await this.getCorrespondingClasses(missingClassInitial);
+    const newClassIds = new Set(newClasses.map((c) => keys.getClassHash(c)));
+
+    // Check again, this time including the newly scraped classes
+    // This ensures that our class scraping was successful
+    const { missingClass: missingClassFinal, hasExistingClass } =
+      await this.filterSectionsWithExistingClasses(sections, newClassIds);
+
+    if (missingClassFinal.length > 0) {
+      const missingStr = missingClassFinal
+        .map((s) => `${s.termId}/${s.subject}/${s.classId}/${s.crn}`)
+        .join(", ");
+
+      // TODO - this should be capable of alerting the Search team. Healthcheck? Slack integration?
+      // This is an issue bc it means we found a class we couldn't properly scrape
+      macros.warn(
+        `We found sections with no corresponding classes: ${missingStr}`
+      );
     }
 
     await dumpProcessor.main({
-      termDump: { sections: hasExistingClass, classes: [], subjects: {} },
+      termDump: {
+        sections: hasExistingClass,
+        classes: newClasses,
+        subjects: {},
+      },
       deleteOutdatedData: true,
     });
 
