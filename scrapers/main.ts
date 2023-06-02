@@ -45,7 +45,9 @@ class Main {
       const termIdsWithData = termInfosWithData.map((t) => t.termId).sort();
       const newestTermIdWithData = termIdsWithData[termIdsWithData.length - 1];
 
-      return termIds.filter((t) => t > newestTermIdWithData);
+      return termIds.filter(
+        (t) => newestTermIdWithData === undefined || t > newestTermIdWithData
+      );
     }
   }
 

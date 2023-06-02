@@ -41,13 +41,13 @@ describe("getTermsIds", () => {
       expect((await scraper.getTermIdsToScrape(termIds)).length).toBe(4);
     });
 
-    it("returns those which do not already exist in the DB", async () => {
+    it("returns those newer than those that already exist in the DB", async () => {
       const termsToReturn = [{ termId: "123" }, { termId: "456" }];
       // @ts-expect-error - the type isn't a PrismaPromise so TS will complain
       jest.spyOn(prisma.termInfo, "findMany").mockReturnValue(termsToReturn);
 
       const returnedTerms = await scraper.getTermIdsToScrape(termIds);
-      expect(returnedTerms.sort()).toEqual(termIds.slice(2).sort());
+      expect(returnedTerms).toEqual(["789"]);
     });
 
     it("returns an empty list if all terms already exist", async () => {
