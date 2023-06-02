@@ -52,12 +52,11 @@ class Updater {
   SECTION_MODEL: ModelName;
   SEMS_TO_UPDATE: string[];
 
-  // produce a new Updater instance
-  static async create(): Promise<Updater> {
+  static async getTermIdsToUpdate(): Promise<string[]> {
     const termsStr = process.env.TERMS_TO_SCRAPE;
 
     if (termsStr) {
-      return new this(termsStr.split(","));
+      return termsStr.split(",");
     }
 
     // Get term IDs from our database
@@ -66,7 +65,11 @@ class Updater {
       take: NUMBER_OF_TERMS_TO_UPDATE,
     });
 
-    return new this(termInfos.map((t) => t.termId));
+    return termInfos.map((t) => t.termId);
+  }
+  // produce a new Updater instance
+  static async create(): Promise<Updater> {
+    return new this(await Updater.getTermIdsToUpdate());
   }
 
   // The constructor should never be directly called - use .create()
@@ -96,6 +99,9 @@ class Updater {
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {
       setInterval(async () => {
+        // Every subsequent run should re-check the term IDs. This checks if any new terms have been added (eg. if the scraper
+        // ran and added a new term)
+        this.SEMS_TO_UPDATE = await Updater.getTermIdsToUpdate();
         await this.updateOrExit();
       }, intervalTime);
     }
