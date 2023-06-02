@@ -14,48 +14,45 @@ import "colors";
 // Main file for scraping
 // Run this to run all the scrapers
 
-/*
-At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
-- Undergrad: Spring, summer (Full, I, and II)
-- CPS: spring (semester & quarter), summer (semester & quarter)
-- Law: spring (semester & quarter), summer (semester & quarter)
-
-However, we allow for overriding this number via the `NUMBER_OF_TERMS` env variable
-*/
-const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
-export const NUMBER_OF_TERMS_TO_UPDATE = isNaN(rawNumTerms) ? 12 : rawNumTerms;
-
 class Main {
-  getTermIdsToScrape(termIds: string[]): string[] {
-    const termsStr = process.env.TERMS_TO_SCRAPE;
+  /**
+   * Given a list of term IDs, return a subset which will be used to run the scrapers.
+   * The returned term IDs can be determined by environment variables or by their existance in our database
+   */
+  async getTermIdsToScrape(termIds: string[]): Promise<string[]> {
+    const termsToScrapeStr = process.env.TERMS_TO_SCRAPE;
+    const numOfTermsStr = Number.parseInt(process.env.NUMBER_OF_TERMS);
 
-    if (termsStr) {
-      const terms = termsStr.split(",").filter((termId) => {
-        if (!termIds.includes(termId) && termId !== null) {
-          macros.warn(
-            `${termId} not in list of term IDs from Banner! Skipping`
-          );
+    if (termsToScrapeStr) {
+      const unfilteredTermIds = termsToScrapeStr.split(",");
+
+      const terms = unfilteredTermIds.filter((termId) => {
+        const keep = termIds.includes(termId);
+        if (!keep && termId !== null) {
+          macros.warn(`"${termId}" not in given list - skipping`);
         }
-        return termIds.includes(termId);
+        return keep;
       });
 
       macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
       return terms;
+    } else if (!isNaN(numOfTermsStr)) {
+      return termIds.slice(0, numOfTermsStr);
+    } else {
+      const termInfosWithData = await prisma.termInfo.findMany({
+        select: { termId: true },
+      });
+      const termIdsWithData = new Set(termInfosWithData.map((t) => t.termId));
+
+      return termIds.filter((t) => !termIdsWithData.has(t));
     }
-
-    const rawNumTerms = Number.parseInt(process.env.NUMBER_OF_TERMS);
-    const numTerms = isNaN(rawNumTerms)
-      ? NUMBER_OF_TERMS_TO_UPDATE
-      : rawNumTerms;
-
-    return termIds.slice(0, numTerms);
   }
 
   async main(): Promise<void> {
     const start = Date.now();
     // Get the TermInfo information from Banner
     const allTermInfos = await bannerv9parser.getAllTermInfos();
-    const termsToScrape = this.getTermIdsToScrape(
+    const termsToScrape = await this.getTermIdsToScrape(
       allTermInfos.map((t) => t.termId)
     );
 

@@ -15,14 +15,22 @@ import classParser from "../scrapers/classes/parsersxe/classParser";
 import { Section as ScrapedSection } from "../types/types";
 import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
-
 import {
   ParsedCourseSR,
   convertCourseFromPrismaType,
 } from "../types/scraperTypes";
 import processor from "../scrapers/classes/main";
-import { NUMBER_OF_TERMS_TO_UPDATE } from "../scrapers/main";
 import filters from "../scrapers/filters";
+
+/*
+At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
+- Undergrad: Spring, summer (Full, I, and II)
+- CPS: spring (semester & quarter), summer (semester & quarter)
+- Law: spring (semester & quarter), summer (semester & quarter)
+
+TODO - once #178 is merged, we should switch to that! Only update the active terms.
+*/
+export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 const FAULTY_TERM_IDS = ["202225"];
 
