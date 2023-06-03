@@ -42,9 +42,12 @@ class Main {
       const termInfosWithData = await prisma.termInfo.findMany({
         select: { termId: true },
       });
-      const termIdsWithData = new Set(termInfosWithData.map((t) => t.termId));
+      const termIdsWithData = termInfosWithData.map((t) => t.termId).sort();
+      const newestTermIdWithData = termIdsWithData[termIdsWithData.length - 1];
 
-      return termIds.filter((t) => !termIdsWithData.has(t));
+      return termIds.filter(
+        (t) => newestTermIdWithData === undefined || t > newestTermIdWithData
+      );
     }
   }
 
