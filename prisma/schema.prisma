@@ -121,6 +121,7 @@ model TermInfo {
   termId     String @unique(map: "term_ids.term_id_unique") @map("term_id")
   subCollege String @map("sub_college")
   text       String
+  active     Boolean @default(true)
 
   @@map("term_ids")
 }
