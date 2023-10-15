@@ -105,6 +105,11 @@ jobs:
           psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
             "INSERT INTO sections (class_hash, id, crn, last_update_time) VALUES ('neu.edu/202240/CS/2501', 'neu.edu/202240/CS/2501/987654321', '987654321', '1999-04-03 18:34:35.882');"
 
+        # Set all Term IDS to active for testing purposes
+      - run: |-
+          psql -U postgres -h localhost -p 5432 -d searchneu_dev -c \
+            "UPDATE term_ids SET active = true;"
+
       - name: Run the updater ONLY ONCE, so that it removes the newly-inserted section with an outdated lastUpdateTime
         run: UPDATE_ONLY_ONCE=true LOG_LEVEL=VERBOSE yarn updater | tee _updater.log
 
