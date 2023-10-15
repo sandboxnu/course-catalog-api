@@ -9,6 +9,15 @@ class TermListParser {
   serializeTermsList(
     termsFromBanner: { code: string; description: string }[]
   ): TermInfo[] {
+    const activeTermInfos = termsFromBanner.filter(
+      (term) => !term.description.includes("View Only")
+    );
+    const activeTermIds = activeTermInfos.map((termInfo) =>
+      Number(termInfo.code)
+    );
+    /* The smallest active termInfo code. 
+    All termInfo's with codes greater than or equal to this are considered active.*/
+    const minActiveTermInfoCode = Math.min(...activeTermIds);
     return termsFromBanner.map((term) => {
       const subCollege = this.determineSubCollegeName(term.description);
 
@@ -24,6 +33,7 @@ class TermListParser {
         termId: term.code,
         text: text,
         subCollege: subCollege,
+        active: Number(term.code) >= minActiveTermInfoCode,
       };
     });
   }

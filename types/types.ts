@@ -264,6 +264,7 @@ export interface TermInfo {
   termId: string;
   subCollege: string;
   text: string;
+  active: boolean;
 }
 
 export interface CourseRef {
