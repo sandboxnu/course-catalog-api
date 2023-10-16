@@ -99,7 +99,7 @@ class NeuEmployee {
     const employeeQuery = {
       versionInfo: {
         moduleVersion,
-        apiVersion: "ad_141F5PYcK3c+D5K8O+g",
+        apiVersion: "Zox0cGCdj_7M+WZErCpkhQ",
       },
       viewName: "MainFlow.FacultyAndStaffDirectory",
       // Their frontend requires non-null queries, but the backend doesn't :)
