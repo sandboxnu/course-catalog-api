@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:11.19
+        image: postgres:11.5
         env:
           POSTGRES_MULTIPLE_DATABASES: searchneu_dev
           POSTGRES_USER: postgres
