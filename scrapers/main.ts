@@ -55,8 +55,10 @@ class Main {
     const start = Date.now();
     // Get the TermInfo information from Banner
     const allTermInfos = await bannerv9parser.getAllTermInfos();
+    // Only scrape active terms
+    const allActiveTermInfos = allTermInfos.filter((t) => t.active);
     const termsToScrape = await this.getTermIdsToScrape(
-      allTermInfos.map((t) => t.termId)
+      allActiveTermInfos.map((t) => t.termId)
     );
 
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
