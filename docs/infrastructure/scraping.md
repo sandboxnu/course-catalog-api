@@ -15,8 +15,8 @@ scp -i <PATH TO YOUR JUMPHOST PRIVATE KEY> <PATH TO THE ZIPPED CACHE> <JUMPHOST 
 - `JUMPHOST USER` is most likely `ubuntu` and you can determine `DIRECTORY` by running `pwd` inside the jumphost.
 
 3. Unzip the cache inside `~/course-catalog-api` in the Jumphost, make sure the unzipped folder is named `cache`.
-4. If the instance type of the jumphost is `t2 nano`, you'll need to stop the instance and change the instance type to something with more memory like `t2 large` in order for the scrapers to run successfully. If there's not enough memory, the scrapers will exit early with status code 137.
-5. Run `nvm use`
+4. If the instance type of the jumphost is `t3 nano`, you'll need to stop the instance and change the instance type to something with more memory like `t3 large` in order for the scrapers to run successfully. If there's not enough memory, the scrapers will exit early with status code 137.
+5. Run `fnm use`
 6. Run `DATABASE_URL=<PROD DATABASE URL> elasticURL=<PROD ELASTICSEARCH URL> yarn scrape` where the database URL and ElasticSearch URL are the secrets in the AWS Parameter Store.
 
-!> **Important:** Remember to change the instance type back to `t2.nano` when the scrape finishes to save credits!
+!> **Important:** Remember to change the instance type back to `t3.nano` when the scrape finishes to save credits!
