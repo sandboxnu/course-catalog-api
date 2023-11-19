@@ -162,6 +162,16 @@ class TwilioNotifyer {
     switch (message) {
       // TODO: actually remove user from SearchNEU notifs
       case this.TWILIO_REPLIES.STOP_ALL:
+        try {
+          notificationsManager.deleteAllUserSubscriptions(senderNumber);
+        } catch (e) {
+          macros.log(
+            "Error deleting notifications from: " +
+              senderNumber +
+              " Error Message: " +
+              e
+          );
+        }
         twimlResponse.message(
           "You have been removed from all SearchNEU notifications."
         );
