@@ -16,10 +16,7 @@ import {
   Section,
   convertSectionToPrismaType,
 } from "../types/types";
-import {
-  ParsedCourseSR,
-  convertCourseToPrismaType,
-} from "../types/scraperTypes";
+import { convertCourseToPrismaType } from "../types/scraperTypes";
 
 class DumpProcessor {
   /**
