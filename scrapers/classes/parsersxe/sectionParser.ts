@@ -63,8 +63,8 @@ class SectionParser {
         return a.description === "Honors";
       }),
       url:
-        "https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched" +
-        `?term_in=${SR.term}&crn_in=${SR.courseReferenceNumber}`,
+        "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?" +
+        `cat_term_in=${SR.term}&subj_code_in=${SR.subject}&crse_numb_in=${SR.courseNumber}`,
       profs: SR.faculty.map(MeetingParser.profName),
       meetings: MeetingParser.parseMeetings(SR.meetingsFaculty),
     };

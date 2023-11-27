@@ -35,10 +35,10 @@ Object {
       },
     ],
   },
-  "prettyUrl": "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CHEM&crse_numb_in=2311",
+  "prettyUrl": "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CHEM&crse_numb_in=2311",
   "subject": "CHEM",
   "termId": "202010",
-  "url": "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?term_in=202010&subj_in=CHEM&crse_in=2311&schd_in=%",
+  "url": "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CHEM&crse_numb_in=2311",
 }
 `;
 
@@ -77,9 +77,9 @@ Object {
       },
     ],
   },
-  "prettyUrl": "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CS&crse_numb_in=2500",
+  "prettyUrl": "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CS&crse_numb_in=2500",
   "subject": "CS",
   "termId": "202010",
-  "url": "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?term_in=202010&subj_in=CS&crse_in=2500&schd_in=%",
+  "url": "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?cat_term_in=202010&subj_code_in=CS&crse_numb_in=2500",
 }
 `;
