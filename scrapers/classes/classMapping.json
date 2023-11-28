@@ -85,7 +85,11 @@
             "AI => Artificial Intelligence",
             "NLP => Natural Language Processing",
             "orgo => Organic Chemistry",
-            "swd => Software Development"
+            "swd => Software Development",
+            "choir => Chorus",
+            "syssec => Systems Security",
+            "netsec => Network Security",
+            "id => Interaction Design"
           ]
         }
       }

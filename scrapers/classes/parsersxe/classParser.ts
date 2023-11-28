@@ -107,12 +107,12 @@ class ClassParser {
       nupath: this.nupath(attributes),
       desc: he.decode(description),
       prettyUrl:
-        "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?" +
+        "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?" +
         `cat_term_in=${termId}&subj_code_in=${subjectCode}&crse_numb_in=${courseNumber}`,
       name: he.decode(SR.courseTitle),
       url:
-        "https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_listcrse?" +
-        `term_in=${termId}&subj_in=${subjectCode}&crse_in=${courseNumber}&schd_in=%`,
+        "https://bnrordsp.neu.edu/ssb-prod/bwckctlg.p_disp_course_detail?" +
+        `cat_term_in=${termId}&subj_code_in=${subjectCode}&crse_numb_in=${courseNumber}`,
       lastUpdateTime: Date.now(),
       maxCredits: SR.creditHourHigh || SR.creditHourLow,
       minCredits: SR.creditHourLow,
@@ -120,7 +120,6 @@ class ClassParser {
       feeAmount,
       feeDescription,
     };
-
     if (prereqs) {
       classDetails.prereqs = prereqs;
     }
