@@ -34,7 +34,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
+          node-version: "18"
       - uses: bahmutov/npm-install@v1
 
       - run: yarn test --coverage --detectOpenHandles
@@ -83,7 +83,7 @@ jobs:
       - name: install node
         uses: actions/setup-node@v2
         with:
-          node-version: "16"
+          node-version: "18"
 
       - uses: bahmutov/npm-install@v1
 
