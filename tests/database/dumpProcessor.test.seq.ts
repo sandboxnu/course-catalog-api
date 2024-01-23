@@ -74,7 +74,7 @@ function createDummyCourseForTermId(termId: string): ParsedCourseSR {
     minCredits: 2009,
     lastUpdateTime: 0,
     college: "Harvard University",
-    feeAmount: Number.MAX_SAFE_INTEGER,
+    feeAmount: 214748647, //Max value of a 32-bit integer (prisma ints are 32-bit)
     feeDescription: "giving day :)",
   };
 }
