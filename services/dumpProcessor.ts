@@ -16,10 +16,7 @@ import {
   Section,
   convertSectionToPrismaType,
 } from "../types/types";
-import {
-  ParsedCourseSR,
-  convertCourseToPrismaType,
-} from "../types/scraperTypes";
+import { convertCourseToPrismaType } from "../types/scraperTypes";
 
 class DumpProcessor {
   /**
@@ -223,18 +220,20 @@ class DumpProcessor {
       termIdsWithData.includes(t.termId)
     );
 
-    // Upsert new term IDs, along with their names and sub college
-    for (const { termId, subCollege, text } of termInfosWithData) {
+    // Upsert new term IDs, along with their names, sub college, and active status
+    for (const { termId, subCollege, text, active } of termInfosWithData) {
       await prisma.termInfo.upsert({
         where: { termId },
         update: {
           text,
           subCollege,
+          active,
         },
         create: {
           termId,
           text,
           subCollege,
+          active,
         },
       });
     }

@@ -314,6 +314,42 @@ describe("Updater", () => {
     );
   });
 
+  it("inactive terms aren't saved in the updater", async () => {
+    const INACTIVE_TERM = "000000";
+    const ACTIVE_TERM = "000001";
+    let termIdsToUpdate = await Updater.getTermIdsToUpdate();
+    // Shouldn't include these termId
+    expect(termIdsToUpdate).not.toContain(INACTIVE_TERM);
+    expect(termIdsToUpdate).not.toContain(ACTIVE_TERM);
+
+    // Create an inactive term in database
+    await prisma.termInfo.create({
+      data: {
+        termId: INACTIVE_TERM,
+        subCollege: "NEU",
+        text: "description",
+        active: false,
+      },
+    });
+
+    termIdsToUpdate = await Updater.getTermIdsToUpdate();
+
+    // Still shouldn't include this inactive term
+    expect(termIdsToUpdate).not.toContain(INACTIVE_TERM);
+    // Create an active term
+    await prisma.termInfo.create({
+      data: {
+        termId: ACTIVE_TERM,
+        subCollege: "NEU",
+        text: "description",
+        active: true,
+      },
+    });
+    termIdsToUpdate = await Updater.getTermIdsToUpdate();
+    // Should include the active term
+    expect(termIdsToUpdate).toContain(ACTIVE_TERM);
+  });
+
   describe("getNotificationInfo", () => {
     let FUNDIES_ONE_COURSE;
     let FUNDIES_TWO_COURSE;

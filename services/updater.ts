@@ -59,9 +59,10 @@ class Updater {
       return termsStr.split(",");
     }
 
-    // Get term IDs from our database
+    // Get active term IDs from our database
     const termInfos = await prisma.termInfo.findMany({
       orderBy: { termId: "desc" },
+      where: { active: true },
       take: NUMBER_OF_TERMS_TO_UPDATE,
     });
 

@@ -38,18 +38,21 @@ describe("getAllTermInfos", () => {
   it("serializes the term list", async () => {
     expect(await bannerv9.getAllTermInfos()).toEqual([
       {
+        active: true,
         host: "neu.edu",
         subCollege: "NEU",
         termId: "3",
         text: "Fall 2022 Semester",
       },
       {
+        active: true,
         host: "neu.edu",
         subCollege: "LAW",
         termId: "2",
         text: "Summer 2022 Semester",
       },
       {
+        active: true,
         host: "neu.edu",
         subCollege: "CPS",
         termId: "1",
