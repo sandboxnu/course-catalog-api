@@ -49,6 +49,7 @@ class Employees {
     const hiddenProfs = [
       "i.escobedo@northeastern.edu",
       "p.kothamali@northeastern.edu",
+      "s.ebadi@northeastern.edu",
     ];
 
     const filteredList = employeeList.filter((person) => {
