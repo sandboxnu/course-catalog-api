@@ -1,0 +1,28 @@
+name: updater
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+jobs:
+  update:
+    name: Updater
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
+      TWILIO_AUTH_TOKEN: 123
+      NUMBER_OF_TERMS: 1
+      DATABASE_URL_WITH_CONNECTIONS: postgres://postgres.hyzilopbbumlzpkongno:H4ppVR6VirhSBPa@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&pool_timeout=0&connection_limit=15
+    steps:
+      - uses: actions/checkout@v2
+      - name: install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - uses: bahmutov/npm-install@v1
+      - run: yarn db:migrate
+      - run: yarn db:refresh
+      - run: yarn scrape
+      - run: yarn updater
