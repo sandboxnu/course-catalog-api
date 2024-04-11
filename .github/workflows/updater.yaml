@@ -23,5 +23,5 @@ jobs:
           node-version: "16"
       - uses: bahmutov/npm-install@v1
       # - run: yarn db:migrate
-      - run: yarn scrape
+      # - run: yarn scrape
       - run: yarn updater
