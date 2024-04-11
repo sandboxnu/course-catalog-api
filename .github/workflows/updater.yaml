@@ -22,7 +22,6 @@ jobs:
     env:
       TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
       TWILIO_AUTH_TOKEN: 123
-      NUMBER_OF_TERMS: 3
       UPDATE_ONLY_ONCE: true
       DATABASE_URL_WITH_CONNECTIONS: postgres://postgres.hyzilopbbumlzpkongno:H4ppVR6VirhSBPa@aws-0-us-east-1.pooler.supabase.com:6543/postgres?pgbouncer=true&pool_timeout=0&connection_limit=15
     steps:
