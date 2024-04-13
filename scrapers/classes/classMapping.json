@@ -41,7 +41,8 @@
         }
       },
       "sections": {
-        "type": "object",
+        "type": "nested",
+        "include_in_parent": "true",
         "properties": {
           "meetings": {
             "type": "object"

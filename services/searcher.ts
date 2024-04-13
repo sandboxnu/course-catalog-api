@@ -2,7 +2,7 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import _ from "lodash";
+import _, { filter } from "lodash";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
@@ -16,6 +16,7 @@ import {
   EsQuery,
   QueryNode,
   ExistsQuery,
+  NestedQuery,
   TermsQuery,
   TermQuery,
   LeafQuery,
@@ -38,6 +39,7 @@ import {
   SearchResult,
   CourseSearchResult,
   ParsedQuery,
+  BoolQuery,
 } from "../types/searchTypes";
 import { SerializedCourse } from "../types/serializerTypes";
 import { Course, Section } from "../types/types";
@@ -73,6 +75,10 @@ class Searcher {
     this.COURSE_CODE_PATTERN = /^\s*([a-zA-Z]{2,4})\s*(\d{4})?\s*$/i;
   }
 
+  private makeNestedQuery<T>(query: T, nestedField: string): NestedQuery<T> {
+    return { nested: { path: nestedField, query } };
+  }
+
   static generateFilters(): FilterPrelude {
     // type validating functions
     const isString = (arg: unknown): arg is string => {
@@ -104,8 +110,13 @@ class Searcher {
     };
 
     // filter-generating functions
-    const getSectionsAvailableFilter = (): ExistsQuery => {
-      return { exists: { field: "sections" } };
+    const getSectionsAvailableFilter = (): NestedQuery<ExistsQuery> => {
+      return {
+        nested: {
+          path: "sections",
+          query: { exists: { field: "sections" } },
+        },
+      };
     };
 
     const getNUpathFilter = (selectedNUpaths: string[]): TermsQuery => {
@@ -222,6 +233,7 @@ class Searcher {
     return validFilters;
   }
 
+  // after adding nested queries to elastic search not sure if sections.prof / sections.crn still work as intended
   getFields(): string[] {
     return [
       "class.name^2", // Boost by 2
@@ -318,13 +330,51 @@ class Searcher {
       termId: termId,
       sectionsAvailable: true,
     };
+
+    let sectionFilterFound = false;
+    const sectionFilters = ["honors", "campus", "classType"];
+    const curSectionFilters = [];
+
+    for (const key of Object.keys(userFilters)) {
+      if (sectionFilters.includes(key)) {
+        sectionFilterFound = true;
+        curSectionFilters.push(this.filters[key].create(userFilters[key]));
+      }
+    }
+
+    /*
+    {query:
+      nested: {
+        path: "sections",
+        query: {
+          bool: {
+            must: [
+              { term: { "sections.honors": true } },
+              { term: { "sections.campus": "BOS" } },
+              { term: { "sections.classType": "LEC" } }
+            ]
+          }
+        }
+      }
+
+    */
+
     const filters: FilterInput = { ...requiredFilters, ...userFilters };
 
+    const generalFilters = _.omit(this.filters, sectionFilters);
     const classFilters: QueryNode[] = _(filters)
-      .pick(Object.keys(this.filters))
+      .pick(Object.keys(generalFilters))
       .toPairs()
-      .map(([key, val]) => this.filters[key].create(val))
+      .map(([key, val]) => generalFilters[key].create(val))
       .value();
+
+    if (sectionFilterFound) {
+      const sectionFilterQuery: NestedQuery<BoolQuery> = this.makeNestedQuery(
+        { bool: { must: curSectionFilters } },
+        "sections"
+      );
+      classFilters.push(sectionFilterQuery);
+    }
 
     const aggQuery = !aggregation
       ? undefined
@@ -336,7 +386,6 @@ class Searcher {
             },
           },
         };
-
     // compound query for text query and filters
     return {
       from: min,
@@ -352,7 +401,7 @@ class Searcher {
             bool: {
               should: [
                 { bool: { must: classFilters } },
-                ...(!areFiltersApplied ? [isEmployee] : []),
+                ...(!areFiltersApplied ? [isEmployee] : []), // If we search for an employee and there are no filters active, this guarantees employee cards show up before class cards do.
               ],
             },
           },
@@ -360,6 +409,7 @@ class Searcher {
           minimum_should_match: 0,
         },
       },
+      min_score: 0.1,
       aggregations: aggQuery,
     };
   }
@@ -494,6 +544,34 @@ class Searcher {
     };
   }
 
+  filterOutSections(
+    results: SearchResult[],
+    filters: FilterInput
+  ): SearchResult[] {
+    for (const result of results) {
+      if (result.type === "employee") {
+        continue;
+      }
+      result.sections = result.sections.filter((section) => {
+        return Object.keys(filters).every((filter) => {
+          const filterValue = filters[filter];
+          if (filter === "honors") {
+            return section.honors === filterValue;
+          } else if (filter === "campus") {
+            let campuses: string[] = filterValue as string[];
+            return campuses.includes(section.campus);
+          } else if (filter === "classType") {
+            let classTypes: string[] = filterValue as string[];
+            return classTypes.includes(section.classType);
+          }
+          return true;
+        });
+      });
+    }
+
+    return results;
+  }
+
   /**
    * Search for classes and employees
    * @param  {string}  query  The search to query for
@@ -543,11 +621,15 @@ class Searcher {
         max,
         filters
       );
+
       ({ resultCount, took, aggregations } = searchResults);
+
       const startHydrate = Date.now();
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
       );
+
+      results = this.filterOutSections(results, filters);
       hydrateDuration = Date.now() - startHydrate;
     }
 

@@ -12,6 +12,7 @@ type OneOrMany<T> = T | T[];
 export interface EsQuery {
   from: number;
   size: number;
+  min_score: number;
   sort: EsSort;
   query: QueryNode;
   aggregations?: QueryAgg;
@@ -35,7 +36,9 @@ export type LeafQuery =
   | MultiMatchQuery
   | RangeQuery
   | MatchAllQuery
-  | BoolQuery;
+  | BoolQuery
+  | NestedQuery<LeafQuery>
+  | SectionFilterQuery;
 
 export interface TermQuery {
   term: FieldQuery;
@@ -72,10 +75,16 @@ export interface ParsedQuery {
 export const MATCH_ALL_QUERY = { match_all: {} };
 export type MatchAllQuery = typeof MATCH_ALL_QUERY;
 
+export interface NestedQuery<T> {
+  nested: {
+    path: string;
+    query: T;
+  };
+}
+
 export interface ExistsQuery {
   exists: { field: string };
 }
-
 export interface FieldQuery {
   [fieldName: string]: EsValue;
 }
