@@ -558,10 +558,10 @@ class Searcher {
           if (filter === "honors") {
             return section.honors === filterValue;
           } else if (filter === "campus") {
-            let campuses: string[] = filterValue as string[];
+            const campuses: string[] = filterValue as string[];
             return campuses.includes(section.campus);
           } else if (filter === "classType") {
-            let classTypes: string[] = filterValue as string[];
+            const classTypes: string[] = filterValue as string[];
             return classTypes.includes(section.classType);
           }
           return true;
