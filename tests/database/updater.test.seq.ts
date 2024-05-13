@@ -350,204 +350,205 @@ describe("Updater", () => {
     expect(termIdsToUpdate).toContain(ACTIVE_TERM);
   });
 
-  describe("getNotificationInfo", () => {
-    let FUNDIES_ONE_COURSE;
-    let FUNDIES_TWO_COURSE;
-    beforeEach(async () => {
-      FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
-      FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
-      await prisma.course.create({
-        data: FUNDIES_ONE_COURSE,
-      });
-      await prisma.course.create({
-        data: FUNDIES_TWO_COURSE,
-      });
+  // UNCOMMENT when notifications return
+  // describe("getNotificationInfo", () => {
+  //   let FUNDIES_ONE_COURSE;
+  //   let FUNDIES_TWO_COURSE;
+  //   beforeEach(async () => {
+  //     FUNDIES_ONE_COURSE = processCourse(FUNDIES_ONE);
+  //     FUNDIES_TWO_COURSE = processCourse(FUNDIES_TWO);
+  //     await prisma.course.create({
+  //       data: FUNDIES_ONE_COURSE,
+  //     });
+  //     await prisma.course.create({
+  //       data: FUNDIES_TWO_COURSE,
+  //     });
 
-      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
-      await createSection(FUNDIES_TWO_S1, 0, 0);
-      await createSection(FUNDIES_TWO_S2, 0, 0);
-    });
+  //     await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+  //     await createSection(FUNDIES_TWO_S1, 0, 0);
+  //     await createSection(FUNDIES_TWO_S2, 0, 0);
+  //   });
 
-    it("does not care about new section for class that does not exist", async () => {
-      const notificationInfo = await UPDATER.getNotificationInfo([PL_S1]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
+  //   it("does not care about new section for class that does not exist", async () => {
+  //     const notificationInfo = await UPDATER.getNotificationInfo([PL_S1]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does not include watched courses with no new sections to notifications", async () => {
-      await prisma.followedCourse.create({
-        data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
-      });
-      await prisma.followedCourse.create({
-        data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
-      });
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        { ...FUNDIES_ONE_S1, seatsRemaining: 0 },
-        { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
-        { ...FUNDIES_TWO_S2, seatsRemaining: 0, waitRemaining: 0 },
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
+  //   it("does not include watched courses with no new sections to notifications", async () => {
+  //     await prisma.followedCourse.create({
+  //       data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
+  //     });
+  //     await prisma.followedCourse.create({
+  //       data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
+  //     });
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       { ...FUNDIES_ONE_S1, seatsRemaining: 0 },
+  //       { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
+  //       { ...FUNDIES_TWO_S2, seatsRemaining: 0, waitRemaining: 0 },
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does include watched courses with new sections to notifications", async () => {
-      await prisma.followedCourse.create({
-        data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
-      });
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        FUNDIES_ONE_NEW_SECTION,
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [
-          {
-            termId: FUNDIES_ONE.termId,
-            subject: FUNDIES_ONE.subject,
-            courseId: FUNDIES_ONE.classId,
-            courseHash: Keys.getClassHash(FUNDIES_ONE),
-            campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
-            numberOfSectionsAdded: 1,
-          },
-        ],
-        updatedSections: [],
-      });
-    });
+  //   it("does include watched courses with new sections to notifications", async () => {
+  //     await prisma.followedCourse.create({
+  //       data: { courseHash: FUNDIES_ONE_COURSE.id, userId: 1 },
+  //     });
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       FUNDIES_ONE_NEW_SECTION,
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [
+  //         {
+  //           termId: FUNDIES_ONE.termId,
+  //           subject: FUNDIES_ONE.subject,
+  //           courseId: FUNDIES_ONE.classId,
+  //           courseHash: Keys.getClassHash(FUNDIES_ONE),
+  //           campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
+  //           numberOfSectionsAdded: 1,
+  //         },
+  //       ],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does not include unwatched courses with new sections to notifications", async () => {
-      await prisma.followedCourse.create({
-        data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
-      });
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        FUNDIES_ONE_NEW_SECTION,
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
+  //   it("does not include unwatched courses with new sections to notifications", async () => {
+  //     await prisma.followedCourse.create({
+  //       data: { courseHash: FUNDIES_TWO_COURSE.id, userId: 1 },
+  //     });
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       FUNDIES_ONE_NEW_SECTION,
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does include watched sections with seat increase or waitlist increase", async () => {
-      await prisma.followedSection.create({
-        data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1), userId: 1 },
-      });
-      await prisma.followedSection.create({
-        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
-      });
-      await prisma.followedSection.create({
-        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2), userId: 2 },
-      });
-      const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
-      const waitlistIncrease = {
-        ...FUNDIES_TWO_S1,
-        seatsRemaining: 0,
-        waitRemaining: 1,
-      };
-      const seatWaitlistIncrease = {
-        ...FUNDIES_TWO_S2,
-        seatsRemaining: 1,
-        waitRemaining: 2,
-      };
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        seatIncrease,
-        waitlistIncrease,
-        seatWaitlistIncrease,
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [
-          {
-            termId: FUNDIES_ONE_S1.termId,
-            subject: FUNDIES_ONE_S1.subject,
-            courseId: FUNDIES_ONE_S1.classId,
-            crn: FUNDIES_ONE_S1.crn,
-            sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1),
-            campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
-            seatsRemaining: 2,
-          },
-          {
-            termId: FUNDIES_TWO_S1.termId,
-            subject: FUNDIES_TWO_S1.subject,
-            courseId: FUNDIES_TWO_S1.classId,
-            crn: FUNDIES_TWO_S1.crn,
-            sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1),
-            campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
-            seatsRemaining: FUNDIES_TWO_S1.seatsRemaining,
-          },
-          {
-            termId: FUNDIES_TWO_S2.termId,
-            subject: FUNDIES_TWO_S2.subject,
-            courseId: FUNDIES_TWO_S2.classId,
-            crn: FUNDIES_TWO_S2.crn,
-            sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2),
-            campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
-            seatsRemaining: 1,
-          },
-        ],
-      });
-    });
+  //   it("does include watched sections with seat increase or waitlist increase", async () => {
+  //     await prisma.followedSection.create({
+  //       data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1), userId: 1 },
+  //     });
+  //     await prisma.followedSection.create({
+  //       data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
+  //     });
+  //     await prisma.followedSection.create({
+  //       data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2), userId: 2 },
+  //     });
+  //     const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
+  //     const waitlistIncrease = {
+  //       ...FUNDIES_TWO_S1,
+  //       seatsRemaining: 0,
+  //       waitRemaining: 1,
+  //     };
+  //     const seatWaitlistIncrease = {
+  //       ...FUNDIES_TWO_S2,
+  //       seatsRemaining: 1,
+  //       waitRemaining: 2,
+  //     };
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       seatIncrease,
+  //       waitlistIncrease,
+  //       seatWaitlistIncrease,
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [
+  //         {
+  //           termId: FUNDIES_ONE_S1.termId,
+  //           subject: FUNDIES_ONE_S1.subject,
+  //           courseId: FUNDIES_ONE_S1.classId,
+  //           crn: FUNDIES_ONE_S1.crn,
+  //           sectionHash: Keys.getSectionHash(FUNDIES_ONE_S1),
+  //           campus: Updater.getCampusFromTerm(FUNDIES_ONE.termId),
+  //           seatsRemaining: 2,
+  //         },
+  //         {
+  //           termId: FUNDIES_TWO_S1.termId,
+  //           subject: FUNDIES_TWO_S1.subject,
+  //           courseId: FUNDIES_TWO_S1.classId,
+  //           crn: FUNDIES_TWO_S1.crn,
+  //           sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1),
+  //           campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
+  //           seatsRemaining: FUNDIES_TWO_S1.seatsRemaining,
+  //         },
+  //         {
+  //           termId: FUNDIES_TWO_S2.termId,
+  //           subject: FUNDIES_TWO_S2.subject,
+  //           courseId: FUNDIES_TWO_S2.classId,
+  //           crn: FUNDIES_TWO_S2.crn,
+  //           sectionHash: Keys.getSectionHash(FUNDIES_TWO_S2),
+  //           campus: Updater.getCampusFromTerm(FUNDIES_TWO.termId),
+  //           seatsRemaining: 1,
+  //         },
+  //       ],
+  //     });
+  //   });
 
-    it("does not include unwatched sections with seat increase or waitlist increase", async () => {
-      const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
-      const waitlistIncrease = {
-        ...FUNDIES_TWO_S1,
-        seatsRemaining: 0,
-        waitRemaining: 1,
-      };
-      const seatWaitlistIncrease = {
-        ...FUNDIES_TWO_S2,
-        seatsRemaining: 1,
-        waitRemaining: 2,
-      };
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        seatIncrease,
-        waitlistIncrease,
-        seatWaitlistIncrease,
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
+  //   it("does not include unwatched sections with seat increase or waitlist increase", async () => {
+  //     const seatIncrease = { ...FUNDIES_ONE_S1, seatsRemaining: 2 };
+  //     const waitlistIncrease = {
+  //       ...FUNDIES_TWO_S1,
+  //       seatsRemaining: 0,
+  //       waitRemaining: 1,
+  //     };
+  //     const seatWaitlistIncrease = {
+  //       ...FUNDIES_TWO_S2,
+  //       seatsRemaining: 1,
+  //       waitRemaining: 2,
+  //     };
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       seatIncrease,
+  //       waitlistIncrease,
+  //       seatWaitlistIncrease,
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does not include watched sections that previously had seats", async () => {
-      // insert 'old' sections into database
-      await createSection(FUNDIES_ONE_S2, 5, 5);
-      await createSection(FUNDIES_ONE_NEW_SECTION, 5, 5);
-      await prisma.followedSection.create({
-        data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S2), userId: 1 },
-      });
-      await prisma.followedSection.create({
-        data: {
-          sectionHash: Keys.getSectionHash(FUNDIES_ONE_NEW_SECTION),
-          userId: 2,
-        },
-      });
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        { ...FUNDIES_ONE_S2, seatsRemaining: 6, waitRemaining: 6 },
-        { ...FUNDIES_ONE_NEW_SECTION, seatsRemaining: 4, waitRemaining: 5 },
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
+  //   it("does not include watched sections that previously had seats", async () => {
+  //     // insert 'old' sections into database
+  //     await createSection(FUNDIES_ONE_S2, 5, 5);
+  //     await createSection(FUNDIES_ONE_NEW_SECTION, 5, 5);
+  //     await prisma.followedSection.create({
+  //       data: { sectionHash: Keys.getSectionHash(FUNDIES_ONE_S2), userId: 1 },
+  //     });
+  //     await prisma.followedSection.create({
+  //       data: {
+  //         sectionHash: Keys.getSectionHash(FUNDIES_ONE_NEW_SECTION),
+  //         userId: 2,
+  //       },
+  //     });
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       { ...FUNDIES_ONE_S2, seatsRemaining: 6, waitRemaining: 6 },
+  //       { ...FUNDIES_ONE_NEW_SECTION, seatsRemaining: 4, waitRemaining: 5 },
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
 
-    it("does not include watched sections with no change", async () => {
-      await prisma.followedSection.create({
-        data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
-      });
-      const notificationInfo = await UPDATER.getNotificationInfo([
-        { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
-      ]);
-      expect(notificationInfo).toEqual({
-        updatedCourses: [],
-        updatedSections: [],
-      });
-    });
-  });
+  //   it("does not include watched sections with no change", async () => {
+  //     await prisma.followedSection.create({
+  //       data: { sectionHash: Keys.getSectionHash(FUNDIES_TWO_S1), userId: 2 },
+  //     });
+  //     const notificationInfo = await UPDATER.getNotificationInfo([
+  //       { ...FUNDIES_TWO_S1, seatsRemaining: 0, waitRemaining: 0 },
+  //     ]);
+  //     expect(notificationInfo).toEqual({
+  //       updatedCourses: [],
+  //       updatedSections: [],
+  //     });
+  //   });
+  // });
 
   describe("update", () => {
     let FUNDIES_ONE_COURSE;
