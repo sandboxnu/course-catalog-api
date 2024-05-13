@@ -359,7 +359,8 @@ class Updater {
     // Scrape the data
     const sections = await this.scrapeDataToUpdate();
     // Send out notifications
-    await this.sendUserNotifications(sections);
+    // UNCOMMENT THIS LINE WHEN NOTIFS GET TURNED ON
+    // await this.sendUserNotifications(sections);
     // Save the data in our database
     await this.saveDataToDatabase(sections);
 
