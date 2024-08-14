@@ -4,7 +4,7 @@
  */
 
 import { FollowedCourse, User } from "@prisma/client";
-//import prisma from "./prisma";
+import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
 import {
@@ -47,42 +47,94 @@ export async function sendNotifications(
   } else {
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
       .map(async (course) => {
-        const courseMessage = generateCourseMessage(course);
         const users = courseHashToUsers[course.courseHash] ?? [];
 
-        /*
-        
-        //filter users to delete any users who's followedcourse has >= 3 notifCount
-        const allNotifs: FollowedCourse[] = await prisma.followedCourse.findMany({
-          where: {courseHash: course.courseHash, 
-                  userId: {in: users.map((u) => u.id)}}
+        await prisma.followedCourse.updateMany({
+          where: {
+            courseHash: course.courseHash,
+            userId: { in: users.map((u) => u.id) },
+          },
+          data: {
+            notifCount: { increment: 1 },
+          },
         });
-        const limitReached: FollowedCourse[] = allNotifs.filter((c) => c.notifCount <=2);
-        //increment followedcourse's notifcount
-        */
 
-        return users.map((user) => {
-          return twilioNotifyer.sendNotificationText(
-            user.phoneNumber,
-            courseMessage
-          );
+        return users.map(async (user) => {
+          const courseMessage = generateCourseMessage(course);
+          const currFollowedCourse = await prisma.followedCourse.findFirst({
+            where: {
+              courseHash: course.courseHash,
+              userId: user.id,
+            },
+          });
+          const notifyer =
+            currFollowedCourse.notifCount < 3
+              ? twilioNotifyer.sendNotificationText(
+                  user.phoneNumber,
+                  courseMessage
+                )
+              : twilioNotifyer.sendNotificationText(
+                  user.phoneNumber,
+                  `${courseMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
+                );
+          return notifyer;
         });
       })
       .reduce((acc, val) => acc.concat(val), []);
 
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
-        .map((section) => {
+        .map(async (section) => {
           const sectionMessage = generateSectionMessage(section);
           const users = sectionHashToUsers[section.sectionHash] ?? [];
-          return users.map((user) => {
-            return twilioNotifyer.sendNotificationText(
-              user.phoneNumber,
-              sectionMessage
-            );
+
+          //increment notifCount of this section's entries in followedSection
+          await prisma.followedSection.updateMany({
+            where: {
+              sectionHash: section.sectionHash,
+              userId: { in: users.map((u) => u.id) },
+            },
+            data: {
+              notifCount: { increment: 1 },
+            },
+          });
+
+          return users.map(async (user) => {
+            const sectionMessage = generateSectionMessage(section);
+            const currFollowedSection = await prisma.followedSection.findFirst({
+              where: {
+                sectionHash: section.sectionHash,
+                userId: user.id,
+              },
+            });
+            const notifyer =
+              currFollowedSection.notifCount < 3
+                ? twilioNotifyer.sendNotificationText(
+                    user.phoneNumber,
+                    sectionMessage
+                  )
+                : twilioNotifyer.sendNotificationText(
+                    user.phoneNumber,
+                    `${sectionMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
+                  );
+            return notifyer;
           });
         })
         .reduce((acc, val) => acc.concat(val), []);
+
+    //delete any entries in followedCourse w/ notifCount >= 3
+    await prisma.followedCourse.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
+
+    //delete any entries in followedSection w/ notifCount >= 3
+    await prisma.followedSection.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
 
     await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
       () => {

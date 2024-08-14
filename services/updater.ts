@@ -521,7 +521,7 @@ class Updater {
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
       //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
-      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE followed_${pluralName}.notifsSent < 3 GROUP BY ${columnName}`
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE notif_count < 3 GROUP BY ${columnName}`
     )) as Record<string, any>[];
 
     //TO-DO: increment the notifsSent attribute of followed_modelName objects w/ hashes in dbresults
