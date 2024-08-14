@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { FollowedCourse, User } from "@prisma/client";
+import { User } from "@prisma/client";
 import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
@@ -85,7 +85,6 @@ export async function sendNotifications(
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
         .map(async (section) => {
-          const sectionMessage = generateSectionMessage(section);
           const users = sectionHashToUsers[section.sectionHash] ?? [];
 
           //increment notifCount of this section's entries in followedSection

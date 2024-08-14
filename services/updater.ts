@@ -4,7 +4,7 @@
  */
 
 import pMap from "p-map";
-import { Course, Section, User, FollowedCourse } from "@prisma/client";
+import { Course, Section, User } from "@prisma/client";
 
 import macros from "../utils/macros";
 import prisma from "./prisma";
@@ -523,19 +523,6 @@ class Updater {
       //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
       `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE notif_count < 3 GROUP BY ${columnName}`
     )) as Record<string, any>[];
-
-    //TO-DO: increment the notifsSent attribute of followed_modelName objects w/ hashes in dbresults
-    const prismaName = `followed${
-      modelName.charAt(0).toUpperCase() + modelName.slice(1)
-    }` as const;
-
-    //prisma.prismaName
-    //
-    await prisma.followedCourse.deleteMany({
-      where: {
-        notifCount: { gt: 2 },
-      },
-    });
 
     return Object.assign(
       {},
