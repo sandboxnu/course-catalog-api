@@ -516,13 +516,13 @@ class Updater {
   }
 
   // Return an Object of the list of users associated with what class or section they are following
-  async modelToUser(modelName: ModelName): Promise<Record<any, User[]>> {
+  async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
       //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
       `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE followed_${pluralName}.notifsSent < 3 GROUP BY ${columnName}`
-    )) as Record<any, any>[];
+    )) as Record<string, any>[];
 
     //TO-DO: increment the notifsSent attribute of followed_modelName objects w/ hashes in dbresults
     const prismaName = `followed${
