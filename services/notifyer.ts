@@ -3,7 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import { User } from "@prisma/client";
+import { FollowedCourse, User } from "@prisma/client";
+//import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
 import {
@@ -45,9 +46,21 @@ export async function sendNotifications(
     return;
   } else {
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
-      .map((course) => {
+      .map(async (course) => {
         const courseMessage = generateCourseMessage(course);
         const users = courseHashToUsers[course.courseHash] ?? [];
+
+        /*
+        
+        //filter users to delete any users who's followedcourse has >= 3 notifCount
+        const allNotifs: FollowedCourse[] = await prisma.followedCourse.findMany({
+          where: {courseHash: course.courseHash, 
+                  userId: {in: users.map((u) => u.id)}}
+        });
+        const limitReached: FollowedCourse[] = allNotifs.filter((c) => c.notifCount <=2);
+        //increment followedcourse's notifcount
+        */
+
         return users.map((user) => {
           return twilioNotifyer.sendNotificationText(
             user.phoneNumber,

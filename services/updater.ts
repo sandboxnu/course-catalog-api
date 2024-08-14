@@ -4,7 +4,7 @@
  */
 
 import pMap from "p-map";
-import { Course, Section, User } from "@prisma/client";
+import { Course, Section, User, FollowedCourse } from "@prisma/client";
 
 import macros from "../utils/macros";
 import prisma from "./prisma";
@@ -160,6 +160,8 @@ class Updater {
     const sectionHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.SECTION_MODEL
     );
+
+    //Filter out courseHash & sectionHash if they have too high notifsSent
 
     await sendNotifications(
       notificationInfo,
@@ -514,12 +516,26 @@ class Updater {
   }
 
   // Return an Object of the list of users associated with what class or section they are following
-  async modelToUser(modelName: ModelName): Promise<Record<string, User[]>> {
+  async modelToUser(modelName: ModelName): Promise<Record<any, User[]>> {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
-      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
-    )) as Record<string, any>[];
+      //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE followed_${pluralName}.notifsSent < 3 GROUP BY ${columnName}`
+    )) as Record<any, any>[];
+
+    //TO-DO: increment the notifsSent attribute of followed_modelName objects w/ hashes in dbresults
+    const prismaName = `followed${
+      modelName.charAt(0).toUpperCase() + modelName.slice(1)
+    }` as const;
+
+    //prisma.prismaName
+    //
+    await prisma.followedCourse.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
 
     return Object.assign(
       {},
