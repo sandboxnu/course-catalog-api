@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { User } from "@prisma/client";
+import { User, FollowedSection } from "@prisma/client";
 import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
@@ -59,6 +59,15 @@ export async function sendNotifications(
           },
         });
 
+        const courseMessage = generateCourseMessage(course);
+        return users.map((user) => {
+          return twilioNotifyer.sendNotificationText(
+            user.phoneNumber,
+            courseMessage
+          );
+        });
+        /*
+        below code sends diff message on the 3rd notif. commented out while debugging notifyer tests
         return users.map(async (user) => {
           const courseMessage = generateCourseMessage(course);
           const currFollowedCourse = await prisma.followedCourse.findFirst({
@@ -78,7 +87,7 @@ export async function sendNotifications(
                   `${courseMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
                 );
           return notifyer;
-        });
+        }); */
       })
       .reduce((acc, val) => acc.concat(val), []);
 
@@ -98,13 +107,24 @@ export async function sendNotifications(
             },
           });
 
+          const sectionMessage = generateSectionMessage(section);
+          return users.map((user) => {
+            return twilioNotifyer.sendNotificationText(
+              user.phoneNumber,
+              sectionMessage
+            );
+          });
+
+          /*
+          below code sends diff message on the 3rd notif. commented out while debugging notifyer tests
           return users.map(async (user) => {
             const sectionMessage = generateSectionMessage(section);
-            const currFollowedSection = await prisma.followedSection.findFirst({
+            const currUserId = user.id;
+            const currFollowedSection: FollowedSection = await prisma.followedSection.findFirst({
               where: {
                 sectionHash: section.sectionHash,
                 userId: user.id,
-              },
+              }
             });
             const notifyer =
               currFollowedSection.notifCount < 3
@@ -117,7 +137,7 @@ export async function sendNotifications(
                     `${sectionMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
                   );
             return notifyer;
-          });
+          }); */
         })
         .reduce((acc, val) => acc.concat(val), []);
 

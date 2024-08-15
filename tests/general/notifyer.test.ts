@@ -1,16 +1,214 @@
 import { NotificationInfo } from "../../types/notifTypes";
 import { sendNotifications } from "../../services/notifyer";
 import twilioNotifyer from "../../twilio/notifs";
-import { User } from "@prisma/client";
+import { Prisma, User, Course as PrismaCourse } from "@prisma/client";
+import dumpProcessor from "../../services/dumpProcessor";
+import prisma from "../../services/prisma";
+import {
+  Course,
+  Section,
+  Requisite,
+  convertBackendMeetingsToPrismaType,
+} from "../../types/types";
+import Keys from "../../utils/keys";
+
+function processCourse(classInfo: Course): Prisma.CourseCreateInput {
+  const additionalProps = {
+    id: `${Keys.getClassHash(classInfo)}`,
+    description: classInfo.desc,
+    minCredits: Math.floor(classInfo.minCredits),
+    maxCredits: Math.floor(classInfo.maxCredits),
+    lastUpdateTime: new Date(classInfo.lastUpdateTime),
+  };
+
+  const correctedQuery = {
+    ...classInfo,
+    ...additionalProps,
+    classAttributes: { set: classInfo.classAttributes || [] },
+    nupath: { set: [] },
+  };
+
+  const { desc: _d, sections: _s, ...finalCourse } = correctedQuery;
+
+  return finalCourse;
+}
+
+async function createSection(
+  sec: Section,
+  seatsRemaining: number,
+  waitRemaining: number
+): Promise<void> {
+  await prisma.section.create({
+    data: {
+      classType: sec.classType,
+      seatsCapacity: sec.seatsCapacity,
+      waitCapacity: sec.waitCapacity,
+      campus: sec.campus,
+      honors: sec.honors,
+      url: sec.url,
+      id: Keys.getSectionHash(sec),
+      crn: sec.crn,
+      seatsRemaining,
+      waitRemaining,
+      info: "",
+      meetings: convertBackendMeetingsToPrismaType(sec.meetings),
+      profs: { set: sec.profs },
+      course: { connect: { id: Keys.getClassHash(sec) } },
+    },
+  });
+}
 
 const mockSendNotificationText = jest.fn(() => {
   return Promise.resolve();
 });
 
-beforeEach(() => {
+const SEMS_TO_UPDATE = ["202210"];
+
+const EMPTY_REQ: Requisite = {
+  type: "or",
+  values: [],
+};
+
+const defaultClassProps = {
+  host: "neu.edu",
+  classAttributes: [],
+  prettyUrl: "pretty",
+  desc: "a class",
+  url: "url",
+  lastUpdateTime: 20,
+  maxCredits: 4,
+  minCredits: 0,
+  coreqs: EMPTY_REQ,
+  prereqs: EMPTY_REQ,
+  feeAmount: 0,
+  feeDescription: "",
+};
+
+const defaultSectionProps = {
+  campus: "Boston",
+  honors: false,
+  url: "url",
+  profs: [],
+  meetings: [],
+};
+
+const USER_ONE = { id: 1, phoneNumber: "+11231231234" };
+const USER_TWO = { id: 2, phoneNumber: "+19879879876" };
+
+//courseHash: "neu.edu/202210/CS/2500",
+//campus: "NEU",
+const FUNDIES_ONE: Course = {
+  classId: "2500",
+  name: "Fundamentals of Computer Science 2",
+  termId: SEMS_TO_UPDATE[0],
+  subject: "CS",
+  ...defaultClassProps,
+};
+
+//courseHash: "neu.edu/202210/ARTF/1122",
+//campus: "NEU",
+const ART: Course = {
+  classId: "1122",
+  name: "Principles of Programming Languages",
+  termId: SEMS_TO_UPDATE[0],
+  subject: "ARTF",
+  ...defaultClassProps,
+};
+
+//sectionHash: "neu.edu/202210/CS/2500/11920",
+//campus: "NEU",
+const FUNDIES_ONE_S1: Section = {
+  crn: "11920",
+  classId: "2500",
+  classType: "lecture",
+  termId: SEMS_TO_UPDATE[0],
+  subject: "CS",
+  seatsCapacity: 1,
+  seatsRemaining: 114,
+  waitCapacity: 0,
+  waitRemaining: 0,
+  lastUpdateTime: defaultClassProps.lastUpdateTime,
+  host: defaultClassProps.host,
+  ...defaultSectionProps,
+};
+
+beforeEach(async () => {
   jest.clearAllMocks();
   jest.restoreAllMocks();
+  jest.useFakeTimers();
+  jest.spyOn(dumpProcessor, "main").mockImplementation(() => {
+    return Promise.resolve();
+  });
   twilioNotifyer.sendNotificationText = mockSendNotificationText;
+  /*
+  await prisma.user.create({ data: USER_ONE });
+  await prisma.user.create({ data: USER_TWO });
+  await prisma.termInfo.create({
+    data: {
+      termId: "202210",
+      subCollege: "NEU",
+      text: "description",
+    },
+  });
+  await prisma.course.create({
+    data: processCourse(FUNDIES_ONE),
+  });
+  await prisma.course.create({
+    data: processCourse(ART),
+  });
+  await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+  await prisma.followedCourse.create({
+    data: {
+      courseHash: "neu.edu/202210/ARTF/1122",
+      userId: 1,
+      notifCount: 0
+    }
+  });
+  await prisma.followedCourse.create({
+    data: {
+      courseHash: "neu.edu/202210/ARTF/1122",
+      userId: 2,
+      notifCount: 0
+    }
+  });
+  await prisma.followedCourse.create({
+    data: {
+      courseHash: "neu.edu/202210/CS/2500",
+      userId: 1,
+      notifCount: 0
+    }
+  });
+  await prisma.followedSection.create({
+    data: {
+      sectionHash: "neu.edu/202210/CS/2500/11920",
+      userId: 1,
+      notifCount: 0
+    }
+  });
+  await prisma.followedSection.create({
+    data: {
+      sectionHash: "neu.edu/202210/CS/2500/11920",
+      userId: 2,
+      notifCount: 0
+    }
+  });
+  */
+});
+
+afterEach(async () => {
+  await prisma.termInfo.deleteMany({});
+  await prisma.followedCourse.deleteMany({});
+  await prisma.followedSection.deleteMany({});
+  await prisma.user.deleteMany({});
+  await prisma.section.deleteMany({});
+  await prisma.course.deleteMany({});
+
+  jest.clearAllTimers();
+});
+
+afterAll(async () => {
+  jest.restoreAllMocks();
+  jest.useRealTimers();
 });
 
 describe("Notifyer", () => {
@@ -30,7 +228,7 @@ describe("Notifyer", () => {
       expect(mockSendNotificationText).toBeCalledTimes(0);
     });
 
-    it("sends a notification for each course and section and for each user subscribed", () => {
+    it("sends a notification for each course and section and for each user subscribed", async () => {
       notificationInfo = {
         updatedCourses: [
           {
@@ -75,6 +273,59 @@ describe("Notifyer", () => {
           { id: 2, phoneNumber: "+19879879876" },
         ],
       };
+
+      await prisma.user.create({ data: USER_ONE });
+      await prisma.user.create({ data: USER_TWO });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.create({
+        data: processCourse(FUNDIES_ONE),
+      });
+      await prisma.course.create({
+        data: processCourse(ART),
+      });
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.create({
+        data: {
+          courseHash: "neu.edu/202210/ARTF/1122",
+          userId: 1,
+          notifCount: 0,
+        },
+      });
+      await prisma.followedCourse.create({
+        data: {
+          courseHash: "neu.edu/202210/ARTF/1122",
+          userId: 2,
+          notifCount: 0,
+        },
+      });
+      await prisma.followedCourse.create({
+        data: {
+          courseHash: "neu.edu/202210/CS/2500",
+          userId: 1,
+          notifCount: 0,
+        },
+      });
+      await prisma.followedSection.create({
+        data: {
+          sectionHash: "neu.edu/202210/CS/2500/11920",
+          userId: 1,
+          notifCount: 0,
+        },
+      });
+      await prisma.followedSection.create({
+        data: {
+          sectionHash: "neu.edu/202210/CS/2500/11920",
+          userId: 2,
+          notifCount: 0,
+        },
+      });
+
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
