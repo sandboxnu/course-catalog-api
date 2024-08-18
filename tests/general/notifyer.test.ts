@@ -59,6 +59,7 @@ async function createSection(
 }
 
 const mockSendNotificationText = jest.fn(() => {
+  console.log("I SHOULD BE CALLED");
   return Promise.resolve();
 });
 
@@ -216,11 +217,12 @@ describe("Notifyer", () => {
     let notificationInfo: NotificationInfo;
     let courseHashToUsers: Record<string, User[]>;
     let sectionHashToUsers: Record<string, User[]>;
-    it("does not send anything where there are no updated courses and sections", () => {
+    it("does not send anything where there are no updated courses and sections", async () => {
       notificationInfo = { updatedCourses: [], updatedSections: [] };
       courseHashToUsers = {};
       sectionHashToUsers = {};
-      sendNotifications(
+
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -294,14 +296,12 @@ describe("Notifyer", () => {
         data: {
           courseHash: "neu.edu/202210/ARTF/1122",
           userId: 1,
-          notifCount: 0,
         },
       });
       await prisma.followedCourse.create({
         data: {
           courseHash: "neu.edu/202210/ARTF/1122",
           userId: 2,
-          notifCount: 0,
         },
       });
       await prisma.followedCourse.create({
@@ -326,7 +326,7 @@ describe("Notifyer", () => {
         },
       });
 
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -334,7 +334,7 @@ describe("Notifyer", () => {
       expect(mockSendNotificationText).toBeCalledTimes(5);
     });
 
-    it("does not send a notification if no users are subscribed to the updated course/section", () => {
+    it("does not send a notification if no users are subscribed to the updated course/section", async () => {
       notificationInfo = {
         updatedCourses: [
           {
@@ -371,7 +371,7 @@ describe("Notifyer", () => {
           { id: 2, phoneNumber: "+19879879876" },
         ],
       };
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -379,7 +379,8 @@ describe("Notifyer", () => {
       expect(mockSendNotificationText).toBeCalledTimes(0);
     });
 
-    it("sends a properly formatted message when a new section is added to a course", () => {
+    it("sends a properly formatted message when a new section is added to a course", async () => {
+      console.log("INSIDE TEST 2");
       notificationInfo = {
         updatedCourses: [
           {
@@ -397,7 +398,7 @@ describe("Notifyer", () => {
         "neu.edu/202210/ARTF/1122": [{ id: 1, phoneNumber: "+11231231234" }],
       };
       sectionHashToUsers = {};
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -410,7 +411,8 @@ describe("Notifyer", () => {
       );
     });
 
-    it("sends a properly formatted message when multiple sections are added to a course", () => {
+    it("sends a properly formatted message when multiple sections are added to a course", async () => {
+      console.log("INSIDE TEST 3");
       notificationInfo = {
         updatedCourses: [
           {
@@ -428,7 +430,7 @@ describe("Notifyer", () => {
         "neu.edu/202210/ARTF/1122": [{ id: 1, phoneNumber: "+11231231234" }],
       };
       sectionHashToUsers = {};
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -441,7 +443,8 @@ describe("Notifyer", () => {
       );
     });
 
-    it("sends a properly formatted message when seats open up in a section", () => {
+    it("sends a properly formatted message when seats open up in a section", async () => {
+      console.log("INSIDE TEST 4");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -462,7 +465,7 @@ describe("Notifyer", () => {
           { id: 1, phoneNumber: "+11231231234" },
         ],
       };
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
@@ -475,7 +478,8 @@ describe("Notifyer", () => {
       );
     });
 
-    it("sends a properly formatted message when waitlist seats open up in a section", () => {
+    it("sends a properly formatted message when waitlist seats open up in a section", async () => {
+      console.log("INSIDE TEST 5");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -496,7 +500,7 @@ describe("Notifyer", () => {
           { id: 1, phoneNumber: "+11231231234" },
         ],
       };
-      sendNotifications(
+      await sendNotifications(
         notificationInfo,
         courseHashToUsers,
         sectionHashToUsers
