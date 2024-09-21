@@ -38,7 +38,6 @@ export async function sendNotifications(
   courseHashToUsers: Record<string, User[]>,
   sectionHashToUsers: Record<string, User[]>
 ): Promise<void> {
-  console.log("testing consolelog");
   if (
     notificationInfo.updatedCourses.length === 0 &&
     notificationInfo.updatedSections.length === 0
@@ -67,28 +66,6 @@ export async function sendNotifications(
             courseMessage
           );
         });
-        /*
-        below code sends diff message on the 3rd notif.
-        return users.map(async (user) => {
-          const courseMessage = generateCourseMessage(course);
-          const currFollowedCourse = await prisma.followedCourse.findFirst({
-            where: {
-              courseHash: course.courseHash,
-              userId: user.id,
-            },
-          });
-          const notifyer =
-            currFollowedCourse.notifCount < 3
-              ? twilioNotifyer.sendNotificationText(
-                  user.phoneNumber,
-                  courseMessage
-                )
-              : twilioNotifyer.sendNotificationText(
-                  user.phoneNumber,
-                  `${courseMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
-                );
-          return notifyer;
-        }); */
       })
       .reduce((acc, val) => acc.concat(val), []);
 
@@ -107,7 +84,6 @@ export async function sendNotifications(
               notifCount: { increment: 1 },
             },
           });
-          console.log("incremented notifCount");
 
           const sectionMessage = generateSectionMessage(section);
           return users.map((user) => {
@@ -116,30 +92,6 @@ export async function sendNotifications(
               sectionMessage
             );
           });
-
-          /*
-          below code sends diff message on the 3rd notif.
-          return users.map(async (user) => {
-            const sectionMessage = generateSectionMessage(section);
-            const currUserId = user.id;
-            const currFollowedSection: FollowedSection = await prisma.followedSection.findFirst({
-              where: {
-                sectionHash: section.sectionHash,
-                userId: user.id,
-              }
-            });
-            const notifyer =
-              currFollowedSection.notifCount < 3
-                ? twilioNotifyer.sendNotificationText(
-                    user.phoneNumber,
-                    sectionMessage
-                  )
-                : twilioNotifyer.sendNotificationText(
-                    user.phoneNumber,
-                    `${sectionMessage} This is your 3rd alert; you are now unsubscribed from this notification.`
-                  );
-            return notifyer;
-          }); */
         })
         .reduce((acc, val) => acc.concat(val), []);
 
