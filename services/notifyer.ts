@@ -38,6 +38,7 @@ export async function sendNotifications(
   courseHashToUsers: Record<string, User[]>,
   sectionHashToUsers: Record<string, User[]>
 ): Promise<void> {
+  console.log("testing consolelog");
   if (
     notificationInfo.updatedCourses.length === 0 &&
     notificationInfo.updatedSections.length === 0
@@ -67,7 +68,7 @@ export async function sendNotifications(
           );
         });
         /*
-        below code sends diff message on the 3rd notif. commented out while debugging notifyer tests
+        below code sends diff message on the 3rd notif.
         return users.map(async (user) => {
           const courseMessage = generateCourseMessage(course);
           const currFollowedCourse = await prisma.followedCourse.findFirst({
@@ -106,6 +107,7 @@ export async function sendNotifications(
               notifCount: { increment: 1 },
             },
           });
+          console.log("incremented notifCount");
 
           const sectionMessage = generateSectionMessage(section);
           return users.map((user) => {
@@ -116,7 +118,7 @@ export async function sendNotifications(
           });
 
           /*
-          below code sends diff message on the 3rd notif. commented out while debugging notifyer tests
+          below code sends diff message on the 3rd notif.
           return users.map(async (user) => {
             const sectionMessage = generateSectionMessage(section);
             const currUserId = user.id;

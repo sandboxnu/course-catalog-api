@@ -1,5 +1,6 @@
 import { NotificationInfo } from "../../types/notifTypes";
 import { sendNotifications } from "../../services/notifyer";
+import { Updater } from "../../services/updater";
 import twilioNotifyer from "../../twilio/notifs";
 import { Prisma, User, Course as PrismaCourse } from "@prisma/client";
 import dumpProcessor from "../../services/dumpProcessor";
@@ -511,6 +512,498 @@ describe("Notifyer", () => {
         "+11231231234",
         expectedSectionMessage
       );
+    });
+
+    it("does not send any notifications for each course and section when each subscribed section and class has notifCount>=3", async () => {
+      console.log("TEST 6");
+
+      notificationInfo = {
+        updatedCourses: [
+          {
+            termId: "202210",
+            subject: "ARTF",
+            courseId: "1122",
+            courseHash: "neu.edu/202210/ARTF/1122",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            courseHash: "neu.edu/202210/CS/2500",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+        ],
+        updatedSections: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            crn: "11920",
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            campus: "NEU",
+            seatsRemaining: 114,
+          },
+        ],
+      };
+      await prisma.user.createMany({ data: [USER_ONE, USER_TWO] });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.createMany({
+        data: [processCourse(FUNDIES_ONE), processCourse(ART)],
+      });
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.createMany({
+        data: [
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 1,
+            notifCount: 3,
+          },
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 2,
+            notifCount: 3,
+          },
+          {
+            courseHash: "neu.edu/202210/CS/2500",
+            userId: 1,
+            notifCount: 3,
+          },
+        ],
+      });
+      await prisma.followedSection.createMany({
+        data: [
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 1,
+            notifCount: 3,
+          },
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 2,
+            notifCount: 3,
+          },
+        ],
+      });
+
+      const sectionHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("section");
+      const courseHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("course");
+
+      await sendNotifications(
+        notificationInfo,
+        courseHashToUsers,
+        sectionHashToUsers
+      );
+      expect(mockSendNotificationText).toBeCalledTimes(0);
+    });
+
+    it("deletes subscriptions for each course and section when their notifCount>=3", async () => {
+      console.log("TEST 7");
+
+      notificationInfo = {
+        updatedCourses: [
+          {
+            termId: "202210",
+            subject: "ARTF",
+            courseId: "1122",
+            courseHash: "neu.edu/202210/ARTF/1122",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            courseHash: "neu.edu/202210/CS/2500",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+        ],
+        updatedSections: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            crn: "11920",
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            campus: "NEU",
+            seatsRemaining: 114,
+          },
+        ],
+      };
+      await prisma.user.createMany({ data: [USER_ONE, USER_TWO] });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.createMany({
+        data: [processCourse(FUNDIES_ONE), processCourse(ART)],
+      });
+
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.createMany({
+        data: [
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 1,
+            notifCount: 3,
+          },
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 2,
+            notifCount: 3,
+          },
+          {
+            courseHash: "neu.edu/202210/CS/2500",
+            userId: 1,
+            notifCount: 3,
+          },
+        ],
+      });
+      await prisma.followedSection.createMany({
+        data: [
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 1,
+            notifCount: 3,
+          },
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 2,
+            notifCount: 3,
+          },
+        ],
+      });
+
+      const sectionHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("section");
+      const courseHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("course");
+
+      const initialCourseNotifs = await prisma.followedCourse.count();
+      expect(initialCourseNotifs).toEqual(3);
+      const initialSectionNotifs = await prisma.followedSection.count();
+      expect(initialSectionNotifs).toEqual(2);
+
+      await sendNotifications(
+        notificationInfo,
+        courseHashToUsers,
+        sectionHashToUsers
+      );
+
+      const remainingCourseNotifs = await prisma.followedCourse.count();
+      expect(remainingCourseNotifs).toEqual(0);
+      const remainingSectionNotifs = await prisma.followedSection.count();
+      expect(remainingSectionNotifs).toEqual(0);
+    });
+
+    it("sends notifications for each course and section when each subscribed section and class has notifCount<3", async () => {
+      console.log("TEST 8");
+
+      notificationInfo = {
+        updatedCourses: [
+          {
+            termId: "202210",
+            subject: "ARTF",
+            courseId: "1122",
+            courseHash: "neu.edu/202210/ARTF/1122",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            courseHash: "neu.edu/202210/CS/2500",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+        ],
+        updatedSections: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            crn: "11920",
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            campus: "NEU",
+            seatsRemaining: 114,
+          },
+        ],
+      };
+      await prisma.user.createMany({ data: [USER_ONE, USER_TWO] });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.createMany({
+        data: [processCourse(FUNDIES_ONE), processCourse(ART)],
+      });
+
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.createMany({
+        data: [
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 1,
+            notifCount: 1,
+          },
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 2,
+            notifCount: 0,
+          },
+          {
+            courseHash: "neu.edu/202210/CS/2500",
+            userId: 1,
+            notifCount: 2,
+          },
+        ],
+      });
+      await prisma.followedSection.createMany({
+        data: [
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 1,
+            notifCount: 1,
+          },
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 2,
+            notifCount: 0,
+          },
+        ],
+      });
+
+      const sectionHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("section");
+      const courseHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("course");
+
+      await sendNotifications(
+        notificationInfo,
+        courseHashToUsers,
+        sectionHashToUsers
+      );
+      expect(mockSendNotificationText).toBeCalledTimes(5);
+    });
+
+    it("maintains subscriptions for each course and section when their notifCount<3", async () => {
+      console.log("TEST 9");
+
+      notificationInfo = {
+        updatedCourses: [
+          {
+            termId: "202210",
+            subject: "ARTF",
+            courseId: "1122",
+            courseHash: "neu.edu/202210/ARTF/1122",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            courseHash: "neu.edu/202210/CS/2500",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+        ],
+        updatedSections: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            crn: "11920",
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            campus: "NEU",
+            seatsRemaining: 114,
+          },
+        ],
+      };
+      await prisma.user.createMany({ data: [USER_ONE, USER_TWO] });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.createMany({
+        data: [processCourse(FUNDIES_ONE), processCourse(ART)],
+      });
+
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.createMany({
+        data: [
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 1,
+            notifCount: 1,
+          },
+          {
+            courseHash: "neu.edu/202210/ARTF/1122",
+            userId: 2,
+            notifCount: 0,
+          },
+          {
+            courseHash: "neu.edu/202210/CS/2500",
+            userId: 1,
+            notifCount: 2,
+          },
+        ],
+      });
+      await prisma.followedSection.createMany({
+        data: [
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 1,
+            notifCount: 1,
+          },
+          {
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            userId: 2,
+            notifCount: 0,
+          },
+        ],
+      });
+
+      const sectionHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("section");
+      const courseHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("course");
+
+      const initialCourseNotifs = await prisma.followedCourse.count();
+      expect(initialCourseNotifs).toEqual(3);
+      const initialSectionNotifs = await prisma.followedSection.count();
+      expect(initialSectionNotifs).toEqual(2);
+
+      await sendNotifications(
+        notificationInfo,
+        courseHashToUsers,
+        sectionHashToUsers
+      );
+
+      const remainingCourseNotifs = await prisma.followedCourse.count();
+      expect(remainingCourseNotifs).toEqual(3);
+      const remainingSectionNotifs = await prisma.followedSection.count();
+      expect(remainingSectionNotifs).toEqual(2);
+    });
+
+    it("increases notifCount for each course and section after notif is sent", async () => {
+      console.log("TEST 7");
+
+      notificationInfo = {
+        updatedCourses: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            courseHash: "neu.edu/202210/CS/2500",
+            campus: "NEU",
+            numberOfSectionsAdded: 1,
+          },
+        ],
+        updatedSections: [
+          {
+            termId: "202210",
+            subject: "CS",
+            courseId: "2500",
+            crn: "11920",
+            sectionHash: "neu.edu/202210/CS/2500/11920",
+            campus: "NEU",
+            seatsRemaining: 114,
+          },
+        ],
+      };
+      await prisma.user.create({ data: USER_ONE });
+      await prisma.termInfo.create({
+        data: {
+          termId: "202210",
+          subCollege: "NEU",
+          text: "description",
+        },
+      });
+      await prisma.course.create({
+        data: processCourse(FUNDIES_ONE),
+      });
+      await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
+      await prisma.followedCourse.create({
+        data: {
+          courseHash: "neu.edu/202210/CS/2500",
+          userId: 1,
+          notifCount: 0,
+        },
+      });
+      await prisma.followedSection.create({
+        data: {
+          sectionHash: "neu.edu/202210/CS/2500/11920",
+          userId: 1,
+          notifCount: 1,
+        },
+      });
+
+      const sectionHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("section");
+      const courseHashToUsers: Record<string, User[]> = await new Updater(
+        []
+      ).modelToUser("course");
+
+      const initialCourseNotifCount: { notifCount: number }[] =
+        await prisma.followedCourse.findMany({
+          where: { userId: 1 },
+          select: { notifCount: true },
+        });
+      expect(initialCourseNotifCount).toEqual([{ notifCount: 0 }]);
+      const initialSectionNotifCount = await prisma.followedSection.findMany({
+        where: { userId: 1 },
+        select: { notifCount: true },
+      });
+      expect(initialSectionNotifCount).toEqual([{ notifCount: 1 }]);
+
+      await sendNotifications(
+        notificationInfo,
+        courseHashToUsers,
+        sectionHashToUsers
+      );
+
+      const finalCourseNotifCount: { notifCount: number }[] =
+        await prisma.followedCourse.findMany({
+          where: { userId: 1 },
+          select: { notifCount: true },
+        });
+      expect(finalCourseNotifCount).toEqual([{ notifCount: 1 }]);
+      const finalSectionNotifCount = await prisma.followedSection.findMany({
+        where: { userId: 1 },
+        select: { notifCount: true },
+      });
+      expect(finalSectionNotifCount).toEqual([{ notifCount: 2 }]);
     });
   });
 });
