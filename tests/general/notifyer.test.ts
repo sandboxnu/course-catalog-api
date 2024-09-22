@@ -142,59 +142,6 @@ beforeEach(async () => {
     return Promise.resolve();
   });
   twilioNotifyer.sendNotificationText = mockSendNotificationText;
-  /*
-  await prisma.user.create({ data: USER_ONE });
-  await prisma.user.create({ data: USER_TWO });
-  await prisma.termInfo.create({
-    data: {
-      termId: "202210",
-      subCollege: "NEU",
-      text: "description",
-    },
-  });
-  await prisma.course.create({
-    data: processCourse(FUNDIES_ONE),
-  });
-  await prisma.course.create({
-    data: processCourse(ART),
-  });
-  await createSection(FUNDIES_ONE_S1, 0, FUNDIES_ONE_S1.waitRemaining);
-  await prisma.followedCourse.create({
-    data: {
-      courseHash: "neu.edu/202210/ARTF/1122",
-      userId: 1,
-      notifCount: 0
-    }
-  });
-  await prisma.followedCourse.create({
-    data: {
-      courseHash: "neu.edu/202210/ARTF/1122",
-      userId: 2,
-      notifCount: 0
-    }
-  });
-  await prisma.followedCourse.create({
-    data: {
-      courseHash: "neu.edu/202210/CS/2500",
-      userId: 1,
-      notifCount: 0
-    }
-  });
-  await prisma.followedSection.create({
-    data: {
-      sectionHash: "neu.edu/202210/CS/2500/11920",
-      userId: 1,
-      notifCount: 0
-    }
-  });
-  await prisma.followedSection.create({
-    data: {
-      sectionHash: "neu.edu/202210/CS/2500/11920",
-      userId: 2,
-      notifCount: 0
-    }
-  });
-  */
 });
 
 afterEach(async () => {
