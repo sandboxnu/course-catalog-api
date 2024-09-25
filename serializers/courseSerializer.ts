@@ -3,7 +3,6 @@
  * See the license file in the root folder for details.
  */
 
-import _ from "lodash";
 import prisma from "../services/prisma";
 import { Course, Section } from "../types/types";
 import { Section as PrismaSection } from "@prisma/client";
@@ -43,17 +42,26 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
       });
     }
 
-    const classToSections = _.groupBy(sections, "classHash");
+    const classToSections: Record<string, PrismaSection[]> = sections?.reduce(
+      (acc, section) => {
+        if (!acc[section.classHash]) {
+          acc[section.classHash] = [];
+        }
+        acc[section.classHash].push(section);
+        return acc;
+      },
+      {}
+    );
 
-    return _(courses)
-      .keyBy(this.getClassHash)
-      .mapValues((course) => {
-        return this.bulkSerializeCourse(
+    return Object.fromEntries(
+      courses.map((course) => [
+        this.getClassHash(course),
+        this.bulkSerializeCourse(
           course,
           classToSections[this.getClassHash(course)] || []
-        );
-      })
-      .value();
+        ),
+      ])
+    );
   }
 
   bulkSerializeCourse(
@@ -80,7 +88,14 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
         return this.serializeSection(section);
       })
       .map((section) => {
-        return { ...section, ..._.pick(parentCourse, this.courseProps()) };
+        const picked: Partial<C> = this.courseProps().reduce((acc, key) => {
+          if (key in parentCourse) {
+            acc[key] = parentCourse[key];
+          }
+          return acc;
+        }, {});
+
+        return { ...section, ...picked };
       });
   }
 

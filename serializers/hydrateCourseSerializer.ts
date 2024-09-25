@@ -20,7 +20,8 @@ class HydrateCourseSerializer extends CourseSerializer<Course, Section> {
     // We know this will work, but Typescript doesn't
     //  In the main class, we add the fields from this.courseProps() to the section
     //  This creates a proper Section, but TS doesn't know we do that.
-    return _.omit(section, ["id", "classHash"]) as unknown as Section;
+    const { id, classHash, ...rest } = section;
+    return rest as unknown as Section;
   }
 }
 
