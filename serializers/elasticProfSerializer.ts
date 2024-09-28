@@ -7,7 +7,7 @@ import { Professor as PrismaProfessor } from "@prisma/client";
 import { ESProfessor } from "../types/serializerTypes";
 
 class ElasticProfSerializer extends ProfSerializer<ESProfessor> {
-  _serializeProf(prof: PrismaProfessor): ESProfessor {
+  static _serializeProf(prof: PrismaProfessor): ESProfessor {
     const keys = ["id", "name", "email", "phone"];
     return Object.keys(prof).reduce((acc, key) => {
       if (keys.includes(key)) {

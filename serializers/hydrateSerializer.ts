@@ -16,15 +16,10 @@ import {
 } from "../types/searchTypes";
 
 class HydrateSerializer {
-  courseSerializer: HydrateCourseSerializer;
-  profSerializer: HydrateProfSerializer;
+  static courseSerializer: HydrateCourseSerializer;
+  static profSerializer: HydrateProfSerializer;
 
-  constructor() {
-    this.courseSerializer = new HydrateCourseSerializer();
-    this.profSerializer = new HydrateProfSerializer();
-  }
-
-  async bulkSerialize(instances: any[]): Promise<SearchResult[]> {
+  static async bulkSerialize(instances: any[]): Promise<SearchResult[]> {
     const profs = instances.filter((instance) => {
       return instance._source.type === "employee";
     });
@@ -49,11 +44,11 @@ class HydrateSerializer {
       },
     });
 
-    const serializedProfs = (await this.profSerializer.bulkSerialize(
+    const serializedProfs = (await HydrateProfSerializer.bulkSerialize(
       profData
     )) as Record<string, ProfessorSearchResult>;
 
-    const serializedCourses = (await this.courseSerializer.bulkSerialize(
+    const serializedCourses = (await HydrateCourseSerializer.bulkSerialize(
       courseData
     )) as Record<string, CourseSearchResult>;
 

@@ -18,14 +18,16 @@ import {
   So, the course we take has to be a subset of Course.
   The section we take has to be a subset of Section
  */
-class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
-  // FIXME this pattern is bad
-  async bulkSerialize(
+class CourseSerializer {
+  static async bulkSerialize<
+    C extends Partial<Course>,
+    S extends Partial<Section>
+  >(
     instances: PrismaCourseWithSections[],
     all = false
   ): Promise<Record<string, SerializedCourse<C, S>>> {
     const courses = instances.map((course) => {
-      return this.serializeCourse(course);
+      return this.serializeCourse<C>(course);
     });
 
     let sections: PrismaSection[] | undefined;
@@ -56,7 +58,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     return Object.fromEntries(
       courses.map((course) => [
         this.getClassHash(course),
-        this.bulkSerializeCourse(
+        this.bulkSerializeCourse<C, S>(
           course,
           classToSections[this.getClassHash(course)] || []
         ),
@@ -64,11 +66,11 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     );
   }
 
-  bulkSerializeCourse(
+  static bulkSerializeCourse<C, S>(
     course: C,
     sections: PrismaSection[]
   ): SerializedCourse<C, S> {
-    const serializedSections = this.serializeSections(sections, course);
+    const serializedSections = this.serializeSections<S>(sections, course);
 
     return {
       class: course,
@@ -77,29 +79,32 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     };
   }
 
-  serializeSections(
+  static serializeSections<S>(
     sections: PrismaSection[],
-    parentCourse: C
-  ): (S & Partial<C>)[] {
+    parentCourse: Partial<Course>
+  ): (S & Partial<Course>)[] {
     if (sections.length === 0) return [];
 
     return sections
       .map((section) => {
-        return this.serializeSection(section);
+        return this.serializeSection(section) as S;
       })
       .map((section) => {
-        const picked: Partial<C> = this.courseProps().reduce((acc, key) => {
-          if (key in parentCourse) {
-            acc[key] = parentCourse[key];
-          }
-          return acc;
-        }, {});
+        const picked: Partial<Course> = this.courseProps().reduce(
+          (acc, key) => {
+            if (key in parentCourse) {
+              acc[key] = parentCourse[key];
+            }
+            return acc;
+          },
+          {}
+        );
 
-        return { ...section, ...picked };
+        return { ...section, ...picked } as S & Partial<Course>;
       });
   }
 
-  serializeCourse(course: PrismaCourseWithSections): C {
+  static serializeCourse<C>(course: PrismaCourseWithSections): C {
     return this._serializeCourse(course);
   }
 
@@ -112,7 +117,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
       the object to another type in-place.
    */
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  private _serializeCourse(innerCourse: any): C {
+  private static _serializeCourse(innerCourse: any): any {
     innerCourse.lastUpdateTime = innerCourse.lastUpdateTime.getTime();
     innerCourse.desc = innerCourse.description;
 
@@ -124,33 +129,33 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     return this.finishCourseObj(innerCourse);
   }
 
-  serializeSection(section: PrismaSection): S {
+  static serializeSection<S>(section: PrismaSection): S {
     return this._serializeSection(section);
   }
 
   // See _serializeCourse for an explanation of this pattern.
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  private _serializeSection(section: any): S {
+  private static _serializeSection(section: any): any {
     section.lastUpdateTime = section.lastUpdateTime.getTime();
     return this.finishSectionObj(section);
   }
 
   // TODO this should definitely be eliminated
-  getClassHash(course: C): string {
+  static getClassHash(course: Partial<Course>): string {
     return ["neu.edu", course.termId, course.subject, course.classId].join("/");
   }
 
-  courseProps(): string[] {
+  static courseProps(): string[] {
     throw new Error("not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  finishCourseObj(_: Course): C {
+  static finishCourseObj(_: Course): Partial<Course> {
     throw new Error("not implemented");
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  finishSectionObj(_: SerializedSection): S {
+  static finishSectionObj(_: SerializedSection): Partial<Section> {
     throw new Error("not implemented");
   }
 }

@@ -5,12 +5,12 @@
 import CourseSerializer from "./courseSerializer";
 import { ESCourse, ESSection } from "../types/serializerTypes";
 
-class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
-  courseProps(): string[] {
+class ElasticCourseSerializer extends CourseSerializer {
+  static courseProps(): string[] {
     return [];
   }
 
-  finishCourseObj(course): ESCourse {
+  static finishCourseObj(course): ESCourse {
     const keys = ["host", "name", "subject", "classId", "termId", "nupath"];
 
     return keys.reduce((acc, key) => {
@@ -21,7 +21,7 @@ class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
     }, {} as ESCourse);
   }
 
-  finishSectionObj(section): ESSection {
+  static finishSectionObj(section): ESSection {
     const keys = ["profs", "classType", "crn", "campus", "honors"];
     return keys.reduce((acc, key) => {
       if (key in section) {

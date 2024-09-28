@@ -6,10 +6,13 @@ import { Professor as PrismaProfessor } from "@prisma/client";
 import { SerializedProfessor } from "../types/serializerTypes";
 
 class ProfSerializer<T extends Partial<PrismaProfessor>> {
-  async bulkSerialize(
+  static async bulkSerialize(
     instances: PrismaProfessor[]
-  ): Promise<Record<string, SerializedProfessor<T>>> {
-    const result: Record<string, SerializedProfessor<T>> = {};
+  ): Promise<Record<string, SerializedProfessor<Partial<PrismaProfessor>>>> {
+    const result: Record<
+      string,
+      SerializedProfessor<Partial<PrismaProfessor>>
+    > = {};
     instances.forEach((instance) => {
       const serialProf = this._bulkSerializeProf(this._serializeProf(instance));
       result[serialProf.employee.id] = serialProf;
@@ -17,7 +20,9 @@ class ProfSerializer<T extends Partial<PrismaProfessor>> {
     return result;
   }
 
-  _bulkSerializeProf(prof: T): SerializedProfessor<T> {
+  static _bulkSerializeProf(
+    prof: Partial<PrismaProfessor>
+  ): SerializedProfessor<Partial<PrismaProfessor>> {
     return {
       employee: prof,
       type: "employee",
@@ -25,7 +30,7 @@ class ProfSerializer<T extends Partial<PrismaProfessor>> {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _serializeProf(prof: PrismaProfessor): T {
+  static _serializeProf(prof: PrismaProfessor): Partial<PrismaProfessor> {
     throw new Error("serializeProf not implemented");
   }
 }
