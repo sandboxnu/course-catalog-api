@@ -38,7 +38,7 @@
     "about:tsc": "//// Runs TSC (because of our config, this will NOT compile the files, just typecheck them)",
     "tsc": "tsc",
     "about:test": "//// Runs a basic suite of unit and integration tests",
-    "test": "yarn jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s'",
+    "test": "yarn jest --verbose --testPathIgnorePatterns='(seq|reg|git).[jt]s' --maxWorkers 1",
     "about:dbtest": "//// Runs tests interacting with our database. Must have the Docker containers running. This won't touch live data - it will create and teardown a temporary database.",
     "dbtest": "jest -i --projects tests/database --verbose",
     "about:build_backend": "//// Compiles this project",
