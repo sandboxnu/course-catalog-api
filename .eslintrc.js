@@ -1,6 +1,6 @@
-module.exports = {
+export default {
   env: {
-    es2021: true,
+    esnext: true,
     jest: true,
     node: true,
   },
