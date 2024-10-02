@@ -12,10 +12,10 @@ import {
 import { Course, Section } from "../../types/types";
 import { GraphQLError } from "graphql";
 
-const serializer = new HydrateCourseSerializer();
-
 const serializeValues = (results: PrismaCourse[]): Course[] => {
-  return results.map((result) => serializer.serializeCourse(result));
+  return results.map((result) =>
+    HydrateCourseSerializer.serializeCourse(result)
+  );
 };
 
 const getLatestClassOccurrence = async (
@@ -38,8 +38,7 @@ const getLatestClassOccurrence = async (
       }
     );
   }
-
-  return serializer.serializeCourse(result);
+  return HydrateCourseSerializer.serializeCourse(result);
 };
 
 const getBulkClassOccurrences = async (
@@ -92,7 +91,7 @@ const getClassOccurrence = async (
     );
   }
 
-  return serializer.serializeCourse(result);
+  return HydrateCourseSerializer.serializeCourse(result);
 };
 
 const getClassOccurrenceById = async (id: string): Promise<Course> => {
@@ -111,7 +110,7 @@ const getClassOccurrenceById = async (id: string): Promise<Course> => {
       }
     );
   }
-  return serializer.serializeCourse(result);
+  return HydrateCourseSerializer.serializeCourse(result);
 };
 
 const getSectionById = async (id: string): Promise<Section> => {
@@ -129,8 +128,7 @@ const getSectionById = async (id: string): Promise<Section> => {
       }
     );
   }
-
-  const resSec: Section = serializer.serializeSection(result); // this mutates res
+  const resSec: Section = HydrateCourseSerializer.serializeSection(result); // this mutates res
   const { termId, subject, classId } = keys.parseSectionHash(id);
 
   return { termId, subject, classId, ...resSec };
