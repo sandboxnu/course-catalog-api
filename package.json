@@ -78,6 +78,7 @@
     "fs-extra": "11.2.0",
     "got": "14.4.2",
     "graphql": "^16.3.0",
+    "graphql-tag": "^2.12.6",
     "graphql-type-json": "^0.3.0",
     "he": "^1.2.0",
     "jsonwebtoken": "^9.0.0",

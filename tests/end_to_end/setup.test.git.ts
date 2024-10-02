@@ -1,8 +1,8 @@
-import { gql } from "apollo-server";
+import gql from "graphql-tag";
 import prisma from "../../services/prisma";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
-import { GraphQLResponse } from "apollo-server-core";
+import { GraphQLResponse } from "@apollo/server";
 
 const NUM_TERMIDS = 3;
 const NUMS_COURSES = {
@@ -37,7 +37,13 @@ describe("TermID setup", () => {
         }
       }
     `);
-    expect(res.data?.termInfos.length).toBe(NUM_TERMIDS);
+
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    // @ts-ignore - added since singleResult is implicitly an unknown
+    expect(res.body.singleResult.termInfos.length).toBe(NUM_TERMIDS);
   });
 
   test("The termIDs in the database match those in GraphQL", async () => {
@@ -50,6 +56,12 @@ describe("TermID setup", () => {
         }
       }
     `);
+
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    // @ts-ignore - added since singleResult is implicitly an unknown
     const gqlTermInfos = res.data?.termInfos.map((t) => t.termId).sort();
 
     const dbTermInfos = (
@@ -105,7 +117,13 @@ describe("Course and section setup", () => {
           }
         }
       `);
+
+      if (res.body.kind !== "single") {
+        fail("incorrect graphql response kind");
+      }
+
       // It won't exactly match the number we have, but at least make sure we have SOMETHING
+      // @ts-ignore - added since singleResult is implicitly an unknown
       expect(res.data?.search.totalCount).toBeGreaterThan(0);
     }
   });

@@ -2,8 +2,8 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import { gql } from "apollo-server";
-import { GraphQLResponse } from "apollo-server-core";
+import gql from "graphql-tag";
+import { GraphQLResponse } from "@apollo/server";
 import { DocumentNode, GraphQLError } from "graphql";
 import prisma from "../../services/prisma";
 import server from "../index";
@@ -164,11 +164,15 @@ describe("returns errors for non-existant classes", () => {
       `,
     });
 
-    expect(res?.errors?.length).toBe(1);
-    expect(res?.errors?.[0]).toEqual(
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    expect(res.body.singleResult.errors.length).toBe(1);
+    expect(res.body.singleResult.errors?.[0]).toEqual(
       new GraphQLError(
-        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
-      )
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`,
+      ),
     );
   });
 
@@ -187,10 +191,13 @@ describe("returns errors for non-existant classes", () => {
         }
       `,
     });
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
 
-    expect(res?.errors).toBeUndefined();
+    expect(res.body.singleResult.errors).toBeUndefined();
     // This doesn't throw an error - it just omits any classes for which we have no data
-    expect(res?.data).toEqual({
+    expect(res.body.singleResult.data).toEqual({
       bulkClasses: [],
     });
   });
@@ -207,12 +214,15 @@ describe("returns errors for non-existant classes", () => {
         }
       `,
     });
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
 
-    expect(res?.errors?.length).toBe(1);
-    expect(res?.errors?.[0]).toEqual(
+    expect(res.body.singleResult.errors.length).toBe(1);
+    expect(res.body.singleResult.errors?.[0]).toEqual(
       new GraphQLError(
-        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
-      )
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`,
+      ),
     );
   });
 
@@ -229,11 +239,15 @@ describe("returns errors for non-existant classes", () => {
       `,
     });
 
-    expect(res?.errors?.length).toBe(1);
-    expect(res?.errors?.[0]).toEqual(
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    expect(res.body.singleResult.errors.length).toBe(1);
+    expect(res.body.singleResult.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a course matching the term '202310', subject 'CS', and class ID '2500'"
-      )
+        "We couldn't find a course matching the term '202310', subject 'CS', and class ID '2500'",
+      ),
     );
   });
 
@@ -248,11 +262,15 @@ describe("returns errors for non-existant classes", () => {
       `,
     });
 
-    expect(res?.errors?.length).toBe(1);
-    expect(res?.errors?.[0]).toEqual(
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    expect(res.body.singleResult.errors.length).toBe(1);
+    expect(res.body.singleResult.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a course matching the hash 'neu.edu/202310/CS/2500'"
-      )
+        "We couldn't find a course matching the hash 'neu.edu/202310/CS/2500'",
+      ),
     );
   });
 
@@ -266,12 +284,15 @@ describe("returns errors for non-existant classes", () => {
         }
       `,
     });
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
 
-    expect(res?.errors?.length).toBe(1);
-    expect(res?.errors?.[0]).toEqual(
+    expect(res.body.singleResult.errors.length).toBe(1);
+    expect(res.body.singleResult.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a section matching the hash 'neu.edu/201830/CS/2500/123456'"
-      )
+        "We couldn't find a section matching the hash 'neu.edu/201830/CS/2500/123456'",
+      ),
     );
   });
 });
