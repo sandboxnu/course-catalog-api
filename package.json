@@ -42,7 +42,7 @@
     "about:dbtest": "//// Runs tests interacting with our database. Must have the Docker containers running. This won't touch live data - it will create and teardown a temporary database.",
     "dbtest": "jest -i --projects tests/database --verbose",
     "about:unittest": "//// Runs unit tests. Does not need db, elasticsearch, spun up. Does not need the Docker containers to be running.",
-    "unittest": "yarn jest --verbose --testRegex='(unit).[jt]s'",
+    "unittest": "jest -i --projects tests/unit --verbose",
     "about:build_backend": "//// Compiles this project",
     "build_backend": "rm -rf dist && mkdir -p dist && babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --ignore .git --include-dotfiles && rm -rf dist/.git",
     "about:build": "//// Compiles this project, surpressing output",
