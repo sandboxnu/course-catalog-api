@@ -6,7 +6,7 @@ on:
     branches:
       - master
 jobs:
-  units:
+  unit:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
