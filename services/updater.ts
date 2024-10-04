@@ -530,7 +530,6 @@ class Updater {
     );
   }
 }
-export { Updater };
 
 if (require.main === module) {
   Updater.create()
