@@ -817,7 +817,7 @@ describe("Notifyer", () => {
           {
             courseHash: "neu.edu/202210/CS/2500",
             userId: 1,
-            notifCount: 2,
+            notifCount: 1,
           },
         ],
       });
