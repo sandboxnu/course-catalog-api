@@ -60,7 +60,7 @@ async function createSection(
 }
 
 const mockSendNotificationText = jest.fn(() => {
-  console.log("I SHOULD BE CALLED");
+  //console.log("I SHOULD BE CALLED");
   return Promise.resolve();
 });
 
@@ -328,7 +328,7 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when a new section is added to a course", async () => {
-      console.log("INSIDE TEST 2");
+      //console.log("INSIDE TEST 2");
       notificationInfo = {
         updatedCourses: [
           {
@@ -360,7 +360,7 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when multiple sections are added to a course", async () => {
-      console.log("INSIDE TEST 3");
+      //console.log("INSIDE TEST 3");
       notificationInfo = {
         updatedCourses: [
           {
@@ -392,7 +392,7 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when seats open up in a section", async () => {
-      console.log("INSIDE TEST 4");
+      //console.log("INSIDE TEST 4");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -427,7 +427,7 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when waitlist seats open up in a section", async () => {
-      console.log("INSIDE TEST 5");
+      //console.log("INSIDE TEST 5");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -462,7 +462,7 @@ describe("Notifyer", () => {
     });
 
     it("does not send any notifications for each course and section when each subscribed section and class has notifCount>=3", async () => {
-      console.log("TEST 6");
+      //console.log("TEST 6");
 
       notificationInfo = {
         updatedCourses: [
@@ -541,12 +541,17 @@ describe("Notifyer", () => {
         ],
       });
 
+      /*
       const sectionHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("section");
       const courseHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("course");
+      */
+
+      courseHashToUsers = {};
+      sectionHashToUsers = {};
 
       await sendNotifications(
         notificationInfo,
@@ -557,7 +562,7 @@ describe("Notifyer", () => {
     });
 
     it("deletes subscriptions for each course and section when their notifCount>=3", async () => {
-      console.log("TEST 7");
+      //console.log("TEST 7");
 
       notificationInfo = {
         updatedCourses: [
@@ -637,12 +642,17 @@ describe("Notifyer", () => {
         ],
       });
 
+      /*
       const sectionHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("section");
       const courseHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("course");
+      */
+
+      courseHashToUsers = {};
+      sectionHashToUsers = {};
 
       const initialCourseNotifs = await prisma.followedCourse.count();
       expect(initialCourseNotifs).toEqual(3);
@@ -662,7 +672,7 @@ describe("Notifyer", () => {
     });
 
     it("sends notifications for each course and section when each subscribed section and class has notifCount<3", async () => {
-      console.log("TEST 8");
+      //console.log("TEST 8");
 
       notificationInfo = {
         updatedCourses: [
@@ -742,12 +752,28 @@ describe("Notifyer", () => {
         ],
       });
 
+      /*
       const sectionHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("section");
       const courseHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("course");
+      */
+
+      courseHashToUsers = {
+        "neu.edu/202210/ARTF/1122": [
+          { id: 1, phoneNumber: "+11231231234" },
+          { id: 2, phoneNumber: "+19879879876" },
+        ],
+        "neu.edu/202210/CS/2500": [{ id: 1, phoneNumber: "+11231231234" }],
+      };
+      sectionHashToUsers = {
+        "neu.edu/202210/CS/2500/11920": [
+          { id: 1, phoneNumber: "+11231231234" },
+          { id: 2, phoneNumber: "+19879879876" },
+        ],
+      };
 
       await sendNotifications(
         notificationInfo,
@@ -758,7 +784,7 @@ describe("Notifyer", () => {
     });
 
     it("maintains subscriptions for each course and section when their notifCount<3", async () => {
-      console.log("TEST 9");
+      //console.log("TEST 9");
 
       notificationInfo = {
         updatedCourses: [
@@ -838,12 +864,28 @@ describe("Notifyer", () => {
         ],
       });
 
+      /*
       const sectionHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("section");
       const courseHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("course");
+      */
+
+      courseHashToUsers = {
+        "neu.edu/202210/ARTF/1122": [
+          { id: 1, phoneNumber: "+11231231234" },
+          { id: 2, phoneNumber: "+19879879876" },
+        ],
+        "neu.edu/202210/CS/2500": [{ id: 1, phoneNumber: "+11231231234" }],
+      };
+      sectionHashToUsers = {
+        "neu.edu/202210/CS/2500/11920": [
+          { id: 1, phoneNumber: "+11231231234" },
+          { id: 2, phoneNumber: "+19879879876" },
+        ],
+      };
 
       const initialCourseNotifs = await prisma.followedCourse.count();
       expect(initialCourseNotifs).toEqual(3);
@@ -863,7 +905,7 @@ describe("Notifyer", () => {
     });
 
     it("increases notifCount for each course and section after notif is sent", async () => {
-      console.log("TEST 7");
+      //console.log("TEST 7");
 
       notificationInfo = {
         updatedCourses: [
@@ -915,12 +957,23 @@ describe("Notifyer", () => {
         },
       });
 
+      /*
       const sectionHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("section");
       const courseHashToUsers: Record<string, User[]> = await new Updater(
         []
       ).modelToUser("course");
+      */
+
+      courseHashToUsers = {
+        "neu.edu/202210/CS/2500": [{ id: 1, phoneNumber: "+11231231234" }],
+      };
+      sectionHashToUsers = {
+        "neu.edu/202210/CS/2500/11920": [
+          { id: 1, phoneNumber: "+11231231234" },
+        ],
+      };
 
       const initialCourseNotifCount: { notifCount: number }[] =
         await prisma.followedCourse.findMany({

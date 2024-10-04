@@ -6,6 +6,32 @@ on:
     branches:
       - master
 jobs:
+  units:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+    env:
+      TWILIO_ACCOUNT_SID: AC_dummy_value_so_tests_dont_error_out
+      TWILIO_AUTH_TOKEN: 123
+      elasticURL: "http://localhost:9200"
+      NODE_COVERALLS_DEBUG: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: "16"
+      - uses: bahmutov/npm-install@v1
+
+      - run: yarn unittest --coverage
+      - name: Coveralls
+        uses: coverallsapp/github-action@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          flag-name: Unit tests
+          parallel: true
+
   tests:
     name: Tests
     runs-on: ubuntu-latest
@@ -153,7 +179,7 @@ jobs:
       # - run: 'curl ''http://localhost:4000'' -X POST -H ''content-type: application/json'' --data ''{ "query": "query { search(termId: \"202250\", query: \"fundies\") { nodes { ... on ClassOccurrence { name subject classId } } } }" }'''
 
   coverage:
-    needs: [end_to_end, tests]
+    needs: [end_to_end, tests, unit]
     name: Sends Coveralls coverage
     runs-on: ubuntu-latest
     env:

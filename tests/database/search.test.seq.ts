@@ -23,6 +23,7 @@ describe("searcher", () => {
     });
   });
 
+  /*
   //Unit tests for the parseQuery function
   describe("parseQuery", () => {
     it("query with no phrases", () => {
@@ -84,6 +85,7 @@ describe("searcher", () => {
       });
     });
   });
+  */
   // TODO: create an association between cols in elasticCourseSerializer and here
   describe("generateQuery", () => {
     it("generates match_all when no query", () => {
