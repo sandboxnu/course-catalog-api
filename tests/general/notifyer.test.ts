@@ -1,6 +1,5 @@
 import { NotificationInfo } from "../../types/notifTypes";
 import { sendNotifications } from "../../services/notifyer";
-import { Updater } from "../../services/updater";
 import twilioNotifyer from "../../twilio/notifs";
 import { Prisma, User, Course as PrismaCourse } from "@prisma/client";
 import dumpProcessor from "../../services/dumpProcessor";
@@ -541,15 +540,6 @@ describe("Notifyer", () => {
         ],
       });
 
-      /*
-      const sectionHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("section");
-      const courseHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("course");
-      */
-
       courseHashToUsers = {};
       sectionHashToUsers = {};
 
@@ -641,15 +631,6 @@ describe("Notifyer", () => {
           },
         ],
       });
-
-      /*
-      const sectionHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("section");
-      const courseHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("course");
-      */
 
       courseHashToUsers = {};
       sectionHashToUsers = {};
@@ -751,15 +732,6 @@ describe("Notifyer", () => {
           },
         ],
       });
-
-      /*
-      const sectionHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("section");
-      const courseHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("course");
-      */
 
       courseHashToUsers = {
         "neu.edu/202210/ARTF/1122": [
@@ -864,15 +836,6 @@ describe("Notifyer", () => {
         ],
       });
 
-      /*
-      const sectionHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("section");
-      const courseHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("course");
-      */
-
       courseHashToUsers = {
         "neu.edu/202210/ARTF/1122": [
           { id: 1, phoneNumber: "+11231231234" },
@@ -956,15 +919,6 @@ describe("Notifyer", () => {
           notifCount: 1,
         },
       });
-
-      /*
-      const sectionHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("section");
-      const courseHashToUsers: Record<string, User[]> = await new Updater(
-        []
-      ).modelToUser("course");
-      */
 
       courseHashToUsers = {
         "neu.edu/202210/CS/2500": [{ id: 1, phoneNumber: "+11231231234" }],
