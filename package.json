@@ -80,7 +80,7 @@
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.0",
     "eslint-plugin-deprecation": "^1.2.1",
-    "express": "^4.17.3",
+    "express": "^4.20.0",
     "fs-extra": "^10.0.0",
     "got": "^11.8.2",
     "graphql": "^16.3.0",
