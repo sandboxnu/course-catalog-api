@@ -16,7 +16,7 @@ export async function bulkUpsertCourses(
   courses: Course[]
 ): Promise<Promise<unknown>> {
   // FIXME this pattern is bad
-  const serializedCourses = await new ElasticCourseSerializer().bulkSerialize(
+  const serializedCourses = await ElasticCourseSerializer.bulkSerialize(
     courses,
     true
   );
@@ -26,9 +26,7 @@ export async function bulkUpsertCourses(
 export async function bulkUpsertProfs(
   profs: Professor[]
 ): Promise<Promise<unknown>> {
-  const serializedProfs = await new ElasticProfSerializer().bulkSerialize(
-    profs
-  );
+  const serializedProfs = await ElasticProfSerializer.bulkSerialize(profs);
   return elastic.bulkIndexFromMap(elastic.EMPLOYEE_ALIAS, serializedProfs);
 }
 
