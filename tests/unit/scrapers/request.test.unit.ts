@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import Request from "../request";
+import Request from "../../../scrapers/request";
 // Give extra time to ensure that the initial DNS lookup works
 jest.setTimeout(10_000);
 

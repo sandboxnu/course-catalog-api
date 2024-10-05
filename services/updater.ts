@@ -161,6 +161,8 @@ class Updater {
       this.SECTION_MODEL
     );
 
+    //Filter out courseHash & sectionHash if they have too high notifsSent
+
     await sendNotifications(
       notificationInfo,
       courseHashToUsers,
@@ -518,7 +520,8 @@ class Updater {
     const columnName = `${modelName}_hash`;
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
-      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
+      //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE notif_count < 3 GROUP BY ${columnName}`
     )) as Record<string, any>[];
 
     return Object.assign(

@@ -1,5 +1,5 @@
-import cache from "../cache";
-import macros from "../../utils/macros";
+import cache from "../../../scrapers/cache";
+import macros from "../../../utils/macros";
 import path from "path";
 import fs from "fs-extra";
 
