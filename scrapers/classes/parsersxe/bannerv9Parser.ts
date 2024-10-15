@@ -4,7 +4,7 @@
  */
 
 import _ from "lodash";
-import pMap from "p-map";
+import pMap from "../../../vendor/p-map/index";
 import moment from "moment";
 import Request from "../../request";
 import macros from "../../../utils/macros";

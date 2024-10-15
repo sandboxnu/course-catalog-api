@@ -4,7 +4,7 @@
  */
 import fs from "fs-extra";
 import path from "path";
-import pMap from "p-map";
+import pMap from "../vendor/p-map/index";
 import { Major, Prisma } from "@prisma/client";
 import prisma from "../services/prisma";
 
