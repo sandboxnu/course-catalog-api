@@ -3,8 +3,6 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-
-import _ from "lodash";
 import he from "he";
 import macros from "../../../utils/macros";
 import Request from "../../request";
@@ -15,18 +13,37 @@ const request = new Request("subjectAbberviationParser");
 /**
  * Get the subject abberviations for use in parsing prereqs
  */
-export const getSubjectAbbreviations = _.memoize(async (termId: string) => {
-  macros.log(
-    `SubjectAbbreviationParser: Not memoized. Scraping term ${termId}`
-  );
-  const subjectResponse = await requestSubjects(termId);
-  return createDescriptionTable(subjectResponse);
-});
+export const getSubjectAbbreviations = (() => {
+  const cache: Record<string, Record<string, string>> = {};
 
-export const getSubjectDescriptions = _.memoize(async (termId: string) => {
-  const subjectResponse = await requestSubjects(termId);
-  return createAbbrTable(subjectResponse);
-});
+  return async (termId: string): Promise<Record<string, string>> => {
+    if (cache[termId]) {
+      return cache[termId] as Record<string, string>;
+    }
+    macros.log(
+      `SubjectAbbreviationParser: Not memoized. Scraping term ${termId}`
+    );
+    const subjectResponse = await requestSubjects(termId);
+    const result = createDescriptionTable(subjectResponse); // Ensure this returns Record<string, string>
+    cache[termId] = result;
+
+    return result as Record<string, string>; // Assert the type
+  };
+})();
+
+export const getSubjectDescriptions = (() => {
+  const cache: Record<string, unknown> = {};
+  return async (termId: string) => {
+    if (cache[termId]) {
+      return cache[termId];
+    }
+    const subjectResponse = await requestSubjects(termId);
+    const result = createAbbrTable(subjectResponse);
+    cache[termId] = result;
+
+    return result;
+  };
+})();
 
 async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   const MAX = 500; // If there are more than 500 THIS WILL BREAK. Would make it smarter but not worth it rn.
@@ -51,8 +68,15 @@ function createDescriptionTable(
     };
   });
 
-  const mappedByDesc = _.keyBy(mappedSubjects, "description");
-  return _.mapValues(mappedByDesc, "subjectCode");
+  const mappedByDesc = mappedSubjects.reduce((acc, obj) => {
+    acc[obj.description] = obj;
+    return acc;
+  }, {});
+  return ((obj, prop) => {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, value[prop]])
+    );
+  })(mappedByDesc, "subjectCode");
 }
 
 function createAbbrTable(
@@ -65,8 +89,15 @@ function createAbbrTable(
     };
   });
 
-  const mappedByCode = _.keyBy(mappedSubjects, "subjectCode");
-  return _.mapValues(mappedByCode, "description");
+  const mappedByCode = mappedSubjects.reduce((acc, obj) => {
+    acc[obj.subjectCode] = obj;
+    return acc;
+  }, {});
+  return ((obj, prop) => {
+    return Object.fromEntries(
+      Object.entries(obj).map(([key, value]) => [key, value[prop]])
+    );
+  })(mappedByCode, "description");
 }
 
 // Export for testing https://philipwalton.com/articles/how-to-unit-test-private-functions-in-javascript/

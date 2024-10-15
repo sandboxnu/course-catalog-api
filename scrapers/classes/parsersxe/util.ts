@@ -1,5 +1,4 @@
 import $ from "cheerio";
-import _ from "lodash";
 import Request from "../../request";
 import macros from "../../../utils/macros";
 import { CookieJar } from "tough-cookie";
@@ -79,7 +78,12 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
       );
     }
 
-    ret.push(_.zipObject(heads, values) as Record<string, string>);
+    const ret: Record<string, string>[] = [
+      heads.reduce(
+        (acc, head, index) => ({ ...acc, [head]: values[index] }),
+        {}
+      ),
+    ];
   });
 
   return ret;

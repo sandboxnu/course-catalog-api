@@ -2,8 +2,6 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-
-import _ from "lodash";
 import pMap from "p-map";
 import keys from "../../../utils/keys";
 import macros from "../../../utils/macros";
@@ -251,10 +249,10 @@ class TermParser {
     if (chunks.some((s) => s === false)) {
       throw Error("Missing data");
     }
-    return _(chunks as DoRequestReturn[])
-      .map("items")
-      .flatten()
-      .value() as (SectionSR | CourseSR)[];
+    return (chunks as DoRequestReturn[]).map((chunk) => chunk.items) as (
+      | SectionSR
+      | CourseSR
+    )[];
   }
 }
 

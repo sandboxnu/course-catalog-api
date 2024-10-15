@@ -2,8 +2,6 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-
-import _ from "lodash";
 import pMap from "p-map";
 import moment from "moment";
 import Request from "../../request";
@@ -100,15 +98,26 @@ export class Bannerv9Parser {
     });
 
     // Merges each ParsedTermSR into one big ParsedTermSR, containing all the data from each
+
+    // OLD LODASH
     return termData.reduce(
       (acc, cur) => {
         // Merge the two objects by keys
-        return _.mergeWith(acc, cur, (a, b) => {
-          if (Array.isArray(a)) {
-            return a.concat(b);
+        return (() => {
+          for (const key in cur) {
+            if (Array.isArray(acc[key]) && Array.isArray(cur[key])) {
+              acc[key] = acc[key].concat(cur[key]);
+            } else if (
+              typeof acc[key] === "object" &&
+              typeof cur[key] === "object"
+            ) {
+              acc[key] = (() => ({ ...acc[key], ...cur[key] }))();
+            } else {
+              acc[key] = cur[key];
+            }
           }
-          return { ...a, ...b };
-        });
+          return acc;
+        })();
       },
       { classes: [], sections: [], subjects: {} }
     );
