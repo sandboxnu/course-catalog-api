@@ -2,10 +2,9 @@
   "name": "course-catalog-api",
   "version": "1.0.9",
   "license": "AGPL-3.0",
-  "type": "module",
   "scripts": {
     "about:babel-node-ts": "//// This command is used to run Typescript files on the fly. Mainly used in other commands, not standalone",
-    "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
+    "babel-node-ts": "babel-node --extensions .ts",
     "about:dev": "//// Runs the API server - the course catalog API",
     "dev": "nodemon --exec ./node_modules/.bin/cross-env NODE_ENV=dev yarn babel-node-ts graphql/index.ts",
     "about:dev:notifs": "//// Runs the API server along with the notifications server",
@@ -141,6 +140,7 @@
     "prettier": "3.3.3",
     "pretty-quick": "4.0.0",
     "prisma": "5",
+    "tsx": "^4.19.1",
     "typescript": "5.6.2",
     "yarn-deduplicate": "6.0.2"
   },

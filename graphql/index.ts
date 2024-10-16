@@ -66,17 +66,19 @@ const server = new ApolloServer({
   // debug: true,
 });
 
-if (require.main === module) {
-  startStandaloneServer(server, {
-    listen: { port: 3000 },
+console.log("hi");
+
+// if (require.main === module) {
+startStandaloneServer(server, {
+  listen: { port: 3000 },
+})
+  .then(({ url }) => {
+    macros.log(`ready at ${url}`);
+    return;
   })
-    .then(({ url }) => {
-      macros.log(`ready at ${url}`);
-      return;
-    })
-    .catch((err) => {
-      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
-    });
-}
+  .catch((err) => {
+    macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
+  });
+// }
 
 export default server;

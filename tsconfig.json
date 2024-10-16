@@ -1,8 +1,10 @@
 {
   "compilerOptions": {
     // Don't output the built files - Babel will do that. Tsc just for checking.
+    "moduleResolution": "node",
+    "module": "esnext",
     "noEmit": true,
-    "esModuleInterop": true,
+    "esModuleInterop": false,
     "resolveJsonModule": true,
     "lib": ["esnext"],
     "skipLibCheck": true,

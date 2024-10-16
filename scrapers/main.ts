@@ -81,6 +81,45 @@ class Main {
       )} minutes)\n\n`.green.underline
     );
   }
+
+  async removeExpiredNotifications() {
+    // TODO: proper error handling on all queries
+
+    const inactiveTerms = (
+      await prisma.termInfo.findMany({
+        where: {
+          active: false,
+        },
+        select: {
+          termId: true,
+        },
+      })
+    ).map((term) => term.termId);
+
+    // Remove inactive followed courses
+    await prisma.followedCourse.deleteMany({
+      where: {
+        course: {
+          termId: {
+            in: inactiveTerms,
+          },
+        },
+      },
+    });
+
+    // Remove inactive followed sections
+    await prisma.followedSection.deleteMany({
+      where: {
+        section: {
+          course: {
+            termId: {
+              in: inactiveTerms,
+            },
+          },
+        },
+      },
+    });
+  }
 }
 
 const instance = new Main();
