@@ -65,7 +65,7 @@
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@elastic/elasticsearch": "7.17.0",
-    "@prisma/client": "5",
+    "@prisma/client": "^5.0.0",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
     "apollo-server": "^3.6.2",
@@ -134,32 +134,21 @@
     "eslint-plugin-import": "^2.25.2",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.0",
-    "husky": "9",
+    "husky": "^9.0.0",
     "jest": "^29.7.0",
     "jest-environment-node": "^29.7.0",
     "nock": "^13.3.0",
-    "prettier": "3",
+    "prettier": "^3.0.0",
     "pretty-quick": "4",
-    "prisma": "5",
+    "prisma": "^5.0.0",
     "typescript": "^5.6.0",
     "yarn-deduplicate": "^4.0.0"
-  },
-  "about:husky": [
-    "Husky allows us to use git hooks - in other words, to execute an action every time a specific git action is taken.",
-    "Currently, we have a 'pre-commit' hook that runs whenever a user tries committing files, but before they are actually committed.",
-    "This hook runs `pretty` (to format the files), and `eslint` (to ensure we don't have bad code patters)",
-    "This only runs on the files that have been staged to be committed."
-  ],
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn pretty-quick --staged && yarn eslint --no-error-on-unmatched-pattern --fix $(git diff --name-only HEAD | grep -E '\\.(js|ts)$' | xargs)"
-    }
   },
   "about:engines": [
     "This helps us ensure that only specific versions of Node are used to run this project",
     "Older versions may lead to unexpected errors due to dependency issues, etc."
   ],
   "engines": {
-    "node": ">=16"
+    "node": ">=20"
   }
 }
