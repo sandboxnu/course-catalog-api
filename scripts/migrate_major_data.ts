@@ -30,7 +30,7 @@ interface MajorJSON {
 
 function fetchData(): MajorJSON {
   return JSON.parse(
-    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME), "utf-8")
+    fs.readFileSync(path.join(__dirname, "..", "data", FILE_NAME), "utf-8"),
   );
 }
 
@@ -54,7 +54,7 @@ function migrateData(majorDirectory: MajorInput[]): Promise<Major[]> {
         update: newMajor,
       });
     },
-    { concurrency: CONCURRENCY_COUNT }
+    { concurrency: CONCURRENCY_COUNT },
   );
 }
 
@@ -63,6 +63,6 @@ function migrateData(majorDirectory: MajorInput[]): Promise<Major[]> {
   const ms = await migrateData(fetchData().all_objects);
   const duration = (Date.now() - startTime) / 1000; // how long inserting took in seconds
   console.log(
-    `Success! ${ms.length} majors were inserted or updated in ${duration} seconds! You may exit.`
+    `Success! ${ms.length} majors were inserted or updated in ${duration} seconds! You may exit.`,
   );
 })();

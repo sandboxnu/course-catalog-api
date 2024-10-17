@@ -17,14 +17,14 @@ console.log(`[${new Date()}]\tstarting parsersxe/startup.js`);
 const Parser = require("./bannerv9Parser.ts").default;
 
 Parser.getAllTermInfos(
-  `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${maxTerms}&searchTerm=`
+  `https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=${maxTerms}&searchTerm=`,
 )
   .then((terms) =>
     Parser.main(terms)
       .then(saveFile)
       .catch((exception) => {
         return saveFile(exception.toString());
-      })
+      }),
   )
   .finally(() => {
     return console.log(`[${new Date()}]\t~finally done~`);

@@ -35,7 +35,7 @@ function generateSectionMessage(section: SectionNotificationInfo): string {
 export async function sendNotifications(
   notificationInfo: NotificationInfo,
   courseHashToUsers: Record<string, User[]>,
-  sectionHashToUsers: Record<string, User[]>
+  sectionHashToUsers: Record<string, User[]>,
 ): Promise<void> {
   if (
     notificationInfo.updatedCourses.length === 0 &&
@@ -51,7 +51,7 @@ export async function sendNotifications(
         return users.map((user) => {
           return twilioNotifyer.sendNotificationText(
             user.phoneNumber,
-            courseMessage
+            courseMessage,
           );
         });
       })
@@ -65,7 +65,7 @@ export async function sendNotifications(
           return users.map((user) => {
             return twilioNotifyer.sendNotificationText(
               user.phoneNumber,
-              sectionMessage
+              sectionMessage,
             );
           });
         })
@@ -75,7 +75,7 @@ export async function sendNotifications(
       () => {
         macros.log("Notifications sent from notifyer!");
         return;
-      }
+      },
     );
   }
 }

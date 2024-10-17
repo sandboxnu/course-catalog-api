@@ -35,7 +35,7 @@ class Keys {
   // returns the hash - a string
   static getHashWithKeysSlice(
     obj: Partial<KeyObject>,
-    endIndex: number
+    endIndex: number,
   ): string | null {
     if (!obj) {
       return null;

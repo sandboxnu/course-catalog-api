@@ -3,7 +3,7 @@ import searcher from "../../../services/searcher";
 function validateValues(
   filterKey: string,
   validValues: any[],
-  invalidValues: any[]
+  invalidValues: any[],
 ): void {
   for (const value of validValues) {
     expect(searcher.filters[filterKey].validate(value)).toBeTruthy();

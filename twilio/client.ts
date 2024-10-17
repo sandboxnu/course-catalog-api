@@ -5,7 +5,7 @@ import twilio from "twilio";
 Keeing this separate allows us to easily mock the Twilio client for tests */
 const twilioClient = twilio(
   process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
+  process.env.TWILIO_AUTH_TOKEN,
 );
 
 export { twilioClient };

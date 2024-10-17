@@ -31,7 +31,7 @@ const resolvers = {
   Query: {
     search: async (
       parent,
-      args: SearchArgs
+      args: SearchArgs,
     ): Promise<SearchResultItemConnection> => {
       const { offset = 0, first = 10 } = args;
       const results = await searcher.search(
@@ -48,8 +48,8 @@ const resolvers = {
             classIdRange: args.classIdRange,
             honors: args.honors,
           },
-          identity
-        )
+          identity,
+        ),
       );
 
       const hasNextPage = offset + first < results.resultCount;
@@ -59,7 +59,7 @@ const resolvers = {
         nodes: results.searchContent.map((r) =>
           r.type === "employee"
             ? r.employee
-            : { ...r.class, sections: r.sections }
+            : { ...r.class, sections: r.sections },
         ),
         pageInfo: {
           hasNextPage,

@@ -77,7 +77,7 @@ class Employees {
     await fs.ensureDir(macros.PUBLIC_DIR);
     await fs.writeFile(
       path.join(macros.PUBLIC_DIR, "employees.json"),
-      JSON.stringify(employeeList, null, 4)
+      JSON.stringify(employeeList, null, 4),
     );
 
     // Turn it into a hashmap instead of a list for the dump
@@ -88,12 +88,12 @@ class Employees {
 
     await fs.writeFile(
       path.join(macros.PUBLIC_DIR, "employeeDump.json"),
-      JSON.stringify(employeeDump)
+      JSON.stringify(employeeDump),
     );
 
     macros.log(
       `Done scraping employees! (found ${employeeList.length})\n\n`.green
-        .underline
+        .underline,
     );
     return employeeList;
   }

@@ -25,7 +25,7 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       expect(mockSendNotificationText).toBeCalledTimes(0);
     });
@@ -78,7 +78,7 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       expect(mockSendNotificationText).toBeCalledTimes(5);
     });
@@ -123,7 +123,7 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       expect(mockSendNotificationText).toBeCalledTimes(0);
     });
@@ -149,13 +149,13 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       const expectedCourseMessage =
         "A section was added to ARTF 1122! Check it out at https://searchneu.com/NEU/202210/search/ARTF1122 !";
       expect(mockSendNotificationText).toHaveBeenCalledWith(
         "+11231231234",
-        expectedCourseMessage
+        expectedCourseMessage,
       );
     });
 
@@ -180,13 +180,13 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       const expectedCourseMessage =
         "2 sections were added to ARTF 1122! Check it out at https://searchneu.com/NEU/202210/search/ARTF1122 !";
       expect(mockSendNotificationText).toHaveBeenCalledWith(
         "+11231231234",
-        expectedCourseMessage
+        expectedCourseMessage,
       );
     });
 
@@ -214,13 +214,13 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       const expectedSectionMessage =
         "A seat opened up in CS 2500 (CRN: 11920). Check it out at https://searchneu.com/NEU/202210/search/CS2500 !";
       expect(mockSendNotificationText).toHaveBeenCalledWith(
         "+11231231234",
-        expectedSectionMessage
+        expectedSectionMessage,
       );
     });
 
@@ -248,13 +248,13 @@ describe("Notifyer", () => {
       sendNotifications(
         notificationInfo,
         courseHashToUsers,
-        sectionHashToUsers
+        sectionHashToUsers,
       );
       const expectedSectionMessage =
         "A waitlist seat has opened up in CS 2500 (CRN: 11920). Check it out at https://searchneu.com/NEU/202210/search/CS2500 !";
       expect(mockSendNotificationText).toHaveBeenCalledWith(
         "+11231231234",
-        expectedSectionMessage
+        expectedSectionMessage,
       );
     });
   });

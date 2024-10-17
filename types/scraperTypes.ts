@@ -39,7 +39,7 @@ export interface CourseSR {
  * The converted course is ready for insertion to our database.
  */
 export function convertCourseToPrismaType(
-  classInfo: ParsedCourseSR
+  classInfo: ParsedCourseSR,
 ): Prisma.CourseCreateInput {
   // Strip out the keys that Prisma doesn't recognize
   const {
@@ -58,10 +58,10 @@ export function convertCourseToPrismaType(
     prereqs: convertRequisiteToNullablePrismaType(classInfo.prereqs),
     coreqs: convertRequisiteToNullablePrismaType(classInfo.coreqs),
     optPrereqsFor: (classInfo.optPrereqsFor?.values ?? []).map((val) =>
-      convertRequisiteToPrismaType(val)
+      convertRequisiteToPrismaType(val),
     ),
     prereqsFor: (classInfo.prereqsFor?.values ?? []).map((val) =>
-      convertRequisiteToPrismaType(val)
+      convertRequisiteToPrismaType(val),
     ),
     lastUpdateTime: new Date(classInfo.lastUpdateTime),
   };
@@ -72,7 +72,7 @@ export function convertCourseToPrismaType(
  * The converted course is ready for insertion to our database.
  */
 export function convertCourseFromPrismaType(
-  classInfo: PrismaCourse
+  classInfo: PrismaCourse,
 ): ParsedCourseSR {
   return {
     ...classInfo,

@@ -7,13 +7,13 @@ import { TermInfo } from "../../../types/types";
 
 class TermListParser {
   serializeTermsList(
-    termsFromBanner: { code: string; description: string }[]
+    termsFromBanner: { code: string; description: string }[],
   ): TermInfo[] {
     const activeTermInfos = termsFromBanner.filter(
-      (term) => !term.description.includes("View Only")
+      (term) => !term.description.includes("View Only"),
     );
     const activeTermIds = activeTermInfos.map((termInfo) =>
-      Number(termInfo.code)
+      Number(termInfo.code),
     );
     /* The smallest active termInfo code. 
     All termInfo's with codes greater than or equal to this are considered active.*/
@@ -25,7 +25,7 @@ class TermListParser {
       These strings are unnecessary (for LAW and CPS, the subCollege tells us all we need) */
       const text = term.description.replace(
         /(Law\s|CPS\s)|\s\(View Only\)/gi,
-        ""
+        "",
       );
 
       return {

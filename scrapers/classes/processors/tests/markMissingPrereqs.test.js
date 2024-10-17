@@ -29,7 +29,7 @@ it("can substitute one line", () => {
   const output = markMissingRequisites.updatePrereqs(
     prereqs,
     "neu.edu",
-    "201770"
+    "201770",
   );
 
   expect(output).toEqual({
@@ -53,7 +53,7 @@ it("ignores non-boolean reqs", () => {
   const output = markMissingRequisites.updatePrereqs(
     prereqs,
     "neu.edu",
-    "201770"
+    "201770",
   );
 
   expect(output).toEqual({
@@ -79,7 +79,7 @@ it("can insert a missing if cant find in db", () => {
   const output = markMissingRequisites.updatePrereqs(
     prereqs,
     "neu.edu",
-    "201770"
+    "201770",
   );
 
   expect(output).toEqual({

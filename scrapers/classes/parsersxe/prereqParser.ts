@@ -17,7 +17,7 @@ class PrereqParser {
    */
   serializeCoreqs(
     html: string,
-    subjectAbbreviationTable: Record<string, string>
+    subjectAbbreviationTable: Record<string, string>,
   ): BooleanReq {
     const $ = cheerio.load(html);
     const table = $("table");
@@ -41,7 +41,7 @@ class PrereqParser {
       const subjectAbbreviation = _.get(
         subjectAbbreviationTable,
         subject,
-        false
+        false,
       );
       if (subjectAbbreviation) {
         coreqs.push({
@@ -66,7 +66,7 @@ class PrereqParser {
    */
   serializePrereqs(
     html: string,
-    subjectAbbreviationTable: Record<string, string>
+    subjectAbbreviationTable: Record<string, string>,
   ): BooleanReq {
     const $ = cheerio.load(html);
     const allRows = util.parseTable($("table"));
@@ -84,7 +84,7 @@ class PrereqParser {
         const subjectAbbreviation = _.get(
           subjectAbbreviationTable,
           subject,
-          false
+          false,
         );
         const isContentPresent =
           (row.subject && row.coursenumber && subjectAbbreviation) ||

@@ -38,7 +38,7 @@ describe("TwilioNotifyer", () => {
 
     it("Non-error responses", async () => {
       expect(
-        (await notifs.checkVerificationCode("911", "VERIFIED")).statusCode
+        (await notifs.checkVerificationCode("911", "VERIFIED")).statusCode,
       ).toBe(200);
       const resp2 = await notifs.checkVerificationCode("911", "NOT VERIFIED");
       expect(resp2.statusCode).toBe(400);
@@ -49,17 +49,17 @@ describe("TwilioNotifyer", () => {
       const resp_max_attempts = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.MAX_CHECK_ATTEMPTS_REACHED
+        notifs.TWILIO_ERRORS.MAX_CHECK_ATTEMPTS_REACHED,
       );
       const resp_not_found = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.RESOURCE_NOT_FOUND
+        notifs.TWILIO_ERRORS.RESOURCE_NOT_FOUND,
       );
       const resp_invalid = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER
+        notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER,
       );
 
       expect(resp_max_attempts.statusCode).toBe(400);
@@ -72,7 +72,7 @@ describe("TwilioNotifyer", () => {
       expect(resp_invalid.message).toMatch(/invalid phone number/i);
 
       await expect(
-        notifs.checkVerificationCode("911", "random error")
+        notifs.checkVerificationCode("911", "random error"),
       ).rejects.toThrow();
     });
   });
@@ -97,7 +97,7 @@ describe("TwilioNotifyer", () => {
       // @ts-expect-error - it's not the exact same type, but I don't care
       notifs.handleUserReply(req, mockRes);
       expect(mockRes.send.mock.calls[0][0]).toMatch(
-        /failed to understand your message/i
+        /failed to understand your message/i,
       );
     });
 
@@ -202,7 +202,7 @@ describe("TwilioNotifyer", () => {
       jest.spyOn(macros, "log");
       await notifs.sendNotificationText("1", "message");
       expect(macros.log).toHaveBeenCalledWith(
-        expect.stringMatching(/sent.*text/i)
+        expect.stringMatching(/sent.*text/i),
       );
     });
 
@@ -216,10 +216,10 @@ describe("TwilioNotifyer", () => {
 
       await notifs.sendNotificationText("2", "message");
       expect(macros.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/has unsubscribed/i)
+        expect.stringMatching(/has unsubscribed/i),
       );
       expect(
-        notificationsManager.deleteAllUserSubscriptions
+        notificationsManager.deleteAllUserSubscriptions,
       ).toHaveBeenCalledWith("2");
     });
 
@@ -231,7 +231,7 @@ describe("TwilioNotifyer", () => {
       await notifs.sendNotificationText("3", "message");
       expect(macros.error).toHaveBeenCalledWith(
         expect.stringMatching(/error trying to send/i),
-        expect.any(Error)
+        expect.any(Error),
       );
     });
   });
