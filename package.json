@@ -64,7 +64,7 @@
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@elastic/elasticsearch": "7.17.0",
-    "@prisma/client": "^4.5.0",
+    "@prisma/client": "5",
     "@typescript-eslint/typescript-estree": "^5.10.2",
     "amplitude": "^5.2.0",
     "apollo-server": "^3.6.2",
@@ -139,7 +139,7 @@
     "nock": "^13.3.0",
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0",
-    "prisma": "^4.5.0",
+    "prisma": "5",
     "typescript": "^5.6.0",
     "yarn-deduplicate": "^4.0.0"
   },

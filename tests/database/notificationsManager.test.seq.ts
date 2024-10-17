@@ -42,7 +42,7 @@ describe("user subscriptions", () => {
     await notifs.upsertUser(phoneNumber);
     await expect(
       notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds)
-    ).rejects.toThrow("Foreign key constraint failed");
+    ).rejects.toThrow("Foreign key constraint violated");
   });
 
   it("can insert new subscriptions", async () => {

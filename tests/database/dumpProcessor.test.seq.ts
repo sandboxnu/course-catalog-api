@@ -76,7 +76,7 @@ function createDummyCourseForTermId(termId: string): ParsedCourseSR {
     minCredits: 2009,
     lastUpdateTime: 0,
     college: "Harvard University",
-    feeAmount: Number.MAX_SAFE_INTEGER,
+    feeAmount: 2147483647, // The joke used to be funnier, but Primsa by default handles INTs as 32 bit
     feeDescription: "giving day :)",
   };
 }
