@@ -6,7 +6,9 @@
     "resolveJsonModule": true,
     "lib": ["es2021"],
     "skipLibCheck": true,
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "jsx": "preserve",
+    "incremental": true
   },
   "exclude": ["node_modules"]
 }
