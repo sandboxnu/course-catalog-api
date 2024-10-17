@@ -1,4 +1,4 @@
 {
   "ignore": ["node_modules/*"],
-  "ext": "js,jsx,ts,tsx"
+  "ext": "js,ts"
 }
