@@ -1,4 +1,6 @@
-import { ApolloServer, gql } from "apollo-server";
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
+import gql from "graphql-tag";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 import macros from "../utils/macros";
 
@@ -61,19 +63,22 @@ const server = new ApolloServer({
     searchResolvers,
     termInfoResolvers,
   ],
-  debug: true,
+  // debug: true,
 });
 
-if (require.main === module) {
-  server
-    .listen()
-    .then(({ url }) => {
-      macros.log(`ready at ${url}`);
-      return;
-    })
-    .catch((err) => {
-      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
-    });
-}
+console.log("hi");
+
+// if (require.main === module) {
+startStandaloneServer(server, {
+  listen: { port: 3000 },
+})
+  .then(({ url }) => {
+    macros.log(`ready at ${url}`);
+    return;
+  })
+  .catch((err) => {
+    macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
+  });
+// }
 
 export default server;

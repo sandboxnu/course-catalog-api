@@ -1,7 +1,7 @@
-import { gql } from "apollo-server";
+import gql from "graphql-tag";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
-import { GraphQLResponse } from "apollo-server-core";
+import { GraphQLResponse } from "@apollo/server";
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -27,7 +27,15 @@ describe("Searching for courses", () => {
       }
     `);
 
-    const crns = res.data?.search.nodes[0].sections.map((s) => s.crn);
+    if (res.body.kind !== "single") {
+      fail();
+    }
+
+    // @ts-ignore
+    const crns = res.body.singleResult.data?.search.nodes[0].sections.map(
+      (s) => s.crn,
+    );
+
     expect(crns.includes("123456789")).toBeTruthy();
     expect(crns.includes("987654321")).toBeFalsy();
   });

@@ -1,7 +1,7 @@
-import { gql } from "apollo-server";
+import gql from "graphql-tag";
 import server from "../../graphql/index";
 import { DocumentNode } from "graphql";
-import { GraphQLResponse } from "apollo-server-core";
+import { GraphQLResponse } from "@apollo/server";
 
 async function query(q: DocumentNode): Promise<GraphQLResponse> {
   return await server.executeOperation({ query: q });
@@ -24,6 +24,11 @@ describe("Searching for courses", () => {
               }
           `);
 
+      if (res.body.kind !== "single") {
+        fail("incorrect graphql response kind");
+      }
+
+      // @ts-ignore - added since singleResult is implicitly an unknown
       const result = res.data?.search.nodes ?? [];
       expect(result.length).toBe(1);
       expect(result[0].name).toBe("Fundamentals of Computer Science 1");
@@ -45,6 +50,11 @@ describe("Searching for courses", () => {
               }
           `);
 
+      if (res.body.kind !== "single") {
+        fail("incorrect graphql response kind");
+      }
+
+      // @ts-ignore - added since singleResult is implicitly an unknown
       const result = res.data?.search?.nodes;
       expect(result.length).toBeGreaterThan(0);
     }
@@ -65,6 +75,11 @@ describe("Searching for courses", () => {
               }
           `);
 
+      if (res.body.kind !== "single") {
+        fail("incorrect graphql response kind");
+      }
+
+      // @ts-ignore - added since singleResult is implicitly an unknown
       const result = res.data?.search?.nodes;
       expect(result.length).toBe(0);
     }
@@ -85,6 +100,11 @@ describe("Searching for courses", () => {
       }
     `);
 
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    // @ts-ignore - added since singleResult is implicitly an unknown
     const name = res.data?.search.nodes[0].name;
     expect(name).toMatch(/Fundamentals of Computer Science.*/);
   });
@@ -107,6 +127,11 @@ describe("Searching for professors", () => {
       }
     `);
 
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    // @ts-ignore - added since singleResult is implicitly an unknown
     const obj = res.data?.search.nodes[0];
     expect(obj.firstName).toBe("Matthias");
     expect(obj.lastName).toBe("Felleisen");
@@ -127,6 +152,11 @@ describe("Searching for professors", () => {
       }
     `);
 
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    // @ts-ignore - added since singleResult is implicitly an unknown
     const obj2 = res2.data?.search.nodes[0];
     expect(obj2.name).toBe("Jeff Burds");
   });

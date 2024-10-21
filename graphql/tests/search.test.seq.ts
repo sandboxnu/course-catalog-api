@@ -1,10 +1,10 @@
-import { gql } from "apollo-server";
+import gql from "graphql-tag";
 import { mocked } from "jest-mock";
 import searcher from "../../services/searcher";
 import server from "../index";
 import { Course, Requisite, Section } from "../../types/types";
 import { DocumentNode } from "graphql";
-import { GraphQLResponse } from "apollo-server-core";
+import { GraphQLResponse } from "@apollo/server";
 
 jest.mock("../../services/searcher");
 
@@ -208,7 +208,12 @@ describe("search resolver", () => {
       10,
       {},
     ]);
-    expect(res.data.search).toEqual({
+
+    if (res.body.kind !== "single") {
+      fail("incorrect graphql response kind");
+    }
+
+    expect(res.body.singleResult.data.search).toEqual({
       totalCount: 1,
       pageInfo: { hasNextPage: false },
     });
