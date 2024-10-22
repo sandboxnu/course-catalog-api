@@ -91,6 +91,7 @@ model Subject {
 model FollowedCourse {
   courseHash String @map("course_hash")
   userId     Int    @map("user_id")
+  notifCount  Int     @default(0) @map("notif_count")
   course     Course @relation(fields: [courseHash], references: [id], onDelete: Cascade)
   user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -101,6 +102,7 @@ model FollowedCourse {
 model FollowedSection {
   sectionHash String  @map("section_hash")
   userId      Int     @map("user_id")
+  notifCount  Int     @default(0) @map("notif_count")
   section     Section @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
