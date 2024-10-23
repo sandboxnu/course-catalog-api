@@ -149,7 +149,7 @@ class Request {
    * If no custom agent is found, a new agent will be created and added to the pool.
    */
   private getAnalyticsFromAgent(
-    pool: RequestPool
+    pool: RequestPool,
   ): EmptyObject | AgentAnalytics {
     if (pool.agents === false) {
       macros.http("Agent is false,", pool);
@@ -192,7 +192,7 @@ class Request {
       }
 
       const moreAnalytics = this.getAnalyticsFromAgent(
-        separateReqPools[hostname]
+        separateReqPools[hostname],
       );
       const totalAnalytics: Partial<AmplitudeEvent> = {
         ...moreAnalytics,
@@ -255,7 +255,7 @@ class Request {
    * are not already set.
    */
   private prepareRequestConfig(
-    config: CustomOptions
+    config: CustomOptions,
   ): OptionsOfTextResponseBody {
     const hostname = new URI(config.url).hostname();
 
@@ -350,26 +350,26 @@ class Request {
     }
 
     const listOfHeaders = Object.keys(config.headers).filter(
-      (key) => key !== "Cookie"
+      (key) => key !== "Cookie",
     );
 
     if (listOfHeaders.length > 0) {
       macros.http(
         "Not caching by url b/c it has other headers",
         listOfHeaders,
-        { ...config }
+        { ...config },
       );
       return false;
     }
 
     const listOfConfigOptions = Object.keys(config).filter(
-      (key) => !CACHE_SAFE_CONFIG_OPTIONS.includes(key)
+      (key) => !CACHE_SAFE_CONFIG_OPTIONS.includes(key),
     );
 
     if (listOfConfigOptions.length > 0) {
       macros.http(
         "Not caching by url b/c it has other config options",
-        listOfConfigOptions
+        listOfConfigOptions,
       );
       return false;
     }
@@ -424,7 +424,7 @@ class Request {
       const content = await cache.get(
         macros.REQUESTS_CACHE_DIR,
         config.cacheName,
-        newKey
+        newKey,
       );
 
       if (content) {
@@ -449,7 +449,7 @@ class Request {
             body: response.body,
             statusCode: response.statusCode,
           },
-          true
+          true,
         );
       }
 
@@ -457,7 +457,7 @@ class Request {
       this.analytics[hostname].totalBytesDownloaded += contentLength;
       if (!macros.PROD) {
         macros.http(
-          `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`
+          `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`,
         );
       }
 
@@ -472,7 +472,7 @@ class Request {
             err.Error ||
             err.message ||
             err
-          }. Open request count: ${this.openRequests}. URL: ${config.url}`
+          }. Open request count: ${this.openRequests}. URL: ${config.url}`,
         );
       }
 
@@ -507,7 +507,7 @@ class RequestInput {
   private async request(
     url: string,
     config: Partial<CustomOptions>,
-    method: "GET" | "POST"
+    method: "GET" | "POST",
   ): Promise<Response<string>> {
     config.method = method;
     config.url = url;
@@ -545,7 +545,7 @@ class RequestInput {
    */
   async get(
     url: string,
-    config?: Partial<CustomOptions>
+    config?: Partial<CustomOptions>,
   ): Promise<Response<string>> {
     return this.request(url, config ?? {}, "GET");
   }
@@ -555,7 +555,7 @@ class RequestInput {
    */
   async post(
     url: string,
-    config: Partial<CustomOptions>
+    config: Partial<CustomOptions>,
   ): Promise<Response<string>> {
     if (!config) {
       macros.error("Warning, request post called with no config");

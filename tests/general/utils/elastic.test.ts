@@ -30,7 +30,7 @@ describe("elastic tests", () => {
       await elastic.fetchIndexName(elastic.CLASS_ALIAS);
       expect(elastic.createIndex).toHaveBeenCalledWith(
         `${elastic.CLASS_ALIAS}_blue`,
-        classMap
+        classMap,
       );
     });
   });

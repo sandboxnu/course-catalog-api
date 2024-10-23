@@ -24,7 +24,7 @@ describe("termParser", () => {
 
     it("should throw an Error if data is missing", async () => {
       await expect(
-        TermParser.concatPagination(async (_x, _y) => false, 200)
+        TermParser.concatPagination(async (_x, _y) => false, 200),
       ).rejects.toThrowError("Missing data");
     });
 
@@ -60,7 +60,7 @@ describe("termParser", () => {
       // Any calls to the mock req of (1, 1) will return false
       // This should trigger an error down the line, since data is missing
       await expect(
-        TermParser.concatPagination(mockReq, 1)
+        TermParser.concatPagination(mockReq, 1),
       ).rejects.toThrowError("Missing data");
     });
   });

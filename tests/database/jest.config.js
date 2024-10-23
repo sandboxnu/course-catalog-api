@@ -1,5 +1,4 @@
 module.exports = {
-  name: "dbtest",
   displayName: "Database Tests",
   rootDir: "../../",
   moduleFileExtensions: ["js", "json", "node", "ts"],

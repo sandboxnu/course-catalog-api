@@ -1,31 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`searcher generateMQuery generates aggs with campus filters applied 1`] = `
-Array [
-  Object {
+[
+  {
     "aggregations": undefined,
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
-                    Object {
-                      "terms": Object {
-                        "sections.campus.keyword": Array [
+                    {
+                      "terms": {
+                        "sections.campus.keyword": [
                           "Online",
                           "Boston",
                         ],
@@ -38,10 +38,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -59,47 +59,47 @@ Array [
       },
     },
     "size": 10,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "nupath": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "nupath": {
+        "terms": {
           "field": "class.nupath.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
-                    Object {
-                      "terms": Object {
-                        "sections.campus.keyword": Array [
+                    {
+                      "terms": {
+                        "sections.campus.keyword": [
                           "Online",
                           "Boston",
                         ],
@@ -112,10 +112,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -133,47 +133,47 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "subject": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "subject": {
+        "terms": {
           "field": "class.subject.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
-                    Object {
-                      "terms": Object {
-                        "sections.campus.keyword": Array [
+                    {
+                      "terms": {
+                        "sections.campus.keyword": [
                           "Online",
                           "Boston",
                         ],
@@ -186,10 +186,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -207,47 +207,47 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "classType": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "classType": {
+        "terms": {
           "field": "sections.classType.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
-                    Object {
-                      "terms": Object {
-                        "sections.campus.keyword": Array [
+                    {
+                      "terms": {
+                        "sections.campus.keyword": [
                           "Online",
                           "Boston",
                         ],
@@ -260,10 +260,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -281,49 +281,49 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "campus": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "campus": {
+        "terms": {
           "field": "sections.campus.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -331,10 +331,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -352,47 +352,47 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "honors": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "honors": {
+        "terms": {
           "field": "sections.honors",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
-                    Object {
-                      "terms": Object {
-                        "sections.campus.keyword": Array [
+                    {
+                      "terms": {
+                        "sections.campus.keyword": [
                           "Online",
                           "Boston",
                         ],
@@ -405,10 +405,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -426,10 +426,10 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
@@ -440,33 +440,33 @@ Array [
 `;
 
 exports[`searcher generateMQuery generates with no filters 1`] = `
-Array [
-  Object {
+[
+  {
     "aggregations": undefined,
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -474,10 +474,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -495,49 +495,49 @@ Array [
       },
     },
     "size": 10,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "nupath": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "nupath": {
+        "terms": {
           "field": "class.nupath.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -545,10 +545,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -566,49 +566,49 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "subject": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "subject": {
+        "terms": {
           "field": "class.subject.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -616,10 +616,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -637,49 +637,49 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "classType": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "classType": {
+        "terms": {
           "field": "sections.classType.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -687,10 +687,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -708,49 +708,49 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "campus": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "campus": {
+        "terms": {
           "field": "sections.campus.keyword",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -758,10 +758,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -779,49 +779,49 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
       },
     ],
   },
-  Object {
-    "aggregations": Object {
-      "honors": Object {
-        "terms": Object {
+  {
+    "aggregations": {
+      "honors": {
+        "terms": {
           "field": "sections.honors",
           "size": 1000,
         },
       },
     },
     "from": 0,
-    "query": Object {
-      "bool": Object {
-        "filter": Object {
-          "bool": Object {
-            "should": Array [
-              Object {
-                "bool": Object {
-                  "must": Array [
-                    Object {
-                      "exists": Object {
+    "query": {
+      "bool": {
+        "filter": {
+          "bool": {
+            "should": [
+              {
+                "bool": {
+                  "must": [
+                    {
+                      "exists": {
                         "field": "sections",
                       },
                     },
-                    Object {
-                      "term": Object {
+                    {
+                      "term": {
                         "class.termId": "202030",
                       },
                     },
                   ],
                 },
               },
-              Object {
-                "term": Object {
+              {
+                "term": {
                   "type": "employee",
                 },
               },
@@ -829,10 +829,10 @@ Array [
           },
         },
         "minimum_should_match": 0,
-        "must": Array [],
-        "should": Object {
-          "multi_match": Object {
-            "fields": Array [
+        "must": [],
+        "should": {
+          "multi_match": {
+            "fields": [
               "class.name^2",
               "class.name.autocomplete",
               "class.subject^4",
@@ -850,10 +850,10 @@ Array [
       },
     },
     "size": 0,
-    "sort": Array [
+    "sort": [
       "_score",
-      Object {
-        "class.classId.keyword": Object {
+      {
+        "class.classId.keyword": {
           "order": "asc",
           "unmapped_type": "keyword",
         },
@@ -864,39 +864,39 @@ Array [
 `;
 
 exports[`searcher generateQuery generates a query without filters 1`] = `
-Object {
-  "aggregations": Object {
-    "nupath": Object {
-      "terms": Object {
+{
+  "aggregations": {
+    "nupath": {
+      "terms": {
         "field": "class.nupath.keyword",
         "size": 1000,
       },
     },
   },
   "from": 0,
-  "query": Object {
-    "bool": Object {
-      "filter": Object {
-        "bool": Object {
-          "should": Array [
-            Object {
-              "bool": Object {
-                "must": Array [
-                  Object {
-                    "exists": Object {
+  "query": {
+    "bool": {
+      "filter": {
+        "bool": {
+          "should": [
+            {
+              "bool": {
+                "must": [
+                  {
+                    "exists": {
                       "field": "sections",
                     },
                   },
-                  Object {
-                    "term": Object {
+                  {
+                    "term": {
                       "class.termId": "202030",
                     },
                   },
                 ],
               },
             },
-            Object {
-              "term": Object {
+            {
+              "term": {
                 "type": "employee",
               },
             },
@@ -904,10 +904,10 @@ Object {
         },
       },
       "minimum_should_match": 0,
-      "must": Array [],
-      "should": Object {
-        "multi_match": Object {
-          "fields": Array [
+      "must": [],
+      "should": {
+        "multi_match": {
+          "fields": [
             "class.name^2",
             "class.name.autocomplete",
             "class.subject^4",
@@ -925,10 +925,10 @@ Object {
     },
   },
   "size": 10,
-  "sort": Array [
+  "sort": [
     "_score",
-    Object {
-      "class.classId.keyword": Object {
+    {
+      "class.classId.keyword": {
         "order": "asc",
         "unmapped_type": "keyword",
       },

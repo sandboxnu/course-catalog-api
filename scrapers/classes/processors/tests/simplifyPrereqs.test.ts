@@ -55,7 +55,7 @@ it("simplifyRequirements shoudl work", () => {
           ],
         },
       ],
-    })
+    }),
   ).toEqual({
     type: "or",
     values: ["1", "6", "1", "1", "6", "1", "6"].map(C),
@@ -81,7 +81,7 @@ it("simplifyRequirements shoudl work2", () => {
           ],
         },
       ],
-    })
+    }),
   ).toEqual({
     type: "or",
     values: [
@@ -116,7 +116,7 @@ it("redundant single-value boolean reqs are simplified", () => {
           ],
         },
       ],
-    })
+    }),
   ).toEqual({
     type: "or",
     values: [
@@ -134,7 +134,7 @@ it("simplifyRequirements should put course req in a boolreq", () => {
     simplifyRequirements({
       subject: "PHYS",
       classId: "1148",
-    })
+    }),
   ).toEqual({
     type: "and",
     values: [

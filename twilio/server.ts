@@ -38,7 +38,7 @@ app.post("/sms/signup", (req, res) => {
       return;
     })
     .catch(() =>
-      res.status(500).send("Error trying to send verification code")
+      res.status(500).send("Error trying to send verification code"),
     );
 });
 
@@ -74,7 +74,7 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
   try {
     const decodedToken = jwt.verify(
       req.params.jwt,
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     ) as any;
     const phoneNumber = decodedToken.phoneNumber;
     notificationsManager

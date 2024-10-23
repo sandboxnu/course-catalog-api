@@ -138,7 +138,7 @@ class Updater {
         (s) =>
           filters.campus(s.campus) &&
           filters.subject(s.subject) &&
-          filters.courseNumber(parseInt(s.classId))
+          filters.courseNumber(parseInt(s.classId)),
       );
     }
 
@@ -151,14 +151,14 @@ class Updater {
    * Sends notifications to users about sections/classes which now have seats open.
    */
   private async sendUserNotifications(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
   ): Promise<void> {
     const notificationInfo = await this.getNotificationInfo(sections);
     const courseHashToUsers: Record<string, User[]> = await this.modelToUser(
-      this.COURSE_MODEL
+      this.COURSE_MODEL,
     );
     const sectionHashToUsers: Record<string, User[]> = await this.modelToUser(
-      this.SECTION_MODEL
+      this.SECTION_MODEL,
     );
 
     //Filter out courseHash & sectionHash if they have too high notifsSent
@@ -166,7 +166,7 @@ class Updater {
     await sendNotifications(
       notificationInfo,
       courseHashToUsers,
-      sectionHashToUsers
+      sectionHashToUsers,
     );
   }
 
@@ -177,15 +177,15 @@ class Updater {
    */
   private async filterSectionsWithExistingClasses(
     sections: ScrapedSection[],
-    additionalExistingCourseIds?: Set<string>
+    additionalExistingCourseIds?: Set<string>,
   ): Promise<{
     hasExistingClass: ScrapedSection[];
     missingClass: ScrapedSection[];
   }> {
     const courseIds: Set<string> = new Set(
       (await prisma.course.findMany({ select: { id: true } })).map(
-        (elem) => elem.id
-      )
+        (elem) => elem.id,
+      ),
     );
 
     const hasExistingClass = [];
@@ -212,7 +212,7 @@ class Updater {
    * to scrape new terms - that's the job of the scraper.
    */
   private async getCorrespondingClassInfo(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
   ): Promise<ClassParserInfo[]> {
     const missingClasses = new Map<string, ClassParserInfo>();
 
@@ -238,14 +238,14 @@ class Updater {
    * Given a list of classes, run the processors on them. This standardizes how we handle prereqs, among other things
    */
   private async processClasses(
-    classes: ParsedCourseSR[]
+    classes: ParsedCourseSR[],
   ): Promise<ParsedCourseSR[]> {
     const termIds = classes.map((c) => c.termId);
     const otherPrismaClasses = await prisma.course.findMany({
       where: { termId: { in: termIds } },
     });
     const otherClasses = otherPrismaClasses.map((c) =>
-      convertCourseFromPrismaType(c)
+      convertCourseFromPrismaType(c),
     );
 
     const allClasses = classes.concat(otherClasses);
@@ -256,7 +256,7 @@ class Updater {
     // eg. If we scrape a new class (say, CS2510) which has a prereq on an existing class (CS2500),
     //  now CS2500's "prereqsFor" will be updated, and we should re-insert it into the database
     return allClasses.filter(
-      (c) => c.modifiedInProcessor || classes.includes(c)
+      (c) => c.modifiedInProcessor || classes.includes(c),
     );
   }
 
@@ -265,7 +265,7 @@ class Updater {
    * The returned classes are UNPROCESSED (see {@link Updater.processClasses})
    */
   private async scrapeCorrespondingClasses(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
   ): Promise<ParsedCourseSR[]> {
     // Determine which classes to scrape
     const missingClasses = await this.getCorrespondingClassInfo(sections);
@@ -274,11 +274,11 @@ class Updater {
       missingClasses,
       async ({ termId, subject, classId }) =>
         classParser.parseClass(termId, subject, classId),
-      { concurrency: 500 }
+      { concurrency: 500 },
     );
 
     const filteredClasses = classes.filter(
-      (c): c is ParsedCourseSR => c !== false
+      (c): c is ParsedCourseSR => c !== false,
     );
 
     return filteredClasses;
@@ -288,7 +288,7 @@ class Updater {
    * Given a list of {@link ScrapedSection}s, scrapes AND processes all of their associated classes.
    */
   private async getCorrespondingClasses(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
   ): Promise<ParsedCourseSR[]> {
     const classes = await this.scrapeCorrespondingClasses(sections);
     return this.processClasses(classes);
@@ -307,8 +307,8 @@ class Updater {
       `${
         missingClassInitial.length
       } missing sections: ${missingClassInitial.map((s) =>
-        keys.getSectionHash(s)
-      )}`
+        keys.getSectionHash(s),
+      )}`,
     );
 
     const newClasses = await this.getCorrespondingClasses(missingClassInitial);
@@ -327,7 +327,7 @@ class Updater {
       // TODO - this should be capable of alerting the Search team. Healthcheck? Slack integration?
       // This is an issue bc it means we found a class we couldn't properly scrape
       macros.warn(
-        `We found sections with no corresponding classes: ${missingStr}`
+        `We found sections with no corresponding classes: ${missingStr}`,
       );
     }
 
@@ -343,7 +343,7 @@ class Updater {
     macros.log(
       `finished running dump processor in ${
         Date.now() - dumpProcessorStartTime
-      } ms.`
+      } ms.`,
     );
   }
 
@@ -370,13 +370,13 @@ class Updater {
       `${
         "Done running updater onInterval".underline.green
       }. It took ${totalTime} ms (${(totalTime / 60000).toFixed(
-        2
-      )} minutes). Updated ${sections.length} sections.`
+        2,
+      )} minutes). Updated ${sections.length} sections.`,
     );
   }
 
   async getNotificationInfo(
-    sections: ScrapedSection[]
+    sections: ScrapedSection[],
   ): Promise<NotificationInfo> {
     const { watchedCourseLookup, watchedSectionLookup, oldSectionsByClass } =
       await this.getOldData();
@@ -401,7 +401,7 @@ class Updater {
         return;
       }
       const newSectionCount = sectionHashes.filter(
-        (hash: string) => !oldSectionsByClass[classHash].includes(hash)
+        (hash: string) => !oldSectionsByClass[classHash].includes(hash),
       ).length;
       if (newSectionCount > 0) {
         const { id, subject, classId, termId } = watchedCourseLookup[classHash];
@@ -452,12 +452,12 @@ class Updater {
         await prisma.followedCourse.findMany({
           include: { course: true },
           where: { course: { termId } },
-        })
+        }),
       );
     }
     const watchedCourses = watchedCoursesTerms.reduce(
       (acc, val) => acc.concat(val),
-      []
+      [],
     );
 
     const watchedCourseLookup: Record<string, Course> = {};
@@ -521,12 +521,12 @@ class Updater {
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
       //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
-      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE notif_count < 3 GROUP BY ${columnName}`
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE notif_count < 3 GROUP BY ${columnName}`,
     )) as Record<string, any>[];
 
     return Object.assign(
       {},
-      ...dbResults.map((res) => ({ [res[columnName]]: res.json_agg }))
+      ...dbResults.map((res) => ({ [res[columnName]]: res.json_agg })),
     );
   }
 }

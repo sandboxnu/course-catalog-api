@@ -12,7 +12,7 @@ describe("getTermsIds", () => {
     expect(await scraper.getTermIdsToScrape([])).toEqual([]);
     expect(await scraper.getTermIdsToScrape(["202210"])).toEqual(["202210"]);
     expect(
-      await scraper.getTermIdsToScrape(["202210", "202230", "202250", "1234"])
+      await scraper.getTermIdsToScrape(["202210", "202230", "202250", "1234"]),
     ).toEqual(["202210", "202230", "202250"]);
   });
 

@@ -4,7 +4,7 @@ import { LeafQuery, ParsedQuery } from "../../../types/searchTypes";
 function validateValues(
   filterKey: string,
   validValues: any[],
-  invalidValues: any[]
+  invalidValues: any[],
 ): void {
   for (const value of validValues) {
     expect(searcher.filters[filterKey].validate(value)).toBeTruthy();
@@ -81,7 +81,7 @@ describe("searcher unit tests", () => {
   describe("parseQuery", () => {
     it("query with no phrases", () => {
       const retQueries: ParsedQuery = searcher.parseQuery(
-        "this is a query with no phrases"
+        "this is a query with no phrases",
       );
       expect(retQueries.phraseQ.length).toEqual(0); //no phrase queries
       expect(retQueries.fieldQ).not.toEqual(null);

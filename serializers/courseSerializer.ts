@@ -23,7 +23,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
   // FIXME this pattern is bad
   async bulkSerialize(
     instances: PrismaCourseWithSections[],
-    all = false
+    all = false,
   ): Promise<Record<string, SerializedCourse<C, S>>> {
     const courses = instances.map((course) => {
       return this.serializeCourse(course);
@@ -50,7 +50,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
       .mapValues((course) => {
         return this.bulkSerializeCourse(
           course,
-          classToSections[this.getClassHash(course)] || []
+          classToSections[this.getClassHash(course)] || [],
         );
       })
       .value();
@@ -58,7 +58,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
 
   bulkSerializeCourse(
     course: C,
-    sections: PrismaSection[]
+    sections: PrismaSection[],
   ): SerializedCourse<C, S> {
     const serializedSections = this.serializeSections(sections, course);
 
@@ -71,7 +71,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
 
   serializeSections(
     sections: PrismaSection[],
-    parentCourse: C
+    parentCourse: C,
   ): (S & Partial<C>)[] {
     if (sections.length === 0) return [];
 
@@ -103,7 +103,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
 
     if (innerCourse.sections) {
       innerCourse.sections = innerCourse.sections.map((section) =>
-        this.serializeSection(section)
+        this.serializeSection(section),
       );
     }
     return this.finishCourseObj(innerCourse);

@@ -7,7 +7,7 @@ const noResultsError = (recordType): never => {
 };
 
 const getLatestMajorOccurrence = async (
-  majorId: string
+  majorId: string,
 ): Promise<PrismaMajor> => {
   const majors: PrismaMajor[] = await prisma.major.findMany({
     where: { majorId: majorId },

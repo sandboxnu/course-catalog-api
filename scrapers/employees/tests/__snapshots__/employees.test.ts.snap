@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`static data should be able to parse API responses 1`] = `
-Array [
-  Object {
+[
+  {
     "email": "m.abedi@northeastern.edu",
     "firstName": "Mehdi",
     "id": "m.abedi@northeastern.edu",
@@ -13,7 +13,7 @@ Array [
     "primaryDepartment": "Mechanical + Industrial Engineering",
     "primaryRole": "Associate Teaching Professor",
   },
-  Object {
+  {
     "email": "h.abeels@northeastern.edu",
     "firstName": "Hannah",
     "id": "h.abeels@northeastern.edu",
@@ -24,7 +24,7 @@ Array [
     "primaryDepartment": "School Of Law-Academic",
     "primaryRole": "Asst Dir - Online & Hybrid Pro",
   },
-  Object {
+  {
     "email": "s.abel@northeastern.edu",
     "firstName": "Sherry",
     "id": "s.abel@northeastern.edu",
@@ -35,7 +35,7 @@ Array [
     "primaryDepartment": "School Of Nursing",
     "primaryRole": "Part-time Lecturer",
   },
-  Object {
+  {
     "email": "p.abelli@northeastern.edu",
     "firstName": "Peter",
     "id": "p.abelli@northeastern.edu",
@@ -46,7 +46,7 @@ Array [
     "primaryDepartment": "Maintenance-HVAC-Dorms",
     "primaryRole": "HVAC Systems Technician",
   },
-  Object {
+  {
     "email": "m.abels@northeastern.edu",
     "firstName": "Margot",
     "id": "m.abels@northeastern.edu",
@@ -57,7 +57,7 @@ Array [
     "primaryDepartment": "Human Services",
     "primaryRole": "Assistant Teaching Professor",
   },
-  Object {
+  {
     "email": "e.ackerman@northeastern.edu",
     "firstName": "Elizabeth",
     "id": "e.ackerman@northeastern.edu",
@@ -68,7 +68,7 @@ Array [
     "primaryDepartment": "BCHS Office of the Dean",
     "primaryRole": "Part-Time Lecturer",
   },
-  Object {
+  {
     "email": "m.acosta@northeastern.edu",
     "firstName": "Beth",
     "id": "m.acosta@northeastern.edu",
@@ -79,7 +79,7 @@ Array [
     "primaryDepartment": "School Of Nursing",
     "primaryRole": "Part-time Lecturer",
   },
-  Object {
+  {
     "email": "m.adams@northeastern.edu",
     "firstName": "Marybeth",
     "id": "m.adams@northeastern.edu",
@@ -90,7 +90,7 @@ Array [
     "primaryDepartment": "BCHS Office of the Dean",
     "primaryRole": "Part-Time Lecturer",
   },
-  Object {
+  {
     "email": "j.adelberg@northeastern.edu",
     "firstName": "Jeff",
     "id": "j.adelberg@northeastern.edu",

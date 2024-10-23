@@ -1,5 +1,5 @@
 # build environment
-FROM node:16-alpine as build
+FROM node:22-alpine as build
 WORKDIR /app
 # Install deps
 COPY package.json /app/package.json
@@ -25,9 +25,6 @@ RUN rm -rf node_modules
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
     && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
 ENV dbCertPath /app/rds-ca-2019-root.pem
-
-# Required for Prisma compatibility since Node 16.16
-RUN apk add --update --no-cache openssl1.1-compat
 
 ENV NODE_ENV=prod
 

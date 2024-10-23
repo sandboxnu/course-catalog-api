@@ -23,10 +23,10 @@ describe("Cache", () => {
 
   it("getFilePath", () => {
     expect(cache.getFilePath("foldername", "classname")).toBe(
-      "cache/foldername/classname.cache"
+      "cache/foldername/classname.cache",
     );
     expect(cache.getFilePath("foldername//", "classname")).toBe(
-      "cache/foldername/classname.cache"
+      "cache/foldername/classname.cache",
     );
   });
 
@@ -46,7 +46,7 @@ describe("Cache", () => {
       cache.verifyFolderName(invalidName);
       expect(macros.critical).toHaveBeenCalledWith(
         expect.stringMatching(/folder name must be/i),
-        invalidName
+        invalidName,
       );
     });
   });

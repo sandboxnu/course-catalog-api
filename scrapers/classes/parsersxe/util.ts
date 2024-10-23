@@ -75,7 +75,7 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
       macros.warn(
         "Table row is longer than head, ignoring some content",
         heads,
-        values
+        values,
       );
     }
 
@@ -97,7 +97,7 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
       },
       cacheRequests: false,
       cookieJar: cookieJar,
-    }
+    },
   );
 
   const bodyObj = JSON.parse(clickContinue.body);
@@ -105,14 +105,14 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
   if (bodyObj.regAllowed === false) {
     macros.error(
       `failed to get cookies (from clickContinue) for the term ${termId}`,
-      clickContinue.body
+      clickContinue.body,
     );
   }
 
   for (const cookie of clickContinue.headers["set-cookie"]) {
     cookieJar.setCookie(
       cookie,
-      "https://nubanner.neu.edu/StudentRegistrationSsb/"
+      "https://nubanner.neu.edu/StudentRegistrationSsb/",
     );
   }
   return cookieJar;

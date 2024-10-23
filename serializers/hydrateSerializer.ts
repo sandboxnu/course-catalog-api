@@ -50,11 +50,11 @@ class HydrateSerializer {
     });
 
     const serializedProfs = (await this.profSerializer.bulkSerialize(
-      profData
+      profData,
     )) as Record<string, ProfessorSearchResult>;
 
     const serializedCourses = (await this.courseSerializer.bulkSerialize(
-      courseData
+      courseData,
     )) as Record<string, CourseSearchResult>;
 
     const serializedResults = { ...serializedProfs, ...serializedCourses };

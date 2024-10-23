@@ -1,20 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`class query can query in bulk 1`] = `
-Object {
-  "data": Object {
-    "bulkClasses": Array [
-      Object {
+{
+  "data": {
+    "bulkClasses": [
+      {
         "classId": "3500",
-        "latestOccurrence": Object {
+        "latestOccurrence": {
           "termId": "201930",
         },
         "name": "OOD",
         "subject": "CS",
       },
-      Object {
+      {
         "classId": "2500",
-        "latestOccurrence": Object {
+        "latestOccurrence": {
           "termId": "201930",
         },
         "name": "Fundamentals of Computer Science 1",
@@ -24,23 +24,23 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`class query gets all occurrences 1`] = `
-Object {
-  "data": Object {
-    "class": Object {
-      "allOccurrences": Array [
-        Object {
+{
+  "data": {
+    "class": {
+      "allOccurrences": [
+        {
           "termId": "201930",
         },
-        Object {
+        {
           "termId": "201830",
         },
       ],
@@ -49,19 +49,19 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`class query gets latest occurrence 1`] = `
-Object {
-  "data": Object {
-    "class": Object {
-      "latestOccurrence": Object {
+{
+  "data": {
+    "class": {
+      "latestOccurrence": {
         "termId": "201930",
       },
       "name": "Fundamentals of Computer Science 1",
@@ -69,55 +69,55 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`class query gets specific occurrence 1`] = `
-Object {
-  "data": Object {
-    "class": Object {
+{
+  "data": {
+    "class": {
       "name": "Fundamentals of Computer Science 1",
-      "occurrence": Object {
+      "occurrence": {
         "termId": "201930",
       },
     },
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`class query gets the name of class from subject and classId 1`] = `
-Object {
-  "data": Object {
-    "class": Object {
+{
+  "data": {
+    "class": {
       "name": "Fundamentals of Computer Science 1",
     },
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`classByHash query gets class from class hash 1`] = `
-Object {
-  "data": Object {
-    "classByHash": Object {
+{
+  "data": {
+    "classByHash": {
       "classId": "2500",
       "name": "Fundamentals of Computer Science 1",
       "subject": "CS",
@@ -126,24 +126,24 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`sectionByHash query gets section from section id 1`] = `
-Object {
-  "data": Object {
-    "sectionByHash": Object {
+{
+  "data": {
+    "sectionByHash": {
       "campus": "Boston",
       "classId": "2500",
       "classType": "Lecture",
       "crn": "12345",
       "honors": false,
-      "meetings": Object {},
+      "meetings": {},
       "seatsCapacity": 5,
       "seatsRemaining": 2,
       "subject": "CS",
@@ -152,9 +152,9 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }

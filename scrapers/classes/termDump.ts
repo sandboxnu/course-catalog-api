@@ -74,15 +74,15 @@ class TermDump {
       const folderPath = path.join(
         macros.PUBLIC_DIR,
         "getTermDump",
-        value["host"] as string
+        value["host"] as string,
       );
       promises.push(
         fs.ensureDir(folderPath).then(() => {
           return fs.writeFile(
             path.join(folderPath, `${value["termId"]}.json`),
-            JSON.stringify(value)
+            JSON.stringify(value),
           );
-        })
+        }),
       );
     }
     const outerFolderPath = path.join(macros.PUBLIC_DIR, "getTermDump");
@@ -90,9 +90,9 @@ class TermDump {
       fs.ensureDir(outerFolderPath).then(() => {
         return fs.writeFile(
           path.join(outerFolderPath, "allTerms.json"),
-          JSON.stringify(termDump)
+          JSON.stringify(termDump),
         );
-      })
+      }),
     );
     return Promise.all(promises);
   }

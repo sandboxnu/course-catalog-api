@@ -28,7 +28,7 @@ try {
   fs.statSync("package.json");
 } catch (_e) {
   throw new Error(
-    "The macros file seems to have moved relative to the base directory; please update the path."
+    "The macros file seems to have moved relative to the base directory; please update the path.",
   );
 }
 
@@ -131,7 +131,7 @@ class Macros {
         }),
         format.errors({ stack: true }),
         format.splat(),
-        format.json()
+        format.json(),
       ),
       defaultMeta: { service: "course-catalog-api" },
       transports: [
@@ -200,7 +200,7 @@ class Macros {
   // Log an event to amplitude. Same function signature as the function for the frontend.
   async logAmplitudeEvent(
     type: string,
-    event: AmplitudeEvent
+    event: AmplitudeEvent,
   ): Promise<null | void | AmplitudeTrackResponse> {
     if (!this.PROD) {
       return null;
@@ -294,7 +294,7 @@ class Macros {
     if (!this.TEST) {
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const fullArgs: string[] = args.map((a: any) =>
-        util.inspect(a, false, null, !this.PROD)
+        util.inspect(a, false, null, !this.PROD),
       );
 
       console.error("Check the /logs directory for more detail: ", ...fullArgs); // eslint-disable-line no-console
@@ -324,7 +324,7 @@ class Macros {
     if (!this.TEST) {
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const formattedArgs = args.map((a: any) =>
-        typeof a === "string" ? a.yellow.underline : a
+        typeof a === "string" ? a.yellow.underline : a,
       );
       console.warn("Warning:", ...formattedArgs);
     }
@@ -380,10 +380,10 @@ const macrosInstance = new Macros();
 macrosInstance.log(
   `**** Starting using log level: ${macrosInstance.logLevel} (${
     LogLevel[macrosInstance.logLevel]
-  })`
+  })`,
 );
 macrosInstance.log(
-  "**** Change the log level using the 'LOG_LEVEL' environment variable"
+  "**** Change the log level using the 'LOG_LEVEL' environment variable",
 );
 
 export default macrosInstance;

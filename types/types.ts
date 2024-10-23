@@ -13,7 +13,7 @@ import keys from "../utils/keys";
  * This doesn't do much at the moment, but it's useful for future-proofing.
  */
 function convertMeetingTimeToPrismaType(
-  meeting: MeetingTime
+  meeting: MeetingTime,
 ): Prisma.InputJsonObject {
   return { ...meeting };
 }
@@ -22,7 +22,7 @@ function convertMeetingTimeToPrismaType(
  * Converts a single {@link BackendMeeting} to a format compatible with Prisma.
  */
 export function convertBackendMeetingToPrismaType(
-  meeting: BackendMeeting
+  meeting: BackendMeeting,
 ): Prisma.InputJsonObject {
   // Essentially, this takes a object with keys and values, and replaces every value with fn(value).
   // That `fn`, in this case, is the `convertMeetingTimeToDatabaseFormat` function.
@@ -32,7 +32,7 @@ export function convertBackendMeetingToPrismaType(
     // So, we convert to entries, transform the values, then convert back to an object
     Object.entries(meeting.times).map(([key, val]) => {
       return [key, val.map((v) => convertMeetingTimeToPrismaType(v))];
-    })
+    }),
   );
   return { ...meeting, times };
 }
@@ -41,7 +41,7 @@ export function convertBackendMeetingToPrismaType(
  * Converts a {@link BackendMeeting} array to a format compatible with Prisma.
  */
 export function convertBackendMeetingsToPrismaType(
-  meetings?: BackendMeeting[]
+  meetings?: BackendMeeting[],
 ): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
   if (meetings === undefined) {
     return Prisma.DbNull;
@@ -152,7 +152,7 @@ export interface Course {
  * Converts an optional {@link Requisite} to a format compatible with Prisma.
  */
 export function convertRequisiteToNullablePrismaType(
-  req: Requisite | undefined
+  req: Requisite | undefined,
 ): Prisma.NullableJsonNullValueInput | Prisma.InputJsonValue {
   if (req === undefined) {
     return Prisma.DbNull;
@@ -168,7 +168,7 @@ export function convertRequisiteToNullablePrismaType(
  * However, this is useful because it allows us to easily change the format of the requisite in the future.
  */
 export function convertRequisiteToPrismaType(
-  req: Requisite
+  req: Requisite,
 ): Prisma.InputJsonValue {
   if (typeof req === "string") {
     return req;
@@ -209,7 +209,7 @@ export function isCourseReq(req: Requisite): req is CourseReq {
  * The converted section is ready for insertion to our database.
  */
 export function convertSectionToPrismaType(
-  secInfo: Section
+  secInfo: Section,
 ): Prisma.SectionCreateInput {
   // Strip out the keys that Prisma doesn't recognize
   const {
@@ -289,7 +289,7 @@ export type SingleTransformFunction = (any) => string;
 export type ArrayTransformFunction = (
   any,
   string,
-  SingleTransformFunction
+  SingleTransformFunction,
 ) => string;
 export type TransformFunction =
   | SingleTransformFunction

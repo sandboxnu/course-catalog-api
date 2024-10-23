@@ -1,44 +1,44 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`search resolver searches for blank in term gets results 1`] = `
-Object {
-  "data": Object {
-    "search": Object {
-      "filterOptions": Object {
+{
+  "data": {
+    "search": {
+      "filterOptions": {
         "campus": null,
-        "classType": Array [
-          Object {
+        "classType": [
+          {
             "count": 10,
             "value": "Lecture",
           },
         ],
-        "nupath": Array [
-          Object {
+        "nupath": [
+          {
             "count": 10,
             "value": "Writing Intensive",
           },
         ],
         "subject": null,
       },
-      "nodes": Array [
-        Object {
+      "nodes": [
+        {
           "__typename": "ClassOccurrence",
-          "classAttributes": Array [],
+          "classAttributes": [],
           "desc": "a class",
           "lastUpdateTime": 20,
           "name": "Fundamentals of Computer Science 1",
           "optPrereqsFor": null,
           "prereqsFor": null,
-          "sections": Array [
-            Object {
+          "sections": [
+            {
               "crn": "1234",
-              "profs": Array [],
+              "profs": [],
             },
           ],
           "url": "url",
         },
       ],
-      "pageInfo": Object {
+      "pageInfo": {
         "hasNextPage": false,
       },
       "totalCount": 10,
@@ -46,9 +46,9 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }

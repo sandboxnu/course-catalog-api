@@ -257,28 +257,28 @@ describe("console statements", () => {
       macros.warn("hello4");
       expect(console.warn).toHaveBeenCalledWith(
         "Warning:",
-        "hello4".yellow.underline
+        "hello4".yellow.underline,
       );
 
       macros.logLevel = LogLevel.INFO;
       macros.warn("hello");
       expect(console.warn).toHaveBeenCalledWith(
         "Warning:",
-        "hello".yellow.underline
+        "hello".yellow.underline,
       );
 
       macros.logLevel = LogLevel.HTTP;
       macros.warn("hello2");
       expect(console.warn).toHaveBeenCalledWith(
         "Warning:",
-        "hello2".yellow.underline
+        "hello2".yellow.underline,
       );
 
       macros.logLevel = LogLevel.VERBOSE;
       macros.warn("test");
       expect(console.warn).toHaveBeenCalledWith(
         "Warning:",
-        "test".yellow.underline
+        "test".yellow.underline,
       );
     });
 
@@ -319,7 +319,7 @@ describe("console statements", () => {
       macros.error("test");
       expect(console.error).toHaveBeenCalledWith(
         "Check the /logs directory for more detail: ",
-        "'test'"
+        "'test'",
       );
 
       macros.logLevel = LogLevel.ERROR;

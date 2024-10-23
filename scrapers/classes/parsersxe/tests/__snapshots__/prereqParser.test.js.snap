@@ -1,24 +1,24 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`prereqParser should handle nested parenthesized prerequisites or "Graduate Admissions REQ" 1`] = `
-Object {
+{
   "type": "or",
-  "values": Array [
-    Object {
+  "values": [
+    {
       "type": "and",
-      "values": Array [
-        Object {
+      "values": [
+        {
           "classId": "1342",
           "subject": "MATH",
         },
-        Object {
+        {
           "type": "or",
-          "values": Array [
-            Object {
+          "values": [
+            {
               "classId": "1151",
               "subject": "PHYS",
             },
-            Object {
+            {
               "classId": "1161",
               "subject": "PHYS",
             },
@@ -26,14 +26,14 @@ Object {
         },
       ],
     },
-    Object {
+    {
       "type": "and",
-      "values": Array [
-        Object {
+      "values": [
+        {
           "classId": "1141",
           "subject": "PHYS",
         },
-        Object {
+        {
           "classId": "1241",
           "subject": "MATH",
         },
@@ -44,28 +44,28 @@ Object {
 `;
 
 exports[`prereqParser should handle nested parenthesized prerequisites or "Graduate Admissions REQ" 2`] = `
-Object {
+{
   "type": "or",
-  "values": Array [
-    Object {
+  "values": [
+    {
       "type": "and",
-      "values": Array [
-        Object {
+      "values": [
+        {
           "classId": "1119",
           "subject": "BIOL",
         },
-        Object {
+        {
           "classId": "1121",
           "subject": "BIOL",
         },
-        Object {
+        {
           "type": "or",
-          "values": Array [
-            Object {
+          "values": [
+            {
               "classId": "1101",
               "subject": "CHEM",
             },
-            Object {
+            {
               "classId": "1211",
               "subject": "CHEM",
             },
@@ -79,42 +79,42 @@ Object {
 `;
 
 exports[`prereqParser should handle parenthesized prerequisites 2 1`] = `
-Object {
+{
   "type": "and",
-  "values": Array [
-    Object {
+  "values": [
+    {
       "type": "or",
-      "values": Array [
-        Object {
+      "values": [
+        {
           "classId": "3600",
           "subject": "CS",
         },
-        Object {
+        {
           "classId": "3650",
           "subject": "CS",
         },
-        Object {
+        {
           "classId": "5600",
           "subject": "CS",
         },
-        Object {
+        {
           "classId": "5600",
           "subject": "CS",
         },
       ],
     },
-    Object {
+    {
       "type": "or",
-      "values": Array [
-        Object {
+      "values": [
+        {
           "classId": "4800",
           "subject": "CS",
         },
-        Object {
+        {
           "classId": "5800",
           "subject": "CS",
         },
-        Object {
+        {
           "classId": "5800",
           "subject": "CS",
         },

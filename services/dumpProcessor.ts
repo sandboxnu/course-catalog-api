@@ -34,12 +34,12 @@ class DumpProcessor {
     await this.saveEmployeesToDatabase(profDump);
 
     const processedCourses = termDump.classes.map((c) =>
-      convertCourseToPrismaType(c)
+      convertCourseToPrismaType(c),
     );
     await this.saveCoursesToDatabase(processedCourses);
 
     const processedSections = termDump.sections.map((section) =>
-      convertSectionToPrismaType(section)
+      convertSectionToPrismaType(section),
     );
     await this.saveSectionsToDatabase(processedSections);
     await this.updateSectionsLastUpdateTime(termDump.sections);
@@ -56,7 +56,7 @@ class DumpProcessor {
       const termsWithCourses = termDump.classes.map((c) => c.termId);
 
       const termsToClean = new Set<string>(
-        termsWithSections.concat(termsWithCourses)
+        termsWithSections.concat(termsWithCourses),
       );
 
       await this.destroyOutdatedData(termsToClean);
@@ -88,7 +88,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the course doesn't exist, update if it does.
    */
   async saveCoursesToDatabase(
-    courses: Prisma.CourseCreateInput[]
+    courses: Prisma.CourseCreateInput[],
   ): Promise<void> {
     // Break the classes into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL classes in parallel because this may overwhelm the DB
@@ -121,7 +121,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the section doesn't exist, update if it does.
    */
   async saveSectionsToDatabase(
-    sections: Prisma.SectionCreateInput[]
+    sections: Prisma.SectionCreateInput[],
   ): Promise<void> {
     const updateTime = new Date();
 
@@ -169,7 +169,7 @@ class DumpProcessor {
    * Performs a SQL upsert - insert if the subject doesn't exist, update if it does.
    */
   async saveSubjectsToDatabase(
-    subjects: Record<string, string>
+    subjects: Record<string, string>,
   ): Promise<void> {
     await Promise.all(
       Object.entries(subjects).map(([key, value]) => {
@@ -185,7 +185,7 @@ class DumpProcessor {
             description: value,
           },
         });
-      })
+      }),
     );
 
     macros.log("Finished with subjects");
@@ -217,7 +217,7 @@ class DumpProcessor {
     const termIdsWithData = await this.getTermIdsWithData();
 
     const termInfosWithData = termInfos.filter((t) =>
-      termIdsWithData.includes(t.termId)
+      termIdsWithData.includes(t.termId),
     );
 
     // Upsert new term IDs, along with their names, sub college, and active status
@@ -310,7 +310,7 @@ if (require.main === module) {
   const termFilePath = path.join(
     macros.PUBLIC_DIR,
     "getTermDump",
-    "allTerms.json"
+    "allTerms.json",
   );
   const empFilePath = path.join(macros.PUBLIC_DIR, "employeeDump.json");
   fromFile(termFilePath, empFilePath).catch(macros.error);

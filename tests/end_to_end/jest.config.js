@@ -1,5 +1,4 @@
 module.exports = {
-  name: "End to end",
   displayName: "Tests for GitHub Workflows",
   rootDir: "./",
   testEnvironment: "node",

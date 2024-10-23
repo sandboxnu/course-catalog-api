@@ -37,7 +37,7 @@ class NeuEmployee {
     const email = this.parseOptionalParameter(employee.Email);
     const primaryRole = this.parseOptionalParameter(employee.PositionTitle);
     const longPrimaryRole = this.parseOptionalParameter(
-      employee.LongPositionTitle
+      employee.LongPositionTitle,
     );
 
     return {
@@ -63,7 +63,7 @@ class NeuEmployee {
         //    Do Not Use Hrm See 000499418, Do Not Use
         //    DO NOT USE, DO NOT USE
         .filter(
-          (employee) => !employee.name.toLowerCase().includes("do not use")
+          (employee) => !employee.name.toLowerCase().includes("do not use"),
         )
     );
   }
@@ -81,7 +81,7 @@ class NeuEmployee {
   async queryModuleVersion(): Promise<string> {
     return request
       .get(
-        "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo"
+        "https://nu.outsystemsenterprise.com/FSD/moduleservices/moduleversioninfo",
       )
       .then((resp) => JSON.parse(resp.body)["versionToken"]);
   }
@@ -118,7 +118,7 @@ class NeuEmployee {
         headers: {
           "X-CSRFToken": csrfToken,
         },
-      }
+      },
     );
 
     const parsedResponse = JSON.parse(response.body);
@@ -134,7 +134,7 @@ class NeuEmployee {
       const devData = await cache.get(
         macros.DEV_DATA_DIR,
         this.constructor.name,
-        "main"
+        "main",
       );
       if (devData) {
         return (devData as Employee[]).map((employee) => {
@@ -153,7 +153,7 @@ class NeuEmployee {
         macros.DEV_DATA_DIR,
         this.constructor.name,
         "main",
-        this.people
+        this.people,
       );
       macros.log(this.people.length, "NEU employees saved.");
     }

@@ -74,7 +74,7 @@ export class Bannerv9Parser {
     });
     macros.log("Scraping tips & reminders".green.underline.bold);
     macros.log(
-      "Use the NUWave wifi - otherwise, Banner rate-limits! You can access NUWave via VPN - https://help.coe.neu.edu/coehelp/index.php/VPN\n"
+      "Use the NUWave wifi - otherwise, Banner rate-limits! You can access NUWave via VPN - https://help.coe.neu.edu/coehelp/index.php/VPN\n",
     );
 
     const date = moment().format("YYYY-MM-DD");
@@ -82,13 +82,13 @@ export class Bannerv9Parser {
     macros.log(`View verbose scrape logs here: ${currentLogName}\n`);
 
     macros.log(
-      "Be patient at first! It takes a while to get going, and doesn't progress linearly!\n"
+      "Be patient at first! It takes a while to get going, and doesn't progress linearly!\n",
     );
 
     macros.log(
       "By default, we scrape the 12 newest terms. This can be overridden by using env variables.\n" +
         "\t NUMBER_OF_TERMS=<int> -- Sets the number of terms to scrape (eg. 3)\n" +
-        "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n"
+        "\t TERMS_TO_SCRAPE=<string> -- A comma-separated string of terms to scrape (eg. '202210,202230')\n\n",
     );
 
     const termData: ParsedTermSR[] = await pMap(termIds, async (p) => {
@@ -110,7 +110,7 @@ export class Bannerv9Parser {
           return { ...a, ...b };
         });
       },
-      { classes: [], sections: [], subjects: {} }
+      { classes: [], sections: [], subjects: {} },
     );
   }
 
@@ -125,13 +125,13 @@ export class Bannerv9Parser {
   async scrapeClass(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<{ classes: ParsedCourseSR[]; sections: Section[] }> {
     const parsedClass = await ClassParser.parseClass(termId, subject, classId);
     const sections = await SectionParser.parseSectionsOfClass(
       termId,
       subject,
-      classId
+      classId,
     );
 
     return {
@@ -147,7 +147,7 @@ export class Bannerv9Parser {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     require("fs").writeFileSync(
       "parsersxe.json",
-      JSON.stringify(output, null, 4)
+      JSON.stringify(output, null, 4),
     );
   }
 }

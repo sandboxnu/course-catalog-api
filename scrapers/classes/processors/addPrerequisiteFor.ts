@@ -66,7 +66,7 @@ class AddPrerequisiteFor {
   parsePrereqs(
     mainClass: ParsedCourseSR,
     req: Requisite,
-    isRequired: boolean
+    isRequired: boolean,
   ): void {
     if (typeof req === "string" || (isCourseReq(req) && req.missing)) {
       return;
@@ -153,14 +153,14 @@ class AddPrerequisiteFor {
     if (aClass.optPrereqsFor && aClass.optPrereqsFor.values) {
       aClass.optPrereqsFor.values = this.sortPrereqsValues(
         aClass.subject,
-        aClass.optPrereqsFor.values
+        aClass.optPrereqsFor.values,
       );
     }
 
     if (aClass.prereqsFor && aClass.prereqsFor.values) {
       aClass.prereqsFor.values = this.sortPrereqsValues(
         aClass.subject,
-        aClass.prereqsFor.values
+        aClass.prereqsFor.values,
       );
     }
   }

@@ -262,7 +262,7 @@ afterAll(async () => {
 async function createSection(
   sec: Section,
   seatsRemaining: number,
-  waitRemaining: number
+  waitRemaining: number,
 ): Promise<void> {
   await prisma.section.create({
     data: {
@@ -310,7 +310,7 @@ describe("Updater", () => {
     await UPDATER.update();
     expect(mockTermParser.mock.calls.length).toBe(SEMS_TO_UPDATE.length);
     expect(mockTermParser.mock.calls).toEqual(
-      SEMS_TO_UPDATE.map((termId) => [termId])
+      SEMS_TO_UPDATE.map((termId) => [termId]),
     );
   });
 
@@ -568,7 +568,7 @@ describe("Updater", () => {
       await createSection(
         FUNDIES_TWO_S3,
         FUNDIES_TWO_S3.seatsRemaining,
-        FUNDIES_TWO_S3.waitRemaining
+        FUNDIES_TWO_S3.waitRemaining,
       );
     });
 
@@ -683,27 +683,27 @@ describe("Updater", () => {
       expect(fundies1Sections.length).toBe(1);
       expect(fundies1Sections[0].seatsRemaining).toBe(0);
       expect(fundies1Sections[0].waitRemaining).toBe(
-        FUNDIES_ONE_S1.waitRemaining
+        FUNDIES_ONE_S1.waitRemaining,
       );
       const fundies2Sections = await prisma.section.findMany({
         where: { classHash: Keys.getClassHash(FUNDIES_TWO) },
       });
       expect(fundies2Sections.length).toBe(3);
       const fundies2Section1 = fundies2Sections.find(
-        (section) => section.crn === FUNDIES_TWO_S1.crn
+        (section) => section.crn === FUNDIES_TWO_S1.crn,
       );
       const fundies2Section2 = fundies2Sections.find(
-        (section) => section.crn === FUNDIES_TWO_S2.crn
+        (section) => section.crn === FUNDIES_TWO_S2.crn,
       );
       const fundies2Section3 = fundies2Sections.find(
-        (section) => section.crn === FUNDIES_TWO_S3.crn
+        (section) => section.crn === FUNDIES_TWO_S3.crn,
       );
       expect(fundies2Section1.seatsRemaining).toBe(0);
       expect(fundies2Section1.waitRemaining).toBe(0);
       expect(fundies2Section2.seatsRemaining).toBe(0);
       expect(fundies2Section2.waitRemaining).toBe(0);
       expect(fundies2Section3.seatsRemaining).toBe(
-        FUNDIES_TWO_S3.seatsRemaining
+        FUNDIES_TWO_S3.seatsRemaining,
       );
       expect(fundies2Section3.waitRemaining).toBe(FUNDIES_TWO_S3.waitRemaining);
 
@@ -719,10 +719,10 @@ describe("Updater", () => {
       });
       expect(fundies1SectionsUpdated.length).toBe(2); // new fundies 1 section
       const fundies1Section1 = fundies1SectionsUpdated.find(
-        (section) => section.crn === FUNDIES_ONE_S1.crn
+        (section) => section.crn === FUNDIES_ONE_S1.crn,
       );
       expect(fundies1Section1.seatsRemaining).toBe(
-        FUNDIES_ONE_S1.seatsRemaining
+        FUNDIES_ONE_S1.seatsRemaining,
       );
       expect(fundies1Section1.waitRemaining).toBe(FUNDIES_ONE_S1.waitRemaining);
 
@@ -731,13 +731,13 @@ describe("Updater", () => {
       });
       expect(fundies2SectionsUpdated.length).toBe(3);
       const fundies2Section1Updated = fundies2SectionsUpdated.find(
-        (section) => section.crn === FUNDIES_TWO_S1.crn
+        (section) => section.crn === FUNDIES_TWO_S1.crn,
       );
       const fundies2Section2Updated = fundies2SectionsUpdated.find(
-        (section) => section.crn === FUNDIES_TWO_S2.crn
+        (section) => section.crn === FUNDIES_TWO_S2.crn,
       );
       const fundies2Section3Updated = fundies2SectionsUpdated.find(
-        (section) => section.crn === FUNDIES_TWO_S3.crn
+        (section) => section.crn === FUNDIES_TWO_S3.crn,
       );
       expect({
         ...fundies2Section1Updated,
@@ -747,15 +747,15 @@ describe("Updater", () => {
         lastUpdateTime: "changed",
       }); // no change except for lastUpdateTime
       expect(fundies2Section1Updated.lastUpdateTime).not.toBe(
-        fundies2Section1.lastUpdateTime
+        fundies2Section1.lastUpdateTime,
       );
       expect(fundies2Section2Updated.seatsRemaining).toBe(0);
       expect(fundies2Section2Updated.waitRemaining).toBe(2);
       expect(fundies2Section3Updated.seatsRemaining).toBe(
-        FUNDIES_TWO_S3.seatsRemaining - 2
+        FUNDIES_TWO_S3.seatsRemaining - 2,
       );
       expect(fundies2Section3Updated.waitRemaining).toBe(
-        FUNDIES_TWO_S3.waitRemaining
+        FUNDIES_TWO_S3.waitRemaining,
       );
     });
   });
@@ -833,7 +833,7 @@ describe("Updater", () => {
       expect(classParser.parseClass).toHaveBeenCalledWith(
         FUNDIES_TWO_S1.termId,
         FUNDIES_TWO_S1.subject,
-        FUNDIES_TWO_S1.classId
+        FUNDIES_TWO_S1.classId,
       );
       expect((await prisma.section.findMany()).length).toBe(3);
 

@@ -46,7 +46,7 @@ class Main {
       const newestTermIdWithData = termIdsWithData[termIdsWithData.length - 1];
 
       return termIds.filter(
-        (t) => newestTermIdWithData === undefined || t > newestTermIdWithData
+        (t) => newestTermIdWithData === undefined || t > newestTermIdWithData,
       );
     }
   }
@@ -56,7 +56,7 @@ class Main {
     // Get the TermInfo information from Banner
     const allTermInfos = await bannerv9parser.getAllTermInfos();
     const termsToScrape = await this.getTermIdsToScrape(
-      allTermInfos.map((t) => t.termId)
+      allTermInfos.map((t) => t.termId),
     );
 
     // Scraping should NOT be resolved simultaneously (eg. via p-map):
@@ -77,8 +77,8 @@ class Main {
 
     macros.log(
       `Done scraping: took ${totalTime} ms (${(totalTime / 60000).toFixed(
-        2
-      )} minutes)\n\n`.green.underline
+        2,
+      )} minutes)\n\n`.green.underline,
     );
   }
 }
