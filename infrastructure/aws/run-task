@@ -19,4 +19,4 @@ echo "Running one-off task on $CLUSTER cluster with command: $2"
 NETCONFIG=$(aws ecs describe-services --cluster $CLUSTER --services $SERVICE_WEB --output json | jq  '.services[0].networkConfiguration' | jq '.awsvpcConfiguration.assignPublicIp = "DISABLED"')
 OVERRIDES=$(printf '{"containerOverrides":[{"name":"%s","command":["%s"]}]}' "$TASK" $(join_by '","' $2))
 
-aws ecs run-task --overrides "$OVERRIDES" --started-by "one-off task CLI" --group "one-off" --launch-type "FARGATE" --network-configuration "$NETCONFIG" --task-definition $TASK_WEB --cluster $CLUSTER --output json
+aws ecs run-task --overrides "$OVERRIDES" --started-by "one-off task CLI" --group "one-off" --launch-type "FARGATE" --network-configuration "$NETCONFIG" --tags '[{"key": "team", "value": "searchneu"}]' --propagate-tags "TASK_DEFINITION" --task-definition $TASK_WEB --cluster $CLUSTER --output json
