@@ -11,8 +11,8 @@ import notificationsManager from "../../services/notificationsManager";
 describe("TwilioNotifyer", () => {
   describe("checkVerificationCode", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        // @ts-expect-error - wrong type
         services: () => {
           return {
             verificationChecks: {
@@ -117,8 +117,8 @@ describe("TwilioNotifyer", () => {
 
   describe("sendVerificationCode", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        // @ts-expect-error - wrong type
         services: () => {
           return {
             verifications: {
@@ -180,8 +180,8 @@ describe("TwilioNotifyer", () => {
 
   describe("sendNotificationText", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["messages"] = {
-        // @ts-expect-error - wrong type
         create: jest.fn(async (args) => {
           const err = new Error();
           switch (args.to) {
