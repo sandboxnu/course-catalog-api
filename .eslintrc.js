@@ -15,14 +15,14 @@ module.exports = {
     // "airbnb-base",
     // "airbnb-typescript/base",
     // Overrides AirBnB styles; keep in this order
-    "plugin:prettier/recommended",
+    // "plugin:prettier/recommended",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "./tsconfig.eslint.json",
     ecmaVersion: 2021,
   },
-  plugins: ["@typescript-eslint/eslint-plugin", "deprecation", "prettier"],
+  plugins: ["@typescript-eslint/eslint-plugin", "deprecation" /*"prettier"*/],
   rules: {
     // // "@typescript-eslint/explicit-function-return-type": "off",
     // // "@typescript-eslint/explicit-module-boundary-types": "off",

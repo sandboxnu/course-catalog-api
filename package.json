@@ -133,7 +133,6 @@
     "eslint-import-resolver-typescript": "^2.0.0",
     "eslint-plugin-babel": "^5.1.0",
     "eslint-plugin-import": "^2.25.2",
-    "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-promise": "^6.0.0",
     "husky": "^9.0.0",
     "jest": "^29.7.0",
