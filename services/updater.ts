@@ -21,6 +21,7 @@ import {
 } from "../types/scraperTypes";
 import processor from "../scrapers/classes/main";
 import filters from "../scrapers/filters";
+import { sendHealthCheck } from "./healthchecks";
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -362,6 +363,8 @@ class Updater {
     await this.sendUserNotifications(sections);
     // Save the data in our database
     await this.saveDataToDatabase(sections);
+    // Send out healthcheck ping
+    await sendHealthCheck();
 
     const totalTime = Date.now() - startTime;
     macros.log(
