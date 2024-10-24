@@ -1,4 +1,4 @@
-const elasticCourseFixtures = [
+const elasticCourseDataFixtures = [
   {
     classAttributes: ["Engineering  UBEN"],
     classId: "3410",
@@ -208,4 +208,4 @@ const elasticCourseFixtures = [
   },
 ];
 
-export default elasticCourseFixtures;
+export default elasticCourseDataFixtures;

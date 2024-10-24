@@ -1,4 +1,4 @@
-const hydrateCourseFixtures = [
+const hydrateCourseDataFixtures = [
   {
     classAttributes: [
       "NUpath Creative Express/Innov  NCEI",
@@ -295,4 +295,4 @@ const hydrateCourseFixtures = [
   },
 ];
 
-export default hydrateCourseFixtures;
+export default hydrateCourseDataFixtures;

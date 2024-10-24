@@ -1,4 +1,4 @@
-const profPartialFixtures = [
+const professorDataFixtures = [
   {
     id: "b.brown@northeastern.edu",
     name: "Ben Brown",
@@ -112,4 +112,4 @@ const profPartialFixtures = [
   },
 ];
 
-export default profPartialFixtures;
+export default professorDataFixtures;

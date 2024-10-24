@@ -1,4 +1,4 @@
-const elasticProfSerializer = [
+const elasticProfDataFixtures = [
   {
     id: "e.adako@northeastern.edu",
     name: "Manny Adako",
@@ -608,4 +608,4 @@ const elasticProfSerializer = [
   },
 ];
 
-export default elasticProfSerializer;
+export default elasticProfDataFixtures;

@@ -1,41 +1,29 @@
-import CourseSerializer from "../../../serializers/courseSerializer";
 import HydrateSerializer from "../../../serializers/hydrateCourseSerializer";
 import ElasticProfSerializer from "../../../serializers/elasticProfSerializer";
 import HydrateProfSerializer from "../../../serializers/hydrateProfSerializer";
 import HydrateCourseSerializer from "../../../serializers/hydrateCourseSerializer";
-import coursePartialFixtures from "./courseSerializerFixtures";
-import hydrateCourseFixtures from "./hydrateCourseSerializer";
-import elasticProfFixtures from "./elasticProfSerializer";
-import elasticCourseFixtures from "./elasticCourseFixtures";
-import profPartialFixtures from "./hydrateProfSerializerFixtures";
+import courseDataFixtures from "./fixtures/courseDataFixtures";
+import hydrateCourseDataFixtures from "./fixtures/hydrateCourseDataFixtures";
+import elasticProfFixtures from "./fixtures/elasticProfDataFixtures";
+import elasticCourseDataFixtures from "./fixtures/elasticCourseDataFixtures";
+import professorDataFixtures from "./fixtures/professorDataFixtures";
 import { PrismaCourseWithSections } from "../../../types/serializerTypes";
-
-import {
-  Course as PrismaCourse,
-  Professor as PrismaProfessor,
-} from "@prisma/client";
-import ProfSerializer from "../../../serializers/profSerializer";
 import ElasticCourseSerializer from "../../../serializers/elasticCourseSerializer";
 
 describe("HydrateSerializer.bulkSerialize", () => {
-  const serializer = HydrateSerializer;
-
-  // test all of the cases in courseSerializerFixtures.ts
   it("should serialize all courses correctly", async () => {
-    const serializedCourses = await CourseSerializer.bulkSerialize(
-      coursePartialFixtures as PrismaCourseWithSections[]
+    const serializedCourses = await HydrateSerializer.bulkSerialize(
+      courseDataFixtures as PrismaCourseWithSections[]
     );
 
-    coursePartialFixtures.forEach((inputCourse, index) => {
+    courseDataFixtures.forEach((inputCourse, index) => {
       const serializedCourse = Object.values(serializedCourses)[index];
 
-      // Test class-level fields
       expect(serializedCourse.class.classId).toEqual(inputCourse.classId);
       expect(serializedCourse.class.name).toEqual(inputCourse.name);
       expect(serializedCourse.class.subject).toEqual(inputCourse.subject);
       expect(serializedCourse.class.termId).toEqual(inputCourse.termId);
 
-      // Test section-level fields
       inputCourse.sections.forEach((inputSection, sectionIndex) => {
         const serializedSection = serializedCourse.class.sections[sectionIndex];
 
@@ -51,17 +39,16 @@ describe("HydrateSerializer.bulkSerialize", () => {
 describe("Test HydrateProfSerializer.bulkSerialize", () => {
   it("should bulk serialize professor data correctly", async () => {
     const serializedProfessors = await HydrateProfSerializer.bulkSerialize(
-      profPartialFixtures
+      professorDataFixtures
     );
     const receivedProfessors = Object.values(serializedProfessors).map(
       ({ employee }) => employee
     );
-    expect(receivedProfessors.length).toEqual(profPartialFixtures.length); // Ensure both have the same length
+    expect(receivedProfessors.length).toEqual(professorDataFixtures.length); // Ensure both have the same length
 
-    profPartialFixtures.forEach((expectedProfessor, index) => {
+    professorDataFixtures.forEach((expectedProfessor, index) => {
       const receivedProfessor = receivedProfessors[index];
 
-      // test fields
       expect(receivedProfessor.email).toEqual(expectedProfessor.email);
       expect(receivedProfessor.firstName).toEqual(expectedProfessor.firstName);
       expect(receivedProfessor.lastName).toEqual(expectedProfessor.lastName);
@@ -102,10 +89,10 @@ describe("Test ElasticProfSerializer.bulkSerialize", () => {
 describe("Test HydrateCourseSerializer.bulkSerialize", () => {
   it("should bulk serialize course data correctly", async () => {
     const serializedCourses = await HydrateCourseSerializer.bulkSerialize(
-      hydrateCourseFixtures
+      hydrateCourseDataFixtures
     );
     Object.values(serializedCourses).forEach((receivedCourse, index) => {
-      const expectedCourse = hydrateCourseFixtures[index];
+      const expectedCourse = hydrateCourseDataFixtures[index];
 
       expect(receivedCourse.class.classAttributes).toEqual(
         expectedCourse.classAttributes
@@ -133,7 +120,28 @@ describe("Test HydrateCourseSerializer.bulkSerialize", () => {
       expect(receivedCourse.class.subject).toEqual(expectedCourse.subject);
       expect(receivedCourse.class.termId).toEqual(expectedCourse.termId);
       expect(receivedCourse.class.url).toEqual(expectedCourse.url);
-      expect(receivedCourse.class.desc).toEqual(expectedCourse.description); // Alias to 'description' if applicable
+      expect(receivedCourse.class.desc).toEqual(expectedCourse.description);
+    });
+  });
+});
+
+describe("Test ElasticCourseSerializer.bulkSerialize", () => {
+  it("should bulk serialize course data correctly", async () => {
+    const serializedCourses = await ElasticCourseSerializer.bulkSerialize(
+      elasticCourseDataFixtures
+    );
+
+    Object.values(serializedCourses).forEach((receivedCourse, index) => {
+      const expectedCourse = elasticCourseDataFixtures[index];
+
+      expect(receivedCourse.class.host).toEqual(expectedCourse.host);
+      expect(receivedCourse.class.name).toEqual(expectedCourse.name);
+      expect(receivedCourse.class.subject).toEqual(expectedCourse.subject);
+      expect(receivedCourse.class.classId).toEqual(
+        expectedCourse.id.split("/").pop()
+      );
+      expect(receivedCourse.class.termId).toEqual(expectedCourse.termId);
+      expect(receivedCourse.type).toEqual("class");
     });
   });
 });

@@ -1,4 +1,4 @@
-const coursePartialFixtures = [
+const courseDataFixtures = [
   {
     classId: "5360",
     name: "Noninteractive Computer Graphics",
@@ -274,4 +274,4 @@ const coursePartialFixtures = [
   },
 ];
 
-export default coursePartialFixtures;
+export default courseDataFixtures;
