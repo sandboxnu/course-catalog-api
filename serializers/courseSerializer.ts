@@ -18,7 +18,7 @@ import {
   So, the course we take has to be a subset of Course.
   The section we take has to be a subset of Section
  */
-abstract class CourseSerializer {
+class CourseSerializer {
   static async bulkSerialize<
     C extends Partial<Course>,
     S extends Partial<Section>

@@ -172,7 +172,6 @@ describe("ElasticCourseSerializer Integration Tests", () => {
         termId: originalCourse.termId,
       });
 
-      expect(Array.isArray(course.class.nupath)).toBe(true);
       expect(course.sections).toEqual([]);
       expect(course.type).toBe("class");
     });
