@@ -44,7 +44,7 @@ describe("Test HydrateProfSerializer.bulkSerialize", () => {
     const receivedProfessors = Object.values(serializedProfessors).map(
       ({ employee }) => employee
     );
-    expect(receivedProfessors.length).toEqual(professorDataFixtures.length); // Ensure both have the same length
+    expect(receivedProfessors.length).toEqual(professorDataFixtures.length);
 
     professorDataFixtures.forEach((expectedProfessor, index) => {
       const receivedProfessor = receivedProfessors[index];
