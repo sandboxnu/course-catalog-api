@@ -13,25 +13,27 @@ describe("TwilioNotifyer", () => {
     beforeAll(() => {
       // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        services: () => {
-          return {
-            verificationChecks: {
-              create: jest.fn(async (args) => {
-                switch (args.code) {
-                  case "VERIFIED":
-                    return { status: notifs.TWILIO_VERIF_CHECK_APPROVED };
-                  case "NOT VERIFIED":
-                    return { status: "any status besides that one above" };
-                  default: {
-                    const err = new Error();
-                    // @ts-expect-error - Wrong type, I don't care :)
-                    err.code = args.code;
-                    throw err;
+        v2: {
+          services: () => {
+            return {
+              verificationChecks: {
+                create: jest.fn(async (args) => {
+                  switch (args.code) {
+                    case "VERIFIED":
+                      return { status: notifs.TWILIO_VERIF_CHECK_APPROVED };
+                    case "NOT VERIFIED":
+                      return { status: "any status besides that one above" };
+                    default: {
+                      const err = new Error();
+                      // @ts-expect-error - Wrong type, I don't care :)
+                      err.code = args.code;
+                      throw err;
+                    }
                   }
-                }
-              }),
-            },
-          };
+                }),
+              },
+            };
+          },
         },
       };
     });
@@ -119,32 +121,34 @@ describe("TwilioNotifyer", () => {
     beforeAll(() => {
       // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        services: () => {
-          return {
-            verifications: {
-              create: jest.fn(async (args) => {
-                const err = new Error();
-                switch (args.to) {
-                  case "1":
-                    return 200;
-                  case "2":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
-                    throw err;
-                  case "3":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
-                    throw err;
-                  case "4":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
-                    throw err;
-                  default:
-                    throw err;
-                }
-              }),
-            },
-          };
+        v2: {
+          services: () => {
+            return {
+              verifications: {
+                create: jest.fn(async (args) => {
+                  const err = new Error();
+                  switch (args.to) {
+                    case "1":
+                      return 200;
+                    case "2":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
+                      throw err;
+                    case "3":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
+                      throw err;
+                    case "4":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
+                      throw err;
+                    default:
+                      throw err;
+                  }
+                }),
+              },
+            };
+          },
         },
       };
     });
