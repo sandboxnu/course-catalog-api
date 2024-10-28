@@ -67,7 +67,7 @@ class TwilioNotifyer {
   }
 
   async sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
-    return this.twilioClient.verify
+    return this.twilioClient.verify.v2
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
       .then(() => {
@@ -106,7 +106,7 @@ class TwilioNotifyer {
     recipientNumber: string,
     code: string,
   ): Promise<TwilioResponse> {
-    return this.twilioClient.verify
+    return this.twilioClient.verify.v2
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verificationChecks.create({ to: recipientNumber, code: code })
       .then((verification_check) => {
