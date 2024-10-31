@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import pMap from "../vendor/p-map/index";
+import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
 import macros from "../utils/macros";
