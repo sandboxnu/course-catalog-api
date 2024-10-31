@@ -5,7 +5,7 @@
  */
 
 import { Client } from "@elastic/elasticsearch";
-import pMap from "../vendor/p-map/index";
+import pMap from "p-map";
 import _ from "lodash";
 import macros from "./macros";
 import {
