@@ -363,8 +363,10 @@ class Updater {
     await this.sendUserNotifications(sections);
     // Save the data in our database
     await this.saveDataToDatabase(sections);
-    // Send out healthcheck ping
-    macros.PROD ? await sendHealthCheck() : null;
+    // Send out healthcheck ping in prod
+    if (macros.PROD) {
+      await sendHealthCheck();
+    }
 
     const totalTime = Date.now() - startTime;
     macros.log(
