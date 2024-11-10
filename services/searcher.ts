@@ -577,9 +577,7 @@ class Searcher {
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
-      results = await new HydrateSerializer().bulkSerialize(
-        searchResults.output
-      );
+      results = await HydrateSerializer.bulkSerialize(searchResults.output);
       results = this.filterOutSections(results, filters);
       hydrateDuration = Date.now() - startHydrate;
     }
