@@ -63,12 +63,12 @@ jobs:
       ## Since this test uses live data, there is a chance it could change
       # EG. NEU could remove the data for old semesters
       # In that case, feel free to update these tests to a new semester/prof/course
-      - name: Check that CS3500 was populated in Postgres, and that Amit is its professor
+      - name: Check that CS3500 was populated in Postgres, and that Lucia Nunez is its professor
         run: |-
           curl 'http://localhost:4000' \
             -X POST -H 'content-type: application/json' \
-            --data '{"query":"query { search(termId: \"202140\", query:\"CS3500\") { nodes { ... on ClassOccurrence { name sections { profs } } } } }"}' \
-            -v --silent --stderr - | grep "Amit Shesh"
+            --data '{"query":"query { search(termId: \"202430\", query:\"CS3500\") { nodes { ... on ClassOccurrence { name sections { profs } } } } }"}' \
+            -v --silent --stderr - | grep "Lucia Nunez"
 
       - name: Check that CS3500 was populated in Elasticsearch (ie. don't use the course code)
         run: |-
