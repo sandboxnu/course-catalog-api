@@ -10,6 +10,7 @@ import {
 import prisma from "../services/prisma";
 import elastic, { Elastic } from "../utils/elastic";
 import HydrateSerializer from "../serializers/hydrateSerializer";
+import HydrateCourseSerializer from "../serializers/hydrateCourseSerializer";
 import macros from "../utils/macros";
 import {
   EsQuery,
@@ -421,39 +422,6 @@ class Searcher {
     };
   }
 
-  filterOutSections(
-    results: SearchResult[],
-    filters: FilterInput
-  ): SearchResult[] {
-    return results
-      .map((result) => {
-        if (result.type === "employee") {
-          return result;
-        }
-
-        result.sections = result.sections.filter((section) => {
-          return Object.keys(filters).every((filter) => {
-            const filterValue = filters[filter];
-            switch (filter) {
-              case "honors":
-                return section.honors === filterValue;
-              case "subject":
-                return (filterValue as string[]).includes(section.subject);
-              case "campus":
-                return (filterValue as string[]).includes(section.campus);
-              case "classType":
-                return (filterValue as string[]).includes(section.classType);
-              default:
-                return true;
-            }
-          });
-        });
-
-        return result.sections.length > 0 ? result : null;
-      })
-      .filter((result) => result !== null) as SearchResult[];
-  }
-
   generateAgg(filter: string, value: string, count: number): AggCount {
     const agg: AggCount = { value, count };
     // in addition to the subject abbreviation, add subject description for subject filter
@@ -580,7 +548,6 @@ class Searcher {
       results = await new HydrateSerializer().bulkSerialize(
         searchResults.output
       );
-      results = this.filterOutSections(results, filters);
       hydrateDuration = Date.now() - startHydrate;
     }
 
