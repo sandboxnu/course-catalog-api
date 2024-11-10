@@ -3,7 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import { User } from "@prisma/client";
+import { User, FollowedSection } from "@prisma/client";
+import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
 import {
@@ -45,9 +46,20 @@ export async function sendNotifications(
     return;
   } else {
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
-      .map((course) => {
-        const courseMessage = generateCourseMessage(course);
+      .map(async (course) => {
         const users = courseHashToUsers[course.courseHash] ?? [];
+
+        await prisma.followedCourse.updateMany({
+          where: {
+            courseHash: course.courseHash,
+            userId: { in: users.map((u) => u.id) },
+          },
+          data: {
+            notifCount: { increment: 1 },
+          },
+        });
+
+        const courseMessage = generateCourseMessage(course);
         return users.map((user) => {
           return twilioNotifyer.sendNotificationText(
             user.phoneNumber,
@@ -59,9 +71,21 @@ export async function sendNotifications(
 
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
-        .map((section) => {
-          const sectionMessage = generateSectionMessage(section);
+        .map(async (section) => {
           const users = sectionHashToUsers[section.sectionHash] ?? [];
+
+          //increment notifCount of this section's entries in followedSection
+          await prisma.followedSection.updateMany({
+            where: {
+              sectionHash: section.sectionHash,
+              userId: { in: users.map((u) => u.id) },
+            },
+            data: {
+              notifCount: { increment: 1 },
+            },
+          });
+
+          const sectionMessage = generateSectionMessage(section);
           return users.map((user) => {
             return twilioNotifyer.sendNotificationText(
               user.phoneNumber,
@@ -70,6 +94,20 @@ export async function sendNotifications(
           });
         })
         .reduce((acc, val) => acc.concat(val), []);
+
+    //delete any entries in followedCourse w/ notifCount >= 3
+    await prisma.followedCourse.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
+
+    //delete any entries in followedSection w/ notifCount >= 3
+    await prisma.followedSection.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
 
     await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
       () => {
