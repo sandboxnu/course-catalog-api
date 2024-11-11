@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`sectionParser should match snapshot 1`] = `
-Object {
+{
   "campus": "Online",
   "classId": "2311",
   "classType": "Lecture",
@@ -9,25 +9,25 @@ Object {
   "honors": true,
   "host": "neu.edu",
   "lastUpdateTime": 1578252414987,
-  "meetings": Array [
-    Object {
+  "meetings": [
+    {
       "endDate": 18234,
       "startDate": 18143,
-      "times": Object {
-        "1": Array [
-          Object {
+      "times": {
+        "1": [
+          {
             "end": 52800,
             "start": 48900,
           },
         ],
-        "3": Array [
-          Object {
+        "3": [
+          {
             "end": 52800,
             "start": 48900,
           },
         ],
-        "4": Array [
-          Object {
+        "4": [
+          {
             "end": 52800,
             "start": 48900,
           },
@@ -36,15 +36,15 @@ Object {
       "type": "Class",
       "where": "Shillman Hall 220",
     },
-    Object {
+    {
       "endDate": 18243,
       "startDate": 18236,
-      "times": Object {},
+      "times": {},
       "type": "Final Exam",
       "where": "TBA",
     },
   ],
-  "profs": Array [
+  "profs": [
     "Oyindasola Oyelaran",
   ],
   "seatsCapacity": 76,
@@ -58,7 +58,7 @@ Object {
 `;
 
 exports[`sectionParser should match snapshot 2`] = `
-Object {
+{
   "campus": "Boston",
   "classId": "2500",
   "classType": "Lecture",
@@ -66,25 +66,25 @@ Object {
   "honors": false,
   "host": "neu.edu",
   "lastUpdateTime": 1578252414987,
-  "meetings": Array [
-    Object {
+  "meetings": [
+    {
       "endDate": 18003,
       "startDate": 17903,
-      "times": Object {
-        "1": Array [
-          Object {
+      "times": {
+        "1": [
+          {
             "end": 37200,
             "start": 33300,
           },
         ],
-        "3": Array [
-          Object {
+        "3": [
+          {
             "end": 37200,
             "start": 33300,
           },
         ],
-        "4": Array [
-          Object {
+        "4": [
+          {
             "end": 37200,
             "start": 33300,
           },
@@ -94,7 +94,7 @@ Object {
       "where": "East Village 024",
     },
   ],
-  "profs": Array [
+  "profs": [
     "Alan Mislove",
   ],
   "seatsCapacity": 75,

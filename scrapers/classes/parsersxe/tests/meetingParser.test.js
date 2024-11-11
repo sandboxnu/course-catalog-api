@@ -9,10 +9,10 @@ it("meetingParser.ts", () => {
 
 it("profname", () => {
   expect(MeetingParser.profName({ displayName: "Chu, Daj" })).toEqual(
-    "Daj Chu"
+    "Daj Chu",
   );
   expect(MeetingParser.profName("Lastname, Firstname")).toEqual(
-    "Firstname Lastname"
+    "Firstname Lastname",
   );
 });
 

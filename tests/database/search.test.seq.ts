@@ -9,7 +9,7 @@ describe("searcher", () => {
   describe("generateMQuery", () => {
     it("generates with no filters", () => {
       expect(
-        searcher.generateMQuery("fundies", "202030", 0, 10, {})
+        searcher.generateMQuery("fundies", "202030", 0, 10, {}),
       ).toMatchSnapshot();
     });
 
@@ -17,7 +17,7 @@ describe("searcher", () => {
       expect(
         searcher.generateMQuery("fundies", "202030", 0, 10, {
           campus: ["Online", "Boston"],
-        })
+        }),
       ).toMatchSnapshot();
     });
   });
@@ -26,13 +26,13 @@ describe("searcher", () => {
   describe("generateQuery", () => {
     it("generates match_all when no query", () => {
       expect(
-        searcher.generateQuery("", "202030", {}, 0, 10).query["bool"]["must"]
+        searcher.generateQuery("", "202030", {}, 0, 10).query["bool"]["must"],
       ).toEqual({ match_all: {} });
     });
 
     it("generates a query without filters", () => {
       expect(
-        searcher.generateQuery("fundies", "202030", {}, 0, 10, "nupath")
+        searcher.generateQuery("fundies", "202030", {}, 0, 10, "nupath"),
       ).toMatchSnapshot();
     });
   });
@@ -62,7 +62,7 @@ describe("searcher", () => {
         classType: ["Lecture"],
       };
       expect(searcher.validateFilters(validFilters)).toMatchObject(
-        validFilters
+        validFilters,
       );
     });
   });

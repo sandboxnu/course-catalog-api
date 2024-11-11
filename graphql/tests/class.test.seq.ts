@@ -167,8 +167,8 @@ describe("returns errors for non-existant classes", () => {
     expect(res?.errors?.length).toBe(1);
     expect(res?.errors?.[0]).toEqual(
       new GraphQLError(
-        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
-      )
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`,
+      ),
     );
   });
 
@@ -211,8 +211,8 @@ describe("returns errors for non-existant classes", () => {
     expect(res?.errors?.length).toBe(1);
     expect(res?.errors?.[0]).toEqual(
       new GraphQLError(
-        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`
-      )
+        `We couldn't find any occurrences of a class with subject 'CS' and class ID '2510'`,
+      ),
     );
   });
 
@@ -232,8 +232,8 @@ describe("returns errors for non-existant classes", () => {
     expect(res?.errors?.length).toBe(1);
     expect(res?.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a course matching the term '202310', subject 'CS', and class ID '2500'"
-      )
+        "We couldn't find a course matching the term '202310', subject 'CS', and class ID '2500'",
+      ),
     );
   });
 
@@ -251,8 +251,8 @@ describe("returns errors for non-existant classes", () => {
     expect(res?.errors?.length).toBe(1);
     expect(res?.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a course matching the hash 'neu.edu/202310/CS/2500'"
-      )
+        "We couldn't find a course matching the hash 'neu.edu/202310/CS/2500'",
+      ),
     );
   });
 
@@ -270,8 +270,8 @@ describe("returns errors for non-existant classes", () => {
     expect(res?.errors?.length).toBe(1);
     expect(res?.errors?.[0]).toEqual(
       new GraphQLError(
-        "We couldn't find a section matching the hash 'neu.edu/201830/CS/2500/123456'"
-      )
+        "We couldn't find a section matching the hash 'neu.edu/201830/CS/2500/123456'",
+      ),
     );
   });
 });

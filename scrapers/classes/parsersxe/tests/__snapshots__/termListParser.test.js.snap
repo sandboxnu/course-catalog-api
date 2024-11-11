@@ -1,22 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`termListParser pulls out relevant data 1`] = `
-Array [
-  Object {
+[
+  {
     "active": true,
     "host": "neu.edu",
     "subCollege": "CPS",
     "termId": "202034",
     "text": "Spring 2020 Semester",
   },
-  Object {
+  {
     "active": true,
     "host": "neu.edu",
     "subCollege": "LAW",
     "termId": "202032",
     "text": "Spring 2020 Semester",
   },
-  Object {
+  {
     "active": true,
     "host": "neu.edu",
     "subCollege": "NEU",

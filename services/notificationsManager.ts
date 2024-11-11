@@ -31,7 +31,7 @@ class NotificationsManager {
   async putUserSubscriptions(
     phoneNumber: string,
     sectionIds: string[],
-    courseIds: string[]
+    courseIds: string[],
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
     const sectionTuples = sectionIds.map((s: string) => ({
@@ -59,7 +59,7 @@ class NotificationsManager {
   async deleteUserSubscriptions(
     phoneNumber: string,
     sectionIds: string[],
-    courseIds: string[]
+    courseIds: string[],
   ): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
 
@@ -71,7 +71,7 @@ class NotificationsManager {
           userId: userId,
           sectionHash: { in: sectionIds },
         },
-      })
+      }),
     );
 
     promises.push(
@@ -80,7 +80,7 @@ class NotificationsManager {
           userId: userId,
           courseHash: { in: courseIds },
         },
-      })
+      }),
     );
 
     await Promise.all(promises);

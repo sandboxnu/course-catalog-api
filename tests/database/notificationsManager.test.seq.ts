@@ -41,8 +41,8 @@ describe("user subscriptions", () => {
   it("cannot insert subscriptions for nonexistent courses/sections", async () => {
     await notifs.upsertUser(phoneNumber);
     await expect(
-      notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds)
-    ).rejects.toThrow("Foreign key constraint failed");
+      notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds),
+    ).rejects.toThrow("Foreign key constraint violated");
   });
 
   it("can insert new subscriptions", async () => {
@@ -77,7 +77,7 @@ describe("user subscriptions", () => {
     await notifs.putUserSubscriptions(
       phoneNumber,
       sectionIds.slice(0, 1),
-      courseIds
+      courseIds,
     );
 
     expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({

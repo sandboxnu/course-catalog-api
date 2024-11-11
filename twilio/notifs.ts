@@ -39,7 +39,7 @@ class TwilioNotifyer {
 
   async sendNotificationText(
     recipientNumber: string,
-    message: string
+    message: string,
   ): Promise<void> {
     return this.twilioClient.messages
       .create({ body: message, from: this.TWILIO_NUMBER, to: recipientNumber })
@@ -51,23 +51,23 @@ class TwilioNotifyer {
         switch (err.code) {
           case this.TWILIO_ERRORS.USER_UNSUBSCRIBED:
             macros.warn(
-              `${recipientNumber} has unsubscribed from notifications`
+              `${recipientNumber} has unsubscribed from notifications`,
             );
             await notificationsManager.deleteAllUserSubscriptions(
-              recipientNumber
+              recipientNumber,
             );
             return;
           default:
             macros.error(
               `Error trying to send notification text to ${recipientNumber}`,
-              err
+              err,
             );
         }
       });
   }
 
   async sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
-    return this.twilioClient.verify
+    return this.twilioClient.verify.v2
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
       .then(() => {
@@ -95,7 +95,7 @@ class TwilioNotifyer {
           default:
             macros.error(
               `Error trying to send verification code to ${recipientNumber}`,
-              err
+              err,
             );
             throw err;
         }
@@ -104,9 +104,9 @@ class TwilioNotifyer {
 
   async checkVerificationCode(
     recipientNumber: string,
-    code: string
+    code: string,
   ): Promise<TwilioResponse> {
-    return this.twilioClient.verify
+    return this.twilioClient.verify.v2
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verificationChecks.create({ to: recipientNumber, code: code })
       .then((verification_check) => {
@@ -129,7 +129,7 @@ class TwilioNotifyer {
             };
           case this.TWILIO_ERRORS.RESOURCE_NOT_FOUND:
             macros.warn(
-              `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`
+              `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`,
             );
             return {
               statusCode: 400,
@@ -144,7 +144,7 @@ class TwilioNotifyer {
           default:
             macros.error(
               `Error trying to validate verification code from ${recipientNumber}`,
-              err
+              err,
             );
             throw err;
         }
@@ -163,12 +163,12 @@ class TwilioNotifyer {
       // TODO: actually remove user from SearchNEU notifs
       case this.TWILIO_REPLIES.STOP_ALL:
         twimlResponse.message(
-          "You have been removed from all SearchNEU notifications."
+          "You have been removed from all SearchNEU notifications.",
         );
         break;
       default:
         twimlResponse.message(
-          "SearchNEU Bot failed to understand your message"
+          "SearchNEU Bot failed to understand your message",
         );
     }
     res.send(twimlResponse.toString());

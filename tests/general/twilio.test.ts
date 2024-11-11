@@ -11,34 +11,36 @@ import notificationsManager from "../../services/notificationsManager";
 describe("TwilioNotifyer", () => {
   describe("checkVerificationCode", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        // @ts-expect-error - wrong type
-        services: () => {
-          return {
-            verificationChecks: {
-              create: jest.fn(async (args) => {
-                switch (args.code) {
-                  case "VERIFIED":
-                    return { status: notifs.TWILIO_VERIF_CHECK_APPROVED };
-                  case "NOT VERIFIED":
-                    return { status: "any status besides that one above" };
-                  default: {
-                    const err = new Error();
-                    // @ts-expect-error - Wrong type, I don't care :)
-                    err.code = args.code;
-                    throw err;
+        v2: {
+          services: () => {
+            return {
+              verificationChecks: {
+                create: jest.fn(async (args) => {
+                  switch (args.code) {
+                    case "VERIFIED":
+                      return { status: notifs.TWILIO_VERIF_CHECK_APPROVED };
+                    case "NOT VERIFIED":
+                      return { status: "any status besides that one above" };
+                    default: {
+                      const err = new Error();
+                      // @ts-expect-error - Wrong type, I don't care :)
+                      err.code = args.code;
+                      throw err;
+                    }
                   }
-                }
-              }),
-            },
-          };
+                }),
+              },
+            };
+          },
         },
       };
     });
 
     it("Non-error responses", async () => {
       expect(
-        (await notifs.checkVerificationCode("911", "VERIFIED")).statusCode
+        (await notifs.checkVerificationCode("911", "VERIFIED")).statusCode,
       ).toBe(200);
       const resp2 = await notifs.checkVerificationCode("911", "NOT VERIFIED");
       expect(resp2.statusCode).toBe(400);
@@ -49,17 +51,17 @@ describe("TwilioNotifyer", () => {
       const resp_max_attempts = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.MAX_CHECK_ATTEMPTS_REACHED
+        notifs.TWILIO_ERRORS.MAX_CHECK_ATTEMPTS_REACHED,
       );
       const resp_not_found = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.RESOURCE_NOT_FOUND
+        notifs.TWILIO_ERRORS.RESOURCE_NOT_FOUND,
       );
       const resp_invalid = await notifs.checkVerificationCode(
         "911",
         // @ts-expect-error - wrong type, don't care
-        notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER
+        notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER,
       );
 
       expect(resp_max_attempts.statusCode).toBe(400);
@@ -72,7 +74,7 @@ describe("TwilioNotifyer", () => {
       expect(resp_invalid.message).toMatch(/invalid phone number/i);
 
       await expect(
-        notifs.checkVerificationCode("911", "random error")
+        notifs.checkVerificationCode("911", "random error"),
       ).rejects.toThrow();
     });
   });
@@ -97,7 +99,7 @@ describe("TwilioNotifyer", () => {
       // @ts-expect-error - it's not the exact same type, but I don't care
       notifs.handleUserReply(req, mockRes);
       expect(mockRes.send.mock.calls[0][0]).toMatch(
-        /failed to understand your message/i
+        /failed to understand your message/i,
       );
     });
 
@@ -117,34 +119,36 @@ describe("TwilioNotifyer", () => {
 
   describe("sendVerificationCode", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["verify"] = {
-        // @ts-expect-error - wrong type
-        services: () => {
-          return {
-            verifications: {
-              create: jest.fn(async (args) => {
-                const err = new Error();
-                switch (args.to) {
-                  case "1":
-                    return 200;
-                  case "2":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
-                    throw err;
-                  case "3":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
-                    throw err;
-                  case "4":
-                    // @ts-expect-error -- wrong error type
-                    err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
-                    throw err;
-                  default:
-                    throw err;
-                }
-              }),
-            },
-          };
+        v2: {
+          services: () => {
+            return {
+              verifications: {
+                create: jest.fn(async (args) => {
+                  const err = new Error();
+                  switch (args.to) {
+                    case "1":
+                      return 200;
+                    case "2":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
+                      throw err;
+                    case "3":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
+                      throw err;
+                    case "4":
+                      // @ts-expect-error -- wrong error type
+                      err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
+                      throw err;
+                    default:
+                      throw err;
+                  }
+                }),
+              },
+            };
+          },
         },
       };
     });
@@ -180,8 +184,8 @@ describe("TwilioNotifyer", () => {
 
   describe("sendNotificationText", () => {
     beforeAll(() => {
+      // @ts-expect-error - wrong type
       twilioClient["messages"] = {
-        // @ts-expect-error - wrong type
         create: jest.fn(async (args) => {
           const err = new Error();
           switch (args.to) {
@@ -202,7 +206,7 @@ describe("TwilioNotifyer", () => {
       jest.spyOn(macros, "log");
       await notifs.sendNotificationText("1", "message");
       expect(macros.log).toHaveBeenCalledWith(
-        expect.stringMatching(/sent.*text/i)
+        expect.stringMatching(/sent.*text/i),
       );
     });
 
@@ -216,10 +220,10 @@ describe("TwilioNotifyer", () => {
 
       await notifs.sendNotificationText("2", "message");
       expect(macros.warn).toHaveBeenCalledWith(
-        expect.stringMatching(/has unsubscribed/i)
+        expect.stringMatching(/has unsubscribed/i),
       );
       expect(
-        notificationsManager.deleteAllUserSubscriptions
+        notificationsManager.deleteAllUserSubscriptions,
       ).toHaveBeenCalledWith("2");
     });
 
@@ -231,7 +235,7 @@ describe("TwilioNotifyer", () => {
       await notifs.sendNotificationText("3", "message");
       expect(macros.error).toHaveBeenCalledWith(
         expect.stringMatching(/error trying to send/i),
-        expect.any(Error)
+        expect.any(Error),
       );
     });
   });

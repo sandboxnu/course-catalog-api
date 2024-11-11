@@ -1,48 +1,48 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`cannot find major from non-present majorId 1`] = `
-Object {
-  "data": Object {
+{
+  "data": {
     "major": null,
   },
-  "errors": Array [
+  "errors": [
     [GraphQLError: major not found!],
   ],
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`cannot find majorOccurrence from non-present year 1`] = `
-Object {
-  "data": Object {
-    "major": Object {
+{
+  "data": {
+    "major": {
       "majorId": "computer-information-science/computer-science/bscs",
       "occurrence": null,
     },
   },
-  "errors": Array [
+  "errors": [
     [GraphQLError: occurrence not found!],
   ],
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`gets latest occurrence 1`] = `
-Object {
-  "data": Object {
-    "major": Object {
-      "latestOccurrence": Object {
-        "spec": Object {
+{
+  "data": {
+    "major": {
+      "latestOccurrence": {
+        "spec": {
           "name": "Computer Science, BSCS",
           "yearVersion": 2018,
         },
@@ -53,46 +53,46 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`gets major from majorId 1`] = `
-Object {
-  "data": Object {
-    "major": Object {
+{
+  "data": {
+    "major": {
       "majorId": "computer-information-science/computer-science/bscs",
     },
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }
 `;
 
 exports[`gets specific occurrence 1`] = `
-Object {
-  "data": Object {
-    "major": Object {
+{
+  "data": {
+    "major": {
       "majorId": "computer-information-science/computer-science/bscs",
-      "occurrence": Object {
-        "plansOfStudy": Array [
-          Object {
+      "occurrence": {
+        "plansOfStudy": [
+          {
             "id": "0",
-            "years": Array [
+            "years": [
               1000,
             ],
           },
         ],
-        "spec": Object {
+        "spec": {
           "name": "Computer Science, BSCS",
           "yearVersion": 2017,
         },
@@ -102,9 +102,9 @@ Object {
   },
   "errors": undefined,
   "extensions": undefined,
-  "http": Object {
+  "http": {
     "headers": Headers {
-      Symbol(map): Object {},
+      Symbol(map): {},
     },
   },
 }

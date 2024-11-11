@@ -90,7 +90,7 @@ class Cache {
     if (name !== macros.DEV_DATA_DIR && name !== macros.REQUESTS_CACHE_DIR) {
       macros.critical(
         "Folder name must be macros.DEV_DATA_DIR (for parsers cache) or macros.REQUESTS_CACHE_DIR (for request cache). Given:",
-        name
+        name,
       );
     }
   }
@@ -114,7 +114,7 @@ class Cache {
       macros.verbose(
         `It took ${Date.now() - midTime} ms to parse and ${
           midTime - startTime
-        } to load ${msgPackFileExtension}`
+        } to load ${msgPackFileExtension}`,
       );
       return retVal;
     }
@@ -130,7 +130,7 @@ class Cache {
       macros.verbose(
         `It took ${Date.now() - midTime} ms to parse and ${
           midTime - startTime
-        } to load ${jsonFileExtension}`
+        } to load ${jsonFileExtension}`,
       );
       return retVal;
     }
@@ -149,7 +149,7 @@ class Cache {
   async get(
     folderName: string,
     className: string,
-    key: string
+    key: string,
   ): Promise<unknown> {
     if (!macros.DEV) {
       macros.error("Called cache.js get but not in DEV mode?");
@@ -188,7 +188,7 @@ class Cache {
     const timeSpendEncoding = Date.now() - startTime;
     this.totalTimeSpendEncoding += timeSpendEncoding;
     macros.verbose(
-      `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`
+      `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`,
     );
     await fs.writeFile(`${destinationFile}.new`, buffer);
 
@@ -200,7 +200,7 @@ class Cache {
     macros.verbose(
       `It took ${Date.now() - startTime} ms to save ${destinationFile} (${
         this.totalTimeSpendCloning
-      } ms spent cloning so far).`
+      } ms spent cloning so far).`,
     );
   }
 
@@ -215,7 +215,7 @@ class Cache {
     className: string,
     key: string,
     value,
-    optimizeForSpeed = false
+    optimizeForSpeed = false,
   ): Promise<void> {
     if (!macros.DEV) {
       macros.error("Called cache.js set but not in DEV mode?");

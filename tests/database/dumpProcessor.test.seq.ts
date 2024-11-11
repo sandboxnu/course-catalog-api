@@ -56,7 +56,7 @@ it("does not create records if dump is empty", async () => {
       prisma.section.count(),
       prisma.subject.count(),
       prisma.termInfo.count(),
-    ])
+    ]),
   ).toEqual(prevCounts);
 });
 
@@ -76,7 +76,7 @@ function createDummyCourseForTermId(termId: string): ParsedCourseSR {
     minCredits: 2009,
     lastUpdateTime: 0,
     college: "Harvard University",
-    feeAmount: Number.MAX_SAFE_INTEGER,
+    feeAmount: 2147483647, // The joke used to be funnier, but Primsa by default handles INTs as 32 bit
     feeDescription: "giving day :)",
   };
 }
@@ -86,7 +86,7 @@ describe("with termInfos", () => {
     expect(await prisma.termInfo.count()).toEqual(0);
 
     const newClasses = termInfos.map((info) =>
-      createDummyCourseForTermId(info.termId)
+      createDummyCourseForTermId(info.termId),
     );
 
     await dumpProcessor.main({
@@ -159,11 +159,11 @@ describe("with termInfos", () => {
             termId: "654321",
           },
         })
-      )?.subCollege
+      )?.subCollege,
     ).toBe("fake college");
 
     const newClasses = termInfos.map((info) =>
-      createDummyCourseForTermId(info.termId)
+      createDummyCourseForTermId(info.termId),
     );
 
     await dumpProcessor.main({
@@ -180,7 +180,7 @@ describe("with termInfos", () => {
             termId: "654321",
           },
         })
-      )?.subCollege
+      )?.subCollege,
     ).toBe("LAW");
   });
 });
@@ -432,7 +432,7 @@ describe("with updates", () => {
         await prisma.course.findUnique({
           where: { id: "neu.edu/202030/CS/3500" },
         })
-      )?.name
+      )?.name,
     ).toEqual("Compilers");
   });
 
@@ -446,7 +446,7 @@ describe("with updates", () => {
     };
     expect(
       (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
-        ?.description
+        ?.description,
     ).toEqual("Computer Science");
     await dumpProcessor.main({ termDump: termDump });
     expect(await prisma.course.count()).toEqual(1);
@@ -454,7 +454,7 @@ describe("with updates", () => {
     expect(await prisma.subject.count()).toEqual(1);
     expect(
       (await prisma.subject.findUnique({ where: { abbreviation: "CS" } }))
-        ?.description
+        ?.description,
     ).toEqual("Computer Sciences");
   });
 });

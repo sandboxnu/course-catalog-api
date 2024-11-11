@@ -1,25 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`meetingParser.ts 1`] = `
-Array [
-  Object {
+[
+  {
     "endDate": 18067,
     "startDate": 18022,
-    "times": Object {
-      "2": Array [
-        Object {
+    "times": {
+      "2": [
+        {
           "end": 48000,
           "start": 35400,
         },
       ],
-      "4": Array [
-        Object {
+      "4": [
+        {
           "end": 48000,
           "start": 35400,
         },
       ],
-      "5": Array [
-        Object {
+      "5": [
+        {
           "end": 48000,
           "start": 35400,
         },
@@ -28,18 +28,18 @@ Array [
     "type": "Class",
     "where": "Forsyth Building 242",
   },
-  Object {
+  {
     "endDate": 18072,
     "startDate": 18022,
-    "times": Object {
-      "1": Array [
-        Object {
+    "times": {
+      "1": [
+        {
           "end": 52200,
           "start": 36000,
         },
       ],
-      "3": Array [
-        Object {
+      "3": [
+        {
           "end": 52200,
           "start": 36000,
         },
@@ -48,12 +48,12 @@ Array [
     "type": "Lab",
     "where": "Behrakis Health Sciences Cntr 420",
   },
-  Object {
+  {
     "endDate": 18072,
     "startDate": 18072,
-    "times": Object {
-      "2": Array [
-        Object {
+    "times": {
+      "2": [
+        {
           "end": 63000,
           "start": 55800,
         },

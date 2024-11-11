@@ -15,7 +15,7 @@ class SectionParser {
   async parseSectionsOfClass(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<false | Section[]> {
     const cookieJar = await util.getCookiesForSearch(termId);
     const req = await requestObj.get(
@@ -29,7 +29,7 @@ class SectionParser {
           pageMaxSize: 500,
         },
         cookieJar: cookieJar,
-      }
+      },
     );
 
     const bodyObj = JSON.parse(req.body);

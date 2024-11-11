@@ -41,7 +41,7 @@ class Main {
       const cached = await cache.get(
         macros.DEV_DATA_DIR,
         "classes",
-        Main.COLLEGE_ABRV
+        Main.COLLEGE_ABRV,
       );
 
       if (cached) {

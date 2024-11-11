@@ -66,7 +66,7 @@ class Searcher {
     this.filters = Searcher.generateFilters();
     this.aggFilters = _.pickBy<EsFilterStruct, EsAggFilterStruct>(
       this.filters,
-      (f): f is EsAggFilterStruct => f.agg !== false
+      (f): f is EsAggFilterStruct => f.agg !== false,
     );
     this.AGG_RES_SIZE = 1000;
     this.COURSE_CODE_PATTERN = /^\s*([a-zA-Z]{2,4})\s*(\d{4})?\s*$/i;
@@ -295,7 +295,7 @@ class Searcher {
     userFilters: FilterInput,
     min: number,
     max: number,
-    aggregation = ""
+    aggregation = "",
   ): EsQuery {
     //a list of all queries
     const matchQueries: ParsedQuery = this.parseQuery(query);
@@ -368,7 +368,7 @@ class Searcher {
     termId: string,
     min: number,
     max: number,
-    filters: FilterInput
+    filters: FilterInput,
   ): EsQuery[] {
     const validFilters: FilterInput = this.validateFilters(filters);
 
@@ -379,7 +379,7 @@ class Searcher {
     for (const fKey of Object.keys(this.aggFilters)) {
       const everyOtherFilter: FilterInput = _.omit(filters, fKey);
       queries.push(
-        this.generateQuery(query, termId, everyOtherFilter, 0, 0, fKey)
+        this.generateQuery(query, termId, everyOtherFilter, 0, 0, fKey),
       );
     }
     return queries;
@@ -390,16 +390,16 @@ class Searcher {
     termId: string,
     min: number,
     max: number,
-    filters: FilterInput
+    filters: FilterInput,
   ): Promise<PartialResults> {
     const queries = this.generateMQuery(query, termId, min, max, filters);
     const results: EsMultiResult = await elastic.mquery(
       `${elastic.CLASS_ALIAS},${elastic.EMPLOYEE_ALIAS}`,
-      queries
+      queries,
     );
     return this.parseResults(
       results.body.responses,
-      Object.keys(this.aggFilters)
+      Object.keys(this.aggFilters),
     );
   }
 
@@ -416,7 +416,7 @@ class Searcher {
               return this.generateAgg(filter, aggVal.key, aggVal.doc_count);
             }),
           ];
-        })
+        }),
       ),
     };
   }
@@ -466,7 +466,7 @@ class Searcher {
   async getOneSearchResult(
     subject: string,
     classId: string,
-    termId: string
+    termId: string,
   ): Promise<SingleSearchResult> {
     const start = Date.now();
 
@@ -477,7 +477,7 @@ class Searcher {
       9999,
       {
         subject: [subject],
-      }
+      },
     );
     const result = results?.output[0];
 
@@ -539,7 +539,7 @@ class Searcher {
     termId: string,
     min: number,
     max: number,
-    filters: FilterInput = {}
+    filters: FilterInput = {},
   ): Promise<SearchResults> {
     await this.initializeSubjects();
     const start = Date.now();
@@ -563,7 +563,7 @@ class Searcher {
       const singleResult = await this.getOneSearchResult(
         subject,
         courseCode,
-        termId
+        termId,
       );
       ({ results, resultCount, took, hydrateDuration, aggregations } =
         singleResult);
@@ -573,12 +573,12 @@ class Searcher {
         termId,
         min,
         max,
-        filters
+        filters,
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
       results = await new HydrateSerializer().bulkSerialize(
-        searchResults.output
+        searchResults.output,
       );
       results = this.filterOutSections(results, filters);
       hydrateDuration = Date.now() - startHydrate;
