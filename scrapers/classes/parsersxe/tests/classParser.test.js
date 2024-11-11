@@ -51,8 +51,8 @@ describe("classParser", () => {
       const actual = ["Natural/Designed World"];
       expect(
         ClassParser.nupath(
-          ClassParser.serializeAttributes(data.getCourseAttributes2)
-        )
+          ClassParser.serializeAttributes(data.getCourseAttributes2),
+        ),
       ).toEqual(actual);
     });
   });
@@ -61,7 +61,7 @@ describe("classParser", () => {
     it("trims and splits on <br/>", () => {
       const actual = ["Business Admin  UBBA"];
       expect(
-        ClassParser.serializeAttributes(data.getCourseAttributes1)
+        ClassParser.serializeAttributes(data.getCourseAttributes1),
       ).toEqual(actual);
     });
 
@@ -72,7 +72,7 @@ describe("classParser", () => {
         "Computer&Info Sci  UBCS",
       ];
       expect(
-        ClassParser.serializeAttributes(data.getCourseAttributes2)
+        ClassParser.serializeAttributes(data.getCourseAttributes2),
       ).toEqual(actual);
     });
   });
@@ -80,10 +80,10 @@ describe("classParser", () => {
   describe("parseClassFromSearchResult", () => {
     it("parses and sends extra requests", async () => {
       expect(
-        await ClassParser.parseClassFromSearchResult(data.chem2311, "202010")
+        await ClassParser.parseClassFromSearchResult(data.chem2311, "202010"),
       ).toMatchSnapshot();
       expect(
-        await ClassParser.parseClassFromSearchResult(data.cs2500, "202010")
+        await ClassParser.parseClassFromSearchResult(data.cs2500, "202010"),
       ).toMatchSnapshot();
     });
   });
@@ -140,7 +140,7 @@ describe("classParser", () => {
           <td class="dddefault">this is a description</td>
         </tr>
       </tbody>
-    </table>`)
+    </table>`),
       ).toEqual({
         amount: 130,
         description: "this is a description",
@@ -214,8 +214,8 @@ describe("getRefsFromJson", () => {
             },
           ],
         },
-        "123"
-      )
+        "123",
+      ),
     ).toEqual({});
   });
 
@@ -253,8 +253,8 @@ describe("getRefsFromJson", () => {
             },
           ],
         },
-        "123"
-      )
+        "123",
+      ),
     ).toEqual({
       "neu.edu/123/CS/123": {
         classId: "123",

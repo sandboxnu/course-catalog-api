@@ -13,20 +13,22 @@ import ElasticProfSerializer from "../serializers/elasticProfSerializer";
 import macros from "../utils/macros";
 
 export async function bulkUpsertCourses(
-  courses: Course[]
+  courses: Course[],
 ): Promise<Promise<unknown>> {
   // FIXME this pattern is bad
   const serializedCourses = await ElasticCourseSerializer.bulkSerialize(
     courses,
-    true
+    true,
   );
   return elastic.bulkIndexFromMap(elastic.CLASS_ALIAS, serializedCourses);
 }
 
 export async function bulkUpsertProfs(
-  profs: Professor[]
+  profs: Professor[],
 ): Promise<Promise<unknown>> {
-  const serializedProfs = await ElasticProfSerializer.bulkSerialize(profs);
+  const serializedProfs = await ElasticProfSerializer().bulkSerialize(
+    profs,
+  );
   return elastic.bulkIndexFromMap(elastic.EMPLOYEE_ALIAS, serializedProfs);
 }
 
@@ -42,8 +44,8 @@ export async function populateES(): Promise<void> {
 if (require.main === module) {
   macros.log(
     `Populating ES at ${macros.getEnvVariable(
-      "elasticURL"
-    )} from Postgres at ${macros.getEnvVariable("dbHost")}`
+      "elasticURL",
+    )} from Postgres at ${macros.getEnvVariable("dbHost")}`,
   );
   (async () => {
     await populateES();

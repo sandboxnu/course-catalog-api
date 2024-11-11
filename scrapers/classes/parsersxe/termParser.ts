@@ -33,7 +33,7 @@ class TermParser {
    */
   async parseTerm(
     termId: string,
-    multiBar?: MultiProgressBars
+    multiBar?: MultiProgressBars,
   ): Promise<ParsedTermSR> {
     const subjectTable = await getSubjectDescriptions(termId);
     let sections: Section[] = await this.parseSections(termId);
@@ -46,7 +46,7 @@ class TermParser {
         (s) =>
           filters.campus(s.campus) &&
           filters.subject(s.subject) &&
-          filters.courseNumber(parseInt(s.classId))
+          filters.courseNumber(parseInt(s.classId)),
       );
     }
 
@@ -76,12 +76,12 @@ class TermParser {
         multiBar?.incrementTask(barName, { percentage: incrementPercentage });
         return result;
       },
-      { concurrency: 500 }
+      { concurrency: 500 },
     );
 
     // Course requests which fetch no data will return false
     let classes = unfilteredClasses.filter(
-      (c): c is ParsedCourseSR => c !== false
+      (c): c is ParsedCourseSR => c !== false,
     );
 
     // Custom scrapes should not scrape coreqs/prereqs/etc.
@@ -94,7 +94,7 @@ class TermParser {
     }
 
     macros.log(
-      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`
+      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
     );
 
     multiBar?.done(barName, {
@@ -113,7 +113,7 @@ class TermParser {
   async addCourseRefs(
     classes: ParsedCourseSR[],
     courseIdentifiers: Record<string, CourseRef>,
-    termId: string
+    termId: string,
   ): Promise<ParsedCourseSR[]> {
     const refsPerCourse = classes.map((c) => ClassParser.getAllCourseRefs(c));
     const courseRefs = Object.assign({}, ...refsPerCourse); // Shallow copy
@@ -125,14 +125,14 @@ class TermParser {
           const referredClass = await ClassParser.parseClass(
             termId,
             subject,
-            classId
+            classId,
           );
           if (referredClass) {
             classes.push(referredClass);
           }
         }
       },
-      { concurrency: 500 }
+      { concurrency: 500 },
     );
 
     return classes;
@@ -165,7 +165,7 @@ class TermParser {
               pageMaxSize: pageSize,
             },
             cookieJar: cookieJar,
-          }
+          },
         );
 
         const bodyObj = JSON.parse(req.body);
@@ -199,7 +199,7 @@ class TermParser {
               pageMaxSize: pageSize,
             },
             cookieJar: cookieJar,
-          }
+          },
         );
 
         const bodyObj = JSON.parse(req.body);
@@ -225,7 +225,7 @@ class TermParser {
    */
   async concatPagination(
     doRequest: (x: number, y: number) => Promise<false | DoRequestReturn>,
-    itemsPerRequest = 500
+    itemsPerRequest = 500,
   ): Promise<(SectionSR | CourseSR)[]> {
     // Send initial request just to get the total number of items
     const countRequest = await doRequest(0, 1);

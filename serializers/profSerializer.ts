@@ -11,7 +11,7 @@ class ProfSerializer<T extends Partial<PrismaProfessor>> {
   ): Promise<Record<string, SerializedProfessor<Partial<PrismaProfessor>>>> {
     const result: Record<
       string,
-      SerializedProfessor<Partial<PrismaProfessor>>
+      SerializedProfessor<Partial<PrismaProfessor>>,
     > = {};
     instances.forEach((instance) => {
       const serialProf = this._bulkSerializeProf(this._serializeProf(instance));

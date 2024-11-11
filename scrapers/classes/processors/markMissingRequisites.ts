@@ -58,7 +58,7 @@ export class MarkMissingRequisites {
         const prereqs = this.updatePrereqs(
           aClass.prereqs,
           aClass.host,
-          aClass.termId
+          aClass.termId,
         );
 
         // And simplify tree again
@@ -69,7 +69,7 @@ export class MarkMissingRequisites {
         const coreqs = this.updatePrereqs(
           aClass.coreqs,
           aClass.host,
-          aClass.termId
+          aClass.termId,
         );
 
         aClass.coreqs = simplifyRequirements(coreqs);

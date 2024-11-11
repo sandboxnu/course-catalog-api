@@ -9,7 +9,7 @@ describe("prereqParser", () => {
   it("should parse corequisites", () => {
     const phys1161coreqs = PrereqParser.serializeCoreqs(
       PrereqParserData.coreqs.phys1161,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const phys1161actual = {
       type: "and",
@@ -20,7 +20,7 @@ describe("prereqParser", () => {
     };
     const hlth1201coreqs = PrereqParser.serializeCoreqs(
       PrereqParserData.coreqs.hlth1201,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const hlth1201actual = {
       type: "and",
@@ -33,7 +33,7 @@ describe("prereqParser", () => {
   it("should parse prerequisites", () => {
     const prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.biol3405,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const actual = {
       type: "or",
@@ -56,17 +56,17 @@ describe("prereqParser", () => {
       values: [],
     };
     expect(
-      PrereqParser.serializeCoreqs(PrereqParserData.coreqs.biol3405)
+      PrereqParser.serializeCoreqs(PrereqParserData.coreqs.biol3405),
     ).toEqual(empty);
     expect(
-      PrereqParser.serializePrereqs(PrereqParserData.prereqs.cs2500)
+      PrereqParser.serializePrereqs(PrereqParserData.prereqs.cs2500),
     ).toEqual(empty);
   });
 
   it('should add "Graduate Admissions REQ" as a string', () => {
     const prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.biol5549,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const actual = {
       type: "or",
@@ -78,7 +78,7 @@ describe("prereqParser", () => {
   it("should handle parenthesized prerequisites", () => {
     const prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.chem5610,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const actual = {
       type: "or",
@@ -112,7 +112,7 @@ describe("prereqParser", () => {
   it("should handle parenthesized prerequisites 2", () => {
     const prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.cs4240,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     expect(prereqs).toMatchSnapshot();
   });
@@ -120,11 +120,11 @@ describe("prereqParser", () => {
   it('should handle nested parenthesized prerequisites or "Graduate Admissions REQ"', () => {
     const cive2221prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.cive2221,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     const nrsg2220prereqs = PrereqParser.serializePrereqs(
       PrereqParserData.prereqs.nrsg2220,
-      subjectAbbreviationTable
+      subjectAbbreviationTable,
     );
     expect(cive2221prereqs).toMatchSnapshot();
     expect(nrsg2220prereqs).toMatchSnapshot();

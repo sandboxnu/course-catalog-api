@@ -65,7 +65,7 @@ export class Elastic {
   async fetchIndexNames(): Promise<void> {
     const aliases = Object.keys(this.indexes);
     await Promise.all(
-      aliases.map(async (alias) => await this.fetchIndexName(alias))
+      aliases.map(async (alias) => await this.fetchIndexName(alias)),
     );
   }
 
@@ -164,7 +164,7 @@ export class Elastic {
       // If the index doesn't exist, we can't reindex without loss of data
       if (!exists) {
         macros.error(
-          "attempt to reset index without loss when index does not exist"
+          "attempt to reset index without loss when index does not exist",
         );
         break;
       }
@@ -261,12 +261,12 @@ export class Elastic {
         const res = await this.retryBulkQuery(indexName, bulk);
 
         macros.log(
-          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`
+          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`,
         );
 
         return res;
       },
-      { concurrency: 1 }
+      { concurrency: 1 },
     );
 
     // If the index didn't exist, then we need to realias it.
@@ -281,7 +281,7 @@ export class Elastic {
     index: string,
     from: number,
     size: number,
-    body: EsQuery
+    body: EsQuery,
   ): Promise<EsResult> {
     return client.search({
       index: index,

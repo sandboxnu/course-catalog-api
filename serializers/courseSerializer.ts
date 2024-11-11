@@ -24,7 +24,7 @@ class CourseSerializer {
     S extends Partial<Section>
   >(
     instances: PrismaCourseWithSections[],
-    all = false
+    all = false,
   ): Promise<Record<string, SerializedCourse<C, S>>> {
     const courses = instances.map((course) => {
       return this.serializeCourse<C>(course);
@@ -60,7 +60,7 @@ class CourseSerializer {
         this.getClassHash(course),
         this.bulkSerializeCourse<C, S>(
           course,
-          classToSections[this.getClassHash(course)] || []
+          classToSections[this.getClassHash(course)] || [],
         ),
       ])
     );
@@ -68,7 +68,7 @@ class CourseSerializer {
 
   static bulkSerializeCourse<C, S>(
     course: C,
-    sections: PrismaSection[]
+    sections: PrismaSection[],
   ): SerializedCourse<C, S> {
     const serializedSections = this.serializeSections<S>(sections, course);
 
@@ -83,6 +83,7 @@ class CourseSerializer {
     sections: PrismaSection[],
     parentCourse: Partial<Course>
   ): (S & Partial<Course>)[] {
+
     if (sections.length === 0) return [];
 
     return sections
@@ -123,7 +124,7 @@ class CourseSerializer {
 
     if (innerCourse.sections) {
       innerCourse.sections = innerCourse.sections.map((section) =>
-        this.serializeSection(section)
+        this.serializeSection(section),
       );
     }
     return this.finishCourseObj(innerCourse);

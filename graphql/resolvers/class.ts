@@ -20,7 +20,7 @@ const serializeValues = (results: PrismaCourse[]): Course[] => {
 
 const getLatestClassOccurrence = async (
   subject: string,
-  classId: string
+  classId: string,
 ): Promise<Course> => {
   const result: PrismaCourse | null = await prisma.course.findFirst({
     where: { subject, classId },
@@ -35,7 +35,7 @@ const getLatestClassOccurrence = async (
         extensions: {
           code: "COURSE_NOT_FOUND",
         },
-      }
+      },
     );
   }
   return HydrateCourseSerializer.serializeCourse(result);
@@ -45,7 +45,7 @@ const getBulkClassOccurrences = async (
   input: Array<{
     subject: string;
     classId: string;
-  }>
+  }>,
 ): Promise<Course[]> => {
   const results: PrismaCourse[] = await prisma.course.findMany({
     where: { OR: input },
@@ -57,7 +57,7 @@ const getBulkClassOccurrences = async (
 
 const getAllClassOccurrences = async (
   subject: string,
-  classId: string
+  classId: string,
 ): Promise<Course[]> => {
   const results = await prisma.course.findMany({
     where: { subject, classId },
@@ -71,7 +71,7 @@ const getAllClassOccurrences = async (
 const getClassOccurrence = async (
   termId: string,
   subject: string,
-  classId: string
+  classId: string,
 ): Promise<Course> => {
   const result: PrismaCourse | null = await prisma.course.findUnique({
     where: {
@@ -87,7 +87,7 @@ const getClassOccurrence = async (
         extensions: {
           code: "COURSE_NOT_FOUND",
         },
-      }
+      },
     );
   }
 
@@ -107,7 +107,7 @@ const getClassOccurrenceById = async (id: string): Promise<Course> => {
         extensions: {
           code: "COURSE_NOT_FOUND",
         },
-      }
+      },
     );
   }
   return HydrateCourseSerializer.serializeCourse(result);
@@ -125,7 +125,7 @@ const getSectionById = async (id: string): Promise<Section> => {
         extensions: {
           code: "SECTION_NOT_FOUND",
         },
-      }
+      },
     );
   }
   const resSec: Section = HydrateCourseSerializer.serializeSection(result); // this mutates res

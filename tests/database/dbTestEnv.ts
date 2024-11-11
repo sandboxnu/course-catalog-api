@@ -2,7 +2,7 @@
 // tests/nexus-test-environment.js
 import dotenv from "dotenv";
 const { Client } = require("pg");
-const NodeEnvironment = require("jest-environment-node");
+const NodeEnvironment = require("jest-environment-node").TestEnvironment;
 const { v4: uuid } = require("uuid");
 const util = require("util");
 const exec = util.promisify(require("child_process").exec);

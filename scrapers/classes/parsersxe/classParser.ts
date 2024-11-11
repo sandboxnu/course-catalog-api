@@ -34,7 +34,7 @@ class ClassParser {
   async parseClass(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<false | ParsedCourseSR> {
     const cookieJar = await util.getCookiesForSearch(termId);
     const req = await request.get(
@@ -52,7 +52,7 @@ class ClassParser {
           sortDirection: "asc",
         },
         cookieJar: cookieJar,
-      }
+      },
     );
     const bodyObj = JSON.parse(req.body);
 
@@ -69,31 +69,31 @@ class ClassParser {
    */
   async parseClassFromSearchResult(
     SR: CourseSR,
-    termId: string
+    termId: string,
   ): Promise<ParsedCourseSR> {
     const subjectAbbreviations = await getSubjectAbbreviations(termId);
     const { subjectCode, courseNumber } = SR;
     const description = await this.getDescription(
       termId,
       subjectCode,
-      courseNumber
+      courseNumber,
     );
     const prereqs = await this.getPrereqs(
       termId,
       subjectCode,
       courseNumber,
-      subjectAbbreviations
+      subjectAbbreviations,
     );
     const coreqs = await this.getCoreqs(
       termId,
       subjectCode,
       courseNumber,
-      subjectAbbreviations
+      subjectAbbreviations,
     );
     const attributes = await this.getAttributes(
       termId,
       subjectCode,
-      courseNumber
+      courseNumber,
     );
     const { amount: feeAmount, description: feeDescription } =
       await this.getFees(termId, subjectCode, courseNumber);
@@ -132,13 +132,13 @@ class ClassParser {
   async getDescription(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<string> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseDescription",
       termId,
       subject,
-      classId
+      classId,
     );
     // Double decode the description, because banner double encodes the description :(
     return he.decode(he.decode(req.body.trim()));
@@ -148,13 +148,13 @@ class ClassParser {
     termId: string,
     subject: string,
     classId: string,
-    subjectAbbreviationTable: Record<string, string>
+    subjectAbbreviationTable: Record<string, string>,
   ): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getPrerequisites",
       termId,
       subject,
-      classId
+      classId,
     );
     return PrereqParser.serializePrereqs(req.body, subjectAbbreviationTable);
   }
@@ -163,13 +163,13 @@ class ClassParser {
     termId: string,
     subject: string,
     classId: string,
-    subjectAbbreviationTable: Record<string, string>
+    subjectAbbreviationTable: Record<string, string>,
   ): Promise<BooleanReq> {
     const req = await this.courseSearchResultsPostRequest(
       "getCorequisites",
       termId,
       subject,
-      classId
+      classId,
     );
     return PrereqParser.serializeCoreqs(req.body, subjectAbbreviationTable);
   }
@@ -177,13 +177,13 @@ class ClassParser {
   async getAttributes(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<string[]> {
     const req = await this.courseSearchResultsPostRequest(
       "getCourseAttributes",
       termId,
       subject,
-      classId
+      classId,
     );
     return this.serializeAttributes(req.body);
   }
@@ -198,13 +198,13 @@ class ClassParser {
   async getFees(
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<{ amount: number; description: string }> {
     const req = await this.courseSearchResultsPostRequest(
       "getFees",
       termId,
       subject,
-      classId
+      classId,
     );
     return this.parseFees(req.body);
   }
@@ -254,7 +254,7 @@ class ClassParser {
     endpoint: string,
     termId: string,
     subject: string,
-    classId: string
+    classId: string,
   ): Promise<{ body: string }> {
     /*
      * if the request fails because termId and/or crn are invalid,
@@ -269,7 +269,7 @@ class ClassParser {
           courseNumber: classId,
         },
         cacheRequests: false,
-      }
+      },
     );
   }
 
