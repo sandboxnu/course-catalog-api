@@ -1,5 +1,5 @@
 # build environment
-FROM node:22-alpine as build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 # Install deps
@@ -29,11 +29,11 @@ RUN rm -rf node_modules
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
     && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
-ENV dbCertPath /app/rds-ca-2019-root.pem
+ENV dbCertPath=/app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
 EXPOSE 4000 8080
-CMD ["yarn", "prod"]
+CMD ["node", "dist/graphql/index.js"]

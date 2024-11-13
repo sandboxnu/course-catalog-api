@@ -1,7 +1,9 @@
 #!/bin/sh
 
 cd dist
-yarn install --production
+# TODO: This should be a `yarn workspaces focus --production` but
+# the dev and non-dev deps are a tangled mess rn
+yarn workspaces focus
 yarn prod:db:migrate
 yarn db:refresh
 cd ..
