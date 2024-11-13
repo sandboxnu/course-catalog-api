@@ -16,14 +16,19 @@ jobs:
       elasticURL: "http://localhost:9200"
       NODE_COVERALLS_DEBUG: 1
     steps:
-      - uses: actions/checkout@v2
-      - name: install node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: bahmutov/npm-install@v1
 
-      - run: yarn unittest --coverage
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Run unit tests
+        run: yarn unittest --coverage
+
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -55,18 +60,23 @@ jobs:
       elasticURL: "http://localhost:9200"
       NODE_COVERALLS_DEBUG: 1
     steps:
-      - uses: actions/checkout@v2
-      - name: install node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: bahmutov/npm-install@v1
 
-      - run: yarn db:migrate
+      - name: Enable Corepack
+        run: corepack enable
 
-      - run: yarn db:refresh
+      - name: Setup database
+      - run: |
+          yarn db:migrate
+          yarn db:refresh
 
-      - run: yarn test --coverage --detectOpenHandles
+      - name: Run the mixed tests
+        run: yarn test --coverage --detectOpenHandles
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -74,7 +84,8 @@ jobs:
           flag-name: General tests
           parallel: true
 
-      - run: yarn dbtest --coverage
+      - name: Run the integration tests
+        run: yarn dbtest --coverage
       - name: Coveralls
         uses: coverallsapp/github-action@master
         with:
@@ -107,14 +118,15 @@ jobs:
       NODE_ENV: dev
       DEV: true
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: install node
-        uses: actions/setup-node@v2
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
 
-      - uses: bahmutov/npm-install@v1
+      - name: Enable Corepack
+        run: corepack enable
 
       - run: mv ./data/cache_2022_summer ./cache
 

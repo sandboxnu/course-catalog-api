@@ -28,7 +28,7 @@ jobs:
       TWILIO_AUTH_TOKEN: 123
       elasticURL: "http://localhost:9200"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Build the Docker container
         run: docker build --no-cache -t cca-test:latest .

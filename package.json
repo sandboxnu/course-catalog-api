@@ -140,8 +140,7 @@
     "prettier": "^3.0.0",
     "pretty-quick": "4",
     "prisma": "^5.0.0",
-    "typescript": "^5.6.0",
-    "yarn-deduplicate": "^6.0.2"
+    "typescript": "^5.6.0"
   },
   "about:engines": [
     "This helps us ensure that only specific versions of Node are used to run this project",
