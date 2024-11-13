@@ -36,6 +36,9 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Install deps
+        run: yarn install
+
       - name: Check linter
         run: yarn lint
 
@@ -55,6 +58,9 @@ jobs:
 
       - name: Enable Corepack
         run: corepack enable
+
+      - name: Install deps
+        run: yarn install
 
       - name: Checks for duplicate definitions in the yarn lockfile
         run: yarn dedupe --check

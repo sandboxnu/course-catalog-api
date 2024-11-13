@@ -26,6 +26,9 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Install deps
+        run: yarn install
+
       - name: Run unit tests
         run: yarn unittest --coverage
 
@@ -70,8 +73,11 @@ jobs:
       - name: Enable Corepack
         run: corepack enable
 
+      - name: Install deps
+        run: yarn install
+
       - name: Setup database
-      - run: |
+        run: |
           yarn db:migrate
           yarn db:refresh
 
@@ -127,6 +133,9 @@ jobs:
 
       - name: Enable Corepack
         run: corepack enable
+
+      - name: Install deps
+        run: yarn install
 
       - run: mv ./data/cache_2022_summer ./cache
 
