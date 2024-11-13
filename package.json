@@ -46,7 +46,7 @@
     "about:build_backend": "//// Compiles this project",
     "build_backend": "rm -rf dist && mkdir -p dist && babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --ignore .git --include-dotfiles && rm -rf dist/.git",
     "about:build": "//// Compiles this project, surpressing output",
-    "build": "yarn -s build_backend",
+    "build": "yarn build_backend",
     "about:prod:scrape": "//// Runs the scrapers (same as `yarn scrape`, but on the compiled project)",
     "prod:scrape": "node dist/scrapers/main.js",
     "about:prod": "//// Runs the API (same as `yarn dev`, but on the compiled project)",

@@ -1,10 +1,15 @@
 # build environment
 FROM node:22-alpine as build
 WORKDIR /app
+
 # Install deps
 COPY package.json /app/package.json
 COPY yarn.lock /app/yarn.lock
+COPY .yarnrc.yml /app/.yarnrc.yml
+
+RUN corepack enable
 RUN yarn install --frozen-lockfile
+
 # Copy source
 COPY graphql /app/graphql
 COPY prisma /app/prisma
