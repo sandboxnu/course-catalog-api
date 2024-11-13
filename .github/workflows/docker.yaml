@@ -57,7 +57,7 @@ jobs:
         run: curl localhost:4000/.well-known/apollo/server-health
 
       - name: Run a custom scrape (shouldn't take more than ~5 minutes)
-        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 yarn prod:scrape"
+        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true TERMS_TO_SCRAPE=202140 node scrapers/main.js"
 
       #### If these start failing, it might not be our fault
       ## Since this test uses live data, there is a chance it could change
@@ -100,7 +100,7 @@ jobs:
               "SELECT name FROM courses WHERE subject = 'CS' and class_id = '3500';" | grep "Object"
 
       - name: Run the updater ONLY ONCE, so that it scrapes missing classes
-        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 yarn prod:updater"
+        run: docker exec test sh -c "LOG_LEVEL=VERBOSE CUSTOM_SCRAPE=true UPDATE_ONLY_ONCE=true TERMS_TO_SCRAPE=202140 node services/updater.js"
         # This should take 5 minutes MAX.
         # In the scrape step, we used `CUSTOM_SCRAPE=true`. That limits what courses are being scraped - see `scrapers/filter` for more details.
         #   We need to use that here as well.

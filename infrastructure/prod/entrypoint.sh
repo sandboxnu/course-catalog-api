@@ -1,11 +1,7 @@
 #!/bin/sh
 
-cd dist
-# TODO: This should be a `yarn workspaces focus --production` but
-# the dev and non-dev deps are a tangled mess rn
-yarn workspaces focus
-yarn prod:db:migrate
+# Run a production prisma migration
+yarn prisma migrate deploy --preview-feature
 yarn db:refresh
-cd ..
 
 exec "$@"

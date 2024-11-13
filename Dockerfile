@@ -24,7 +24,16 @@ COPY infrastructure/prod /app
 COPY babel.config.json /app
 
 RUN yarn build
-RUN rm -rf node_modules
+
+FROM node:22-alpine AS dist
+WORKDIR /dist
+RUN corepack enable
+
+COPY --from=build /app/dist .
+
+# TODO: This should be a `yarn workspaces focus --production` but
+# the dev and non-dev deps are a tangled mess rn
+RUN yarn workspaces focus
 
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
@@ -33,7 +42,7 @@ ENV dbCertPath=/app/rds-ca-2019-root.pem
 
 ENV NODE_ENV=prod
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/dist/entrypoint.sh"]
 
 EXPOSE 4000 8080
-CMD ["node", "dist/graphql/index.js"]
+CMD ["node", "graphql/index.js"]
