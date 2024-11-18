@@ -67,7 +67,7 @@
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@elastic/elasticsearch": "7.17.0",
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "5.22.0",
     "@typescript-eslint/typescript-estree": "^8.10.0",
     "amplitude": "^6.0.0",
     "apollo-server": "^3.13.0",
