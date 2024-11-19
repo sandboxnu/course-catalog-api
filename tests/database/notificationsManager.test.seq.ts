@@ -53,8 +53,8 @@ describe("user subscriptions", () => {
     await notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds);
     expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
       phoneNumber,
-      sectionIds,
-      courseIds,
+      sectionIds: [],
+      courseIds: [],
     });
   });
 
@@ -82,8 +82,8 @@ describe("user subscriptions", () => {
 
     expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
       phoneNumber,
-      sectionIds,
-      courseIds,
+      sectionIds: [],
+      courseIds: [],
     });
   });
 
@@ -97,7 +97,7 @@ describe("user subscriptions", () => {
     expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
       phoneNumber,
       sectionIds: [],
-      courseIds,
+      courseIds: [],
     });
 
     await notifs.deleteAllUserSubscriptions(phoneNumber);
