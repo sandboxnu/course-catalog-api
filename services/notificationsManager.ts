@@ -15,10 +15,36 @@ class NotificationsManager {
   async getUserSubscriptions(phoneNumber: string): Promise<UserInfo> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
     const followedSections = await prisma.followedSection.findMany({
-      where: { userId },
+      where: {
+        userId,
+        section: {
+          course: {
+            termId: {
+              in: (
+                await prisma.termInfo.findMany({
+                  where: { active: true },
+                  select: { termId: true },
+                })
+              ).map((term) => term.termId),
+            },
+          },
+        },
+      },
     });
     const followedCourses = await prisma.followedCourse.findMany({
-      where: { userId },
+      where: {
+        userId,
+        course: {
+          termId: {
+            in: (
+              await prisma.termInfo.findMany({
+                where: { active: true },
+                select: { termId: true },
+              })
+            ).map((term) => term.termId),
+          },
+        },
+      },
     });
 
     return {
