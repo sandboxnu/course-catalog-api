@@ -53,8 +53,8 @@ describe("user subscriptions", () => {
     await notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds);
     expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
       phoneNumber,
-      sectionIds,
-      courseIds,
+      sectionIds: [],
+      courseIds: [],
     });
   });
 
