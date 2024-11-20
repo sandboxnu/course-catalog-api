@@ -203,10 +203,31 @@ class TermParser {
         );
 
         const bodyObj = JSON.parse(req.body);
-        if (bodyObj.success) {
-          return { items: bodyObj.data, totalCount: bodyObj.totalCount };
+
+        if (!bodyObj.success) {
+          return false;
         }
-        return false;
+
+        bodyObj.data = await Promise.all(
+          bodyObj.data.map(async (sr: SectionSR) => {
+            const resp = await request.get(
+              "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/getFacultyMeetingTimes",
+              {
+                searchParams: {
+                  term: termId,
+                  courseReferenceNumber: sr.courseReferenceNumber,
+                },
+              },
+            );
+
+            const body = await JSON.parse(resp.body);
+            sr.faculty = body.fmt[0]?.faculty ?? [];
+
+            return sr;
+          }),
+        );
+
+        return { items: bodyObj.data, totalCount: bodyObj.totalCount };
       })) as SectionSR[];
     } catch (error) {
       macros.error(`Could not get section data for ${termId}`);

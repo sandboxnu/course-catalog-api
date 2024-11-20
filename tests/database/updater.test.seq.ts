@@ -48,7 +48,7 @@ const defaultClassProps = {
   prettyUrl: "pretty",
   desc: "a class",
   url: "url",
-  lastUpdateTime: 20,
+  lastUpdateTime: Date.now(),
   maxCredits: 4,
   minCredits: 0,
   coreqs: EMPTY_REQ,
@@ -717,6 +717,9 @@ describe("Updater", () => {
       const fundies1SectionsUpdated = await prisma.section.findMany({
         where: { classHash: Keys.getClassHash(FUNDIES_ONE) },
       });
+
+      console.log("AAAAAAAAAAAAAA", fundies1Sections);
+
       expect(fundies1SectionsUpdated.length).toBe(2); // new fundies 1 section
       const fundies1Section1 = fundies1SectionsUpdated.find(
         (section) => section.crn === FUNDIES_ONE_S1.crn,

@@ -67,7 +67,7 @@
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@elastic/elasticsearch": "7.17.0",
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "5.22.0",
     "@typescript-eslint/typescript-estree": "^8.10.0",
     "amplitude": "^6.0.0",
     "apollo-server": "^3.13.0",
@@ -149,5 +149,6 @@
   ],
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "yarn@1.22.19+sha1.4ba7fc5c6e704fce2066ecbfb0b0d8976fe62447"
 }
