@@ -11,38 +11,56 @@ jobs:
     name: prettier
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+
       - name: Prettify code
-        uses: creyD/prettier_action@v3.0
+        uses: creyD/prettier_action@v4.3
         with:
           prettier_options: --write **/*.{js,ts}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   lint:
     name: Lint & Type checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: install node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: bahmutov/npm-install@v1
-      - name: Linting
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install deps
+        run: yarn install
+
+      - name: Check linter
         run: yarn lint
-      - name: Checks Typescript types
+
+      - name: Check types
         run: yarn tsc
+
   dependency_checks:
     name: Dependency Checks
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - name: install node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+
+      - name: Install Node
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - uses: bahmutov/npm-install@v1
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install deps
+        run: yarn install
+
       - name: Checks for duplicate definitions in the yarn lockfile
-        run: yarn yarn-deduplicate --fail
+        run: yarn dedupe --check
