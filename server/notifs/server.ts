@@ -4,8 +4,8 @@ import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import request from "request-promise-native";
 import twilioNotifyer from "./notifs";
-import notificationsManager from "../services/notificationsManager";
-import macros from "../utils/macros";
+import notificationsManager from "../../services/notificationsManager";
+import macros from "../../utils/macros";
 
 const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,
@@ -13,13 +13,9 @@ const corsOptions = {
 
 const app = express();
 app.use(cors(corsOptions));
-const port = 8080;
 app.use(express.json());
 const server = createServer(app);
-
-server.listen(port, () => {
-  console.log("Running twilio notification server on port %s", port);
-});
+export default server;
 
 app.get("/knockknock", (req, res) => res.status(200).send("Who's there?"));
 

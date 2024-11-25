@@ -1,5 +1,5 @@
 import { UserInputError } from "apollo-server";
-import prisma from "../../services/prisma";
+import prisma from "../../../services/prisma";
 import { Major as PrismaMajor } from "@prisma/client";
 
 const noResultsError = (recordType): never => {

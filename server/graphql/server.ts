@@ -1,6 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
 import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
-import macros from "../utils/macros";
 
 import employeeTypeDef from "./typeDefs/employee";
 
@@ -17,10 +16,6 @@ import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
 
 import termInfoResolvers from "./resolvers/termInfo";
 import termInfoTypeDef from "./typeDefs/termInfo";
-
-if (macros.PROD || process.env.ENABLE_NOTIFS) {
-  require("../twilio/server");
-}
 
 // Enable JSON custom type
 const JSONResolvers = {
@@ -63,17 +58,5 @@ const server = new ApolloServer({
   ],
   debug: true,
 });
-
-if (require.main === module) {
-  server
-    .listen()
-    .then(({ url }) => {
-      macros.log(`ready at ${url}`);
-      return;
-    })
-    .catch((err) => {
-      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
-    });
-}
 
 export default server;
