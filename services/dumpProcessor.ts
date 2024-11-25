@@ -42,7 +42,6 @@ class DumpProcessor {
       convertSectionToPrismaType(section),
     );
     await this.saveSectionsToDatabase(processedSections);
-    await this.updateSectionsLastUpdateTime(termDump.sections);
 
     await this.saveSubjectsToDatabase(termDump.subjects);
 
@@ -131,7 +130,10 @@ class DumpProcessor {
 
     for (const sections of groupedSections) {
       const upsertQueries = sections.map((prismaSection) => {
+        // Updates thelast update time for tracking sections that haven't been updated
+        // in a while for eventual removal
         prismaSection.lastUpdateTime = updateTime;
+
         return prisma.section.upsert({
           create: prismaSection,
           update: prismaSection,
@@ -146,20 +148,6 @@ class DumpProcessor {
     }
 
     macros.log("Finished with sections");
-  }
-
-  /**
-   * Update the lastUpdateTime attribute on all given sections.
-   * We use this to track sections that haven't been updated in a while,
-   * which means that they're no longer on Banner & should be removed from our database.
-   */
-  async updateSectionsLastUpdateTime(sections: Section[]): Promise<void> {
-    await prisma.course.updateMany({
-      where: { id: { in: sections.map((s) => keys.getClassHash(s)) } },
-      data: { lastUpdateTime: new Date() },
-    });
-
-    macros.log("Finished updating times");
   }
 
   /**
