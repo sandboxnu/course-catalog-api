@@ -718,8 +718,6 @@ describe("Updater", () => {
         where: { classHash: Keys.getClassHash(FUNDIES_ONE) },
       });
 
-      console.log("AAAAAAAAAAAAAA", fundies1Sections);
-
       expect(fundies1SectionsUpdated.length).toBe(2); // new fundies 1 section
       const fundies1Section1 = fundies1SectionsUpdated.find(
         (section) => section.crn === FUNDIES_ONE_S1.crn,
