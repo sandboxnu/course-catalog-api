@@ -1,6 +1,6 @@
-import graphQlServer from "./graphql/server";
+import graphQlServer from "./gqlServer";
 import macros from "../utils/macros";
-import notificationServer from "./notifs/server";
+import notificationServer from "./notifServer";
 
 const port = 8080;
 notificationServer.listen(port, () => {

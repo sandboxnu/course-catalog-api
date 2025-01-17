@@ -6,7 +6,7 @@
     "about:babel-node-ts": "//// This command is used to run Typescript files on the fly. Mainly used in other commands, not standalone",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
     "about:dev": "//// Runs the API server - the course catalog API",
-    "dev": "NODE_ENV=dev node --watch $(yarn babel-node-ts server/main.ts)",
+    "dev": "NODE_ENV=dev node --watch $(yarn babel-node-ts router/main.ts)",
     "about:dev:notifs": "//// Runs the API server along with the notifications server",
     "dev:notifs": "POSTGRES_PASSWORD=default_password yarn dev",
     "about:scrape": "//// Scrapes ALL of the latest class data from Banner",
