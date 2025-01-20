@@ -1,5 +1,5 @@
-import prisma from "../../../services/prisma";
-import { TermInfo } from "../../../types/types";
+import prisma from "../../services/prisma";
+import { TermInfo } from "../../types/types";
 
 type TermInfoCache = Record<
   string,
