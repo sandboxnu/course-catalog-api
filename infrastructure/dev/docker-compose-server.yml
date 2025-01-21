@@ -1,5 +1,3 @@
-version: "2"
-
 services:
   postgresql:
     image: postgres:11.19-bullseye

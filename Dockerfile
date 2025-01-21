@@ -35,6 +35,8 @@ COPY --from=build /app/dist .
 # the dev and non-dev deps are a tangled mess rn
 RUN yarn workspaces focus
 
+# Manually install openssl for Prisma. The Alpine image should already
+# have it, but Prisma fails to detect it for some reason
 RUN set -ex; \
     apk update; \
     apk add --no-cache \
