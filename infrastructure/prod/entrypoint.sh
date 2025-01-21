@@ -1,9 +1,7 @@
 #!/bin/sh
 
-cd dist
-yarn install --production
-yarn prod:db:migrate
+# Run a production prisma migration
+yarn prisma migrate deploy --preview-feature
 yarn db:refresh
-cd ..
 
 exec "$@"
