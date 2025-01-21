@@ -35,6 +35,11 @@ COPY --from=build /app/dist .
 # the dev and non-dev deps are a tangled mess rn
 RUN yarn workspaces focus
 
+RUN set -ex; \
+    apk update; \
+    apk add --no-cache \
+    openssl
+
 # Get RDS Certificate
 RUN apk update && apk add wget && rm -rf /var/cache/apk/* \
     && wget "https://s3.amazonaws.com/rds-downloads/rds-ca-2019-root.pem"
