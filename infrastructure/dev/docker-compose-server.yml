@@ -1,5 +1,3 @@
-version: "2"
-
 services:
   postgresql:
     image: postgres:11.19-bullseye
@@ -9,8 +7,9 @@ services:
       - ./docker-postgresql-multiple-databases:/docker-entrypoint-initdb.d
       - pg:/var/lib/postgresql/data
     environment:
-      - POSTGRES_MULTIPLE_DATABASES=searchneu_dev,searchneu_test
-      - POSTGRES_USER=postgres
+      POSTGRES_MULTIPLE_DATABASES: searchneu_dev,searchneu_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: default_password
   es:
     image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
     ports:
@@ -22,12 +21,12 @@ services:
     depends_on:
       - es
       - postgresql
-    command: yarn prod
     ports:
       - 4000:4000
       - 8080:8080
     environment:
-      DATABASE_URL: postgresql://postgres@postgresql:5432/searchneu_dev
+      DATABASE_URL: postgresql://postgres:default_password@postgresql:5432/searchneu_dev
+      POSTGRES_PASSWORD: default_password
       elasticURL: http://es:9200
       TWILIO_PHONE_NUMBER:
       TWILIO_ACCOUNT_SID:
@@ -36,5 +35,6 @@ services:
       CLIENT_ORIGIN: http://localhost:5000
       JWT_SECRET:
       SLACK_WEBHOOK_URL:
+
 volumes:
   pg:

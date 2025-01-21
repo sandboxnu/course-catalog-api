@@ -43,10 +43,8 @@
     "dbtest": "jest -i --projects tests/database --verbose",
     "about:unittest": "//// Runs unit tests. Does not need db, elasticsearch, spun up. Does not need the Docker containers to be running.",
     "unittest": "jest -i --projects tests/unit --verbose",
-    "about:build_backend": "//// Compiles this project",
-    "build_backend": "rm -rf dist && mkdir -p dist && babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --ignore .git --include-dotfiles && rm -rf dist/.git",
-    "about:build": "//// Compiles this project, surpressing output",
-    "build": "yarn -s build_backend",
+    "about:build": "//// Compiles this project",
+    "build": "rm -rf dist && mkdir -p dist && babel --extensions '.js,.ts' . -d dist/ --copy-files --ignore node_modules --ignore .git --include-dotfiles && rm -rf dist/.git",
     "about:prod:scrape": "//// Runs the scrapers (same as `yarn scrape`, but on the compiled project)",
     "prod:scrape": "node dist/scrapers/main.js",
     "about:prod": "//// Runs the API (same as `yarn dev`, but on the compiled project)",
@@ -67,7 +65,7 @@
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
     "@elastic/elasticsearch": "7.17.0",
-    "@prisma/client": "^5.0.0",
+    "@prisma/client": "5.22.0",
     "@typescript-eslint/typescript-estree": "^8.10.0",
     "amplitude": "^6.0.0",
     "apollo-server": "^3.13.0",
@@ -140,8 +138,7 @@
     "prettier": "^3.0.0",
     "pretty-quick": "4",
     "prisma": "^5.0.0",
-    "typescript": "^5.6.0",
-    "yarn-deduplicate": "^6.0.2"
+    "typescript": "^5.6.0"
   },
   "about:engines": [
     "This helps us ensure that only specific versions of Node are used to run this project",
@@ -149,5 +146,6 @@
   ],
   "engines": {
     "node": ">=20"
-  }
+  },
+  "packageManager": "yarn@4.5.1"
 }

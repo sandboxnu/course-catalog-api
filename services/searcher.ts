@@ -423,7 +423,7 @@ class Searcher {
 
   filterOutSections(
     results: SearchResult[],
-    filters: FilterInput
+    filters: FilterInput,
   ): SearchResult[] {
     return results
       .map((result) => {
