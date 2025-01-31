@@ -88,7 +88,7 @@ describe("TwilioNotifyer", () => {
       mockRes.send.mockClear();
     });
 
-    it("should handle unknown user replies", () => {
+    it("should handle unknown user replies", async () => {
       const req: Partial<express.Request> = {
         body: {
           Body: "this is a fake message that means nothing",
@@ -97,13 +97,13 @@ describe("TwilioNotifyer", () => {
       };
 
       // @ts-expect-error - it's not the exact same type, but I don't care
-      notifs.handleUserReply(req, mockRes);
+      await notifs.handleUserReply(req, mockRes);
       expect(mockRes.send.mock.calls[0][0]).toMatch(
         /failed to understand your message/i,
       );
     });
 
-    it("should handle a 'Stop all' request", () => {
+    it("should handle a 'Stop all' request", async () => {
       const req: Partial<express.Request> = {
         body: {
           Body: notifs.TWILIO_REPLIES["STOP_ALL"],
@@ -111,9 +111,9 @@ describe("TwilioNotifyer", () => {
         },
       };
 
-      const deleteSpy = jest.spyOn(notificationsManager, "deleteAllUserSubscriptions");
+      const deleteSpy = jest.spyOn(notificationsManager, "deleteAllUserSubscriptions").mockResolvedValue(undefined);;
       // @ts-expect-error - it's not the exact same type, but I don't care
-      notifs.handleUserReply(req, mockRes);
+      await notifs.handleUserReply(req, mockRes);
       expect(deleteSpy).toHaveBeenCalledWith("911");
       expect(mockRes.send.mock.calls[0][0]).toMatch(/have been removed/i);
     });

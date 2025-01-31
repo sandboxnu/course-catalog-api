@@ -151,7 +151,7 @@ class TwilioNotifyer {
       });
   }
 
-  handleUserReply(req: express.Request, res: express.Response): void {
+  async handleUserReply(req: express.Request, res: express.Response): Promise<void> {
     const message = req.body.Body;
     const senderNumber = req.body.From;
 
@@ -165,7 +165,7 @@ class TwilioNotifyer {
         twimlResponse.message(
           "You have been removed from all SearchNEU notifications.",
         );
-        notificationsManager.deleteAllUserSubscriptions(senderNumber);
+        await notificationsManager.deleteAllUserSubscriptions(senderNumber);
         break;
       default:
         twimlResponse.message(
