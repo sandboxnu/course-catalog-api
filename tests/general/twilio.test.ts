@@ -111,8 +111,10 @@ describe("TwilioNotifyer", () => {
         },
       };
 
+      const deleteSpy = jest.spyOn(notificationsManager, "deleteAllUserSubscriptions");
       // @ts-expect-error - it's not the exact same type, but I don't care
       notifs.handleUserReply(req, mockRes);
+      expect(deleteSpy).toHaveBeenCalledWith("911");
       expect(mockRes.send.mock.calls[0][0]).toMatch(/have been removed/i);
     });
   });

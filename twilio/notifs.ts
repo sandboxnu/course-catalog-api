@@ -165,6 +165,7 @@ class TwilioNotifyer {
         twimlResponse.message(
           "You have been removed from all SearchNEU notifications.",
         );
+        notificationsManager.deleteAllUserSubscriptions(senderNumber);
         break;
       default:
         twimlResponse.message(
