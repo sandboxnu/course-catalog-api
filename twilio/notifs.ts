@@ -151,7 +151,10 @@ class TwilioNotifyer {
       });
   }
 
-  async handleUserReply(req: express.Request, res: express.Response): Promise<void> {
+  async handleUserReply(
+    req: express.Request,
+    res: express.Response,
+  ): Promise<void> {
     const message = req.body.Body;
     const senderNumber = req.body.From;
 
