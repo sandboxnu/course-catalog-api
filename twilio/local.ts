@@ -1,10 +1,18 @@
 import { TwilioResponse } from "./notifs";
+import { Twilio } from "twilio";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from "express";
 
 class LocalNotifyer {
+  TWILIO_NUMBER: string;
+  TWILIO_VERIFY_SERVICE_SID: string;
+  TWILIO_REPLIES: Record<string, string>;
+  TWILIO_ERRORS: Record<string, number>;
+  TWILIO_VERIF_CHECK_APPROVED: string;
+  twilioClient: Twilio;
+
   async sendNotificationText(
     recipientNumber: string,
     message: string,
@@ -27,7 +35,9 @@ class LocalNotifyer {
     return { statusCode: 200, message: "Successfully verified!" };
   }
 
-  handleUserReply(req: ExpressRequest, res: ExpressResponse): void {}
+  handleUserReply(req: ExpressRequest, res: ExpressResponse): void {
+    console.log("Message received");
+  }
 }
 
 const instance = new LocalNotifyer();

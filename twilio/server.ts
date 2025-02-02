@@ -18,13 +18,10 @@ const port = 8080;
 app.use(express.json());
 const server = createServer(app);
 
-let notificationProvider;
+let notificationProvider = twilioNotifyer;
 if (process.env.NOTIFS_PROVIDER) {
   notificationProvider = localNotifyer;
-} else {
-  notificationProvider = twilioNotifyer;
 }
-
 server.listen(port, () => {
   console.log("Running twilio notification server on port %s", port);
 });
