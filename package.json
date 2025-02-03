@@ -9,6 +9,8 @@
     "dev": "NODE_ENV=dev node --watch $(yarn babel-node-ts graphql/index.ts)",
     "about:dev:notifs": "//// Runs the API server along with the notifications server",
     "dev:notifs": "ENABLE_NOTIFS=true yarn dev",
+    "about:dev:notifs:local": "//// Runs the API server along with the notifications server",
+    "dev:notifs:local": "ENABLE_NOTIFS=true NOTIFS_PROVIDER=local yarn dev",
     "about:scrape": "//// Scrapes ALL of the latest class data from Banner",
     "scrape": "yarn babel-node-ts --max_old_space_size=12000 scrapers/main.ts",
     "about:scrape:custom": "//// Runs a scrape with some custom configuration. Read the backend docs for more info",
