@@ -35,8 +35,11 @@ class LocalNotifyer {
     return { statusCode: 200, message: "Successfully verified!" };
   }
 
-  handleUserReply(req: ExpressRequest, res: ExpressResponse): void {
+  handleUserReply(req: ExpressRequest, res: ExpressResponse) {
     console.log("Message received");
+    return new Promise<void>(() => {
+      return;
+    });
   }
 }
 
