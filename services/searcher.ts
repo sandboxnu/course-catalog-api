@@ -568,6 +568,7 @@ class Searcher {
       ({ results, resultCount, took, hydrateDuration, aggregations } =
         singleResult);
     } else {
+      const s = performance.now();
       const searchResults = await this.getSearchResults(
         query,
         termId,
@@ -575,6 +576,8 @@ class Searcher {
         max,
         filters,
       );
+      const e = performance.now();
+      // console.log("Searching time: ", e - s);
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
       results = await new HydrateSerializer().bulkSerialize(
