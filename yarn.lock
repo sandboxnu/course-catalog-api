@@ -2100,6 +2100,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opensearch-project/opensearch@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "@opensearch-project/opensearch@npm:3.3.0"
+  dependencies:
+    aws4: "npm:^1.11.0"
+    debug: "npm:^4.3.1"
+    hpagent: "npm:^1.2.0"
+    json11: "npm:^2.0.0"
+    ms: "npm:^2.1.3"
+    secure-json-parse: "npm:^2.4.0"
+  checksum: 10c0/8db5a2d755fc7010558a7ff1014770726ebcaf33b599c063d640778799b75a3aa8bc94656f59ef5b4f4a84e643a631c9c698223195e1fc30559e0480786efe01
+  languageName: node
+  linkType: hard
+
 "@pkgjs/parseargs@npm:^0.11.0":
   version: 0.11.0
   resolution: "@pkgjs/parseargs@npm:0.11.0"
@@ -3430,7 +3444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws4@npm:^1.8.0":
+"aws4@npm:^1.11.0, aws4@npm:^1.8.0":
   version: 1.13.2
   resolution: "aws4@npm:1.13.2"
   checksum: 10c0/c993d0d186d699f685d73113733695d648ec7d4b301aba2e2a559d0cd9c1c902308cc52f4095e1396b23fddbc35113644e7f0a6a32753636306e41e3ed6f1e79
@@ -4323,6 +4337,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.8.3"
     "@babel/register": "npm:^7.0.0"
     "@elastic/elasticsearch": "npm:7.17.0"
+    "@opensearch-project/opensearch": "npm:^3.3.0"
     "@prisma/client": "npm:5.22.0"
     "@types/async-retry": "npm:^1.4.9"
     "@types/cheerio": "npm:^0.22.30"
@@ -6394,6 +6409,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"hpagent@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "hpagent@npm:1.2.0"
+  checksum: 10c0/505ef42e5e067dba701ea21e7df9fa73f6f5080e59d53680829827d34cd7040f1ecf7c3c8391abe9df4eb4682ef4a4321608836b5b70a61b88c1b3a03d77510b
+  languageName: node
+  linkType: hard
+
 "html-escaper@npm:^2.0.0":
   version: 2.0.2
   resolution: "html-escaper@npm:2.0.2"
@@ -7636,6 +7658,15 @@ __metadata:
   version: 5.0.1
   resolution: "json-stringify-safe@npm:5.0.1"
   checksum: 10c0/7dbf35cd0411d1d648dceb6d59ce5857ec939e52e4afc37601aa3da611f0987d5cee5b38d58329ceddf3ed48bd7215229c8d52059ab01f2444a338bf24ed0f37
+  languageName: node
+  linkType: hard
+
+"json11@npm:^2.0.0":
+  version: 2.0.2
+  resolution: "json11@npm:2.0.2"
+  bin:
+    json11: dist/cli.mjs
+  checksum: 10c0/d9cf9183fa88f0d6a9fbdead40b834b83565e7a4f4317b9c964b02b5cff91bf66741d524a292abc200cc7e1bea2bb6331b3295c3bf8866f959761b15d0712c07
   languageName: node
   linkType: hard
 
