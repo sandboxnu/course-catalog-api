@@ -33,6 +33,8 @@ const resolvers = {
       parent,
       args: SearchArgs,
     ): Promise<SearchResultItemConnection> => {
+      const start = performance.now();
+
       const { offset = 0, first = 10 } = args;
       const results = await searcher.search(
         args.query || "",
@@ -53,6 +55,10 @@ const resolvers = {
       );
 
       const hasNextPage = offset + first < results.resultCount;
+
+      const end = performance.now();
+
+      console.log(end - start);
 
       return {
         totalCount: results.resultCount,

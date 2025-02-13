@@ -5,6 +5,7 @@
  */
 
 import { Client } from "@elastic/elasticsearch";
+import { Client as OsClient } from "@opensearch-project/opensearch";
 import pMap from "p-map";
 import _ from "lodash";
 import macros from "./macros";
@@ -18,9 +19,10 @@ import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 
+// TODO: The localhost should NOT be hardcoded in!
 const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";
-const client = new Client({ node: URL });
+const client = new OsClient({ node: URL });
 
 const BULKSIZE = 2000;
 /**

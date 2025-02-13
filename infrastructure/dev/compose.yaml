@@ -1,6 +1,6 @@
 services:
   postgresql:
-    image: postgres:11.19-bullseye
+    image: postgres:16
     ports:
       - 5432:5432
     volumes:
@@ -11,11 +11,14 @@ services:
       - POSTGRES_USER=postgres
     env_file:
       - ../../.env
-  es:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0
+
+  opensearch:
+    image: opensearchproject/opensearch:2.19.0
     ports:
       - 9200:9200
     environment:
       - discovery.type=single-node
+      - plugins.security.disabled=true
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=sUpp3rS3curePa55W0RD!
 volumes:
   pg:
