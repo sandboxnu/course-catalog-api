@@ -1545,18 +1545,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@elastic/elasticsearch@npm:7.17.0":
-  version: 7.17.0
-  resolution: "@elastic/elasticsearch@npm:7.17.0"
-  dependencies:
-    debug: "npm:^4.3.1"
-    hpagent: "npm:^0.1.1"
-    ms: "npm:^2.1.3"
-    secure-json-parse: "npm:^2.4.0"
-  checksum: 10c0/4768703695ae1e2e7c645427319084a56746ab80033d556aeb1c1ef56ec0c6feac4c07d14f71d92d2b2ebf0a749cbd4949bd30def9147191d6523efa5ace5178
-  languageName: node
-  linkType: hard
-
 "@eslint-community/eslint-utils@npm:^4.2.0":
   version: 4.4.1
   resolution: "@eslint-community/eslint-utils@npm:4.4.1"
@@ -4336,7 +4324,6 @@ __metadata:
     "@babel/preset-env": "npm:^7.25.8"
     "@babel/preset-typescript": "npm:^7.8.3"
     "@babel/register": "npm:^7.0.0"
-    "@elastic/elasticsearch": "npm:7.17.0"
     "@opensearch-project/opensearch": "npm:^3.3.0"
     "@prisma/client": "npm:5.22.0"
     "@types/async-retry": "npm:^1.4.9"
@@ -6399,13 +6386,6 @@ __metadata:
   dependencies:
     parse-passwd: "npm:^1.0.0"
   checksum: 10c0/3c099844f94b8b438f124bd5698bdcfef32b2d455115fb8050d7148e7f7b95fc89ba9922586c491f0e1cdebf437b1053c84ecddb8d596e109e9ac69c5b4a9e27
-  languageName: node
-  linkType: hard
-
-"hpagent@npm:^0.1.1":
-  version: 0.1.2
-  resolution: "hpagent@npm:0.1.2"
-  checksum: 10c0/9faa805d318a2bc6a7b4c9791623d2cc98b9511e676cafbc258dda0e5acc4df3cedddbd87f2d01649bf790b0dc25d8c98141e7713284d5de47535abba799742a
   languageName: node
   linkType: hard
 

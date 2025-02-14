@@ -64,7 +64,6 @@
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
-    "@elastic/elasticsearch": "7.17.0",
     "@opensearch-project/opensearch": "^3.3.0",
     "@prisma/client": "5.22.0",
     "@typescript-eslint/typescript-estree": "^8.10.0",
