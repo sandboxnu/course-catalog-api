@@ -7,10 +7,10 @@ import {
   Course as PrismaCourse,
   Section as PrismaSection,
 } from "@prisma/client";
-import prisma from "../services/prisma";
-import elastic, { Elastic } from "../utils/elastic";
-import HydrateSerializer from "../serializers/hydrateSerializer";
-import macros from "../utils/macros";
+import prisma from "../services/prisma.ts";
+import elastic, { Elastic } from "../utils/elastic.ts";
+import HydrateSerializer from "../serializers/hydrateSerializer.ts";
+import macros from "../utils/macros.ts";
 import {
   EsQuery,
   QueryNode,

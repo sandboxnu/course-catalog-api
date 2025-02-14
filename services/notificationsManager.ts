@@ -1,6 +1,6 @@
-import prisma from "./prisma";
-import { UserInfo } from "../types/notifTypes";
-import macros from "../utils/macros";
+import prisma from "./prisma.ts";
+import { UserInfo } from "../types/notifTypes.ts";
+import macros from "../utils/macros.ts";
 
 class NotificationsManager {
   async upsertUser(phoneNumber: string): Promise<void> {

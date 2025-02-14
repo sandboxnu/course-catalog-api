@@ -6,17 +6,16 @@ import fs from "fs-extra";
 import _ from "lodash";
 import path from "path";
 import { Prisma, TermInfo } from "@prisma/client";
-import prisma from "./prisma";
-import keys from "../utils/keys";
-import macros from "../utils/macros";
-import { populateES } from "../scripts/populateES";
+import prisma from "./prisma.ts";
+import macros from "../utils/macros.ts";
+import { populateES } from "../scripts/populateES.ts";
 import {
   Dump,
   Employee,
   Section,
   convertSectionToPrismaType,
-} from "../types/types";
-import { convertCourseToPrismaType } from "../types/scraperTypes";
+} from "../types/types.ts";
+import { convertCourseToPrismaType } from "../types/scraperTypes.ts";
 
 class DumpProcessor {
   /**

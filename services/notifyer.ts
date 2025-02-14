@@ -4,14 +4,14 @@
  */
 
 import { User, FollowedSection } from "@prisma/client";
-import prisma from "./prisma";
-import twilioNotifyer from "../twilio/notifs";
-import macros from "../utils/macros";
+import prisma from "./prisma.ts";
+import twilioNotifyer from "../router/providers/twilio.ts";
+import macros from "../utils/macros.ts";
 import {
   CourseNotificationInfo,
   NotificationInfo,
   SectionNotificationInfo,
-} from "../types/notifTypes";
+} from "../types/notifTypes.ts";
 
 function generateCourseMessage(course: CourseNotificationInfo): string {
   const classCode = `${course.subject} ${course.courseId}`;

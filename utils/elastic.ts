@@ -7,15 +7,15 @@
 import { Client } from "@elastic/elasticsearch";
 import pMap from "p-map";
 import _ from "lodash";
-import macros from "./macros";
+import macros from "./macros.ts";
 import {
   EsBulkData,
   EsQuery,
   EsMultiResult,
   EsResult,
-} from "../types/searchTypes";
-import employeeMap from "../scrapers/employees/employeeMapping.json";
-import classMap from "../scrapers/classes/classMapping.json";
+} from "../types/searchTypes.ts";
+import employeeMap from "../scrapers/employees/employeeMapping.json" with { type: "json" };
+import classMap from "../scrapers/classes/classMapping.json" with { type: "json" };
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 
 const URL: string =

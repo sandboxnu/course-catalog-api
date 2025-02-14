@@ -1,8 +1,8 @@
 import twilio, { Twilio } from "twilio";
 import express from "express";
-import macros from "../utils/macros";
-import notificationsManager from "../services/notificationsManager";
-import { twilioClient } from "./client";
+import macros from "../../utils/macros.ts";
+import notificationsManager from "../../services/notificationsManager.ts";
+import { twilioClient } from "./twilioClient.ts";
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 
@@ -20,8 +20,8 @@ class TwilioNotifyer {
   twilioClient: Twilio;
 
   constructor() {
-    this.TWILIO_NUMBER = process.env.TWILIO_PHONE_NUMBER;
-    this.TWILIO_VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_ID;
+    this.TWILIO_NUMBER = process.env.TWILIO_PHONE_NUMBER || "";
+    this.TWILIO_VERIFY_SERVICE_SID = process.env.TWILIO_VERIFY_SERVICE_ID || "";
     this.TWILIO_REPLIES = {
       STOP_ALL: "STOP ALL",
     };

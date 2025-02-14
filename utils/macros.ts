@@ -9,7 +9,7 @@ import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
-import { AmplitudeEvent } from "../types/requestTypes";
+import { AmplitudeEvent } from "../types/requestTypes.ts";
 import "colors";
 import { createLogger, format, Logger, transports } from "winston";
 import "winston-daily-rotate-file";
@@ -19,18 +19,6 @@ dotenv.config();
 // Collection of small functions that are used in many different places in the backend.
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more.
 // Would be ok with splitting up this file into separate files (eg, one for stuff related to scraping and another one for other stuff) if this file gets too big.
-
-// We should be in the directory with package.json
-const main_dir = path.join(__dirname, "..");
-process.chdir(main_dir);
-
-try {
-  fs.statSync("package.json");
-} catch (_e) {
-  throw new Error(
-    "The macros file seems to have moved relative to the base directory; please update the path.",
-  );
-}
 
 // This is the JSON object saved in /etc/searchneu/config.json
 // null = hasen't been loaded yet.

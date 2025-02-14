@@ -1,37 +1,31 @@
 import express from "express";
-import cors from "cors";
-import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import request from "request-promise-native";
-import twilioNotifyer from "./notifs";
-import notificationsManager from "../services/notificationsManager";
-import macros from "../utils/macros";
+import twilioNotifyer from "./providers/twilio.ts";
+import localNotifyer from "./providers/local.ts";
+import notificationsManager from "../services/notificationsManager.ts";
+import macros from "../utils/macros.ts";
 
-const corsOptions = {
-  origin: process.env.CLIENT_ORIGIN,
-};
+export const router = express.Router();
 
-const app = express();
-app.use(cors(corsOptions));
-const port = 8080;
-app.use(express.json());
-const server = createServer(app);
+let notifyer: typeof localNotifyer | typeof twilioNotifyer;
+if (process.env.TWILIO_PHONE_NUMBER) {
+  notifyer = twilioNotifyer;
+} else {
+  notifyer = localNotifyer;
+}
 
-server.listen(port, () => {
-  console.log("Running twilio notification server on port %s", port);
-});
+router.get("/knockknock", (_, res) => res.status(200).send("Who's there?"));
 
-app.get("/knockknock", (req, res) => res.status(200).send("Who's there?"));
+router.post("/twilio/sms", (req, res) => notifyer.handleUserReply(req, res));
 
-app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
-
-app.post("/sms/signup", (req, res) => {
+router.post("/sms/signup", (req, res) => {
   // twilio needs the phone number in E.164 format see https://www.twilio.com/docs/verify/api/verification
   const phoneNumber = req.body.phoneNumber;
   if (!phoneNumber) {
     res.status(400).send("Missing phone number.");
   }
-  twilioNotifyer
+  notifyer
     .sendVerificationCode(phoneNumber)
     .then((response) => {
       res.status(response.statusCode).send(response.message);
@@ -42,14 +36,14 @@ app.post("/sms/signup", (req, res) => {
     );
 });
 
-app.post("/sms/verify", (req, res) => {
+router.post("/sms/verify", (req, res) => {
   const phoneNumber = req.body.phoneNumber;
   const verificationCode = req.body.verificationCode;
   if (!phoneNumber || !verificationCode) {
     return res.status(400).send("Missing phone number or verification code.");
   }
 
-  twilioNotifyer
+  notifyer
     .checkVerificationCode(phoneNumber, verificationCode)
     .then(async (response) => {
       if (response.statusCode === 200) {
@@ -70,7 +64,7 @@ app.post("/sms/verify", (req, res) => {
     });
 });
 
-app.get("/user/subscriptions/:jwt", (req, res) => {
+router.get("/user/subscriptions/:jwt", (req, res) => {
   try {
     const decodedToken = jwt.verify(
       req.params.jwt,
@@ -93,7 +87,7 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
   }
 });
 
-app.put("/user/subscriptions", (req, res) => {
+router.put("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
@@ -113,7 +107,7 @@ app.put("/user/subscriptions", (req, res) => {
   }
 });
 
-app.delete("/user/subscriptions", (req, res) => {
+router.delete("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
@@ -133,7 +127,7 @@ app.delete("/user/subscriptions", (req, res) => {
   }
 });
 
-app.post("/feedback", async (req, res) => {
+router.post("/feedback", async (req, res) => {
   const { message, contact } = req.body;
 
   const parsed_contact = contact === "" ? "No email provided" : contact;

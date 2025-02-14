@@ -1,7 +1,7 @@
-import { identity, pickBy } from "lodash";
-import searcher from "../../services/searcher";
-import { Course, Employee } from "../../types/types";
-import { AggResults } from "../../types/searchTypes";
+import { pickBy, identity } from "lodash-es";
+import searcher from "../../services/searcher.ts";
+import { Course, Employee } from "../../types/types.ts";
+import { AggResults } from "../../types/searchTypes.ts";
 
 type SearchResultItem = Course | Employee;
 

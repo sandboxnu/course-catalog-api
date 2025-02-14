@@ -1,12 +1,19 @@
 {
   "compilerOptions": {
-    // Don't output the built files - Babel will do that. Tsc just for checking.
-    "noEmit": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "lib": ["es2021"],
+    "target": "ESNext", // Use the latest ECMAScript features.
+    "module": "NodeNext", // Use Node’s native ESM support.
+    "moduleResolution": "NodeNext", // Align TS module resolution with Node’s.
+    "moduleDetection": "force",
+    "lib": ["ESNext"], // Include the latest built-in APIs.
+    "strict": true, // Enable strict type-checking.
+    "esModuleInterop": true, // For easier interop with CommonJS modules.
+    "allowSyntheticDefaultImports": true,
     "skipLibCheck": true,
-    "downlevelIteration": true
+    "forceConsistentCasingInFileNames": true,
+    "rewriteRelativeImportExtensions": true,
+    "resolveJsonModule": true, // Allow importing JSON files.
+    "outDir": "dist", // Specify your build output directory.
+    "allowJs": true
   },
   "exclude": ["node_modules"]
 }
