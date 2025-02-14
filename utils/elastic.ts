@@ -1,11 +1,9 @@
-/* eslint-disable no-underscore-dangle */
 /*
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
 
-import { Client as OsClient } from "@opensearch-project/opensearch";
-import { ResponseError } from "@opensearch-project/opensearch/lib/errors";
+import { Client as OsClient, errors } from "@opensearch-project/opensearch";
 import pMap from "p-map";
 import _ from "lodash";
 import macros from "./macros";
@@ -17,6 +15,7 @@ import {
 } from "../types/searchTypes";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
+import { Search_Request } from "@opensearch-project/opensearch/api";
 
 // TODO: The localhost should NOT be hardcoded in!
 const URL: string =
@@ -288,7 +287,7 @@ export class Elastic {
       index: index,
       from: from,
       size: size,
-      body: body,
+      body: body as Search_Request["body"],
     });
   }
 
@@ -299,7 +298,7 @@ export class Elastic {
       multiQuery.push({ index });
       multiQuery.push(query);
     }
-    return client.msearch({ body: multiQuery });
+    return client.msearch({ body: multiQuery }) as unknown as EsMultiResult;
   }
 
   closeClient(): void {
@@ -326,7 +325,7 @@ export class Elastic {
         }
 
         // If it's a 429, we'll get a ResponseError
-        if (e instanceof ResponseError) {
+        if (e instanceof errors.ResponseError) {
           macros.warn("Request failed - retrying...");
           // Each time, we want to wait a little longer
           const timeoutMs = (i + 1) * RETRY_TIME_MULTIPLIER;
