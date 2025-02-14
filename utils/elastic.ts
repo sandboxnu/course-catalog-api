@@ -4,8 +4,8 @@
  * See the license file in the root folder for details.
  */
 
-import { Client } from "@elastic/elasticsearch";
 import { Client as OsClient } from "@opensearch-project/opensearch";
+import { ResponseError } from "@opensearch-project/opensearch/lib/errors";
 import pMap from "p-map";
 import _ from "lodash";
 import macros from "./macros";
@@ -17,7 +17,6 @@ import {
 } from "../types/searchTypes";
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
-import { ResponseError } from "@elastic/elasticsearch/lib/errors";
 
 // TODO: The localhost should NOT be hardcoded in!
 const URL: string =
