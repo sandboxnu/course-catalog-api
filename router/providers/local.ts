@@ -1,4 +1,4 @@
-import { TwilioResponse } from "./twilio.ts";
+import { TwilioResponse } from "./twilio";
 import {
   Request as ExpressRequest,
   Response as ExpressResponse,

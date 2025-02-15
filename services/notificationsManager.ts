@@ -1,6 +1,6 @@
-import prisma from "./prisma.ts";
-import { UserInfo } from "../types/notifTypes.ts";
-import macros from "../utils/macros.ts";
+import prisma from "./prisma";
+import { UserInfo } from "../types/notifTypes";
+import macros from "../utils/macros";
 
 class NotificationsManager {
   async upsertUser(phoneNumber: string): Promise<void> {
@@ -13,7 +13,8 @@ class NotificationsManager {
   }
 
   async getUserSubscriptions(phoneNumber: string): Promise<UserInfo> {
-    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } }))
+      ?.id;
     const followedSections = await prisma.followedSection.findMany({
       where: {
         userId,
@@ -59,7 +60,11 @@ class NotificationsManager {
     sectionIds: string[],
     courseIds: string[],
   ): Promise<void> {
-    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } }))
+      ?.id;
+    if (!userId) {
+      throw Error("Cannot get userId");
+    }
     const sectionTuples = sectionIds.map((s: string) => ({
       userId,
       sectionHash: s,
@@ -87,7 +92,8 @@ class NotificationsManager {
     sectionIds: string[],
     courseIds: string[],
   ): Promise<void> {
-    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } }))
+      ?.id;
 
     const promises = [];
 
@@ -114,7 +120,8 @@ class NotificationsManager {
   }
 
   async deleteAllUserSubscriptions(phoneNumber: string): Promise<void> {
-    const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
+    const userId = (await prisma.user.findFirst({ where: { phoneNumber } }))
+      ?.id;
     await prisma.followedSection.deleteMany({
       where: { userId },
     });

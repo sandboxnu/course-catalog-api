@@ -2,29 +2,33 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import _ from "lodash";
-
 import CourseSerializer from "./courseSerializer";
 import { ESCourse, ESSection } from "../types/serializerTypes";
 
 class ElasticCourseSerializer extends CourseSerializer<ESCourse, ESSection> {
-  courseProps(): string[] {
+  override courseProps(): string[] {
     return [];
   }
 
-  finishCourseObj(course): ESCourse {
-    return _.pick(course, [
-      "host",
-      "name",
-      "subject",
-      "classId",
-      "termId",
-      "nupath",
-    ]);
+  override finishCourseObj(course: any): ESCourse {
+    return {
+      host: course["host"],
+      name: course["name"],
+      subject: course["subject"],
+      classId: course["classId"],
+      termId: course["termId"],
+      nupath: course["nupath"],
+    };
   }
 
-  finishSectionObj(section): ESSection {
-    return _.pick(section, ["profs", "classType", "crn", "campus", "honors"]);
+  override finishSectionObj(section: any): ESSection {
+    return {
+      profs: section["profs"],
+      classType: section["classType"],
+      crn: section["crn"],
+      campus: section["campus"],
+      honors: section["honors"],
+    };
   }
 }
 

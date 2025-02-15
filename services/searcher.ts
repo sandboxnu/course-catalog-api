@@ -7,10 +7,10 @@ import {
   Course as PrismaCourse,
   Section as PrismaSection,
 } from "@prisma/client";
-import prisma from "../services/prisma.ts";
-import elastic, { Elastic } from "../utils/elastic.ts";
-import HydrateSerializer from "../serializers/hydrateSerializer.ts";
-import macros from "../utils/macros.ts";
+import prisma from "../services/prisma";
+import elastic, { Elastic } from "../utils/elastic";
+import HydrateSerializer from "../serializers/hydrateSerializer";
+import macros from "../utils/macros";
 import {
   EsQuery,
   QueryNode,
@@ -37,9 +37,7 @@ import {
   SearchResult,
   CourseSearchResult,
   ParsedQuery,
-} from "../types/searchTypes";
-import { SerializedCourse } from "../types/serializerTypes";
-import { Course, Section } from "../types/types";
+} from "../types/searchTypes.ts";
 
 type CourseWithSections = PrismaCourse & { sections: PrismaSection[] };
 type SSRSerializerOutput = { [id: string]: CourseSearchResult };
@@ -269,7 +267,7 @@ class Searcher {
     });
 
     //make the field query and add it to the list.
-    let fieldQuery: LeafQuery = null;
+    let fieldQuery: LeafQuery = {} as LeafQuery;
     if (nonMatches.trim() !== "") {
       fieldQuery = {
         multi_match: {
@@ -487,8 +485,8 @@ class Searcher {
     // Only show this course
     const showCourse = hasSections && subjectMatches && codeMatches;
 
-    let aggregations: AggResults;
-    let resultOutput: SearchResult[];
+    let aggregations: AggResults | null = null;
+    let resultOutput: SearchResult[] | null = null;
 
     if (showCourse) {
       resultOutput = await new HydrateSerializer().bulkSerialize([result]);
@@ -519,10 +517,12 @@ class Searcher {
       nupath: result.nupath.map((val) => {
         return { value: val, count: 1 };
       }),
-      subject: [this.generateAgg("subject", result.subject, 1)],
-      classType: [{ value: result.sections[0].classType, count: 1 }],
-      campus: [{ value: result.sections[0].campus, count: 1 }],
-      honors: [{ value: result.sections[0].honors?.toString(), count: 1 }],
+      subject: [this.generateAgg("subject", result.subject ?? "", 1)],
+      classType: [{ value: result.sections[0].classType ?? "", count: 1 }],
+      campus: [{ value: result.sections[0].campus ?? "", count: 1 }],
+      honors: [
+        { value: result.sections[0].honors?.toString() ?? "", count: 1 },
+      ],
     };
   }
 

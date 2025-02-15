@@ -1,19 +1,37 @@
 {
   "compilerOptions": {
-    "target": "ESNext", // Use the latest ECMAScript features.
-    "module": "NodeNext", // Use Node’s native ESM support.
-    "moduleResolution": "NodeNext", // Align TS module resolution with Node’s.
+    //// Module settings (how TS resolves importing things)
+    "target": "ESNext",
+    "module": "NodeNext",
     "moduleDetection": "force",
-    "lib": ["ESNext"], // Include the latest built-in APIs.
-    "strict": true, // Enable strict type-checking.
-    "esModuleInterop": true, // For easier interop with CommonJS modules.
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "rewriteRelativeImportExtensions": true,
-    "resolveJsonModule": true, // Allow importing JSON files.
-    "outDir": "dist", // Specify your build output directory.
-    "allowJs": true
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    // "verbatimModuleSyntax": true,  // this setting has _good_ features BUT would require full ESM
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ESNext"],
+
+    //// Strictness settings (how angry TS gets at types)
+    "strict": true,
+    // "noUncheckedIndexAccess": true,   // good setting but does get in your way (a little)
+    "noImplicitOverride": true,
+
+    //// Build settings (how TS transpiles the JS)
+    "paths": {
+      "#services/*": ["./services/*"]
+    },
+    "outDir": "dist"
   },
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules",
+    "cache",
+    "logs",
+    "public",
+    "infrastructure",
+    "data",
+
+    "scrapers"
+  ]
 }

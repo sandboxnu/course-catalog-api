@@ -102,7 +102,7 @@ class CourseSerializer<C extends Partial<Course>, S extends Partial<Section>> {
     innerCourse.desc = innerCourse.description;
 
     if (innerCourse.sections) {
-      innerCourse.sections = innerCourse.sections.map((section) =>
+      innerCourse.sections = innerCourse.sections.map((section: any) =>
         this.serializeSection(section),
       );
     }

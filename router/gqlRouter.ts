@@ -4,18 +4,14 @@ import GraphQLJSON, { GraphQLJSONObject } from "graphql-type-json";
 
 import employeeTypeDef from "./typeDefs/employee.js";
 
-import searchResolvers from "./resolvers/search.ts";
+import searchResolvers from "./resolvers/search";
 import searchTypeDef from "./typeDefs/search.js";
 
-import classResolvers from "./resolvers/class.ts";
+import classResolvers from "./resolvers/class";
 import classTypeDef from "./typeDefs/class.js";
 import classOccurrenceTypeDef from "./typeDefs/classOccurrence.js";
 
-import majorResolvers from "./resolvers/major.ts";
-import majorTypeDef from "./typeDefs/major.js";
-import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence.js";
-
-import termInfoResolvers from "./resolvers/termInfo.ts";
+import termInfoResolvers from "./resolvers/termInfo";
 import termInfoTypeDef from "./typeDefs/termInfo.js";
 
 // Enable JSON custom type
@@ -45,15 +41,12 @@ export const server = new ApolloServer({
     classTypeDef,
     classOccurrenceTypeDef,
     employeeTypeDef,
-    majorTypeDef,
-    majorOccurrenceTypeDef,
     searchTypeDef,
     termInfoTypeDef,
   ],
   resolvers: [
     JSONResolvers,
     classResolvers,
-    majorResolvers,
     searchResolvers,
     termInfoResolvers,
   ],

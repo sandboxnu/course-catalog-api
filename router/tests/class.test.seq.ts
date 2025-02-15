@@ -6,7 +6,7 @@ import { gql } from "apollo-server";
 import { GraphQLResponse } from "apollo-server-core";
 import { DocumentNode, GraphQLError } from "graphql";
 import prisma from "../../services/prisma";
-import server from "../index";
+import { server } from "../gqlRouter";
 
 const query = async (queryBody: {
   query: string | DocumentNode;

@@ -31,12 +31,15 @@ export type SerializedCourse<C, S> = {
   sections: S[];
 };
 
-export type ESProfessor = Pick<PrismaProfessor, "name" | "email" | "phone">;
+export type ESProfessor = Pick<
+  PrismaProfessor,
+  "id" | "name" | "email" | "phone"
+>;
 export type ESCourse = Pick<
   PrismaCourse,
   "host" | "name" | "subject" | "classId" | "termId" | "nupath"
 >;
 export type ESSection = Pick<
   PrismaSection,
-  "profs" | "classType" | "crn" | "campus"
+  "profs" | "classType" | "crn" | "campus" | "honors"
 >;

@@ -4,14 +4,14 @@
  */
 
 import { User, FollowedSection } from "@prisma/client";
-import prisma from "./prisma.ts";
-import twilioNotifyer from "../router/providers/twilio.ts";
-import macros from "../utils/macros.ts";
+import prisma from "./prisma";
+import twilioNotifyer from "../router/providers/twilio";
+import macros from "../utils/macros";
 import {
   CourseNotificationInfo,
   NotificationInfo,
   SectionNotificationInfo,
-} from "../types/notifTypes.ts";
+} from "../types/notifTypes";
 
 function generateCourseMessage(course: CourseNotificationInfo): string {
   const classCode = `${course.subject} ${course.courseId}`;
@@ -67,7 +67,7 @@ export async function sendNotifications(
           );
         });
       })
-      .reduce((acc, val) => acc.concat(val), []);
+      .reduce((acc, val) => acc.concat(val), [] as any[]);
 
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
@@ -93,7 +93,7 @@ export async function sendNotifications(
             );
           });
         })
-        .reduce((acc, val) => acc.concat(val), []);
+        .reduce((acc, val) => acc.concat(val), [] as any[]);
 
     //delete any entries in followedCourse w/ notifCount >= 3
     await prisma.followedCourse.deleteMany({

@@ -1,8 +1,8 @@
 import twilio, { Twilio } from "twilio";
 import express from "express";
-import macros from "../../utils/macros.ts";
-import notificationsManager from "../../services/notificationsManager.ts";
-import { twilioClient } from "./twilioClient.ts";
+import macros from "../../utils/macros";
+import notificationsManager from "../../services/notificationsManager";
+import { twilioClient } from "./twilioClient";
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 

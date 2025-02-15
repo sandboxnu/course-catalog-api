@@ -8,15 +8,15 @@ import { Course, Section } from "../types/types";
 import { SerializedSection } from "../types/serializerTypes";
 
 class HydrateCourseSerializer extends CourseSerializer<Course, Section> {
-  courseProps(): string[] {
+  override courseProps(): string[] {
     return ["lastUpdateTime", "termId", "host", "subject", "classId"];
   }
 
-  finishCourseObj(course: Course): Course {
+  override finishCourseObj(course: Course): Course {
     return course;
   }
 
-  finishSectionObj(section: SerializedSection): Section {
+  override finishSectionObj(section: SerializedSection): Section {
     // We know this will work, but Typescript doesn't
     //  In the main class, we add the fields from this.courseProps() to the section
     //  This creates a proper Section, but TS doesn't know we do that.

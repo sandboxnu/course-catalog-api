@@ -2,14 +2,14 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.
  */
-import prisma from "../../services/prisma.ts";
-import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer.ts";
-import keys from "../../utils/keys.ts";
+import prisma from "../../services/prisma";
+import HydrateCourseSerializer from "../../serializers/hydrateCourseSerializer";
+import keys from "../../utils/keys";
 import {
   Course as PrismaCourse,
   Section as PrismaSection,
 } from "@prisma/client";
-import { Course, Section } from "../../types/types.ts";
+import { Course, Section } from "../../types/types";
 import { GraphQLError } from "graphql";
 
 const serializer = new HydrateCourseSerializer();
@@ -131,34 +131,45 @@ const getSectionById = async (id: string): Promise<Section> => {
   }
 
   const resSec: Section = serializer.serializeSection(result); // this mutates res
-  const { termId, subject, classId } = keys.parseSectionHash(id);
+  const key = keys.parseSectionHash(id);
 
-  return { termId, subject, classId, ...resSec };
+  return {
+    ...resSec,
+    termId: key?.termId ?? "",
+    subject: key?.subject ?? "",
+    classId: key?.classId ?? "",
+  };
 };
 
 const resolvers = {
   Query: {
-    class: (parent, args) => {
+    class: (parent: any, args: { subject: string; classId: string }) => {
       return getLatestClassOccurrence(args.subject, args.classId);
     },
-    bulkClasses: (parent, args) => {
+    bulkClasses: (
+      parent: any,
+      args: { input: { subject: string; classId: string }[] },
+    ) => {
       return getBulkClassOccurrences(args.input);
     },
-    classByHash: (parent, args) => {
+    classByHash: (parent: any, args: { hash: string }) => {
       return getClassOccurrenceById(args.hash);
     },
-    sectionByHash: (parent, args) => {
+    sectionByHash: (parent: any, args: { hash: string }) => {
       return getSectionById(args.hash);
     },
   },
   Class: {
-    latestOccurrence: (clas) => {
+    latestOccurrence: (clas: { subject: string; classId: string }) => {
       return getLatestClassOccurrence(clas.subject, clas.classId);
     },
-    allOccurrences: (clas) => {
+    allOccurrences: (clas: { subject: string; classId: string }) => {
       return getAllClassOccurrences(clas.subject, clas.classId);
     },
-    occurrence: (clas, args) => {
+    occurrence: (
+      clas: { subject: string; classId: string },
+      args: { termId: string },
+    ) => {
       return getClassOccurrence(args.termId, clas.subject, clas.classId);
     },
   },

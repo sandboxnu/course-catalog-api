@@ -285,11 +285,11 @@ export type BulkUpsertInput =
   | Prisma.CourseCreateInput
   | Prisma.ProfessorCreateInput;
 
-export type SingleTransformFunction = (any) => string;
+export type SingleTransformFunction = (arg0: any) => string;
 export type ArrayTransformFunction = (
-  any,
-  string,
-  SingleTransformFunction,
+  arg0: any,
+  arg1: string,
+  arg2: SingleTransformFunction,
 ) => string;
 export type TransformFunction =
   | SingleTransformFunction

@@ -1,7 +1,6 @@
-import { pickBy, identity } from "lodash-es";
-import searcher from "../../services/searcher.ts";
-import { Course, Employee } from "../../types/types.ts";
-import { AggResults } from "../../types/searchTypes.ts";
+import searcher from "../../services/searcher";
+import { Course, Employee } from "../../types/types";
+import { AggResults } from "../../types/searchTypes";
 
 type SearchResultItem = Course | Employee;
 
@@ -30,26 +29,25 @@ interface SearchArgs {
 const resolvers = {
   Query: {
     search: async (
-      parent,
+      parent: any,
       args: SearchArgs,
     ): Promise<SearchResultItemConnection> => {
       const { offset = 0, first = 10 } = args;
+
       const results = await searcher.search(
         args.query || "",
         args.termId,
         offset,
         offset + first,
-        pickBy(
-          {
-            subject: args.subject,
-            nupath: args.nupath,
-            campus: args.campus,
-            classType: args.classType,
-            classIdRange: args.classIdRange,
-            honors: args.honors,
-          },
-          identity,
-        ),
+        {
+          // Includes on the filters that actually have values set (are not undefined)
+          ...(args.subject != null && { subject: args.subject }),
+          ...(args.nupath != null && { subject: args.nupath }),
+          ...(args.campus != null && { subject: args.campus }),
+          ...(args.classType != null && { subject: args.classType }),
+          ...(args.classIdRange != null && { subject: args.classIdRange }),
+          ...(args.honors != null && { subject: args.honors }),
+        },
       );
 
       const hasNextPage = offset + first < results.resultCount;

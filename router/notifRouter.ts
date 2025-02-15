@@ -1,10 +1,10 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import request from "request-promise-native";
-import twilioNotifyer from "./providers/twilio.ts";
-import localNotifyer from "./providers/local.ts";
-import notificationsManager from "../services/notificationsManager.ts";
-import macros from "../utils/macros.ts";
+import twilioNotifyer from "./providers/twilio";
+import localNotifyer from "./providers/local";
+import notificationsManager from "../services/notificationsManager";
+import macros from "../utils/macros";
 
 export const router = express.Router();
 
@@ -48,7 +48,7 @@ router.post("/sms/verify", (req, res) => {
     .then(async (response) => {
       if (response.statusCode === 200) {
         await notificationsManager.upsertUser(phoneNumber);
-        const token = jwt.sign({ phoneNumber }, process.env.JWT_SECRET);
+        const token = jwt.sign({ phoneNumber }, process.env.JWT_SECRET || "");
         res
           .status(response.statusCode)
           .send({ message: response.message, token });
@@ -68,7 +68,7 @@ router.get("/user/subscriptions/:jwt", (req, res) => {
   try {
     const decodedToken = jwt.verify(
       req.params.jwt,
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "",
     ) as any;
     const phoneNumber = decodedToken.phoneNumber;
     notificationsManager
@@ -90,7 +90,7 @@ router.get("/user/subscriptions/:jwt", (req, res) => {
 router.put("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET || "") as any;
     const phoneNumber = decodedToken.phoneNumber;
     notificationsManager
       .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
@@ -110,7 +110,7 @@ router.put("/user/subscriptions", (req, res) => {
 router.delete("/user/subscriptions", (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
-    const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET || "") as any;
     const phoneNumber = decodedToken.phoneNumber;
     notificationsManager
       .deleteUserSubscriptions(phoneNumber, sectionIds, courseIds)
@@ -147,7 +147,7 @@ router.post("/feedback", async (req, res) => {
   const parsed_data = JSON.stringify(data);
 
   return await request
-    .post({ url: process.env.SLACK_WEBHOOK_URL, body: parsed_data })
+    .post({ url: process.env.SLACK_WEBHOOK_URL || "", body: parsed_data })
     .then((_) => res.status(200).send())
     .catch((error) => {
       macros.error(error);

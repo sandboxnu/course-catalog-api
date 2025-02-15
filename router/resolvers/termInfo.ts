@@ -1,5 +1,5 @@
-import prisma from "../../services/prisma.ts";
-import { TermInfo } from "../../types/types.ts";
+import prisma from "../../services/prisma";
+import { TermInfo } from "../../types/types";
 
 type TermInfoCache = Record<
   string,
@@ -54,7 +54,7 @@ const getTermInfos = async (subCollege: string): Promise<TermInfo[]> => {
 
 const resolvers = {
   Query: {
-    termInfos: async (parent, args) => {
+    termInfos: async (parent: any, args: { subCollege: string }) => {
       return getTermInfos(args.subCollege);
     },
   },

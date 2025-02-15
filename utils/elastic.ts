@@ -7,16 +7,17 @@
 import { Client } from "@elastic/elasticsearch";
 import pMap from "p-map";
 import _ from "lodash";
-import macros from "./macros.ts";
+import macros from "./macros";
 import {
   EsBulkData,
   EsQuery,
   EsMultiResult,
   EsResult,
-} from "../types/searchTypes.ts";
-import employeeMap from "../scrapers/employees/employeeMapping.json" with { type: "json" };
-import classMap from "../scrapers/classes/classMapping.json" with { type: "json" };
+} from "../types/searchTypes";
+import employeeMap from "../scrapers/employees/employeeMapping.json";
+import classMap from "../scrapers/classes/classMapping.json";
 import { ResponseError } from "@elastic/elasticsearch/lib/errors";
+import { Record } from "@prisma/client/runtime/library";
 
 const URL: string =
   macros.getEnvVariable("elasticURL") || "http://localhost:9200";
@@ -97,7 +98,10 @@ export class Elastic {
     return true;
   }
 
-  async createIndex(indexName: string, mapping): Promise<void> {
+  async createIndex(
+    indexName: string,
+    mapping: Record<string, any>,
+  ): Promise<void> {
     macros.log(`Creating index ${indexName}`);
     try {
       await client.indices.create({ index: indexName, body: mapping });
@@ -237,7 +241,7 @@ export class Elastic {
       }
     }
 
-    return null;
+    return "";
   }
 
   // Bulk index a collection of documents using ids from hashmap
@@ -317,7 +321,7 @@ export class Elastic {
     for (let i = 0; i < MAX_RETRY_ATTEMPTS; i++) {
       try {
         return await client.bulk({ index: indexName, body: bulk });
-      } catch (e) {
+      } catch (e: any) {
         macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
 
         if (i === MAX_RETRY_ATTEMPTS - 1) {

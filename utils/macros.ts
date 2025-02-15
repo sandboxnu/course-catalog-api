@@ -9,7 +9,7 @@ import Rollbar, { MaybeError } from "rollbar";
 import Amplitude from "amplitude";
 import dotenv from "dotenv";
 import { AmplitudeTrackResponse } from "amplitude/dist/responses";
-import { AmplitudeEvent } from "../types/requestTypes.ts";
+import { AmplitudeEvent } from "../types/requestTypes";
 import "colors";
 import { createLogger, format, Logger, transports } from "winston";
 import "winston-daily-rotate-file";

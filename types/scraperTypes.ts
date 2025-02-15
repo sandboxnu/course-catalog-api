@@ -51,7 +51,7 @@ export function convertCourseToPrismaType(
 
   return {
     ...cleanClassInfo,
-    id: keys.getClassHash(classInfo),
+    id: keys.getClassHash(classInfo) ?? "",
     description: classInfo.desc,
     minCredits: Math.floor(classInfo.minCredits),
     maxCredits: Math.floor(classInfo.maxCredits),
@@ -76,9 +76,20 @@ export function convertCourseFromPrismaType(
 ): ParsedCourseSR {
   return {
     ...classInfo,
-    desc: classInfo.description,
+    host: classInfo.host ?? "",
+    termId: classInfo.termId ?? "",
+    subject: classInfo.subject ?? "",
+    classId: classInfo.classId ?? "",
+    prettyUrl: classInfo.classId ?? "",
+    name: classInfo.name ?? "",
+    url: classInfo.url ?? "",
+    desc: classInfo.description ?? "",
+    maxCredits: classInfo.maxCredits ?? 0,
+    minCredits: classInfo.minCredits ?? 0,
+    feeAmount: classInfo.feeAmount ?? 0,
+    feeDescription: classInfo.feeDescription ?? "",
     college: "",
-    lastUpdateTime: classInfo.lastUpdateTime.getUTCDate(),
+    lastUpdateTime: classInfo.lastUpdateTime?.getUTCDate() ?? 0,
     // TODO: 2023-05, this shouldn't be just cast blindly (but I don't have time to do it rn ;)
     prereqs: classInfo.prereqs as Requisite,
     coreqs: classInfo.coreqs as Requisite,

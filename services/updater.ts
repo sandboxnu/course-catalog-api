@@ -6,21 +6,21 @@
 import pMap from "p-map";
 import { Course, Section, User } from "@prisma/client";
 
-import macros from "../utils/macros.ts";
-import prisma from "./prisma.ts";
-import keys from "../utils/keys.ts";
-import dumpProcessor from "./dumpProcessor.ts";
-import termParser from "../scrapers/classes/parsersxe/termParser.ts";
-import classParser from "../scrapers/classes/parsersxe/classParser.ts";
-import { Section as ScrapedSection } from "../types/types.ts";
-import { sendNotifications } from "./notifyer.ts";
-import { NotificationInfo } from "../types/notifTypes.ts";
+import macros from "../utils/macros";
+import prisma from "./prisma";
+import keys from "../utils/keys";
+import dumpProcessor from "./dumpProcessor";
+import termParser from "../scrapers/classes/parsersxe/termParser";
+import classParser from "../scrapers/classes/parsersxe/classParser";
+import { Section as ScrapedSection } from "../types/types";
+import { sendNotifications } from "./notifyer";
+import { NotificationInfo } from "../types/notifTypes";
 import {
   ParsedCourseSR,
   convertCourseFromPrismaType,
-} from "../types/scraperTypes.ts";
-import processor from "../scrapers/classes/main.ts";
-import filters from "../scrapers/filters.ts";
+} from "../types/scraperTypes";
+import processor from "../scrapers/classes/main";
+import filters from "../scrapers/filters";
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -192,7 +192,7 @@ class Updater {
     const missingClass = [];
 
     for (const section of sections) {
-      const hash = keys.getClassHash(section);
+      const hash = keys.getClassHash(section) ?? "";
       if (courseIds.has(hash) || additionalExistingCourseIds?.has(hash)) {
         hasExistingClass.push(section);
       } else {
@@ -223,11 +223,11 @@ class Updater {
 
     for (const section of sections) {
       if (validTermIds.includes(section.termId)) {
-        missingClasses[keys.getClassHash(section)] = {
+        missingClasses.set(keys.getClassHash(section) ?? "", {
           termId: section.termId,
           subject: section.subject,
           classId: section.classId,
-        };
+        });
       }
     }
 
@@ -312,7 +312,9 @@ class Updater {
     );
 
     const newClasses = await this.getCorrespondingClasses(missingClassInitial);
-    const newClassIds = new Set(newClasses.map((c) => keys.getClassHash(c)));
+    const newClassIds = new Set(
+      newClasses.map((c) => keys.getClassHash(c) ?? ""),
+    );
 
     // Check again, this time including the newly scraped classes
     // This ensures that our class scraping was successful
@@ -385,9 +387,9 @@ class Updater {
 
     // map of courseHash to newly scraped sections
     for (const s of sections) {
-      const hash: string = keys.getClassHash(s);
+      const hash = keys.getClassHash(s) ?? "";
       if (!newSectionsByClass[hash]) newSectionsByClass[hash] = [];
-      newSectionsByClass[hash].push(keys.getSectionHash(s));
+      newSectionsByClass[hash].push(keys.getSectionHash(s) ?? "");
     }
 
     const notificationInfo: NotificationInfo = {
@@ -407,11 +409,11 @@ class Updater {
         const { id, subject, classId, termId } = watchedCourseLookup[classHash];
 
         notificationInfo.updatedCourses.push({
-          termId,
-          subject,
-          courseId: classId,
+          termId: termId ?? "",
+          subject: subject ?? "",
+          courseId: classId ?? "",
           courseHash: id,
-          campus: Updater.getCampusFromTerm(termId),
+          campus: Updater.getCampusFromTerm(termId ?? ""),
           numberOfSectionsAdded: newSectionCount,
         });
       }
@@ -420,22 +422,24 @@ class Updater {
     // find watched sections with more seats or waitlist spots and add to notificationInfo
     sections.forEach((s: ScrapedSection) => {
       const sectionId = keys.getSectionHash(s);
-      const oldSection = watchedSectionLookup[sectionId];
+      const oldSection = watchedSectionLookup[sectionId ?? ""];
       if (!oldSection) return;
 
       if (
-        (s.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) ||
-        (s.waitRemaining > 0 && oldSection.waitRemaining <= 0)
+        oldSection.seatsRemaining &&
+        oldSection.waitRemaining &&
+        ((s.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) ||
+          (s.waitRemaining > 0 && oldSection.waitRemaining <= 0))
       ) {
-        const { termId, subject, classId } = keys.parseSectionHash(sectionId);
+        const key = keys.parseSectionHash(sectionId ?? "");
 
         notificationInfo.updatedSections.push({
-          termId,
-          subject,
-          courseId: classId,
+          termId: key?.termId ?? "",
+          subject: key?.subject ?? "",
+          courseId: key?.classId ?? "",
           crn: s.crn,
-          sectionHash: sectionId,
-          campus: Updater.getCampusFromTerm(termId),
+          sectionHash: sectionId ?? "",
+          campus: Updater.getCampusFromTerm(key?.termId ?? ""),
           seatsRemaining: s.seatsRemaining,
         });
       }
@@ -489,10 +493,10 @@ class Updater {
 
     const oldSectionsByClass: Record<string, string[]> = {};
     for (const s of oldSections) {
-      if (!(s.classHash in oldSectionsByClass)) {
-        oldSectionsByClass[s.classHash] = [];
+      if (!(s.classHash ?? "" in oldSectionsByClass)) {
+        oldSectionsByClass[s.classHash ?? ""] = [];
       }
-      oldSectionsByClass[s.classHash].push(s.id);
+      oldSectionsByClass[s.classHash ?? ""].push(s.id);
     }
 
     return {

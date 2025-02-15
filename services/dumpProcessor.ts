@@ -2,20 +2,23 @@
  * This file is part of Search NEU and licensed under AGPL3.
  * See the license file in the root folder for details.  */
 
-import fs from "fs-extra";
-import _ from "lodash";
-import path from "path";
+// import fs from "fs-extra";
+// import path from "path";
 import { Prisma, TermInfo } from "@prisma/client";
-import prisma from "./prisma.ts";
-import macros from "../utils/macros.ts";
-import { populateES } from "../scripts/populateES.ts";
-import {
-  Dump,
-  Employee,
-  Section,
-  convertSectionToPrismaType,
-} from "../types/types.ts";
-import { convertCourseToPrismaType } from "../types/scraperTypes.ts";
+import prisma from "./prisma";
+import macros from "../utils/macros";
+import { populateES } from "../scripts/populateES";
+import { Dump, Employee, convertSectionToPrismaType } from "../types/types";
+import { convertCourseToPrismaType } from "../types/scraperTypes";
+
+// Helper function to chunk a big array into an array of smaller arrays!
+function chunk<T>(input: T[], size: number): T[][] {
+  return input.reduce((arr, item, idx) => {
+    return idx % size === 0
+      ? [...arr, [item]]
+      : [...arr.slice(0, -1), [...arr.slice(-1)[0], item]];
+  }, [] as T[][]);
+}
 
 class DumpProcessor {
   /**
@@ -28,7 +31,7 @@ class DumpProcessor {
     termDump = { classes: [], sections: [], subjects: {} },
     profDump = [],
     deleteOutdatedData = false,
-    allTermInfos = null,
+    allTermInfos = [],
   }: Dump): Promise<void> {
     await this.saveEmployeesToDatabase(profDump);
 
@@ -90,7 +93,7 @@ class DumpProcessor {
   ): Promise<void> {
     // Break the classes into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL classes in parallel because this may overwhelm the DB
-    const groupedCourses = _.chunk(courses, 2000);
+    const groupedCourses = chunk(courses, 2000);
     const updateTime = new Date();
 
     for (const courses of groupedCourses) {
@@ -125,7 +128,7 @@ class DumpProcessor {
 
     // Break the sections into groups of 2,000 each. Each group will be processed in parallel
     // We can't process ALL sections in parallel because this may overwhelm the DB
-    const groupedSections = _.chunk(sections, 2000);
+    const groupedSections = chunk(sections, 2000);
 
     for (const sections of groupedSections) {
       const upsertQueries = sections.map((prismaSection) => {
@@ -187,7 +190,7 @@ class DumpProcessor {
     // Get a list of termIDs (not termInfos!!) for which we already have data
     const termIdsWithData = await prisma.course.groupBy({ by: ["termId"] });
 
-    return termIdsWithData.map((t) => t.termId);
+    return termIdsWithData.map((t) => t.termId ?? "0");
   }
 
   /**
@@ -277,30 +280,33 @@ class DumpProcessor {
 const instance = new DumpProcessor();
 
 /* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
-async function fromFile(termFilePath, empFilePath): Promise<void | null> {
-  const termExists = await fs.pathExists(termFilePath);
-  const empExists = await fs.pathExists(empFilePath);
-
-  if (!termExists || !empExists) {
-    macros.error("need to run scrape before indexing");
-    return;
-  }
-
-  const termDump = await fs.readJson(termFilePath);
-  const profDump = await fs.readJson(empFilePath);
-  await instance.main({ termDump: termDump, profDump: profDump });
-}
+// async function fromFile(
+//   termFilePath: string,
+//   empFilePath: string,
+// ): Promise<void | null> {
+//   const termExists = await fs.pathExists(termFilePath);
+//   const empExists = await fs.pathExists(empFilePath);
+//
+//   if (!termExists || !empExists) {
+//     macros.error("need to run scrape before indexing");
+//     return;
+//   }
+//
+//   const termDump = await fs.readJson(termFilePath);
+//   const profDump = await fs.readJson(empFilePath);
+//   await instance.main({ termDump: termDump, profDump: profDump });
+// }
 
 /* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
-if (require.main === module) {
-  // If called directly, attempt to index the dump in public dir
-  const termFilePath = path.join(
-    macros.PUBLIC_DIR,
-    "getTermDump",
-    "allTerms.json",
-  );
-  const empFilePath = path.join(macros.PUBLIC_DIR, "employeeDump.json");
-  fromFile(termFilePath, empFilePath).catch(macros.error);
-}
+// if (require.main === module) {
+//   // If called directly, attempt to index the dump in public dir
+//   const termFilePath = path.join(
+//     macros.PUBLIC_DIR,
+//     "getTermDump",
+//     "allTerms.json",
+//   );
+//   const empFilePath = path.join(macros.PUBLIC_DIR, "employeeDump.json");
+//   fromFile(termFilePath, empFilePath).catch(macros.error);
+// }
 
 export default instance;

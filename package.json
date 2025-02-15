@@ -2,7 +2,6 @@
   "name": "course-catalog-api",
   "version": "1.0.9",
   "license": "AGPL-3.0",
-  "type": "module",
   "scripts": {
     "about:babel-node-ts": "//// This command is used to run Typescript files on the fly. Mainly used in other commands, not standalone",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
@@ -37,7 +36,7 @@
     "about:lint": "//// Ensures that our code follows best practices",
     "lint": "yarn eslint --ignore-path .gitignore --ext .js,.ts .",
     "about:tsc": "//// Runs TSC (because of our config, this will NOT compile the files, just typecheck them)",
-    "tsc": "tsc",
+    "tsc": "tsc --noEmit",
     "about:test": "//// Runs a basic suite of unit and integration tests",
     "test": "yarn jest --verbose --testPathIgnorePatterns='(seq|reg|git|unit).[jt]s'",
     "about:dbtest": "//// Runs tests interacting with our database. Must have the Docker containers running. This won't touch live data - it will create and teardown a temporary database.",

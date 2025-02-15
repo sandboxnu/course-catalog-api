@@ -41,16 +41,16 @@ export async function populateES(): Promise<void> {
   await bulkUpsertProfs(await prisma.professor.findMany());
 }
 
-if (require.main === module) {
-  macros.log(
-    `Populating ES at ${macros.getEnvVariable(
-      "elasticURL",
-    )} from Postgres at ${macros.getEnvVariable("dbHost")}`,
-  );
-  (async () => {
-    await populateES();
-    macros.log("Success! Closing elastic client and exiting.");
-    elastic.closeClient();
-    process.exit();
-  })().catch((e) => macros.error(e));
-}
+// if (require.main === module) {
+//   macros.log(
+//     `Populating ES at ${macros.getEnvVariable(
+//       "elasticURL",
+//     )} from Postgres at ${macros.getEnvVariable("dbHost")}`,
+//   );
+//   (async () => {
+//     await populateES();
+//     macros.log("Success! Closing elastic client and exiting.");
+//     elastic.closeClient();
+//     process.exit();
+//   })().catch((e) => macros.error(e));
+// }

@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import macros from "../utils/macros.ts";
+import macros from "../utils/macros";
 
 const prisma = new PrismaClient({
   log: ["info", "warn", "error"],
