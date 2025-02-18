@@ -20,7 +20,9 @@
 
     //// Build settings (how TS transpiles the JS)
     "paths": {
-      "#services/*": ["./services/*"]
+      "$/services/*": ["./services/*"],
+      "$/router/*": ["./router/*"]
+      "$/types/*": ["./types/*"]
     },
     "outDir": "dist"
   },

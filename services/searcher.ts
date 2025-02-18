@@ -267,7 +267,9 @@ class Searcher {
     });
 
     //make the field query and add it to the list.
-    let fieldQuery: LeafQuery = {} as LeafQuery;
+    // BUG: There is a type error somewhere because this should NOT be able to be
+    // nulled OR it can be so everything else has to expect it
+    let fieldQuery: LeafQuery = null;
     if (nonMatches.trim() !== "") {
       fieldQuery = {
         multi_match: {

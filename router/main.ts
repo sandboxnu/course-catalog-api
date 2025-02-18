@@ -21,6 +21,7 @@ async function createRouter() {
     }),
   );
   app.use(express.json());
+  notifApp.use(express.json());
 
   app.use(notifRouter);
   notifApp.use(notifRouter);
