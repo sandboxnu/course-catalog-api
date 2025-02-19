@@ -70,30 +70,30 @@ const insertDummyData = async () => {
 };
 
 suite("class query", () => {
-  before(insertDummyData),
-    test("can query in bulk", async (t) => {
-      const res = await query({
-        query: gql`
-          query class {
-            bulkClasses(
-              input: [
-                { subject: "CS", classId: "3500" }
-                { subject: "CS", classId: "2500" }
-              ]
-            ) {
-              subject
-              classId
-              name
-              latestOccurrence {
-                termId
-              }
+  before(insertDummyData);
+  test("can query in bulk", async (t) => {
+    const res = await query({
+      query: gql`
+        query class {
+          bulkClasses(
+            input: [
+              { subject: "CS", classId: "3500" }
+              { subject: "CS", classId: "2500" }
+            ]
+          ) {
+            subject
+            classId
+            name
+            latestOccurrence {
+              termId
             }
           }
-        `,
-      });
-
-      t.assert.snapshot(res);
+        }
+      `,
     });
+
+    t.assert.snapshot(res);
+  });
 
   test("gets all occurrences", async (t) => {
     const res = await query({

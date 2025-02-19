@@ -4,6 +4,7 @@ import Keys from "../../utils/keys";
 
 suite("getHashWithKeysSlice", () => {
   test("no obj", (t) => {
+    // @ts-ignore - This EXPECTS a partial, but should work with null too so we are forcing it
     t.assert.equal(Keys.getHashWithKeysSlice(null, 0), null);
   });
 
@@ -50,7 +51,7 @@ test("getHostHash", (t) => {
     }),
     "northeastern",
   );
-  t.assert.equal(Keys.getHostHash({ host: null }), null);
+  t.assert.equal(Keys.getHostHash({ host: undefined }), null);
   t.assert.equal(Keys.getHostHash({}), null);
 });
 
@@ -114,7 +115,10 @@ test("parseSectionHash", (t) => {
     crn: "crn",
   };
 
-  t.assert.deepEqual(Keys.parseSectionHash(Keys.getSectionHash(hash1)), hash1);
+  t.assert.deepEqual(
+    Keys.parseSectionHash(Keys.getSectionHash(hash1) ?? ""),
+    hash1,
+  );
   t.assert.equal(Keys.parseSectionHash(""), null);
   t.assert.equal(Keys.parseSectionHash("neu/1234"), null);
 });

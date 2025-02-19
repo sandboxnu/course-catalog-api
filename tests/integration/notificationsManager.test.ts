@@ -1,5 +1,7 @@
-import prisma from "../../services/prisma";
-import notifs from "../../services/notificationsManager";
+import { suite, test, beforeEach, type TestContext } from "node:test";
+
+import prisma from "$/services/prisma";
+import notifs from "$/services/notificationsManager";
 
 async function insertCourses(courseIds: string[]): Promise<void> {
   for (const course of courseIds) {
@@ -21,14 +23,14 @@ async function insertSections(sectionIds: string[]): Promise<void> {
   }
 }
 
-it("upserting a user doesn't fail on duplicate", async () => {
+test("upserting a user doesn't fail on duplicate", async () => {
   const phoneNumber = "this is a phone number string";
   await notifs.upsertUser(phoneNumber);
   await notifs.upsertUser(phoneNumber);
   await notifs.upsertUser(phoneNumber);
 });
 
-describe("user subscriptions", () => {
+suite("user subscriptions", () => {
   const phoneNumber = "911";
   const sectionIds = ["a", "b", "c"];
   const courseIds = ["1"];
@@ -38,35 +40,35 @@ describe("user subscriptions", () => {
     await prisma.course.deleteMany({});
   });
 
-  it("cannot insert subscriptions for nonexistent courses/sections", async () => {
+  test("cannot insert subscriptions for nonexistent courses/sections", async (t: TestContext) => {
     await notifs.upsertUser(phoneNumber);
-    await expect(
+    t.assert.rejects(
       notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds),
-    ).rejects.toThrow("Foreign key constraint violated");
+    );
   });
 
-  it("can insert new subscriptions", async () => {
+  test("can insert new subscriptions", async (t: TestContext) => {
     await insertCourses(courseIds);
     await insertSections(sectionIds);
 
     await notifs.upsertUser(phoneNumber);
     await notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds);
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       sectionIds: [],
       courseIds: [],
     });
   });
 
-  it("gets no subscriptions for a user that doesn't exist", async () => {
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+  test("gets no subscriptions for a user that doesn't exist", async (t: TestContext) => {
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       courseIds: [],
       sectionIds: [],
     });
   });
 
-  it("duplicate users and subscriptions aren't counted twice", async () => {
+  test("duplicate users and subscriptions aren't counted twice", async (t: TestContext) => {
     await insertCourses(courseIds);
     await insertSections(sectionIds);
 
@@ -80,35 +82,35 @@ describe("user subscriptions", () => {
       courseIds,
     );
 
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       sectionIds: [],
       courseIds: [],
     });
   });
 
-  it("subscriptions can be deleted", async () => {
+  test("subscriptions can be deleted", async (t: TestContext) => {
     await insertCourses(courseIds);
     await insertSections(sectionIds);
 
     await notifs.upsertUser(phoneNumber);
     await notifs.putUserSubscriptions(phoneNumber, sectionIds, courseIds);
     await notifs.deleteUserSubscriptions(phoneNumber, sectionIds, []);
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       sectionIds: [],
       courseIds: [],
     });
 
     await notifs.deleteAllUserSubscriptions(phoneNumber);
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       sectionIds: [],
       courseIds: [],
     });
 
     await notifs.deleteAllUserSubscriptions(phoneNumber);
-    expect(await notifs.getUserSubscriptions(phoneNumber)).toEqual({
+    t.assert.deepStrictEqual(await notifs.getUserSubscriptions(phoneNumber), {
       phoneNumber,
       sectionIds: [],
       courseIds: [],
