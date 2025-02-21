@@ -44,7 +44,8 @@ class TwilioNotifyer {
     return this.twilioClient.messages
       .create({ body: message, from: this.TWILIO_NUMBER, to: recipientNumber })
       .then(() => {
-        macros.log(`Sent notification text to ${recipientNumber}`);
+        // TODO: Sending messages is a good thing to track in a better manner :)
+        // macros.log(`Sent notification text to ${recipientNumber}`);
         return;
       })
       .catch(async (err) => {
@@ -158,7 +159,8 @@ class TwilioNotifyer {
     const message = req.body.Body;
     const senderNumber = req.body.From;
 
-    macros.log(`Received a text from ${senderNumber}: ${message}`);
+    // TODO: I mean, we should know when things come through but not just spit out to the terminal
+    // macros.log(`Received a text from ${senderNumber}: ${message}`);
 
     const twimlResponse = new MessagingResponse();
 
