@@ -21,6 +21,7 @@ import {
 } from "../types/scraperTypes";
 import processor from "../scrapers/classes/main";
 import filters from "../scrapers/filters";
+import logger from "../utils/logger";
 
 /*
 At most, there are 12 terms that we want to update - if we're in the spring & summer semesters have been posted
@@ -113,8 +114,8 @@ class Updater {
   async updateOrExit(): Promise<void> {
     try {
       await this.update();
-    } catch (e) {
-      macros.warn("Updater failed with: ", e);
+    } catch (err) {
+      logger.error("updater failed", { error: err });
       process.exit(1); // if updater fails, exit the process so we can spin up a new task and not hang
     }
   }
@@ -160,8 +161,6 @@ class Updater {
     const sectionHashToUsers: Record<string, User[]> = await this.modelToUser(
       this.SECTION_MODEL,
     );
-
-    //Filter out courseHash & sectionHash if they have too high notifsSent
 
     await sendNotifications(
       notificationInfo,

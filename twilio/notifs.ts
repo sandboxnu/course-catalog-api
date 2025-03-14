@@ -1,8 +1,8 @@
 import twilio, { Twilio } from "twilio";
 import express from "express";
-import macros from "../utils/macros";
 import notificationsManager from "../services/notificationsManager";
 import { twilioClient } from "./client";
+import logger from "../utils/logger";
 
 const MessagingResponse = twilio.twiml.MessagingResponse;
 
@@ -44,24 +44,30 @@ class TwilioNotifyer {
     return this.twilioClient.messages
       .create({ body: message, from: this.TWILIO_NUMBER, to: recipientNumber })
       .then(() => {
-        macros.log(`Sent notification text to ${recipientNumber}`);
+        logger.info("sent notification", { phoneNumber: recipientNumber });
         return;
       })
       .catch(async (err) => {
         switch (err.code) {
           case this.TWILIO_ERRORS.USER_UNSUBSCRIBED:
-            macros.warn(
-              `${recipientNumber} has unsubscribed from notifications`,
-            );
-            await notificationsManager.deleteAllUserSubscriptions(
-              recipientNumber,
-            );
+            logger.warn("send notification twilio user unsubscribed", {
+              phoneNumber: recipientNumber,
+            });
+
+            await notificationsManager
+              .deleteAllUserSubscriptions(recipientNumber)
+              .catch((err) =>
+                logger.error(
+                  "error removing user subscriptions from twilio user unsubscribe",
+                  { phoneNumber: recipientNumber, error: err },
+                ),
+              );
             return;
           default:
-            macros.error(
-              `Error trying to send notification text to ${recipientNumber}`,
-              err,
-            );
+            logger.error("error sending notification", {
+              phoneNumber: recipientNumber,
+              error: err,
+            });
         }
       });
   }
@@ -93,10 +99,10 @@ class TwilioNotifyer {
                 "You've attempted to send the verification code too many times. Either verify your code or wait 10 minutes for the verification code to expire.",
             };
           default:
-            macros.error(
-              `Error trying to send verification code to ${recipientNumber}`,
-              err,
-            );
+            logger.error("error sending verification code", {
+              phoneNumber: recipientNumber,
+              error: err,
+            });
             throw err;
         }
       });
@@ -128,8 +134,9 @@ class TwilioNotifyer {
                 "You've attempted to check the verification code too many times. Either wait 10 minutes for the current verification to expire or request a new verification code.",
             };
           case this.TWILIO_ERRORS.RESOURCE_NOT_FOUND:
-            macros.warn(
-              `Error: ${err.code}\nVerification code doesn't exist, expired (10 minutes) or has already been approved.`,
+            logger.warn(
+              "verification code doesnt exist, expired, or already used",
+              { phoneNumber: recipientNumber, error: err },
             );
             return {
               statusCode: 400,
@@ -142,10 +149,10 @@ class TwilioNotifyer {
                 "Invalid phone number. Please make sure the phone number follows the E.164 format.",
             };
           default:
-            macros.error(
-              `Error trying to validate verification code from ${recipientNumber}`,
-              err,
-            );
+            logger.error("error validating verification code", {
+              phoneNumber: recipientNumber,
+              error: err,
+            });
             throw err;
         }
       });
@@ -158,12 +165,14 @@ class TwilioNotifyer {
     const message = req.body.Body;
     const senderNumber = req.body.From;
 
-    macros.log(`Received a text from ${senderNumber}: ${message}`);
+    logger.info("received message", {
+      from: senderNumber,
+      message: message,
+    });
 
     const twimlResponse = new MessagingResponse();
 
     switch (message) {
-      // TODO: actually remove user from SearchNEU notifs
       case this.TWILIO_REPLIES.STOP_ALL:
         twimlResponse.message(
           "You have been removed from all SearchNEU notifications.",
@@ -175,6 +184,7 @@ class TwilioNotifyer {
           "SearchNEU Bot failed to understand your message",
         );
     }
+
     res.send(twimlResponse.toString());
   }
 }
