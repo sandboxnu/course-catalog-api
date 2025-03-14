@@ -35,14 +35,11 @@ import {
   EsMultiResult,
   AggResults,
   SearchResult,
-  CourseSearchResult,
   ParsedQuery,
 } from "../types/searchTypes";
-import { SerializedCourse } from "../types/serializerTypes";
-import { Course, Section } from "../types/types";
+import logger from "../utils/logger";
 
 type CourseWithSections = PrismaCourse & { sections: PrismaSection[] };
-type SSRSerializerOutput = { [id: string]: CourseSearchResult };
 
 class Searcher {
   elastic: Elastic;
@@ -211,9 +208,9 @@ class Searcher {
     const validFilters: FilterInput = {};
     Object.keys(filters).forEach((currFilter) => {
       if (!(currFilter in this.filters)) {
-        macros.warn("Invalid filter key.", currFilter);
+        logger.warn("invalid filter key", { key: currFilter });
       } else if (!this.filters[currFilter].validate(filters[currFilter])) {
-        macros.warn("Invalid filter value type.", currFilter);
+        logger.warn("invalid filter value type", { value: currFilter });
       } else {
         validFilters[currFilter] = filters[currFilter];
       }
