@@ -491,7 +491,7 @@ class Searcher {
     let resultOutput: SearchResult[];
 
     if (showCourse) {
-      resultOutput = await new HydrateSerializer().bulkSerialize([result]);
+      resultOutput = await HydrateSerializer.bulkSerialize([result]);
 
       aggregations = this.getSingleResultAggs({
         ...result._source?.class,
@@ -577,7 +577,7 @@ class Searcher {
       );
       ({ resultCount, took, aggregations } = searchResults);
       const startHydrate = Date.now();
-      results = await new HydrateSerializer().bulkSerialize(
+      results = await HydrateSerializer.bulkSerialize(
         searchResults.output,
       );
       results = this.filterOutSections(results, filters);

@@ -6,7 +6,7 @@ import ProfSerializer from "./profSerializer";
 import { Professor as PrismaProfessor } from "@prisma/client";
 
 class HydrateProfSerializer extends ProfSerializer<PrismaProfessor> {
-  _serializeProf(prof: PrismaProfessor): PrismaProfessor {
+  static _serializeProf(prof: PrismaProfessor): PrismaProfessor {
     return prof;
   }
 }
