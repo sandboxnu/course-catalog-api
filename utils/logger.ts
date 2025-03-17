@@ -1,7 +1,8 @@
 import { createLogger, format, Logger, transports } from "winston";
 
 const logger = createLogger({
-  level: "info",
+  // Stick with debug in prod FOR NOW
+  level: "debug",
   format: format.json(),
   defaultMeta: { service: "user-service" },
   transports: [
