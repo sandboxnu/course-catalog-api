@@ -10,9 +10,9 @@ import Request from "../../request";
 import PrereqParser from "./prereqParser";
 import util from "./util";
 import { getSubjectAbbreviations } from "./subjectAbbreviationParser";
-import macros from "../../../utils/macros";
 import { BooleanReq, CourseRef } from "../../../types/types";
 import { CourseSR, ParsedCourseSR } from "../../../types/scraperTypes";
+import logger from "../../../utils/logger";
 
 const request = new Request("classParser");
 
@@ -221,7 +221,7 @@ class ClassParser {
 
     if (rows.length !== 1) {
       // We expect courses to have no fees or one fee
-      macros.warn("UNEXPECTED COURSE FEE VALUE");
+      logger.warn("unexpected course fee value", { value: rows });
       return { amount: null, description: "" };
     }
 

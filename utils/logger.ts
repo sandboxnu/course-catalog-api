@@ -12,10 +12,10 @@ const logger = createLogger({
   ],
 });
 
-if (process.env.NODE_ENV !== "production") {
-  logger.configure({
-    level: "debug",
-  });
-}
+// if (process.env.NODE_ENV !== "production") {
+//   logger.configure({
+//     level: "debug",
+//   });
+// }
 
 export default logger;

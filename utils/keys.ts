@@ -13,7 +13,6 @@
 // This file is used to manage the {host:, termId: subject:...} objects used to get more data.
 // This is used in both the backend and the frontend.
 // So anything that is required is is added many different places.
-import macros from "./macros";
 
 const KEYS_REGEX = /[^A-Za-z0-9.]/g;
 
@@ -29,11 +28,10 @@ class Keys {
   // The five keys to track the five different data structures
   static allKeys = ["host", "termId", "subject", "classId", "crn"];
 
-  // Internal use only.
   // Gets a hash from the object from 0 to the given key index
   // eg if key index is 3 it would be a subject hash - host, termId, subject
   // returns the hash - a string
-  static getHashWithKeysSlice(
+  private static getHashWithKeysSlice(
     obj: Partial<KeyObject>,
     endIndex: number,
   ): string | null {
@@ -66,8 +64,7 @@ class Keys {
     const hash = this.getHashWithKeysSlice(obj, 1);
 
     if (!hash) {
-      macros.error("Can't make host hash invalid info", obj);
-      return null;
+      throw new Error("invalid fields for host hash");
     }
 
     return hash;
@@ -78,8 +75,7 @@ class Keys {
     const hash = this.getHashWithKeysSlice(obj, 2);
 
     if (!hash) {
-      macros.error("Can't make term hash invalid info", obj);
-      return null;
+      throw new Error("invalid fields for term hash");
     }
 
     return hash;
@@ -90,8 +86,7 @@ class Keys {
     const hash = this.getHashWithKeysSlice(obj, 3);
 
     if (!hash) {
-      macros.error("Can't make subject hash invalid info", obj);
-      return null;
+      throw new Error("invalid fields for subject hash");
     }
 
     return hash;
@@ -102,8 +97,7 @@ class Keys {
     const hash = this.getHashWithKeysSlice(obj, 4);
 
     if (!hash) {
-      macros.error("Can't make class hash invalid info", obj);
-      return null;
+      throw new Error("invalid fields for class hash");
     }
 
     return hash;
@@ -114,8 +108,7 @@ class Keys {
     const hash = this.getHashWithKeysSlice(obj, 5);
 
     if (!hash) {
-      macros.error("Can't make section hash invalid info", obj);
-      return null;
+      throw new Error("invalid fields for section hash");
     }
 
     return hash;
@@ -124,8 +117,7 @@ class Keys {
   static parseSectionHash(hash: string): null | Partial<KeyObject> {
     const hashSplit = hash.split("/");
     if (!(hashSplit && hashSplit.length === 5)) {
-      macros.error("Invalid class hash", hash);
-      return null;
+      throw new Error("invalid section hash");
     }
     return {
       host: hashSplit[0],

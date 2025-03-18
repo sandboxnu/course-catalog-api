@@ -162,11 +162,12 @@ class Updater {
       this.SECTION_MODEL,
     );
 
-    await sendNotifications(
-      notificationInfo,
-      courseHashToUsers,
-      sectionHashToUsers,
-    );
+    // WARN: For now hardcoding this out
+    // await sendNotifications(
+    //   notificationInfo,
+    //   courseHashToUsers,
+    //   sectionHashToUsers,
+    // );
   }
 
   /**

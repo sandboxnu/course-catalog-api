@@ -27,7 +27,7 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:default_password@postgresql:5432/searchneu_dev
       POSTGRES_PASSWORD: default_password
-      elasticURL: http://es:9200
+      ELASTIC_URL: http://es:9200
       TWILIO_PHONE_NUMBER:
       TWILIO_ACCOUNT_SID:
       TWILIO_AUTH_TOKEN:

@@ -188,7 +188,7 @@ resource "aws_ecs_service" "update" {
 locals {
   all_secrets_unsorted = concat(var.secrets, [
     {
-      name        = "elasticURL"
+      name        = "ELASTIC_URL"
       value       = "https://${module.elasticsearch.domain_endpoint}"
       description = "Elasticsearch hostname"
     },

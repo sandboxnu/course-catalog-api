@@ -4,9 +4,9 @@
  */
 
 import keys from "../../../utils/keys";
-import macros from "../../../utils/macros";
 import { isCourseReq, Requisite } from "../../../types/types";
 import { ParsedCourseSR } from "../../../types/scraperTypes";
+import logger from "../../../utils/logger";
 
 /**
  * Adds the prerequisite-for field for classes that are a predecessor for other classes.
@@ -83,7 +83,11 @@ class AddPrerequisiteFor {
       const nodeRef = this.classMap[hash];
 
       if (!nodeRef) {
-        macros.error("Unable to find ref for", hash, req, mainClass);
+        logger.error("unable to find ref", {
+          hash: hash,
+          req: req,
+          class: mainClass,
+        });
         return;
       }
 

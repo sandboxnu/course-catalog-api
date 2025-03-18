@@ -1,15 +1,15 @@
 import elastic from "../utils/elastic";
-import macros from "../utils/macros";
+import logger from "../utils/logger";
 
 if (require.main === module) {
-  macros.log(
-    "Resetting indices without data loss for URL",
-    macros.getEnvVariable("elasticURL") || "localhost:9200",
-  );
+  logger.info("resetting indicies without loss");
+
   (async () => {
     await elastic.resetIndexWithoutLoss();
-    macros.log("Success! Closing elastic client and exiting.");
+    logger.info("sucessfully reset indicies without loss");
     elastic.closeClient();
     process.exit();
-  })().catch((e) => macros.error(e));
+  })().catch((err) =>
+    logger.error("error resetting indicies without loss", { error: err }),
+  );
 }

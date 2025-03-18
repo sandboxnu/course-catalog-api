@@ -11,6 +11,7 @@ import prisma from "../services/prisma";
 import ElasticCourseSerializer from "../serializers/elasticCourseSerializer";
 import ElasticProfSerializer from "../serializers/elasticProfSerializer";
 import macros from "../utils/macros";
+import logger from "../utils/logger";
 
 export async function bulkUpsertCourses(
   courses: Course[],
@@ -42,15 +43,13 @@ export async function populateES(): Promise<void> {
 }
 
 if (require.main === module) {
-  macros.log(
-    `Populating ES at ${macros.getEnvVariable(
-      "elasticURL",
-    )} from Postgres at ${macros.getEnvVariable("dbHost")}`,
-  );
+  logger.info("populating Opensearch from db");
   (async () => {
     await populateES();
-    macros.log("Success! Closing elastic client and exiting.");
+    logger.info("Opensearch sucessfully populated");
     elastic.closeClient();
     process.exit();
-  })().catch((e) => macros.error(e));
+  })().catch((err) =>
+    logger.error("error populating Opensearch", { error: err }),
+  );
 }

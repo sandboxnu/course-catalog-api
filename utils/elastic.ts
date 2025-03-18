@@ -16,10 +16,11 @@ import {
 import employeeMap from "../scrapers/employees/employeeMapping.json";
 import classMap from "../scrapers/classes/classMapping.json";
 import { Search_Request } from "@opensearch-project/opensearch/api";
+import logger from "./logger";
 
 // TODO: The localhost should NOT be hardcoded in!
 const URL: string =
-  macros.getEnvVariable("elasticURL") || "http://localhost:9200";
+  macros.getEnvVariable("ELASTIC_URL") || "http://localhost:9200";
 const client = new OsClient({ node: URL });
 
 const BULKSIZE = 2000;
@@ -98,35 +99,42 @@ export class Elastic {
   }
 
   async createIndex(indexName: string, mapping): Promise<void> {
-    macros.log(`Creating index ${indexName}`);
+    logger.info("creating index", { name: indexName });
     try {
       await client.indices.create({ index: indexName, body: mapping });
-      macros.log(`Created index ${indexName}`);
-    } catch (e) {
-      macros.error(`Error creating index ${indexName}: ${e}`);
-      throw e;
+      logger.info("sucessfully created index", { name: indexName });
+    } catch (err) {
+      logger.error("error creating index", { name: indexName, error: err });
+      throw err;
     }
   }
 
   async deleteIndex(indexName: string): Promise<void> {
-    macros.log(`Deleting index ${indexName}`);
+    logger.info("deleting index", { name: indexName });
     try {
       await client.indices.delete({ index: indexName });
-      macros.log(`Deleted index ${indexName}`);
-    } catch (e) {
-      macros.error(`Error deleting index ${indexName}: ${e}`);
-      throw e;
+      logger.info("sucessfully deleted index", { name: indexName });
+    } catch (err) {
+      logger.error("error deleting index", { name: indexName, error: err });
+      throw err;
     }
   }
 
   async createAlias(indexName: string, aliasName: string): Promise<void> {
-    macros.log(`Aliasing index ${indexName} as ${aliasName}`);
+    logger.info("aliasing index", { name: indexName, alias: aliasName });
     try {
       await client.indices.putAlias({ index: indexName, name: aliasName });
-      macros.log(`Aliased index ${indexName} as ${aliasName}`);
-    } catch (e) {
-      macros.error(`Error aliasing ${indexName} as ${aliasName}: ${e}`);
-      throw e;
+      logger.info("sucessfully aliased index", {
+        name: indexName,
+        alias: aliasName,
+      });
+    } catch (err) {
+      logger.error("error aliasing index", {
+        name: indexName,
+        alias: aliasName,
+        error: err,
+      });
+      throw err;
     }
   }
 
@@ -163,9 +171,9 @@ export class Elastic {
 
       // If the index doesn't exist, we can't reindex without loss of data
       if (!exists) {
-        macros.error(
-          "attempt to reset index without loss when index does not exist",
-        );
+        logger.error("attempting to losslessly reset nonexistant index", {
+          name: name,
+        });
         break;
       }
 
@@ -184,7 +192,7 @@ export class Elastic {
       // If the mappings between the two indexes are drastically different,
       // you can pass an optional script parameter to map data cross the mappings.
       // Ideally, this would be configurable outside of the code, for now being left out.
-      macros.log(`Reindexing data from index ${name} to ${nextIndexName}`);
+      logger.info("reindexing data", { name: name, newName: nextIndexName });
       const reindexResponse = await client.reindex({
         body: {
           source: {
@@ -201,16 +209,14 @@ export class Elastic {
       // We need to do this because reindexing large indices can cause the original reindex
       // response to time out when waiting on the data to transfer. So instead of waiting, we
       // take the task id and periodically check whether the reindexing task is done before proceeding.
+      // BUG: This could possibly hang and freeze
       while (
         !(await client.tasks.get({ task_id: reindexResponse.body["task"] }))
           .body["completed"]
       ) {
         // if the task is incomplete, meaning we enter the while, we sleep the program for 5 seconds
-        macros.log(`Checking reindexing status of ${nextIndexName}`);
         await new Promise((resolve) => setTimeout(resolve, 5000));
       }
-
-      macros.log(`Reindexed data from index ${name} to ${nextIndexName}`);
 
       // Change the alias to point to our new index
       await this.createAlias(nextIndexName, alias);
@@ -260,9 +266,10 @@ export class Elastic {
         // assumes that we are writing to the ES index name, not the ES alias (which doesn't have write privileges)
         const res = await this.retryBulkQuery(indexName, bulk);
 
-        macros.log(
-          `indexed ${chunkNum * BULKSIZE + chunk.length} docs into ${indexName}`,
-        );
+        logger.info("indexed docs", {
+          chunk: chunkNum * BULKSIZE + chunk.length,
+          name: indexName,
+        });
 
         return res;
       },
@@ -317,22 +324,24 @@ export class Elastic {
     for (let i = 0; i < MAX_RETRY_ATTEMPTS; i++) {
       try {
         return await client.bulk({ index: indexName, body: bulk });
-      } catch (e) {
-        macros.log(`Caught while bulk upserting: ${e.name} - ${e.message}`);
-
+      } catch (err) {
         if (i === MAX_RETRY_ATTEMPTS - 1) {
-          throw e;
+          logger.error("error too many attempts while bulk upserting", {
+            error: err,
+          });
+          throw err;
         }
 
         // If it's a 429, we'll get a ResponseError
-        if (e instanceof errors.ResponseError) {
-          macros.warn("Request failed - retrying...");
+        if (err instanceof errors.ResponseError) {
+          logger.warn("request failed - retrying...");
           // Each time, we want to wait a little longer
           const timeoutMs = (i + 1) * RETRY_TIME_MULTIPLIER;
           // This is a simple blocking function - think `sleep()`, except JS doesn't have one
           await new Promise((resolve) => setTimeout(resolve, timeoutMs));
         } else {
-          throw e;
+          logger.error("error while bulk upserting", { error: err });
+          throw err;
         }
       }
     }

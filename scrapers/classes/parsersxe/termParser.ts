@@ -6,7 +6,6 @@
 import _ from "lodash";
 import pMap from "p-map";
 import keys from "../../../utils/keys";
-import macros from "../../../utils/macros";
 import Request from "../../request";
 import ClassParser from "./classParser";
 import SectionParser from "./sectionParser";
@@ -22,6 +21,7 @@ import {
 import { CourseRef, Section } from "../../../types/types";
 import { DoRequestReturn } from "../../../types/requestTypes";
 import { MultiProgressBars } from "multi-progress-bars";
+import logger from "../../../utils/logger";
 
 const request = new Request("termParser");
 
@@ -93,9 +93,11 @@ class TermParser {
       classes = await this.addCourseRefs(classes, courseIdentifiers, termId);
     }
 
-    macros.log(
-      `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
-    );
+    logger.info("term scraped", {
+      termId: termId,
+      classLength: classes.length,
+      sectionsLength: sections.length,
+    });
 
     multiBar?.done(barName, {
       message: `Term ${termId} scraped ${classes.length} classes and ${sections.length} sections`,
@@ -175,7 +177,7 @@ class TermParser {
         return false;
       })) as CourseSR[];
     } catch (error) {
-      macros.error(`Could not get class data for ${termId}`);
+      logger.error("error getting class data", { termId: termId });
     }
     return Promise.reject();
   }
@@ -230,7 +232,7 @@ class TermParser {
         return { items: bodyObj.data, totalCount: bodyObj.totalCount };
       })) as SectionSR[];
     } catch (error) {
-      macros.error(`Could not get section data for ${termId}`);
+      logger.error("error getting section data", { termId: termId });
     }
     // TEMPORARY FIX:
     // Banner is responding to requests for some sections/terms with success as false. This

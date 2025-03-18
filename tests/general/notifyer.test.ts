@@ -59,7 +59,6 @@ async function createSection(
 }
 
 const mockSendNotificationText = jest.fn(() => {
-  //console.log("I SHOULD BE CALLED");
   return Promise.resolve();
 });
 
@@ -327,7 +326,6 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when a new section is added to a course", async () => {
-      //console.log("INSIDE TEST 2");
       notificationInfo = {
         updatedCourses: [
           {
@@ -359,7 +357,6 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when multiple sections are added to a course", async () => {
-      //console.log("INSIDE TEST 3");
       notificationInfo = {
         updatedCourses: [
           {
@@ -391,7 +388,6 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when seats open up in a section", async () => {
-      //console.log("INSIDE TEST 4");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -426,7 +422,6 @@ describe("Notifyer", () => {
     });
 
     it("sends a properly formatted message when waitlist seats open up in a section", async () => {
-      //console.log("INSIDE TEST 5");
       notificationInfo = {
         updatedCourses: [],
         updatedSections: [
@@ -461,8 +456,6 @@ describe("Notifyer", () => {
     });
 
     it("does not send any notifications for each course and section when each subscribed section and class has notifCount>=3", async () => {
-      //console.log("TEST 6");
-
       notificationInfo = {
         updatedCourses: [
           {
@@ -552,8 +545,6 @@ describe("Notifyer", () => {
     });
 
     it("deletes subscriptions for each course and section when their notifCount>=3", async () => {
-      //console.log("TEST 7");
-
       notificationInfo = {
         updatedCourses: [
           {
@@ -653,8 +644,6 @@ describe("Notifyer", () => {
     });
 
     it("sends notifications for each course and section when each subscribed section and class has notifCount<3", async () => {
-      //console.log("TEST 8");
-
       notificationInfo = {
         updatedCourses: [
           {
@@ -756,8 +745,6 @@ describe("Notifyer", () => {
     });
 
     it("maintains subscriptions for each course and section when their notifCount<3", async () => {
-      //console.log("TEST 9");
-
       notificationInfo = {
         updatedCourses: [
           {
@@ -868,8 +855,6 @@ describe("Notifyer", () => {
     });
 
     it("increases notifCount for each course and section after notif is sent", async () => {
-      //console.log("TEST 7");
-
       notificationInfo = {
         updatedCourses: [
           {

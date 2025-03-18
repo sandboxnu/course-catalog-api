@@ -3,8 +3,8 @@ import cors from "cors";
 import { createServer } from "http";
 import jwt from "jsonwebtoken";
 import request from "request-promise-native";
-import twilioNotifyer from "./notifs";
-import notificationsManager from "../services/notificationsManager";
+// import twilioNotifyer from "./notifs";
+// import notificationsManager from "../services/notificationsManager";
 import logger from "../utils/logger";
 
 const corsOptions = {
@@ -23,6 +23,7 @@ server.listen(port, () => {
 
 app.get("/knockknock", (req, res) => res.status(200).send("Who's there?"));
 
+/*
 app.post("/twilio/sms", (req, res) => twilioNotifyer.handleUserReply(req, res));
 
 app.post("/sms/signup", (req, res) => {
@@ -149,6 +150,7 @@ app.delete("/user/subscriptions", (req, res) => {
     res.status(401).send();
   }
 });
+*/
 
 app.post("/feedback", async (req, res) => {
   const { message, contact } = req.body;

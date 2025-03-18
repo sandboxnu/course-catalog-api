@@ -8,12 +8,12 @@
  */
 
 import moment from "moment";
-import macros from "../../../utils/macros";
 import {
   BackendMeeting,
   FacultyMeetingTime,
   MeetingTime,
 } from "../../../types/types";
+import logger from "../../../utils/logger";
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3_600;
@@ -32,8 +32,9 @@ function profName(xeData: string | { displayName: string }): string {
   }
 
   if (typeof xeData !== "string") {
-    macros.error("parameter should be a string");
+    throw new Error("parameter should be string");
   }
+
   return xeData
     .split(",")
     .map((s) => s.trim())
@@ -51,7 +52,7 @@ function hhmmToSeconds(hhmm: string): number | string {
     return "TBD";
   }
   if (hhmm.length !== 4) {
-    macros.error(`Length of hhmm time string "${hhmm}" is not 4`);
+    logger.warn("length of time string not 4", { string: hhmm });
   }
   const hours = parseInt(hhmm.substring(0, 2), 10) * SECONDS_PER_HOUR;
   const minutes = parseInt(hhmm.substring(2), 10) * SECONDS_PER_MINUTE;
