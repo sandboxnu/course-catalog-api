@@ -6,7 +6,7 @@
     "about:babel-node-ts": "//// This command is used to run Typescript files on the fly. Mainly used in other commands, not standalone",
     "babel-node-ts": "babel-node --extensions '.js,.jsx,.ts,.tsx'",
     "about:dev": "//// Runs the API server - the course catalog API",
-    "dev": "NODE_ENV=dev node --watch $(yarn babel-node-ts graphql/index.ts)",
+    "dev": "NODE_ENV=dev yarn babel-node-ts graphql/index.ts",
     "about:dev:notifs": "//// Runs the API server along with the notifications server",
     "dev:notifs": "ENABLE_NOTIFS=true yarn dev",
     "about:scrape": "//// Scrapes ALL of the latest class data from Banner",
@@ -64,7 +64,7 @@
     "@babel/core": "^7.10.2",
     "@babel/node": "^7.0.0",
     "@babel/register": "^7.0.0",
-    "@elastic/elasticsearch": "7.17.0",
+    "@opensearch-project/opensearch": "^3.3.0",
     "@prisma/client": "5.22.0",
     "@typescript-eslint/typescript-estree": "^8.10.0",
     "amplitude": "^6.0.0",
@@ -137,7 +137,7 @@
     "nock": "^13.5.5",
     "prettier": "^3.0.0",
     "pretty-quick": "4",
-    "prisma": "^5.0.0",
+    "prisma": "6",
     "typescript": "^5.6.0"
   },
   "about:engines": [
