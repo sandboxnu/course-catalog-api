@@ -89,25 +89,30 @@ model Subject {
 }
 
 model FollowedCourse {
-  courseHash String @map("course_hash")
-  userId     Int    @map("user_id")
-  notifCount Int    @default(0) @map("notif_count")
-  course     Course @relation(fields: [courseHash], references: [id], onDelete: Cascade)
-  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseHash String     @map("course_hash")
+  userId     Int        @map("user_id")
+  notifCount Int        @default(0) @map("notif_count")
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  deleted_at DateTime?
+  course     Course     @relation(fields: [courseHash], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SentNotifs SentNotifs @relation(fields: [userId, courseHash, created_at], references: [userId, courseHash, subscription_created_at])
 
-  @@id([userId, courseHash])
+  @@id([userId, courseHash, created_at])
   @@map("followed_courses")
 }
 
 model FollowedSection {
-  sectionHash String    @map("section_hash")
-  userId      Int       @map("user_id")
-  notifCount  Int       @default(0) @map("notif_count")
-  created_at  DateTime  @default(now())
-  updated_at  DateTime  @default(now())
+  sectionHash String     @map("section_hash")
+  userId      Int        @map("user_id")
+  notifCount  Int        @default(0) @map("notif_count")
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
   deleted_at  DateTime?
-  section     Section   @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section     Section    @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  SentNotifs  SentNotifs @relation(fields: [userId, sectionHash, created_at], references: [userId, courseHash, subscription_created_at])
 
   @@id([userId, sectionHash, created_at])
   @@map("followed_sections")
@@ -132,17 +137,19 @@ model TermInfo {
 }
 
 model SentNotifs {
-  userId                  String   @unique
+  id                      Int      @id @default(autoincrement())
+  userId                  Int
   courseHash              String
   subscription_created_at DateTime
+  timestamp               DateTime @default(now())
+  updateId                DateTime @updatedAt
+  sent                    Boolean
 
-  timestamp DateTime
-  updateId  DateTime
-  sent      Json
+  Update          Updates           @relation(fields: [updateId], references: [updateId])
+  FollowedSection FollowedSection[]
+  FollowedCourse  FollowedCourse[]
 
-  Update Updates @relation(fields: [updateId], references: [updateId])
-  @@id([userId, courseHash, subscription_created_at])
-
+  @@unique([userId, courseHash, subscription_created_at])
   @@map("sent_notifs")
 }
 
