@@ -1,0 +1,18 @@
+name: infra
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  merge_to_main:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Push build artifacts to AWS
+        run: ./infrastructure/aws/push-image
