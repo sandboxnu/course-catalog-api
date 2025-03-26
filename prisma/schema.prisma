@@ -93,11 +93,11 @@ model FollowedCourse {
   userId     Int        @map("user_id")
   notifCount Int        @default(0) @map("notif_count")
   created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  updated_at DateTime   @updatedAt @default(now())
   deleted_at DateTime?
   course     Course     @relation(fields: [courseHash], references: [id], onDelete: Cascade)
   user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  SentNotifs SentNotifs @relation(fields: [userId, courseHash, created_at], references: [userId, courseHash, subscription_created_at])
+  SentNotifs SentNotifs[]
 
   @@id([userId, courseHash, created_at])
   @@map("followed_courses")
@@ -108,11 +108,11 @@ model FollowedSection {
   userId      Int        @map("user_id")
   notifCount  Int        @default(0) @map("notif_count")
   created_at  DateTime   @default(now())
-  updated_at  DateTime   @updatedAt
+  updated_at  DateTime   @updatedAt @default(now())
   deleted_at  DateTime?
   section     Section    @relation(fields: [sectionHash], references: [id], onDelete: Cascade)
   user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  SentNotifs  SentNotifs @relation(fields: [userId, sectionHash, created_at], references: [userId, courseHash, subscription_created_at])
+  SentNotifs  SentNotifs[]
 
   @@id([userId, sectionHash, created_at])
   @@map("followed_sections")
@@ -146,8 +146,8 @@ model SentNotifs {
   sent                    Boolean
 
   Update          Updates           @relation(fields: [updateId], references: [updateId])
-  FollowedSection FollowedSection[]
-  FollowedCourse  FollowedCourse[]
+  FollowedSection FollowedSection @relation(fields: [userId, courseHash, subscription_created_at], references: [userId, sectionHash, created_at], map: "sent_notifs_followed_section_fkey")
+  FollowedCourse  FollowedCourse @relation(fields: [userId, courseHash, subscription_created_at], references: [userId, courseHash, created_at], map: "sent_notifs_followed_course_fkey")
 
   @@unique([userId, courseHash, subscription_created_at])
   @@map("sent_notifs")
