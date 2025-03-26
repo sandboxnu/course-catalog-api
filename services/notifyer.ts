@@ -53,6 +53,7 @@ export async function sendNotifications(
           where: {
             courseHash: course.courseHash,
             userId: { in: users.map((u) => u.id) },
+            deleted_at: null,
           },
           data: {
             notifCount: { increment: 1 },
@@ -79,6 +80,7 @@ export async function sendNotifications(
             where: {
               sectionHash: section.sectionHash,
               userId: { in: users.map((u) => u.id) },
+              deleted_at: null,
             },
             data: {
               notifCount: { increment: 1 },

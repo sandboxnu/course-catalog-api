@@ -17,9 +17,7 @@ class NotificationsManager {
     const followedSections = await prisma.followedSection.findMany({
       where: {
         userId,
-        deleted_at: {
-          not: null,
-        },
+        deleted_at: null,
         section: {
           course: {
             termId: {
@@ -37,9 +35,7 @@ class NotificationsManager {
     const followedCourses = await prisma.followedCourse.findMany({
       where: {
         userId,
-        deleted_at: {
-          not: null,
-        },
+        deleted_at: null,
         course: {
           termId: {
             in: (
@@ -75,39 +71,16 @@ class NotificationsManager {
       courseHash: c,
     }));
 
-    const sectionUpserts = sectionTuples.map((section) =>
-      prisma.followedSection.upsert({
-        where: {
-          userId_sectionHash_created_at: {
-            userId: section.userId,
-            sectionHash: section.sectionHash,
-            created_at: undefined,
-          },
-        },
-        update: {
-          deleted_at: null,
-        },
-        create: section,
-      }),
-    );
+    const sectionInserts = prisma.followedSection.createMany({
+      data: sectionTuples,
+      skipDuplicates: true,
+    });
+    const courseInserts = prisma.followedCourse.createMany({
+      data: courseTuples,
+      skipDuplicates: true,
+    });
 
-    const courseUpserts = courseTuples.map((course) =>
-      prisma.followedCourse.upsert({
-        where: {
-          userId_courseHash_created_at: {
-            userId: course.userId,
-            courseHash: course.courseHash,
-            created_at: undefined,
-          },
-        },
-        update: {
-          deleted_at: null,
-        },
-        create: course,
-      }),
-    );
-
-    await Promise.all([...sectionUpserts, ...courseUpserts]);
+    await Promise.all([sectionInserts, courseInserts]);
     return;
   }
 
