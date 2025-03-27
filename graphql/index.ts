@@ -17,6 +17,7 @@ import majorOccurrenceTypeDef from "./typeDefs/majorOccurrence";
 
 import termInfoResolvers from "./resolvers/termInfo";
 import termInfoTypeDef from "./typeDefs/termInfo";
+import logger from "../utils/logger";
 
 if (macros.PROD || process.env.ENABLE_NOTIFS) {
   require("../twilio/server");
@@ -68,11 +69,12 @@ if (require.main === module) {
   server
     .listen()
     .then(({ url }) => {
-      macros.log(`ready at ${url}`);
+      logger.info("graphql server ready at " + url);
       return;
     })
     .catch((err) => {
-      macros.error(`error starting graphql server: ${JSON.stringify(err)}`);
+      logger.error("error starting graphql server");
+      throw err;
     });
 }
 

@@ -9,13 +9,14 @@ import fs from "fs-extra";
 import macros from "../../utils/macros";
 import keys from "../../utils/keys";
 import { ParsedTermSR } from "../../types/scraperTypes";
+import logger from "../../utils/logger";
 
 // Creates the term dump of classes.
 
 class TermDump {
   async main(termDump: ParsedTermSR): Promise<unknown> {
     const termMapDump: Record<string, Record<string, unknown>> = {};
-    macros.log("TERM DUMPING");
+    logger.debug("dumping term");
 
     for (const aClass of termDump.classes) {
       const hash = keys.getClassHash(aClass);
@@ -47,7 +48,7 @@ class TermDump {
       });
 
       if (!termMapDump[termHash]) {
-        macros.warn("Found section with no class?", termHash, hash);
+        logger.warn("orphaned section", { term: termHash, hash: hash });
         termMapDump[termHash] = {
           classMap: {},
           sectionMap: {},
@@ -67,7 +68,7 @@ class TermDump {
     for (const value of values) {
       // Put them in a different file.
       if (!("host" in value && "termId" in value)) {
-        macros.error("No host or Id?", value);
+        logger.error("no host or id", { value: value });
         continue;
       }
 

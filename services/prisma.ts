@@ -1,14 +1,15 @@
 import { PrismaClient } from "@prisma/client";
-import macros from "../utils/macros";
+import logger from "../utils/logger";
 
 let prisma: PrismaClient;
 try {
   prisma = new PrismaClient({
     log: ["info", "warn", "error"],
   });
-  macros.log("** Created new Prisma client");
+  logger.verbose("created prisma client");
 } catch (e) {
-  macros.error(e);
+  logger.error("error creating prisma client");
+  throw e;
 }
 
 export default prisma;

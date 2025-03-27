@@ -4,12 +4,12 @@
  */
 
 import matchEmployees from "./employees/matchEmployees";
-import macros from "../utils/macros";
 import classes from "./classes/main";
 import dumpProcessor from "../services/dumpProcessor";
 import prisma from "../services/prisma";
 import { instance as bannerv9parser } from "./classes/parsersxe/bannerv9Parser";
 import "colors";
+import logger from "../utils/logger";
 
 // Main file for scraping
 // Run this to run all the scrapers
@@ -29,12 +29,12 @@ class Main {
       const terms = unfilteredTermIds.filter((termId) => {
         const keep = termIds.includes(termId);
         if (!keep && termId !== null) {
-          macros.warn(`"${termId}" not in given list - skipping`);
+          logger.warn("skipping termId", { termId: termId });
         }
         return keep;
       });
 
-      macros.log("Scraping using user-provided TERMS_TO_SCRAPE");
+      logger.info("scraping provided termIDs");
       return terms;
     } else if (!isNaN(numOfTermsStr)) {
       return termIds.slice(0, numOfTermsStr);
@@ -75,11 +75,7 @@ class Main {
 
     const totalTime = Date.now() - start;
 
-    macros.log(
-      `Done scraping: took ${totalTime} ms (${(totalTime / 60000).toFixed(
-        2,
-      )} minutes)\n\n`.green.underline,
-    );
+    logger.info("finished scraping".green.underline, { time: totalTime });
   }
 }
 
@@ -90,5 +86,5 @@ if (require.main === module) {
   instance
     .main()
     .then(() => prisma.$disconnect())
-    .catch((err) => macros.error(err));
+    .catch((err) => logger.error("error scraping", { error: err }));
 }

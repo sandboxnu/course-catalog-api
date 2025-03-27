@@ -3,11 +3,11 @@
  * See the license file in the root folder for details.
  */
 
-import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR } from "../../../types/scraperTypes";
 import { isBooleanReq, isCourseReq, Requisite } from "../../../types/types";
+import logger from "../../../utils/logger";
 
 // This file process the prereqs on each class and ensures that they point to other, valid classes.
 // If they point to a class that does not exist, they are marked as missing.
@@ -35,7 +35,10 @@ export class MarkMissingRequisites {
       } else if (isBooleanReq(prereqEntry)) {
         this.updatePrereqs(prereqEntry, host, termId);
       } else if (typeof prereqEntry !== "string") {
-        macros.error("wtf is ", prereqEntry, prereqs);
+        logger.error("error parsing prereqs", {
+          entry: prereqEntry,
+          prereqs: prereqs,
+        });
       }
     }
     return prereqs;

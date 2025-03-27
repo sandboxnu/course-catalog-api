@@ -3,26 +3,15 @@
  * See the license file in the root folder for details.
  */
 
-// ESLint added some new rules that require one class per file.
-// That is generally a good idea, perhaps we could change over this file one day.
-/* eslint-disable max-classes-per-file */
 import { Agents, OptionsOfTextResponseBody, Response } from "got";
 import URI from "urijs";
 import objectHash from "object-hash";
-import moment from "moment";
 import cache from "./cache";
 import macros from "../utils/macros";
-import {
-  RequestAnalytics,
-  CustomOptions,
-  RequestPool,
-  AmplitudeEvent,
-  AgentAnalytics,
-} from "../types/requestTypes";
-import { EmptyObject } from "../types/types";
-import { Agent as HttpAgent } from "http";
+import { CustomOptions, RequestPool } from "../types/requestTypes";
 import { Agent as HttpsAgent } from "https";
 import CacheableLookup from "cacheable-lookup";
+import logger from "../utils/logger";
 
 // What is this file?
 //    This is a wrapper around `got`, the request library we use.
@@ -100,135 +89,20 @@ const CACHE_SAFE_CONFIG_OPTIONS = [
   "cacheRequests",
 ];
 
-const LAUNCH_TIME = moment();
-
 class Request {
   /**
    * The number of currently open requests
    */
   openRequests: number;
   /**
-   * A map of hostnames to their corresponding analytics object.
-   * Each hostname has its own unique analytics record.
-   */
-  analytics: RequestAnalytics;
-  /**
    * A map of hostnames to whether that hostname is active or not.
    * A hostname is active if it had a request since the last analytics interval ran.
    */
   activeHostnames: Record<string, boolean>;
-  /**
-   * The analytics timer object.
-   */
-  timer?: NodeJS.Timeout;
 
   constructor() {
     this.openRequests = 0;
-    this.analytics = {};
     this.activeHostnames = {};
-  }
-
-  /**
-   * Ensures that an analytics object exists for the given hostname,
-   * creating a new object if one doesn't already exist.
-   */
-  private ensureAnalyticsObject(hostname: string): void {
-    if (!(hostname in this.analytics)) {
-      this.analytics[hostname] = {
-        totalBytesDownloaded: 0,
-        totalErrors: 0,
-        totalGoodRequests: 0,
-        startTime: null,
-      };
-    }
-  }
-
-  /**
-   * Gets analytics from a request pool's agent.
-   * When sending a request with an associated pool, `request` will search the pool for a custom agent.
-   * If no custom agent is found, a new agent will be created and added to the pool.
-   */
-  private getAnalyticsFromAgent(
-    pool: RequestPool,
-  ): EmptyObject | AgentAnalytics {
-    if (pool.agents === false) {
-      macros.http("Agent is false,", pool);
-      return {};
-    }
-
-    const agent: HttpAgent | undefined = pool.agents.https ?? pool.agents.http;
-
-    const moreAnalytics = {
-      socketCount: 0,
-      requestCount: 0,
-      maxSockets: agent?.maxSockets,
-    };
-
-    for (const arr of Object.values(agent.sockets)) {
-      moreAnalytics.socketCount += arr.length;
-    }
-
-    for (const arr of Object.values(agent.requests)) {
-      moreAnalytics.requestCount += arr.length;
-    }
-    return moreAnalytics;
-  }
-
-  /**
-   * Logs all currently active hostname analytics objects.
-   * After this method runs, all hostnames are marked as inactive until they handle another request
-   */
-  private logHostnameAnalytics(): void {
-    const analyticsHostnames = Object.entries(this.analytics);
-
-    for (const [hostname, analytics] of analyticsHostnames) {
-      if (!this.activeHostnames[hostname]) {
-        continue;
-      }
-      if (!(hostname in separateReqPools)) {
-        macros.http(hostname);
-        macros.http(JSON.stringify(analytics, null, 4));
-        continue;
-      }
-
-      const moreAnalytics = this.getAnalyticsFromAgent(
-        separateReqPools[hostname],
-      );
-      const totalAnalytics: Partial<AmplitudeEvent> = {
-        ...moreAnalytics,
-        ...analytics,
-      };
-
-      macros.http(hostname);
-      macros.http(JSON.stringify(totalAnalytics, null, 4));
-
-      totalAnalytics.hostname = hostname;
-      macros.logAmplitudeEvent("Scrapers", totalAnalytics as AmplitudeEvent);
-    }
-
-    this.activeHostnames = {};
-  }
-
-  /**
-   * Logs all of the analytics objects that exist in at the moment.
-   */
-  private logAnalytics(): void {
-    this.logHostnameAnalytics();
-
-    // Shared pool
-    const sharedPoolAnalytics: Partial<AmplitudeEvent> =
-      this.getAnalyticsFromAgent(separateReqDefaultPool);
-    macros.http(JSON.stringify(sharedPoolAnalytics, null, 4));
-    sharedPoolAnalytics.hostname = "shared";
-    macros.logAmplitudeEvent("Scrapers", sharedPoolAnalytics as AmplitudeEvent);
-
-    if (this.openRequests === 0) {
-      clearInterval(this.timer);
-    }
-
-    const currentTime = moment();
-    const uptime = moment.duration(moment().diff(LAUNCH_TIME)).asMinutes();
-    macros.http("Uptime:", uptime, `(${currentTime.format("h:mm:ss a")})`);
   }
 
   /**
@@ -299,40 +173,21 @@ class Request {
    */
   private async fireRequest(config: CustomOptions): Promise<Response<string>> {
     const hostname = new URI(config.url).hostname();
-    this.ensureAnalyticsObject(hostname);
     this.activeHostnames[hostname] = true;
 
     const output = this.prepareRequestConfig(config);
 
-    macros.http("Firing request to", output.url);
-
-    // If there are not any open requests right now, start the analytics interval
-    if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
-      clearInterval(this.timer);
-      macros.http("Starting request analytics timer.");
-      this.analytics[hostname].startTime = Date.now();
-      this.timer = setInterval(() => this.logAnalytics(), 5000);
-      this.logAnalytics();
-    }
+    logger.debug("sending reuqest", { url: output.url, config: { ...config } });
 
     this.openRequests++;
 
     try {
-      // got uses ESM. This is (ostensibly) the future of Node packages.
-      // However, some of our packages (like Jest) don't play nicely with ESM yet.
-      // I took a crack at it here, but after many dead ends decided to leave it for later
-      //  https://github.com/sandboxnu/course-catalog-api/pull/163
-      // More context from got:
-      //  https://github.com/sindresorhus/got/issues/2168#issuecomment-1295813029
+      // TODO: When (eventually) Jest is remove this can just become a top level
+      // import
       const { default: got } = await import("got");
       return await got(output);
     } finally {
       this.openRequests--;
-
-      if (this.openRequests === 0 && (!macros.PROD || process.env.CI)) {
-        macros.http("Stopping request analytics timer.");
-        clearInterval(this.timer);
-      }
     }
   }
 
@@ -354,11 +209,10 @@ class Request {
     );
 
     if (listOfHeaders.length > 0) {
-      macros.http(
-        "Not caching by url b/c it has other headers",
-        listOfHeaders,
-        { ...config },
-      );
+      logger.debug("not caching url by custom headers", {
+        headers: listOfHeaders,
+        config: { ...config },
+      });
       return false;
     }
 
@@ -367,10 +221,9 @@ class Request {
     );
 
     if (listOfConfigOptions.length > 0) {
-      macros.http(
-        "Not caching by url b/c it has other config options",
-        listOfConfigOptions,
-      );
+      logger.debug("not caching url by custom config options", {
+        config: { ...config },
+      });
       return false;
     }
 
@@ -411,10 +264,7 @@ class Request {
    * Sends a request
    */
   async request(config: CustomOptions): Promise<Response<string>> {
-    macros.http("Request hitting", config);
-
-    const hostname = new URI(config.url).hostname();
-    this.ensureAnalyticsObject(hostname);
+    logger.debug("sending reuqest", { config: { ...config } });
 
     let newKey: string | undefined;
 
@@ -433,11 +283,7 @@ class Request {
     }
 
     try {
-      const requestStart = Date.now();
       const response = await this.fireRequest(config);
-      const requestDuration = Date.now() - requestStart;
-
-      this.analytics[hostname].totalGoodRequests++;
 
       // Save the response to a file for development
       if (macros.DEV && config.cacheRequests) {
@@ -453,34 +299,14 @@ class Request {
         );
       }
 
-      const contentLength = response.rawBody.length;
-      this.analytics[hostname].totalBytesDownloaded += contentLength;
-      if (!macros.PROD) {
-        macros.http(
-          `Parsed ${contentLength} in ${requestDuration} ms from ${config.url}`,
-        );
-      }
-
       return response;
     } catch (err) {
-      this.analytics[hostname].totalErrors++;
-      if (!macros.PROD) {
-        macros.error(
-          `Code: ${
-            err.statusCode ||
-            err.RequestError ||
-            err.Error ||
-            err.message ||
-            err
-          }. Open request count: ${this.openRequests}. URL: ${config.url}`,
-        );
-      }
-
-      if (err.response) {
-        macros.verbose(err.response.body);
-      } else {
-        macros.verbose(err.message);
-      }
+      logger.error("error sending request", {
+        err: JSON.stringify(err),
+        url: config.url,
+        openRequests: this.openRequests,
+        config: { ...config },
+      });
 
       throw err;
     }
@@ -558,8 +384,7 @@ class RequestInput {
     config: Partial<CustomOptions>,
   ): Promise<Response<string>> {
     if (!config) {
-      macros.error("Warning, request post called with no config");
-      return null;
+      throw new Error("config not provided");
     }
 
     // Create a headers object if none exists

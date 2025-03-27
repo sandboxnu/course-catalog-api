@@ -6,9 +6,9 @@
 
 import _ from "lodash";
 import he from "he";
-import macros from "../../../utils/macros";
 import Request from "../../request";
 import { SubjectDescription } from "../../../types/scraperTypes";
+import logger from "../../../utils/logger";
 
 const request = new Request("subjectAbberviationParser");
 
@@ -16,9 +16,7 @@ const request = new Request("subjectAbberviationParser");
  * Get the subject abberviations for use in parsing prereqs
  */
 export const getSubjectAbbreviations = _.memoize(async (termId: string) => {
-  macros.log(
-    `SubjectAbbreviationParser: Not memoized. Scraping term ${termId}`,
-  );
+  logger.info("subjectAbbreviationParser not memoized", { termId: termId });
   const subjectResponse = await requestSubjects(termId);
   return createDescriptionTable(subjectResponse);
 });
@@ -36,7 +34,7 @@ async function requestSubjects(termId: string): Promise<SubjectDescription[]> {
   const response = await request.get(subjectUrl);
 
   if (response.statusCode !== 200) {
-    macros.error(`Problem with request for subjects ${subjectUrl}`);
+    logger.error("error with requests to subject", { subject: subjectUrl });
   }
   return JSON.parse(response.body);
 }

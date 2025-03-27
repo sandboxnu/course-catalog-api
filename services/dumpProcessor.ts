@@ -7,16 +7,11 @@ import _ from "lodash";
 import path from "path";
 import { Prisma, TermInfo } from "@prisma/client";
 import prisma from "./prisma";
-import keys from "../utils/keys";
 import macros from "../utils/macros";
 import { populateES } from "../scripts/populateES";
-import {
-  Dump,
-  Employee,
-  Section,
-  convertSectionToPrismaType,
-} from "../types/types";
+import { Dump, Employee, convertSectionToPrismaType } from "../types/types";
 import { convertCourseToPrismaType } from "../types/scraperTypes";
+import logger from "../utils/logger";
 
 class DumpProcessor {
   /**
@@ -76,7 +71,7 @@ class DumpProcessor {
       await prisma.professor.createMany({
         data: employees,
       });
-      macros.log("Finished with employees");
+      logger.info("finished saving employees");
     }
   }
 
@@ -110,7 +105,7 @@ class DumpProcessor {
       await Promise.all(upsertQueries);
     }
 
-    macros.log("Finished with courses");
+    logger.info("finished saving courses");
   }
 
   /**
@@ -147,7 +142,7 @@ class DumpProcessor {
       await Promise.all(upsertQueries);
     }
 
-    macros.log("Finished with sections");
+    logger.info("finished saving sections");
   }
 
   /**
@@ -176,7 +171,7 @@ class DumpProcessor {
       }),
     );
 
-    macros.log("Finished with subjects");
+    logger.info("finished saving subjects");
   }
 
   /**
@@ -230,7 +225,8 @@ class DumpProcessor {
       .map((t) => t.termId)
       .sort()
       .join(", ");
-    macros.log(`Finished with term IDs (${termsStr})`);
+
+    logger.info("finished saving termIDs");
   }
 
   /**
@@ -241,7 +237,7 @@ class DumpProcessor {
    */
   async destroyOutdatedData(termsToClean: Set<string>): Promise<void> {
     const termsStr = Array.from(termsToClean).sort().join(", ");
-    macros.log(`Destroying old courses and sections for terms (${termsStr})`);
+    logger.info("destroying stale data", { terms: termsStr });
 
     // Delete all courses/sections that haven't been seen for the past two days (ie. no longer exist)
     // Two days ago (in milliseconds)
@@ -278,13 +274,15 @@ class DumpProcessor {
 const instance = new DumpProcessor();
 
 /* istanbul ignore next - this is only used for manual testing, we don't need to cover it */
-async function fromFile(termFilePath, empFilePath): Promise<void | null> {
+async function fromFile(
+  termFilePath: string,
+  empFilePath: string,
+): Promise<void | null> {
   const termExists = await fs.pathExists(termFilePath);
   const empExists = await fs.pathExists(empFilePath);
 
   if (!termExists || !empExists) {
-    macros.error("need to run scrape before indexing");
-    return;
+    throw new Error("scrape needed for indexing");
   }
 
   const termDump = await fs.readJson(termFilePath);
@@ -301,7 +299,7 @@ if (require.main === module) {
     "allTerms.json",
   );
   const empFilePath = path.join(macros.PUBLIC_DIR, "employeeDump.json");
-  fromFile(termFilePath, empFilePath).catch(macros.error);
+  fromFile(termFilePath, empFilePath);
 }
 
 export default instance;

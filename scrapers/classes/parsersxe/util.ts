@@ -1,8 +1,8 @@
 import $ from "cheerio";
 import _ from "lodash";
 import Request from "../../request";
-import macros from "../../../utils/macros";
 import { CookieJar } from "tough-cookie";
+import logger from "../../../utils/logger";
 
 const requestObj = new Request("util");
 
@@ -45,7 +45,7 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
   //includes both header rows and body rows
   const rows: cheerio.TagElement[] = $("tr", table).get();
   if (rows.length === 0) {
-    macros.error("zero rows???");
+    logger.error("zero row table");
     return [];
   }
 
@@ -72,11 +72,10 @@ function parseTable(table: cheerio.Cheerio): Record<string, string>[] {
       .map((el) => $(el).text());
     if (values.length > heads.length) {
       // TODO look into which classes trigger this
-      macros.warn(
-        "Table row is longer than head, ignoring some content",
-        heads,
-        values,
-      );
+      logger.warn("table row longer than head", {
+        head: heads,
+        values: values,
+      });
     }
 
     ret.push(_.zipObject(heads, values) as Record<string, string>);
@@ -103,10 +102,10 @@ async function getCookiesForSearch(termId: string): Promise<CookieJar> {
   const bodyObj = JSON.parse(clickContinue.body);
 
   if (bodyObj.regAllowed === false) {
-    macros.error(
-      `failed to get cookies (from clickContinue) for the term ${termId}`,
-      clickContinue.body,
-    );
+    logger.error("failed to get cookies", {
+      termId: termId,
+      body: clickContinue.body,
+    });
   }
 
   for (const cookie of clickContinue.headers["set-cookie"]) {

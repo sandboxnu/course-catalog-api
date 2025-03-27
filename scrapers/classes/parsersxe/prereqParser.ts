@@ -5,9 +5,9 @@
 
 import _ from "lodash";
 import cheerio from "cheerio";
-import macros from "../../../utils/macros";
 import util from "./util";
 import { BooleanReq, CourseReq } from "../../../types/types";
+import logger from "../../../utils/logger";
 
 class PrereqParser {
   /**
@@ -49,7 +49,7 @@ class PrereqParser {
           subject: subjectAbbreviation,
         });
       } else {
-        macros.warn(`Coreqs: can't find abbreviation for "${subject}"`);
+        logger.warn("unable to find abbreviation", { subject: subject });
       }
     });
 
@@ -95,8 +95,7 @@ class PrereqParser {
         }
 
         if (row.subject && !subjectAbbreviation) {
-          //TODO rollbar this and other scrape issues
-          macros.warn(`Prereqs: can't find abbreviation for "${subject}"`);
+          logger.warn("unable to find abbreviation", { subject: subject });
         }
         const curr = row.test
           ? row.test

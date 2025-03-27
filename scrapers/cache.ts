@@ -9,6 +9,7 @@ import msgpackImport from "msgpack5";
 import _ from "lodash";
 
 import macros from "../utils/macros";
+import logger from "../utils/logger";
 
 const msgpack = msgpackImport();
 
@@ -88,9 +89,8 @@ class Cache {
   // More can be added later, just change this method to allow them
   verifyFolderName(name: string): void {
     if (name !== macros.DEV_DATA_DIR && name !== macros.REQUESTS_CACHE_DIR) {
-      macros.critical(
-        "Folder name must be macros.DEV_DATA_DIR (for parsers cache) or macros.REQUESTS_CACHE_DIR (for request cache). Given:",
-        name,
+      throw new Error(
+        "folder name must be macros.DEV_DATA_DIR or macros.REQUESTS_CACHE_DIR",
       );
     }
   }
@@ -111,11 +111,11 @@ class Cache {
       const buffer = await fs.readFile(msgPackFileExtension);
       const midTime = Date.now();
       const retVal = msgpack.decode(buffer);
-      macros.verbose(
-        `It took ${Date.now() - midTime} ms to parse and ${
-          midTime - startTime
-        } to load ${msgPackFileExtension}`,
-      );
+      logger.debug("loaded cache", {
+        parseTime: Date.now() - midTime,
+        loadTime: midTime - startTime,
+        file: msgPackFileExtension,
+      });
       return retVal;
     }
 
@@ -127,11 +127,11 @@ class Cache {
       const buffer = await fs.readFile(jsonFileExtension, "utf8");
       const midTime = Date.now();
       const retVal = JSON.parse(buffer);
-      macros.verbose(
-        `It took ${Date.now() - midTime} ms to parse and ${
-          midTime - startTime
-        } to load ${jsonFileExtension}`,
-      );
+      logger.debug("loaded cache", {
+        parseTime: Date.now() - midTime,
+        loadTime: midTime - startTime,
+        file: jsonFileExtension,
+      });
       return retVal;
     }
 
@@ -152,7 +152,7 @@ class Cache {
     key: string,
   ): Promise<unknown> {
     if (!macros.DEV) {
-      macros.error("Called cache.js get but not in DEV mode?");
+      throw new Error("cache only enabled in dev environment");
     }
 
     this.verifyFolderName(folderName);
@@ -187,9 +187,11 @@ class Cache {
 
     const timeSpendEncoding = Date.now() - startTime;
     this.totalTimeSpendEncoding += timeSpendEncoding;
-    macros.verbose(
-      `Saving file ${destinationFile} encoding took ${timeSpendEncoding} ${this.totalTimeSpendEncoding}`,
-    );
+    logger.debug("saving cache", {
+      file: destinationFile,
+      encodingTime: timeSpendEncoding,
+      totalTime: this.totalTimeSpendCloning,
+    });
     await fs.writeFile(`${destinationFile}.new`, buffer);
 
     // Write to a file with a different name, and then rename the new one. Renaming a file to a filename that already exists
@@ -197,11 +199,6 @@ class Cache {
     // This prevents the cache file from getting into an invalid state if the process is killed while the program is saving.
     // If the file does not exist, ignore the error
     await fs.rename(`${destinationFile}.new`, destinationFile);
-    macros.verbose(
-      `It took ${Date.now() - startTime} ms to save ${destinationFile} (${
-        this.totalTimeSpendCloning
-      } ms spent cloning so far).`,
-    );
   }
 
   // Returns a promsie when it is done.
@@ -218,7 +215,7 @@ class Cache {
     optimizeForSpeed = false,
   ): Promise<void> {
     if (!macros.DEV) {
-      macros.error("Called cache.js set but not in DEV mode?");
+      throw new Error("cache only enabled in dev environment");
     }
 
     this.verifyFolderName(folderName);
