@@ -243,18 +243,21 @@ describe("Notifyer", () => {
         data: {
           courseHash: "neu.edu/202210/ARTF/1122",
           userId: 1,
+          created_at: new Date(),
         },
       });
       await prisma.followedCourse.create({
         data: {
           courseHash: "neu.edu/202210/ARTF/1122",
           userId: 2,
+          created_at: new Date(),
         },
       });
       await prisma.followedCourse.create({
         data: {
           courseHash: "neu.edu/202210/CS/2500",
           userId: 1,
+          created_at: new Date(),
           notifCount: 0,
         },
       });
@@ -262,6 +265,7 @@ describe("Notifyer", () => {
         data: {
           sectionHash: "neu.edu/202210/CS/2500/11920",
           userId: 1,
+          created_at: new Date(),
           notifCount: 0,
         },
       });
@@ -269,6 +273,7 @@ describe("Notifyer", () => {
         data: {
           sectionHash: "neu.edu/202210/CS/2500/11920",
           userId: 2,
+          created_at: new Date(),
           notifCount: 0,
         },
       });
