@@ -141,7 +141,9 @@ class ClassParser {
       classId,
     );
     // Double decode the description, because banner double encodes the description :(
-    return he.decode(he.decode(req.body.trim()));
+    const decoded = he.decode(he.decode(req.body.trim()));
+    // Remove the <section ...></section> tag that is in banner's description
+    return decoded.slice(42, -10);
   }
 
   async getPrereqs(
