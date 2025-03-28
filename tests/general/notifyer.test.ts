@@ -651,10 +651,18 @@ describe("Notifyer", () => {
         sectionHashToUsers,
       );
 
-      const remainingCourseNotifs = await prisma.followedCourse.count();
-      expect(remainingCourseNotifs).toEqual(0);
-      const remainingSectionNotifs = await prisma.followedSection.count();
-      expect(remainingSectionNotifs).toEqual(0);
+      const remainingCourseNotifs = await prisma.followedCourse.findMany({
+        where: {
+          deleted_at: null,
+        },
+      });
+      expect(remainingCourseNotifs.length).toEqual(0);
+      const remainingSectionNotifs = await prisma.followedSection.findMany({
+        where: {
+          deleted_at: null,
+        },
+      });
+      expect(remainingSectionNotifs.length).toEqual(0);
     });
 
     it("sends notifications for each course and section when each subscribed section and class has notifCount<3", async () => {
