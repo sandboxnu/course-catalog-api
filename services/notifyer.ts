@@ -53,6 +53,7 @@ export async function sendNotifications(
           where: {
             courseHash: course.courseHash,
             userId: { in: users.map((u) => u.id) },
+            deleted_at: null,
           },
           data: {
             notifCount: { increment: 1 },
@@ -79,6 +80,7 @@ export async function sendNotifications(
             where: {
               sectionHash: section.sectionHash,
               userId: { in: users.map((u) => u.id) },
+              deleted_at: null,
             },
             data: {
               notifCount: { increment: 1 },
@@ -96,16 +98,22 @@ export async function sendNotifications(
         .reduce((acc, val) => acc.concat(val), []);
 
     //delete any entries in followedCourse w/ notifCount >= 3
-    await prisma.followedCourse.deleteMany({
+    await prisma.followedCourse.updateMany({
       where: {
         notifCount: { gt: 2 },
+      },
+      data: {
+        deleted_at: new Date(),
       },
     });
 
     //delete any entries in followedSection w/ notifCount >= 3
-    await prisma.followedSection.deleteMany({
+    await prisma.followedSection.updateMany({
       where: {
         notifCount: { gt: 2 },
+      },
+      data: {
+        deleted_at: new Date(),
       },
     });
 

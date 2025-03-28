@@ -17,6 +17,7 @@ class NotificationsManager {
     const followedSections = await prisma.followedSection.findMany({
       where: {
         userId,
+        deleted_at: null,
         section: {
           course: {
             termId: {
@@ -34,6 +35,7 @@ class NotificationsManager {
     const followedCourses = await prisma.followedCourse.findMany({
       where: {
         userId,
+        deleted_at: null,
         course: {
           termId: {
             in: (
@@ -92,19 +94,25 @@ class NotificationsManager {
     const promises = [];
 
     promises.push(
-      prisma.followedSection.deleteMany({
+      prisma.followedSection.updateMany({
         where: {
           userId: userId,
           sectionHash: { in: sectionIds },
+        },
+        data: {
+          deleted_at: new Date(),
         },
       }),
     );
 
     promises.push(
-      prisma.followedCourse.deleteMany({
+      prisma.followedCourse.updateMany({
         where: {
           userId: userId,
           courseHash: { in: courseIds },
+        },
+        data: {
+          deleted_at: new Date(),
         },
       }),
     );
@@ -115,11 +123,17 @@ class NotificationsManager {
 
   async deleteAllUserSubscriptions(phoneNumber: string): Promise<void> {
     const userId = (await prisma.user.findFirst({ where: { phoneNumber } })).id;
-    await prisma.followedSection.deleteMany({
+    await prisma.followedSection.updateMany({
       where: { userId },
+      data: {
+        deleted_at: new Date(),
+      },
     });
-    await prisma.followedCourse.deleteMany({
+    await prisma.followedCourse.updateMany({
       where: { userId },
+      data: {
+        deleted_at: new Date(),
+      },
     });
     macros.log(`deleted all user subscriptions for ${phoneNumber}`);
     return;
