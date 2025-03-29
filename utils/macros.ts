@@ -101,7 +101,13 @@ class Macros {
   TEST: boolean;
   DEV: boolean;
 
+  // Manuelly set to provide speed - Need to be programmatically updated in the future
+  activeTermIds: string[];
+
   constructor() {
+    // Fall 25, Summ2 25, Summ2Full 25, Summ1 25
+    this.activeTermIds = ["202610", "202560", "202550", "202540"];
+
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
 
     this.envLevel = getEnvLevel();
