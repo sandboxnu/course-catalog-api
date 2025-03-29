@@ -30,6 +30,8 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 
 TODO - once #178 is merged, we should switch to that! Only update the active terms.
 */
+
+// activeTerms are now stored; the updater now only updates activeTerms
 export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 const FAULTY_TERM_IDS = ["202225"];
@@ -52,6 +54,7 @@ class Updater {
   SECTION_MODEL: ModelName;
   SEMS_TO_UPDATE: string[];
 
+  // method now unused (other than in tests) since we are only updating activeTerms
   static async getTermIdsToUpdate(): Promise<string[]> {
     const termsStr = process.env.TERMS_TO_SCRAPE;
 
@@ -70,7 +73,7 @@ class Updater {
   }
   // produce a new Updater instance
   static async create(): Promise<Updater> {
-    return new this(await Updater.getTermIdsToUpdate());
+    return new this(macros.activeTermIds);
   }
 
   // The constructor should never be directly called - use .create()
@@ -102,7 +105,7 @@ class Updater {
       setInterval(async () => {
         // Every subsequent run should re-check the term IDs. This checks if any new terms have been added (eg. if the scraper
         // ran and added a new term)
-        this.SEMS_TO_UPDATE = await Updater.getTermIdsToUpdate();
+        this.SEMS_TO_UPDATE = macros.activeTermIds;
         await this.updateOrExit();
       }, intervalTime);
     }
