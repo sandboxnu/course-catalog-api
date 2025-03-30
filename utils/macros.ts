@@ -105,8 +105,8 @@ class Macros {
   activeTermIds: string[];
 
   constructor() {
-    // Fall 25, Summ2 25, Summ2Full 25, Summ1 25
-    this.activeTermIds = ["202610", "202560", "202550", "202540"];
+    // Fall 25, Summ2 25, Summ2Full 25, Summ1 25, Spring 25
+    this.activeTermIds = ["202610", "202560", "202550", "202540", "202530"];
 
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
 
