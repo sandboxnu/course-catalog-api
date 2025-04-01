@@ -101,6 +101,7 @@ export async function sendNotifications(
     await prisma.followedCourse.updateMany({
       where: {
         notifCount: { gt: 2 },
+        deleted_at: null,
       },
       data: {
         deleted_at: new Date(),
@@ -111,6 +112,7 @@ export async function sendNotifications(
     await prisma.followedSection.updateMany({
       where: {
         notifCount: { gt: 2 },
+        deleted_at: null,
       },
       data: {
         deleted_at: new Date(),

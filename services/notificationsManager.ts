@@ -130,7 +130,7 @@ class NotificationsManager {
       },
     });
     await prisma.followedCourse.updateMany({
-      where: { userId },
+      where: { userId, deleted_at: null },
       data: {
         deleted_at: new Date(),
       },
