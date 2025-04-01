@@ -3,7 +3,7 @@
  * See the license file in the root folder for details.
  */
 
-import { User, FollowedSection } from "@prisma/client";
+import { User } from "@prisma/client";
 import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
