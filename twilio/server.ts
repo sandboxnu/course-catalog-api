@@ -100,10 +100,8 @@ app.put("/user/subscriptions", (req, res) => {
     const phoneNumber = decodedToken.phoneNumber;
 
     // filter out any classes that aren't 'active' adding to a user's notifications
-    sectionIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14)));
-    courseIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14)));
-
-    if (sectionIds.length === 0 && courseIds.length === 0) { 
+    if (sectionIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14))).length === 0 
+    && courseIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14))).length === 0) {
       res.status(204).send();
       return;
     }
