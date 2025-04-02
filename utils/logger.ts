@@ -7,7 +7,12 @@ const logger = createLogger({
   defaultMeta: { service: "user-service" },
   transports: [
     new transports.Console({
-      format: format.simple(),
+      format: format.combine(
+        format.timestamp(),
+        // format.colorize(),
+        format.simple(),
+      ),
+      forceConsole: true,
     }),
   ],
 });

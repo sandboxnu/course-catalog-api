@@ -96,7 +96,7 @@ class Updater {
   start(): void {
     // 5 min if prod, 1 min if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
-    const intervalTime = macros.PROD ? 300_000 : 60_000;
+    const intervalTime = macros.PROD ? 300_000 : 300_000;
 
     // Flag only used for testing, since we only need the updater to run once
     if (!process.env.UPDATE_ONLY_ONCE) {

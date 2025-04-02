@@ -177,8 +177,6 @@ class Request {
 
     const output = this.prepareRequestConfig(config);
 
-    logger.debug("sending reuqest", { url: output.url, config: { ...config } });
-
     this.openRequests++;
 
     try {
@@ -264,40 +262,38 @@ class Request {
    * Sends a request
    */
   async request(config: CustomOptions): Promise<Response<string>> {
-    logger.debug("sending reuqest", { config: { ...config } });
-
     let newKey: string | undefined;
 
-    if (macros.DEV && config.cacheRequests) {
-      newKey = this.getCacheKey(config);
-
-      const content = await cache.get(
-        macros.REQUESTS_CACHE_DIR,
-        config.cacheName,
-        newKey,
-      );
-
-      if (content) {
-        return content as Response<string>;
-      }
-    }
+    // if (macros.DEV && config.cacheRequests) {
+    //   newKey = this.getCacheKey(config);
+    //
+    //   const content = await cache.get(
+    //     macros.REQUESTS_CACHE_DIR,
+    //     config.cacheName,
+    //     newKey,
+    //   );
+    //
+    //   if (content) {
+    //     return content as Response<string>;
+    //   }
+    // }
 
     try {
       const response = await this.fireRequest(config);
 
-      // Save the response to a file for development
-      if (macros.DEV && config.cacheRequests) {
-        await cache.set(
-          macros.REQUESTS_CACHE_DIR,
-          config.cacheName,
-          newKey,
-          {
-            body: response.body,
-            statusCode: response.statusCode,
-          },
-          true,
-        );
-      }
+      // // Save the response to a file for development
+      // if (macros.DEV && config.cacheRequests) {
+      //   await cache.set(
+      //     macros.REQUESTS_CACHE_DIR,
+      //     config.cacheName,
+      //     newKey,
+      //     {
+      //       body: response.body,
+      //       statusCode: response.statusCode,
+      //     },
+      //     true,
+      //   );
+      // }
 
       return response;
     } catch (err) {
@@ -354,14 +350,14 @@ class RequestInput {
   normalizeRequestConfig(config: Partial<CustomOptions>): CustomOptions {
     config.headers ??= {};
 
-    if (macros.DEV) {
-      if (this.cacheName) {
-        config.cacheName = this.cacheName;
-      } else {
-        // Parse the url hostname from the url.
-        config.cacheName = new URI(config.url).hostname();
-      }
-    }
+    // if (macros.DEV) {
+    //   if (this.cacheName) {
+    //     config.cacheName = this.cacheName;
+    //   } else {
+    //     // Parse the url hostname from the url.
+    //     config.cacheName = new URI(config.url).hostname();
+    //   }
+    // }
 
     return config as CustomOptions;
   }

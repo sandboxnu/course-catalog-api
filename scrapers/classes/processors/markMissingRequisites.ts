@@ -3,6 +3,7 @@
  * See the license file in the root folder for details.
  */
 
+import macros from "../../../utils/macros";
 import keys from "../../../utils/keys";
 import simplifyRequirements from "./simplifyPrereqs";
 import { ParsedCourseSR } from "../../../types/scraperTypes";
