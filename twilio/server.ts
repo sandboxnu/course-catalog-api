@@ -98,6 +98,16 @@ app.put("/user/subscriptions", (req, res) => {
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
     const phoneNumber = decodedToken.phoneNumber;
+
+    // filter out any classes that aren't 'active' adding to a user's notifications
+    sectionIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14)));
+    courseIds.filter((s: string) => macros.activeTermIds.includes(s.slice(8,14)));
+
+    if (sectionIds.length === 0 && courseIds.length === 0) { 
+      res.status(204).send();
+      return;
+    }
+
     notificationsManager
       .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {

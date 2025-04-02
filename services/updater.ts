@@ -31,7 +31,7 @@ At most, there are 12 terms that we want to update - if we're in the spring & su
 TODO - once #178 is merged, we should switch to that! Only update the active terms.
 */
 
-// activeTerms are now stored; the updater now only updates activeTerms
+// Once #281 is marged - activeTerms are now stored; the updater now only updates activeTerms
 export const NUMBER_OF_TERMS_TO_UPDATE = 12;
 
 const FAULTY_TERM_IDS = ["202225"];
