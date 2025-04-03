@@ -13,7 +13,7 @@ import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import classParser from "../scrapers/classes/parsersxe/classParser";
 import { Section as ScrapedSection } from "../types/types";
-import { sendNotifications } from "./notifyer";
+// import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 import {
   ParsedCourseSR,
@@ -92,7 +92,7 @@ class Updater {
   }
 
   // TODO must call this in server
-  start(): void {
+  async start(): Promise<void> {
     // 5 min if prod, 1 min if dev.
     // In dev the cache will be used so we are not actually hitting NEU's servers anyway.
     const intervalTime = macros.PROD ? 300_000 : 60_000;
@@ -107,7 +107,7 @@ class Updater {
       }, intervalTime);
     }
 
-    this.updateOrExit();
+    await this.updateOrExit();
   }
 
   async updateOrExit(): Promise<void> {
@@ -163,11 +163,11 @@ class Updater {
 
     //Filter out courseHash & sectionHash if they have too high notifsSent
 
-    await sendNotifications(
-      notificationInfo,
-      courseHashToUsers,
-      sectionHashToUsers
-    );
+    // await sendNotifications(
+    //   notificationInfo,
+    //   courseHashToUsers,
+    //   sectionHashToUsers
+    // );
   }
 
   /**
@@ -361,7 +361,7 @@ class Updater {
     // Scrape the data
     const sections = await this.scrapeDataToUpdate();
     // Send out notifications
-    await this.sendUserNotifications(sections);
+    // await this.sendUserNotifications(sections);
     // Save the data in our database
     await this.saveDataToDatabase(sections);
 
@@ -521,7 +521,7 @@ class Updater {
     const pluralName = `${modelName}s`;
     const dbResults = (await prisma.$queryRawUnsafe(
       //test edit: edited this select cmd to filter out any followed_modelName w/ notifsSent greater than 2
-      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id WHERE followed_${pluralName}.notifsSent < 3 GROUP BY ${columnName}`
+      `SELECT ${columnName}, JSON_AGG(JSON_BUILD_OBJECT('id', id, 'phoneNumber', phone_number)) FROM followed_${pluralName} JOIN users on users.id = followed_${pluralName}.user_id GROUP BY ${columnName}`
     )) as Record<any, any>[];
 
     //TO-DO: increment the notifsSent attribute of followed_modelName objects w/ hashes in dbresults
@@ -544,13 +544,12 @@ class Updater {
   }
 }
 
-if (require.main === module) {
-  Updater.create()
-    .then((updater) => {
-      updater.start();
-      return null;
-    })
-    .catch((msg) => macros.log(msg));
-}
+(async () => {
+  console.log("running");
+  const u = await Updater.create();
+  console.log("starting updater");
+  await u.start();
 
-export default Updater;
+  // .catch((msg) => macros.log(msg));
+  console.log("EXITED");
+})();

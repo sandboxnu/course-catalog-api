@@ -30,6 +30,7 @@ ENV dbCertPath /app/rds-ca-2019-root.pem
 RUN apk add --update --no-cache openssl1.1-compat
 
 ENV NODE_ENV=prod
+# ENV NODE_DEBUG=cluster,net,http,fs,tls,module,timers
 
 ENTRYPOINT ["/app/entrypoint.sh"]
 
