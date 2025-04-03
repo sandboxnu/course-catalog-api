@@ -11,6 +11,8 @@ const corsOptions = {
   origin: process.env.CLIENT_ORIGIN,
 };
 
+const SUBSCRIPTION_LIMIT = 12;
+
 const app = express();
 app.use(cors(corsOptions));
 const port = 8080;
@@ -93,11 +95,26 @@ app.get("/user/subscriptions/:jwt", (req, res) => {
   }
 });
 
-app.put("/user/subscriptions", (req, res) => {
+app.put("/user/subscriptions", async (req, res) => {
   const { token, sectionIds, courseIds } = req.body;
   try {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET) as any;
     const phoneNumber = decodedToken.phoneNumber;
+
+    const notif_subscriptions =
+      await notificationsManager.getUserSubscriptions(phoneNumber);
+    if (!notif_subscriptions) {
+      res.status(500).send();
+      return;
+    } else if (
+      notif_subscriptions.courseIds.length +
+        notif_subscriptions.sectionIds.length >
+      SUBSCRIPTION_LIMIT
+    ) {
+      res.status(403).send();
+      return;
+    }
+
     notificationsManager
       .putUserSubscriptions(phoneNumber, sectionIds, courseIds)
       .then(() => {
