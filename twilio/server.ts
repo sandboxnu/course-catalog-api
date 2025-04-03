@@ -108,7 +108,7 @@ app.put("/user/subscriptions", async (req, res) => {
       return;
     } else if (
       notif_subscriptions.courseIds.length +
-        notif_subscriptions.sectionIds.length >
+        notif_subscriptions.sectionIds.length >=
       SUBSCRIPTION_LIMIT
     ) {
       res.status(403).send();
