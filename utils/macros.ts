@@ -28,7 +28,7 @@ try {
   fs.statSync("package.json");
 } catch (_e) {
   throw new Error(
-    "The macros file seems to have moved relative to the base directory; please update the path."
+    "The macros file seems to have moved relative to the base directory; please update the path.",
   );
 }
 
@@ -92,6 +92,8 @@ class Macros {
 
   readonly dirname: string;
   logLevel: LogLevel;
+  private amplitude: Amplitude;
+  private rollbar: Rollbar | null;
   private logger: Logger;
 
   envLevel: EnvLevel;
@@ -99,7 +101,13 @@ class Macros {
   TEST: boolean;
   DEV: boolean;
 
+  // Manuelly set to provide speed - Need to be programmatically updated in the future
+  activeTermIds: string[];
+
   constructor() {
+    // Fall 25, Summ2 25, CPS Summ25, Law Summ25, SummFull 25, Summ1 25, 
+    this.activeTermIds = ["202610", "202560", "202554", "202552", "202550", "202540"];
+
     this.logLevel = getLogLevel(process.env.LOG_LEVEL);
 
     this.envLevel = getEnvLevel();
@@ -107,6 +115,17 @@ class Macros {
     this.PROD = this.envLevel === EnvLevel.PROD;
     this.TEST = this.envLevel === EnvLevel.TEST;
     this.DEV = this.envLevel === EnvLevel.DEV;
+
+    // This is the same token in the frontend and the backend, and does not need to be kept private.
+    this.amplitude = new Amplitude("e0801e33a10c3b66a3c1ac8ebff53359");
+
+    this.rollbar =
+      this.PROD &&
+      new Rollbar({
+        accessToken: this.getEnvVariable("rollbarPostServerItemToken"),
+        captureUncaught: true,
+        captureUnhandledRejections: true,
+      });
 
     this.dirname = path.join("logs", this.PROD ? "prod" : "dev");
 
@@ -118,7 +137,7 @@ class Macros {
         }),
         format.errors({ stack: true }),
         format.splat(),
-        format.json()
+        format.json(),
       ),
       defaultMeta: { service: "course-catalog-api" },
       transports: [
@@ -187,7 +206,7 @@ class Macros {
   // Log an event to amplitude. Same function signature as the function for the frontend.
   async logAmplitudeEvent(
     type: string,
-    event: AmplitudeEvent
+    event: AmplitudeEvent,
   ): Promise<null | void | AmplitudeTrackResponse> {
     if (!this.PROD) {
       return null;
@@ -199,6 +218,18 @@ class Macros {
       session_id: Date.now(),
       event_properties: event,
     };
+
+    return this.amplitude.track(data).catch((error) => {
+      this.warn("error Logging amplitude event failed:", error);
+    });
+  }
+
+  getRollbar(): Rollbar {
+    if (this.PROD && !this.rollbar) {
+      console.error("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
+    }
+
+    return this.rollbar;
   }
 
   // Takes an array of a bunch of thigs to log to rollbar
@@ -206,7 +237,43 @@ class Macros {
   // shouldExit - exit after logging.
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   logRollbarError(args: any, shouldExit: boolean): void {
-    return;
+    // Don't log rollbar stuff outside of Prod
+    if (!this.PROD) {
+      return;
+    }
+
+    // The middle object can include any properties and values, much like amplitude.
+    args.stack = new Error().stack;
+
+    // Search through the args array for an error. If one is found, log that separately.
+    let possibleError: MaybeError;
+
+    for (const value of Object.values(args)) {
+      if (value instanceof Error) {
+        possibleError = value;
+        break;
+      }
+    }
+
+    console.log("sending to rollbar", possibleError, args);
+
+    if (possibleError) {
+      // The arguments can come in any order. Any errors should be logged separately.
+      // https://docs.rollbar.com/docs/nodejs#section-rollbar-log-
+      this.getRollbar().error(possibleError, args, () => {
+        if (shouldExit) {
+          // And kill the process to recover.
+          // forver.js will restart it.
+          process.exit(1);
+        }
+      });
+    } else {
+      this.getRollbar().error(args, () => {
+        if (shouldExit) {
+          process.exit(1);
+        }
+      });
+    }
   }
 
   // This is for programming errors. This will cause the program to exit anywhere.
@@ -233,7 +300,7 @@ class Macros {
     if (!this.TEST) {
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const fullArgs: string[] = args.map((a: any) =>
-        util.inspect(a, false, null, !this.PROD)
+        util.inspect(a, false, null, !this.PROD),
       );
 
       console.error("Check the /logs directory for more detail: ", ...fullArgs); // eslint-disable-line no-console
@@ -243,6 +310,9 @@ class Macros {
       // If running on Travis, just exit 1 and travis will send off an email.
       if (process.env.CI) {
         process.exit(1);
+      } else {
+        // If running on AWS, tell rollbar about the error so rollbar sends off an email.
+        this.logRollbarError(args, false);
       }
     }
   }
@@ -253,12 +323,20 @@ class Macros {
   warn(...args: any): void {
     this.logger.warn(args);
 
+    if (LogLevel.WARN > this.logLevel) {
+      return;
+    }
+
     if (!this.TEST) {
       // eslint-disable-next-line  @typescript-eslint/no-explicit-any
       const formattedArgs = args.map((a: any) =>
-        typeof a === "string" ? a.yellow.underline : a
+        typeof a === "string" ? a.yellow.underline : a,
       );
       console.warn("Warning:", ...formattedArgs);
+    }
+
+    if (this.PROD) {
+      this.logRollbarError(args, false);
     }
   }
 
@@ -266,14 +344,20 @@ class Macros {
   log(...args: any): void {
     this.logger.info(args);
 
+    if (LogLevel.INFO > this.logLevel) {
+      return;
+    }
+
     console.log(...args);
   }
 
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   http(...args: any): void {
-    // NOTE: i dont care abt these logs
-    return;
     this.logger.http(args);
+
+    if (LogLevel.HTTP > this.logLevel) {
+      return;
+    }
 
     console.log(...args);
   }
@@ -281,6 +365,10 @@ class Macros {
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   verbose(...args: any): void {
     this.logger.verbose(args);
+
+    if (LogLevel.VERBOSE > this.logLevel) {
+      return;
+    }
 
     console.log(...args);
   }
@@ -298,10 +386,10 @@ const macrosInstance = new Macros();
 macrosInstance.log(
   `**** Starting using log level: ${macrosInstance.logLevel} (${
     LogLevel[macrosInstance.logLevel]
-  })`
+  })`,
 );
 macrosInstance.log(
-  "**** Change the log level using the 'LOG_LEVEL' environment variable"
+  "**** Change the log level using the 'LOG_LEVEL' environment variable",
 );
 
 export default macrosInstance;

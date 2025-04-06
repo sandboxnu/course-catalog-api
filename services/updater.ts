@@ -53,6 +53,9 @@ class Updater {
   SEMS_TO_UPDATE: string[];
 
   static async getTermIdsToUpdate(): Promise<string[]> {
+    // temporary hard coded fix
+    return macros.activeTermIds;
+
     const termsStr = process.env.TERMS_TO_SCRAPE;
 
     if (termsStr) {
