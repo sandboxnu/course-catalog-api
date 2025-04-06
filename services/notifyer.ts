@@ -3,8 +3,8 @@
  * See the license file in the root folder for details.
  */
 
-import { FollowedCourse, User } from "@prisma/client";
-//import prisma from "./prisma";
+import { User, FollowedSection } from "@prisma/client";
+import prisma from "./prisma";
 import twilioNotifyer from "../twilio/notifs";
 import macros from "../utils/macros";
 import {
@@ -36,7 +36,7 @@ function generateSectionMessage(section: SectionNotificationInfo): string {
 export async function sendNotifications(
   notificationInfo: NotificationInfo,
   courseHashToUsers: Record<string, User[]>,
-  sectionHashToUsers: Record<string, User[]>
+  sectionHashToUsers: Record<string, User[]>,
 ): Promise<void> {
   if (
     notificationInfo.updatedCourses.length === 0 &&
@@ -47,24 +47,23 @@ export async function sendNotifications(
   } else {
     const courseNotifPromises: Promise<void>[] = notificationInfo.updatedCourses
       .map(async (course) => {
-        const courseMessage = generateCourseMessage(course);
         const users = courseHashToUsers[course.courseHash] ?? [];
 
-        /*
-        
-        //filter users to delete any users who's followedcourse has >= 3 notifCount
-        const allNotifs: FollowedCourse[] = await prisma.followedCourse.findMany({
-          where: {courseHash: course.courseHash, 
-                  userId: {in: users.map((u) => u.id)}}
+        await prisma.followedCourse.updateMany({
+          where: {
+            courseHash: course.courseHash,
+            userId: { in: users.map((u) => u.id) },
+          },
+          data: {
+            notifCount: { increment: 1 },
+          },
         });
-        const limitReached: FollowedCourse[] = allNotifs.filter((c) => c.notifCount <=2);
-        //increment followedcourse's notifcount
-        */
 
+        const courseMessage = generateCourseMessage(course);
         return users.map((user) => {
           return twilioNotifyer.sendNotificationText(
             user.phoneNumber,
-            courseMessage
+            courseMessage,
           );
         });
       })
@@ -72,23 +71,49 @@ export async function sendNotifications(
 
     const sectionNotifPromises: Promise<void>[] =
       notificationInfo.updatedSections
-        .map((section) => {
-          const sectionMessage = generateSectionMessage(section);
+        .map(async (section) => {
           const users = sectionHashToUsers[section.sectionHash] ?? [];
+
+          //increment notifCount of this section's entries in followedSection
+          await prisma.followedSection.updateMany({
+            where: {
+              sectionHash: section.sectionHash,
+              userId: { in: users.map((u) => u.id) },
+            },
+            data: {
+              notifCount: { increment: 1 },
+            },
+          });
+
+          const sectionMessage = generateSectionMessage(section);
           return users.map((user) => {
             return twilioNotifyer.sendNotificationText(
               user.phoneNumber,
-              sectionMessage
+              sectionMessage,
             );
           });
         })
         .reduce((acc, val) => acc.concat(val), []);
 
+    //delete any entries in followedCourse w/ notifCount >= 3
+    await prisma.followedCourse.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
+
+    //delete any entries in followedSection w/ notifCount >= 3
+    await prisma.followedSection.deleteMany({
+      where: {
+        notifCount: { gt: 2 },
+      },
+    });
+
     await Promise.all([...courseNotifPromises, ...sectionNotifPromises]).then(
       () => {
         macros.log("Notifications sent from notifyer!");
         return;
-      }
+      },
     );
   }
 }
