@@ -13,7 +13,7 @@ import dumpProcessor from "./dumpProcessor";
 import termParser from "../scrapers/classes/parsersxe/termParser";
 import classParser from "../scrapers/classes/parsersxe/classParser";
 import { Section as ScrapedSection } from "../types/types";
-// import { sendNotifications } from "./notifyer";
+import { sendNotifications } from "./notifyer";
 import { NotificationInfo } from "../types/notifTypes";
 import {
   ParsedCourseSR,
@@ -166,11 +166,11 @@ class Updater {
 
     //Filter out courseHash & sectionHash if they have too high notifsSent
 
-    // await sendNotifications(
-    //   notificationInfo,
-    //   courseHashToUsers,
-    //   sectionHashToUsers
-    // );
+    await sendNotifications(
+      notificationInfo,
+      courseHashToUsers,
+      sectionHashToUsers
+    );
   }
 
   /**
