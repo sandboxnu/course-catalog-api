@@ -3,6 +3,12 @@ jest.mock("../../twilio/client", () => ({
   twilioClient: jest.fn(),
 }));
 
+// Mock Prisma to prevent database initialization issues
+jest.mock("../../services/prisma", () => ({
+  __esModule: true,
+  default: {},
+}));
+
 import notifs from "../../twilio/notifs";
 import express from "express";
 import macros from "../../utils/macros";
@@ -132,17 +138,17 @@ describe("TwilioNotifyer", () => {
                 create: jest.fn(async (args) => {
                   const err = new Error();
                   switch (args.to) {
-                    case "1":
+                    case "+1 (1)":
                       return 200;
-                    case "2":
+                    case "+1 (2)":
                       // @ts-expect-error -- wrong error type
                       err.code = notifs.TWILIO_ERRORS.SMS_NOT_FOR_LANDLINE;
                       throw err;
-                    case "3":
+                    case "+1 (3)":
                       // @ts-expect-error -- wrong error type
                       err.code = notifs.TWILIO_ERRORS.INVALID_PHONE_NUMBER;
                       throw err;
-                    case "4":
+                    case "+1 (4)":
                       // @ts-expect-error -- wrong error type
                       err.code = notifs.TWILIO_ERRORS.MAX_SEND_ATTEMPTS_REACHED;
                       throw err;
@@ -158,31 +164,41 @@ describe("TwilioNotifyer", () => {
     });
 
     it("non-error", async () => {
-      const resp = await notifs.sendVerificationCode("1");
+      const resp = await notifs.sendVerificationCode("+1 (1)");
       expect(resp.statusCode).toBe(200);
       expect(resp.message).toMatch(/code sent/i);
     });
 
     it("landline error", async () => {
-      const resp = await notifs.sendVerificationCode("2");
+      const resp = await notifs.sendVerificationCode("+1 (2)");
       expect(resp.statusCode).toBe(400);
       expect(resp.message).toMatch(/not supported by landline/i);
     });
 
+    it("blocks international numbers", async () => {
+      const resp = await notifs.sendVerificationCode("+441234567890");
+      expect(resp.statusCode).toBe(400);
+      expect(resp.message).toBe(
+        "Invalid phone number format. Please use a US or Canadian number.",
+      );
+    });
+
     it("invalid number error", async () => {
-      const resp = await notifs.sendVerificationCode("3");
+      const resp = await notifs.sendVerificationCode("+1 (3)");
       expect(resp.statusCode).toBe(400);
       expect(resp.message).toMatch(/invalid phone number/i);
     });
 
     it("max send attempts error", async () => {
-      const resp = await notifs.sendVerificationCode("4");
+      const resp = await notifs.sendVerificationCode("+1 (4)");
       expect(resp.statusCode).toBe(400);
       expect(resp.message).toMatch(/attempted to send.*too many times/i);
     });
 
     it("default error", async () => {
-      await expect(notifs.sendVerificationCode("123123142")).rejects.toThrow();
+      await expect(
+        notifs.sendVerificationCode("+1 (123)-123-1420"),
+      ).rejects.toThrow();
     });
   });
 
@@ -193,9 +209,9 @@ describe("TwilioNotifyer", () => {
         create: jest.fn(async (args) => {
           const err = new Error();
           switch (args.to) {
-            case "1":
+            case "+1 (1)":
               return;
-            case "2":
+            case "+1 (2)":
               // @ts-expect-error -- wrong error type
               err.code = notifs.TWILIO_ERRORS.USER_UNSUBSCRIBED;
               throw err;
@@ -208,7 +224,7 @@ describe("TwilioNotifyer", () => {
 
     it("Successfully sends a message", async () => {
       jest.spyOn(macros, "log");
-      await notifs.sendNotificationText("1", "message");
+      await notifs.sendNotificationText("+1 (1)", "message");
       expect(macros.log).toHaveBeenCalledWith(
         expect.stringMatching(/sent.*text/i),
       );
@@ -222,13 +238,21 @@ describe("TwilioNotifyer", () => {
           // don't do anytthing
         });
 
-      await notifs.sendNotificationText("2", "message");
+      await notifs.sendNotificationText("+1 (2)", "message");
       expect(macros.warn).toHaveBeenCalledWith(
         expect.stringMatching(/has unsubscribed/i),
       );
       expect(
         notificationsManager.deleteAllUserSubscriptions,
-      ).toHaveBeenCalledWith("2");
+      ).toHaveBeenCalledWith("+1 (2)");
+    });
+
+    it("blocks international numbers", async () => {
+      const resp = await notifs.sendVerificationCode("+441234567890");
+      expect(resp.statusCode).toBe(400);
+      expect(resp.message).toBe(
+        "Invalid phone number format. Please use a US or Canadian number.",
+      );
     });
 
     it("Default error", async () => {
@@ -236,7 +260,7 @@ describe("TwilioNotifyer", () => {
         // don't do anytthing
       });
 
-      await notifs.sendNotificationText("3", "message");
+      await notifs.sendNotificationText("+15555555555", "message");
       expect(macros.error).toHaveBeenCalledWith(
         expect.stringMatching(/error trying to send/i),
         expect.any(Error),
