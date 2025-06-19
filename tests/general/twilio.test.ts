@@ -248,10 +248,11 @@ describe("TwilioNotifyer", () => {
     });
 
     it("blocks international numbers", async () => {
-      const resp = await notifs.sendVerificationCode("+441234567890");
-      expect(resp.statusCode).toBe(400);
-      expect(resp.message).toBe(
-        "Invalid phone number format. Please use a US or Canadian number.",
+      jest.spyOn(macros, "warn");
+
+      await notifs.sendNotificationText("+441234567890", "test message");
+      expect(macros.warn).toHaveBeenCalledWith(
+        "Invalid phone number format for +441234567890. Please use a US or Canadian number.",
       );
     });
 
