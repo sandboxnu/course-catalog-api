@@ -38,7 +38,7 @@ resource "aws_instance" "jumphost" {
 
 # Public IP
 resource "aws_eip" "jumphost" {
-  vpc = true
+  domain = "vpc"
   instance = aws_instance.jumphost.id
   depends_on = [aws_internet_gateway.gw]
 }
