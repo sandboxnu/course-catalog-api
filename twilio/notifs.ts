@@ -37,10 +37,25 @@ class TwilioNotifyer {
     this.twilioClient = twilioClient;
   }
 
+  /**
+   * Validates that the phone number is US or Canadian (+1 country code)
+   */
+  private isValidDomesticNumber(phoneNumber: string): boolean {
+    // Check if number starts with +1 (US/Canada country code)
+    return phoneNumber.startsWith("+1");
+  }
+
   async sendNotificationText(
     recipientNumber: string,
     message: string,
   ): Promise<void> {
+    if (!this.isValidDomesticNumber(recipientNumber)) {
+      macros.warn(
+        `Invalid phone number format for ${recipientNumber}. Please use a US or Canadian number.`,
+      );
+      return;
+    }
+
     return this.twilioClient.messages
       .create({ body: message, from: this.TWILIO_NUMBER, to: recipientNumber })
       .then(() => {
@@ -67,6 +82,17 @@ class TwilioNotifyer {
   }
 
   async sendVerificationCode(recipientNumber: string): Promise<TwilioResponse> {
+    if (!this.isValidDomesticNumber(recipientNumber)) {
+      macros.warn(
+        `Invalid phone number format for ${recipientNumber}. Please use a US or Canadian number.`,
+      );
+      return {
+        statusCode: 400,
+        message:
+          "Invalid phone number format. Please use a US or Canadian number.",
+      };
+    }
+
     return this.twilioClient.verify.v2
       .services(this.TWILIO_VERIFY_SERVICE_SID)
       .verifications.create({ to: recipientNumber, channel: "sms" })
