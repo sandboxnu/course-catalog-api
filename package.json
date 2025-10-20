@@ -94,7 +94,7 @@
     "regenerator-runtime": "^0.14.1",
     "request": "^2.81.0",
     "request-promise-native": "^1.0.9",
-    "rollbar": "^2.26.4",
+    "rollbar": "^2.26.5",
     "tough-cookie": "^5.0.0",
     "twilio": "^5.3.4",
     "urijs": "^1.19.11",
