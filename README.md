@@ -1,5 +1,8 @@
 # The Course Catalog API
 
+> [!WARNING]
+> This project has been archived and development moved over to the new [searchneu repo](https://github.com/sandboxnu/searchneu). It is kept around for historical purposes.
+
 ## Overview
 
 **"SearchNEU"**, as a complete application, exists in two parts:
